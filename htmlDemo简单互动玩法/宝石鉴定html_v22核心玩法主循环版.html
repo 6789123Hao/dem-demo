@@ -356,16 +356,27 @@
         color:transparent;
     }
     .hotspot-shape-triangle::before{
-        content:"△";
+        content:"";
         position:absolute;
-        inset:4px 0 0;
-        display:grid;
-        place-items:center;
-        color:rgba(255,248,226,.94);
-        font-size:108px;
-        font-weight:700;
-        line-height:1;
-        text-shadow:0 0 10px rgba(210,155,69,.28), 0 3px 10px rgba(0,0,0,.18);
+        left:50%;
+        top:50%;
+        width:102px;
+        height:92px;
+        transform:translate(-50%, -45%);
+        background:rgba(255,248,226,.95);
+        clip-path:polygon(50% 0, 100% 100%, 0 100%);
+        filter:drop-shadow(0 0 10px rgba(210,155,69,.28)) drop-shadow(0 3px 8px rgba(0,0,0,.18));
+    }
+    .hotspot-shape-triangle::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:78px;
+        height:68px;
+        transform:translate(-50%, -42%);
+        background:rgba(87,134,92,.66);
+        clip-path:polygon(50% 0, 100% 100%, 0 100%);
     }
     .hotspot-shape-square{
         border-radius:12px;
