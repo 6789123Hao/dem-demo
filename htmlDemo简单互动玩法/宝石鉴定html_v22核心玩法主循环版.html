@@ -421,6 +421,53 @@
         opacity:.82;
     }
     .focus-ring-shape{ width:158px; height:158px; animation:none; opacity:.78; }
+    .lens-scroll-cue{
+        position:absolute;
+        left:50%;
+        top:56%;
+        width:74px;
+        height:94px;
+        transform:translate(-50%, -50%);
+        z-index:5;
+        display:none;
+        pointer-events:none;
+        border:5px solid rgba(255,248,226,.95);
+        border-radius:36px;
+        background:rgba(44,36,27,.34);
+        box-shadow:0 12px 30px rgba(44,36,27,.22), inset 0 0 18px rgba(255,255,255,.12);
+    }
+    .lens-scroll-cue::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:15px;
+        width:9px;
+        height:22px;
+        transform:translateX(-50%);
+        border-radius:999px;
+        background:rgba(255,248,226,.95);
+        animation:wheelNudge 1s ease-in-out infinite;
+    }
+    .lens-scroll-cue::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        bottom:-31px;
+        width:22px;
+        height:22px;
+        transform:translateX(-50%) rotate(45deg);
+        border-right:5px solid rgba(255,248,226,.95);
+        border-bottom:5px solid rgba(255,248,226,.95);
+        animation:wheelArrowDown 1s ease-in-out infinite;
+    }
+    @keyframes wheelNudge{
+        0%, 100%{ transform:translate(-50%, 0); opacity:.95; }
+        55%{ transform:translate(-50%, 16px); opacity:.45; }
+    }
+    @keyframes wheelArrowDown{
+        0%, 100%{ transform:translate(-50%, -2px) rotate(45deg); opacity:.9; }
+        55%{ transform:translate(-50%, 8px) rotate(45deg); opacity:.42; }
+    }
     .drag-particle{
         position:fixed;
         left:0;
@@ -899,6 +946,7 @@
                     </div>
                     <button id="hotspot" class="hotspot" aria-label="当前处理点"></button>
                     <div id="focus-ring" class="focus-ring"></div>
+                    <div id="lens-scroll-cue" class="lens-scroll-cue" aria-label="向下滚轮切换镜头"></div>
                     <div class="core-hud">
                         <div class="step-box">
                             <h3 id="play-title">鉴定玩法</h3>
@@ -1328,12 +1376,15 @@ function renderHotspot(){
     const step = currentStep();
     const spot = document.getElementById("hotspot");
     const ring = document.getElementById("focus-ring");
+    const scrollCue = document.getElementById("lens-scroll-cue");
     const visibleOnLens = step && (step.type === "finish" || state.lensIndex === step.lens);
     if(!visibleOnLens){
         spot.style.display = "none";
         ring.style.display = "none";
+        if(scrollCue) scrollCue.style.display = step ? "block" : "none";
         return;
     }
+    if(scrollCue) scrollCue.style.display = "none";
     spot.style.display = "grid";
     ring.style.display = "block";
     spot.className = `hotspot hotspot-${step.type} ${step.type === "shape" ? `hotspot-shape-${step.shapeTarget}` : ""}`;
@@ -1367,8 +1418,10 @@ function hotspotLabel(step){
 function clearHotspot(){
     const spot = document.getElementById("hotspot");
     const ring = document.getElementById("focus-ring");
+    const scrollCue = document.getElementById("lens-scroll-cue");
     if(spot) spot.style.display = "none";
     if(ring) ring.style.display = "none";
+    if(scrollCue) scrollCue.style.display = "none";
 }
 function canUseCurrentStep(step){
     if(!step) return;
