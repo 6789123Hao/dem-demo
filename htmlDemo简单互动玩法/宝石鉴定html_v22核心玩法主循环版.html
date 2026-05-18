@@ -301,8 +301,54 @@
         transform:translate(-50%, -50%);
         cursor:pointer;
         z-index:4;
+        display:grid;
+        place-items:center;
+        color:#fffaf1;
+        font-size:12px;
+        font-weight:800;
+        line-height:1;
+        touch-action:none;
     }
     .hotspot.done{ opacity:0; pointer-events:none; }
+    .hotspot-clean{
+        width:96px;
+        height:96px;
+        border:2px dashed rgba(255,255,255,.9);
+        background:rgba(95,88,80,.36);
+        box-shadow:0 0 0 12px rgba(95,88,80,.14), inset 0 0 32px rgba(80,72,64,.22);
+    }
+    .hotspot-repair{
+        width:58px;
+        height:70px;
+        border-radius:58% 58% 62% 8%;
+        background:rgba(80,150,210,.76);
+        transform:translate(-50%, -50%) rotate(-45deg);
+        box-shadow:0 0 0 8px rgba(80,150,210,.18), inset 10px 8px 16px rgba(255,255,255,.26);
+    }
+    .hotspot-cut{
+        width:132px;
+        height:30px;
+        border-radius:999px;
+        background:rgba(105,108,104,.82);
+        transform:translate(-50%, -50%) rotate(var(--cut-angle, -22deg));
+        box-shadow:0 0 0 8px rgba(92,94,90,.16), inset 0 4px 8px rgba(255,255,255,.2);
+    }
+    .hotspot-shape{
+        width:94px;
+        height:94px;
+        background:rgba(210,155,69,.2);
+        border-color:rgba(255,255,255,.86);
+        box-shadow:0 0 0 10px rgba(210,155,69,.12);
+    }
+    .hotspot-shape-circle{ border-radius:50%; }
+    .hotspot-shape-triangle{
+        border-radius:8px;
+        clip-path:polygon(50% 4%, 96% 92%, 4% 92%);
+    }
+    .hotspot-shape-square{
+        border-radius:10px;
+        clip-path:polygon(8% 8%, 92% 8%, 92% 92%, 8% 92%);
+    }
     .focus-ring{
         position:absolute;
         width:82px;
@@ -313,6 +359,17 @@
         pointer-events:none;
         animation:pulse 1s infinite;
     }
+    .focus-ring-clean{ width:128px; height:128px; border-style:dashed; }
+    .focus-ring-repair{ width:86px; height:86px; }
+    .focus-ring-cut{
+        width:156px;
+        height:48px;
+        border-radius:999px;
+        transform:translate(-50%, -50%) rotate(var(--cut-angle, -22deg));
+        animation:none;
+        opacity:.82;
+    }
+    .focus-ring-shape{ width:120px; height:120px; }
     @keyframes pulse{
         0%{ transform:translate(-50%, -50%) scale(.86); opacity:.8; }
         100%{ transform:translate(-50%, -50%) scale(1.22); opacity:0; }
@@ -575,6 +632,7 @@
     .gem3d.step-clean .gem-surface{
         opacity:1;
         background:
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(83,78,72,.48) 0 18px, transparent 38px),
             radial-gradient(circle at 24% 32%, rgba(83,78,72,.38) 0 4px, transparent 5px),
             radial-gradient(circle at 62% 28%, rgba(83,78,72,.32) 0 6px, transparent 7px),
             radial-gradient(circle at 52% 68%, rgba(83,78,72,.34) 0 5px, transparent 6px),
@@ -585,6 +643,7 @@
     .gem3d.step-repair .gem-surface{
         opacity:1;
         background:
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(80,150,210,.24) 0 22px, transparent 34px),
             linear-gradient(35deg, transparent 0 42%, rgba(52,32,29,.72) 43% 45%, transparent 46%),
             linear-gradient(112deg, transparent 0 55%, rgba(255,236,214,.55) 56% 57%, transparent 58%);
     }
@@ -600,6 +659,7 @@
     .gem3d.step-cut .gem-surface{
         opacity:1;
         background:
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(88,90,86,.5) 0 22px, transparent 42px),
             linear-gradient(132deg, rgba(86,88,86,.64) 0 18%, transparent 19%),
             linear-gradient(22deg, transparent 0 58%, rgba(114,116,112,.68) 59% 76%, transparent 77%),
             radial-gradient(circle at 36% 70%, rgba(73,76,75,.54) 0 18%, transparent 19%);
@@ -616,7 +676,7 @@
     .gem3d.step-shape .gem-surface{
         opacity:1;
         background:
-            radial-gradient(circle at 50% 42%, rgba(92,86,78,.42), transparent 52%),
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(92,86,78,.52), transparent 38%),
             linear-gradient(135deg, rgba(112,102,92,.42), rgba(255,255,255,0) 64%);
         mix-blend-mode:multiply;
     }
@@ -836,6 +896,9 @@ const LENSES = [
     { key:"C", label:"Lens C", filter:"rgba(151,232,163,.28)" }
 ];
 const FACES = ["Face 1","Face 2","Face 3"];
+const SHAPE_TARGETS = ["circle", "triangle", "square"];
+const SHAPE_LABELS = { circle:"圆形", triangle:"三角形", square:"正方形" };
+const SHAPE_MARKS = { circle:"○", triangle:"△", square:"□" };
 const GEM_BLUEPRINTS = [
     { id:"pearl", name:"珍珠", version:"西西亚·城市成品", kind:"成品宝石", sub:"清洁 + 上光", rewardShards:2, color:"linear-gradient(135deg, #fff8ee 0%, #d8d2d8 100%)", tasks:[{type:"clean", title:"表面污渍", lens:0, face:1, pos:{x:50,y:54}}, {type:"finish", title:"表面上光", lens:2, face:0, pos:{x:55,y:50}}] },
     { id:"garnet", name:"石榴石", version:"西西亚·城市成品", kind:"成品宝石", sub:"修补 + 抛光", rewardShards:3, color:"linear-gradient(135deg, #b85a52 0%, #6d1f23 100%)", tasks:[{type:"repair", title:"边缘缺口", lens:1, face:2, pos:{x:58,y:42}}, {type:"finish", title:"最终抛光", lens:2, face:0, pos:{x:50,y:50}}] },
@@ -889,7 +952,9 @@ const state = {
     lensIndex:0,
     activeTool:"clean",
     dataPackKey:"fullCoverage",
-    dragPayload:null
+    dragPayload:null,
+    defectDrag:null,
+    suppressNextClick:false
 };
 
 function gemById(id){ return GEM_BLUEPRINTS.find(g => g.id === id); }
@@ -1072,7 +1137,11 @@ function buildCoreTasks(gem){
     return gem.tasks.map((task, index)=>({
         ...task,
         id:`${gem.id}_${index}`,
-        done:false
+        done:false,
+        clicks:0,
+        dragDistance:0,
+        shapeTarget: task.targetShape || SHAPE_TARGETS[(GEM_BLUEPRINTS.findIndex(g=>g.id === gem.id) + index) % SHAPE_TARGETS.length],
+        cutAngle: task.cutAngle ?? [-32, -18, 22, 34][(GEM_BLUEPRINTS.findIndex(g=>g.id === gem.id) + index) % 4]
     }));
 }
 function startCorePlay(id, meta){
@@ -1095,6 +1164,22 @@ function currentStep(){
     if(!state.active) return null;
     return state.active.tasks[state.active.stepIndex] || null;
 }
+function stepStatusText(step){
+    const base = `${TOOL_LABELS[step.type]} · ${step.title}`;
+    if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / 140 * 100))}%`;
+    if(step.type === "repair") return `${base} · 点击 ${step.clicks || 0}/3`;
+    if(step.type === "cut") return `${base} · 顺着长条角度拖拽`;
+    if(step.type === "shape") return `${base} · 描摹${SHAPE_LABELS[step.shapeTarget]}`;
+    return base;
+}
+function stepHintText(step){
+    if(!step) return "滚轮切 Lens，右键切工具，点击处理点完成交互。";
+    if(step.type === "clean") return "清洁：按住范围圈，在瑕疵上来回拖拽擦除。";
+    if(step.type === "repair") return "修补：连续点击水滴形瑕疵 3 次。";
+    if(step.type === "cut") return "切除：按住长条瑕疵，沿相近角度拖拽切除。";
+    if(step.type === "shape") return `定形：按住形状特效，拖拽描摹${SHAPE_LABELS[step.shapeTarget]}。`;
+    return "收光：点击处理点完成收光。";
+}
 function renderPlay(){
     const active = state.active;
     if(!active) return;
@@ -1104,11 +1189,14 @@ function renderPlay(){
     const hasShaped = active.tasks.some(task=>task.type === "shape" && task.done);
     const stepClass = step ? `step-${step.type}` : "";
     gem3d.className = `gem3d ${stepClass} ${hasShaped ? "shaped" : ""}`.trim();
+    gem3d.style.setProperty("--defect-x", step ? `${step.pos.x}%` : "50%");
+    gem3d.style.setProperty("--defect-y", step ? `${step.pos.y}%` : "50%");
     document.getElementById("play-title").textContent = `${gem.name} · 核心玩法`;
     document.getElementById("status-gem").textContent = `${gem.name} / ${gem.version}`;
     document.getElementById("status-batch").textContent = `同类型 ${active.batchAmount} 颗`;
-    document.getElementById("status-step").textContent = step ? `${TOOL_LABELS[step.type]} · ${step.title}` : "完成";
+    document.getElementById("status-step").textContent = step ? stepStatusText(step) : "完成";
     document.getElementById("status-face").textContent = step ? `${FACES[step.face]}（自动）` : "完成";
+    document.querySelector(".core-hint").textContent = stepHintText(step);
     document.getElementById("step-progress").style.width = `${(active.stepIndex / active.tasks.length) * 100}%`;
     document.getElementById("gem-core").style.setProperty("--gem-color", gem.color);
     document.getElementById("lens-stage").style.setProperty("--lens-filter", LENSES[state.lensIndex].filter);
@@ -1173,10 +1261,23 @@ function renderHotspot(){
     }
     spot.style.display = "block";
     ring.style.display = "block";
+    spot.className = `hotspot hotspot-${step.type} ${step.type === "shape" ? `hotspot-shape-${step.shapeTarget}` : ""}`;
+    ring.className = `focus-ring focus-ring-${step.type}`;
+    spot.style.setProperty("--cut-angle", `${step.cutAngle || -22}deg`);
+    ring.style.setProperty("--cut-angle", `${step.cutAngle || -22}deg`);
+    spot.textContent = hotspotLabel(step);
+    spot.setAttribute("aria-label", `${TOOL_LABELS[step.type]}瑕疵：${step.title}`);
     spot.style.left = `${step.pos.x}%`;
     spot.style.top = `${step.pos.y}%`;
     ring.style.left = `${step.pos.x}%`;
     ring.style.top = `${step.pos.y}%`;
+}
+function hotspotLabel(step){
+    if(step.type === "clean") return "擦";
+    if(step.type === "repair") return "";
+    if(step.type === "cut") return "切";
+    if(step.type === "shape") return SHAPE_MARKS[step.shapeTarget];
+    return "";
 }
 function clearHotspot(){
     const spot = document.getElementById("hotspot");
@@ -1184,17 +1285,19 @@ function clearHotspot(){
     if(spot) spot.style.display = "none";
     if(ring) ring.style.display = "none";
 }
-function tryCoreInteraction(){
-    const step = currentStep();
+function canUseCurrentStep(step){
     if(!step) return;
     if(state.lensIndex !== step.lens){
         toast(`镜头不对，需要 ${LENSES[step.lens].label}`);
-        return;
+        return false;
     }
     if(state.activeTool !== step.type){
         toast(`工具不对，需要${TOOL_LABELS[step.type]}`);
-        return;
+        return false;
     }
+    return true;
+}
+function completeCurrentStep(step){
     step.done = true;
     state.active.stepIndex += 1;
     toast(`完成 ${TOOL_LABELS[step.type]}`);
@@ -1205,6 +1308,117 @@ function tryCoreInteraction(){
         state.activeTool = next.type;
         renderPlay();
     }
+}
+function tryCoreInteraction(){
+    const step = currentStep();
+    if(!canUseCurrentStep(step)) return;
+    completeCurrentStep(step);
+}
+function handleHotspotClick(){
+    if(state.suppressNextClick){
+        state.suppressNextClick = false;
+        return;
+    }
+    const step = currentStep();
+    if(!canUseCurrentStep(step)) return;
+    if(step.type === "repair"){
+        step.clicks = (step.clicks || 0) + 1;
+        if(step.clicks >= 3) completeCurrentStep(step);
+        else {
+            toast(`修补进度 ${step.clicks}/3`);
+            renderPlay();
+        }
+        return;
+    }
+    if(step.type === "finish"){
+        completeCurrentStep(step);
+        return;
+    }
+    if(step.type === "clean") toast("按住瑕疵范围来回拖拽擦拭。");
+    if(step.type === "cut") toast("按住长条，沿相近角度拖拽切除。");
+    if(step.type === "shape") toast(`按住形状，拖拽描摹${SHAPE_LABELS[step.shapeTarget]}。`);
+}
+function startDefectDrag(e){
+    const step = currentStep();
+    if(!step || !["clean","cut","shape"].includes(step.type)) return;
+    if(!canUseCurrentStep(step)) return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    state.defectDrag = {
+        type:step.type,
+        pointerId:e.pointerId,
+        startX:e.clientX,
+        startY:e.clientY,
+        lastX:e.clientX,
+        lastY:e.clientY,
+        distance:0,
+        points:[{ x:e.clientX, y:e.clientY }]
+    };
+}
+function updateDefectDrag(e){
+    const drag = state.defectDrag;
+    const step = currentStep();
+    if(!drag || !step || drag.pointerId !== e.pointerId) return;
+    const dx = e.clientX - drag.lastX;
+    const dy = e.clientY - drag.lastY;
+    drag.distance += Math.hypot(dx, dy);
+    drag.lastX = e.clientX;
+    drag.lastY = e.clientY;
+    drag.points.push({ x:e.clientX, y:e.clientY });
+    if(step.type === "clean"){
+        step.dragDistance = Math.max(step.dragDistance || 0, drag.distance);
+        renderPlay();
+        if(step.dragDistance >= 140){
+            state.suppressNextClick = true;
+            state.defectDrag = null;
+            completeCurrentStep(step);
+        }
+    }
+}
+function finishDefectDrag(e){
+    const drag = state.defectDrag;
+    const step = currentStep();
+    if(!drag || !step || drag.pointerId !== e.pointerId) return;
+    state.defectDrag = null;
+    state.suppressNextClick = true;
+    if(step.type === "cut"){
+        const dx = e.clientX - drag.startX;
+        const dy = e.clientY - drag.startY;
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        const diff = angleDiff(angle, step.cutAngle || 0);
+        if(drag.distance >= 80 && diff <= 24) completeCurrentStep(step);
+        else toast("切除角度不对，要顺着长条方向拖拽。");
+        return;
+    }
+    if(step.type === "shape"){
+        if(traceMatchesShape(drag.points, step.shapeTarget)){
+            completeCurrentStep(step);
+        } else {
+            toast(`描摹不完整，再顺着${SHAPE_LABELS[step.shapeTarget]}轮廓拖一遍。`);
+        }
+    }
+}
+function angleDiff(a, b){
+    let diff = Math.abs((((a - b) % 180) + 180) % 180);
+    return diff > 90 ? 180 - diff : diff;
+}
+function traceMatchesShape(points, shape){
+    if(points.length < 4) return false;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity, distance = 0;
+    points.forEach((point, index)=>{
+        minX = Math.min(minX, point.x);
+        minY = Math.min(minY, point.y);
+        maxX = Math.max(maxX, point.x);
+        maxY = Math.max(maxY, point.y);
+        if(index > 0) distance += Math.hypot(point.x - points[index - 1].x, point.y - points[index - 1].y);
+    });
+    const width = maxX - minX;
+    const height = maxY - minY;
+    const aspect = width / Math.max(1, height);
+    if(width < 42 || height < 42) return false;
+    if(shape === "circle") return distance >= 220 && aspect > .62 && aspect < 1.55;
+    if(shape === "triangle") return distance >= 170 && width > 56 && height > 48;
+    return distance >= 210 && aspect > .72 && aspect < 1.35;
 }
 function completeActiveGem(){
     const active = state.active;
@@ -1357,7 +1571,12 @@ function setupCoreMouseControls(){
 document.addEventListener("DOMContentLoaded", ()=>{
     setupDragDrop();
     setupCoreMouseControls();
-    document.getElementById("hotspot").addEventListener("click", tryCoreInteraction);
+    const hotspot = document.getElementById("hotspot");
+    hotspot.addEventListener("click", handleHotspotClick);
+    hotspot.addEventListener("pointerdown", startDefectDrag);
+    hotspot.addEventListener("pointermove", updateDefectDrag);
+    hotspot.addEventListener("pointerup", finishDefectDrag);
+    hotspot.addEventListener("pointercancel", finishDefectDrag);
     document.getElementById("exit-play-btn").addEventListener("click", exitPlay);
     document.getElementById("finish-fast-btn").addEventListener("click", ()=>{
         if(!state.active) return;
