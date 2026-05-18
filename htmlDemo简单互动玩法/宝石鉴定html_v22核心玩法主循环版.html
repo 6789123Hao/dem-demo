@@ -358,7 +358,14 @@
         z-index:20;
     }
     .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
-    .reward-list{ display:grid; gap:10px; margin-top:12px; }
+    .reward-list{
+        display:grid;
+        gap:10px;
+        margin-top:12px;
+        max-height:min(46vh, 420px);
+        overflow:auto;
+        padding-right:4px;
+    }
     .reward-item{
         display:flex;
         justify-content:space-between;
@@ -381,17 +388,22 @@
     .reward-modal.show{ display:grid; }
     .reward-dialog{
         width:min(560px, 94vw);
+        max-height:88vh;
         border:1px solid var(--line);
         border-radius:8px;
         background:#fffaf1;
         box-shadow:0 28px 80px rgba(30,20,12,.34);
         padding:20px;
+        display:flex;
+        flex-direction:column;
     }
     .reward-dialog h2{ margin:0 0 8px; }
     .reward-dialog p{ margin:0 0 14px; color:var(--muted); }
     .reward-actions{
         display:flex;
         justify-content:flex-end;
+        gap:10px;
+        flex:0 0 auto;
         margin-top:16px;
     }
     .panel-head{
