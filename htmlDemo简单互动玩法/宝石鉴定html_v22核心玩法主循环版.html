@@ -339,6 +339,7 @@
     .hotspot-shape{
         width:132px;
         height:132px;
+        position:absolute;
         background:rgba(210,155,69,.1);
         border-color:rgba(255,255,255,.86);
         border-width:4px;
@@ -348,8 +349,23 @@
     }
     .hotspot-shape-circle{ border-radius:50%; }
     .hotspot-shape-triangle{
-        border-radius:8px;
-        clip-path:polygon(50% 4%, 96% 92%, 4% 92%);
+        border-radius:14px;
+        border-color:rgba(255,255,255,.38);
+        background:rgba(210,155,69,.06);
+        clip-path:none;
+        color:transparent;
+    }
+    .hotspot-shape-triangle::before{
+        content:"△";
+        position:absolute;
+        inset:4px 0 0;
+        display:grid;
+        place-items:center;
+        color:rgba(255,248,226,.94);
+        font-size:108px;
+        font-weight:700;
+        line-height:1;
+        text-shadow:0 0 10px rgba(210,155,69,.28), 0 3px 10px rgba(0,0,0,.18);
     }
     .hotspot-shape-square{
         border-radius:12px;
