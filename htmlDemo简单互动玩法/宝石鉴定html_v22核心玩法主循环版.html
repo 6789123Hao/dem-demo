@@ -696,6 +696,7 @@
         <p>以下是当前盘子里累计的全部奖励，确认后会清空待收集列表。</p>
         <div id="reward-list" class="reward-list"></div>
         <div class="reward-actions">
+            <button class="btn ghost" id="reward-close-btn">关闭</button>
             <button class="btn primary" id="reward-back-btn">收集奖励</button>
         </div>
     </div>
@@ -1075,10 +1076,13 @@ function openRewardModal(){
     renderRewards();
     document.getElementById("reward-modal").classList.add("show");
 }
+function closeRewardModal(){
+    document.getElementById("reward-modal").classList.remove("show");
+}
 function collectRewards(){
     if(!state.rewards.length){
         toast("没有待收集奖励");
-        document.getElementById("reward-modal").classList.remove("show");
+        closeRewardModal();
         return;
     }
     addLog(`收集 ${state.rewards.length} 组奖励。`);
@@ -1086,7 +1090,7 @@ function collectRewards(){
     state.plate = {};
     document.body.classList.remove("playing");
     document.getElementById("lens-stage").classList.add("idle");
-    document.getElementById("reward-modal").classList.remove("show");
+    closeRewardModal();
     renderMain();
     showScreen("screen-main");
 }
@@ -1186,6 +1190,13 @@ document.addEventListener("DOMContentLoaded", ()=>{
         }
     });
     document.getElementById("reward-back-btn").addEventListener("click", collectRewards);
+    document.getElementById("reward-close-btn").addEventListener("click", closeRewardModal);
+    document.getElementById("reward-modal").addEventListener("click", e=>{
+        if(e.target.id === "reward-modal") closeRewardModal();
+    });
+    document.addEventListener("keydown", e=>{
+        if(e.key === "Escape") closeRewardModal();
+    });
     document.getElementById("collect-btn").addEventListener("click", openRewardModal);
     document.getElementById("reset-demo-btn").addEventListener("click", resetDemo);
     addLog("主 UI 已就绪：拖拽素体袋到镜片位置或批量入口。");
