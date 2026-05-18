@@ -425,6 +425,53 @@
         box-shadow:0 12px 28px rgba(52,35,21,.12);
         font-size:13px;
     }
+    .wheel-hint{
+        position:absolute;
+        right:246px;
+        top:132px;
+        z-index:8;
+        display:none;
+        align-items:center;
+        gap:10px;
+        border:1px solid rgba(86,52,31,.18);
+        border-radius:999px;
+        background:rgba(255,252,246,.94);
+        color:#4e3a29;
+        padding:9px 12px;
+        box-shadow:0 12px 28px rgba(52,35,21,.14);
+        font-size:13px;
+        font-weight:800;
+        pointer-events:none;
+    }
+    .wheel-hint.show{ display:flex; }
+    .mouse-icon{
+        width:28px;
+        height:42px;
+        border:3px solid #4e3a29;
+        border-radius:16px;
+        position:relative;
+        background:#fffaf1;
+    }
+    .mouse-icon::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:7px;
+        width:4px;
+        height:9px;
+        border-radius:999px;
+        background:#d29b45;
+        transform:translateX(-50%);
+    }
+    .mouse-icon::after{
+        content:"↓";
+        position:absolute;
+        left:50%;
+        bottom:-20px;
+        color:#d29b45;
+        transform:translateX(-50%);
+        font-weight:900;
+    }
     .flashlight{
         position:absolute;
         left:var(--flash-x, 18%);
@@ -466,18 +513,24 @@
     .light-block{
         position:absolute;
         left:50%;
-        top:50%;
-        width:210px;
-        height:210px;
-        border-radius:50%;
-        transform:translate(-50%, -50%);
-        border:2px dashed rgba(86,52,31,.22);
-        color:#6b5541;
-        display:grid;
-        place-items:end center;
-        padding-bottom:18px;
+        top:76%;
+        min-width:260px;
+        border-radius:8px;
+        transform:translateX(-50%);
+        border:1px solid rgba(86,52,31,.22);
+        color:#5b321e;
+        padding:10px 14px;
         font-size:12px;
+        font-weight:800;
+        background:rgba(255,239,205,.82);
+        box-shadow:0 12px 28px rgba(52,35,21,.14);
+        text-align:center;
         pointer-events:none;
+    }
+    .light-block.clear{
+        color:#244b35;
+        border-color:rgba(68,137,88,.42);
+        background:rgba(220,244,220,.9);
     }
     .scratch-tool{
         position:absolute;
@@ -568,6 +621,81 @@
         background:rgba(255,252,246,.7);
         color:#786b5c;
         font-size:12px;
+    }
+    .evidence-stack{
+        position:absolute;
+        left:24px;
+        bottom:24px;
+        width:220px;
+        height:148px;
+        z-index:7;
+        pointer-events:none;
+    }
+    .micro-record{
+        position:absolute;
+        left:var(--paper-x, 0px);
+        bottom:var(--paper-y, 0px);
+        width:190px;
+        border:1px solid rgba(86,52,31,.18);
+        border-radius:8px;
+        background:rgba(255,252,246,.94);
+        box-shadow:0 16px 34px rgba(52,35,21,.16);
+        padding:10px;
+        transform:rotate(var(--paper-rot, 0deg));
+        transform-origin:50% 90%;
+        animation:microRecordIn .22s ease both;
+    }
+    .micro-record-title{
+        font-size:12px;
+        color:#6b5541;
+        margin-bottom:8px;
+        font-weight:800;
+    }
+    .micro-record.hardness .micro-record-title{ color:#4f5860; }
+    .micro-texture{
+        height:86px;
+        border-radius:8px;
+        border:1px solid rgba(86,52,31,.14);
+        background:
+            radial-gradient(circle at var(--micro-x, 35%) var(--micro-y, 42%), rgba(255,255,255,.65), transparent 18%),
+            repeating-linear-gradient(32deg, rgba(255,255,255,.34) 0 5px, rgba(64,48,32,.14) 6px 9px, transparent 10px 18px),
+            var(--micro-color);
+        filter:saturate(1.18) contrast(1.04);
+    }
+    .scratch-record{
+        height:86px;
+        border-radius:8px;
+        border:1px solid rgba(86,52,31,.14);
+        background:
+            linear-gradient(8deg, transparent 0 46%, rgba(86,52,31,.72) 47% 50%, transparent 51%),
+            repeating-linear-gradient(0deg, rgba(255,255,255,.36) 0 7px, rgba(90,82,74,.12) 8px 12px),
+            #e9dfd0;
+        box-shadow:inset 0 0 22px rgba(90,82,74,.18);
+    }
+    .light-record{
+        height:86px;
+        border-radius:8px;
+        border:1px solid rgba(86,52,31,.14);
+        background:
+            radial-gradient(circle at 72% 44%, rgba(255,248,180,.92), rgba(255,220,88,.18) 24%, transparent 34%),
+            linear-gradient(24deg, transparent 0 35%, rgba(255,236,128,.7) 36% 45%, transparent 46%),
+            #d9edf1;
+        box-shadow:inset 0 0 24px rgba(92,140,150,.18);
+    }
+    .density-record{
+        height:86px;
+        border-radius:8px;
+        border:1px solid rgba(86,52,31,.14);
+        background:
+            linear-gradient(180deg, transparent 0 54%, rgba(86,52,31,.42) 55% 58%, transparent 59%),
+            radial-gradient(circle at 24% 42%, rgba(215,243,246,.95) 0 12px, transparent 13px),
+            radial-gradient(circle at 50% 42%, rgba(210,155,69,.88) 0 13px, transparent 14px),
+            radial-gradient(circle at 76% 42%, rgba(82,78,88,.9) 0 14px, transparent 15px),
+            #fff8e8;
+    }
+    @keyframes microRecordIn{
+        0%{ opacity:0; transform:translateY(12px) scale(.96); }
+        100%{ opacity:1; transform:translateY(0) scale(1); }
     }
     .drag-particle{
         position:fixed;
@@ -760,6 +888,10 @@
         gap:10px;
         align-items:start;
     }
+    .archive-card.flash{
+        animation:archiveFlash .95s ease both;
+        border-color:#d29b45;
+    }
     .archive-card.locked{ opacity:.56; }
     .archive-dot{
         width:32px;
@@ -899,6 +1031,19 @@
         animation:detailRise .24s ease both;
     }
     .desk-detail.show{ display:grid; }
+    .desk-click-hint{
+        position:absolute;
+        left:28px;
+        bottom:24px;
+        z-index:5;
+        font-size:44px;
+        font-weight:900;
+        color:rgba(68,43,25,.72);
+        text-shadow:0 3px 0 rgba(255,252,246,.7), 0 12px 28px rgba(52,35,21,.18);
+        pointer-events:none;
+    }
+    .lens-stage.focused .desk-click-hint,
+    body.playing .desk-click-hint{ display:none; }
     .observation-stone{
         position:absolute;
         left:50%;
@@ -915,6 +1060,7 @@
         opacity:0;
         transform:translate(-50%, -50%) scale(.72) rotate(var(--observe-tilt, -4deg));
         pointer-events:none;
+        cursor:pointer;
         transition:opacity .3s ease, transform .48s cubic-bezier(.18,.82,.28,1);
         z-index:5;
     }
@@ -931,6 +1077,7 @@
     .lens-stage.focused .observation-stone{
         opacity:1;
         transform:translate(-50%, -50%) scale(1) rotate(var(--observe-tilt, -4deg));
+        pointer-events:auto;
     }
     .lens-stage.focused::after{
         content:"";
@@ -995,6 +1142,10 @@
     @keyframes detailRise{
         0%{ opacity:0; transform:translateX(-50%) translateY(10px); }
         100%{ opacity:1; transform:translateX(-50%) translateY(0); }
+    }
+    @keyframes archiveFlash{
+        0%{ background:#fff0c9; transform:translateY(-2px); }
+        100%{ background:#fffaf1; transform:translateY(0); }
     }
     .pipeline-board{
         border:2px dashed rgba(86,52,31,.34);
@@ -1350,6 +1501,7 @@
                         <h2>桌面散落素体</h2>
                         <p>点击其中一个石头，镜头会靠近并显示详情。</p>
                     </div>
+                    <div class="desk-click-hint">点击石头↗</div>
                     <div id="desktop-grid" class="desktop-grid"></div>
                     <div id="observation-stone" class="observation-stone"></div>
                     <div id="desk-detail" class="desk-detail">
@@ -1366,6 +1518,10 @@
                         <div class="gem-surface"></div>
                     </div>
                     <div id="inspection-layer" class="inspection-layer"></div>
+                    <div id="wheel-hint" class="wheel-hint">
+                        <span class="mouse-icon"></span>
+                        <span>镜头不对，下滚轮切 Lens</span>
+                    </div>
                     <button id="hotspot" class="hotspot" aria-label="当前处理点"></button>
                     <div id="focus-ring" class="focus-ring"></div>
                     <div class="core-hud">
@@ -1398,7 +1554,7 @@
                     </div>
                     <div id="pipeline-chain" class="pipe-chain"></div>
                     <div>
-                        <button id="run-pipeline-btn" class="btn primary" type="button">运行批量</button>
+                        <button id="run-pipeline-btn" class="btn primary" type="button">运行已知批量</button>
                     </div>
                 </div>
             </div>
@@ -1549,11 +1705,15 @@ const state = {
     pipeline:[0,0,0],
     selectedStoneId:null,
     scatterAnimated:false,
+    archiveFlashId:null,
     dragPayload:null,
     defectDrag:null,
     lightDrag:null,
     scratchDrag:null,
     densityOrder:[],
+    microRecords:[],
+    hardnessRecorded:false,
+    evidenceRecords:[],
     suppressNextClick:false
 };
 
@@ -1682,7 +1842,7 @@ function renderArchiveList(){
     GEM_BLUEPRINTS.forEach(gem=>{
         const known = state.knownTypes.has(gem.id);
         const card = document.createElement("div");
-        card.className = `archive-card ${known ? "" : "locked"}`;
+        card.className = `archive-card ${known ? "" : "locked"} ${state.archiveFlashId === gem.id ? "flash" : ""}`;
         card.innerHTML = `
             <div class="archive-dot" style="--stone-color:${known ? gem.color : "linear-gradient(135deg, #d8d0c4, #8f8171)"}"></div>
             <div>
@@ -1897,6 +2057,7 @@ function buildCoreTasks(gem, mode){
         done:false,
         clicks:0,
         dragDistance:0,
+        inspectPoints:[{x:42,y:42}, {x:60,y:56}],
         shapeTarget: task.targetShape || SHAPE_TARGETS[(GEM_BLUEPRINTS.findIndex(g=>g.id === gem.id) + index) % SHAPE_TARGETS.length],
         cutAngle: task.cutAngle ?? [-32, -18, 22, 34][(GEM_BLUEPRINTS.findIndex(g=>g.id === gem.id) + index) % 4]
     }));
@@ -1915,6 +2076,9 @@ function startCorePlay(id, meta){
     state.lightDrag = null;
     state.scratchDrag = null;
     state.densityOrder = [];
+    state.microRecords = [];
+    state.hardnessRecorded = false;
+    state.evidenceRecords = [];
     document.body.classList.add("playing");
     document.getElementById("lens-stage").classList.remove("idle");
     document.getElementById("lens-stage").classList.remove("focused");
@@ -1931,7 +2095,7 @@ function stepStatusText(step){
     if(step.type === "inspect") return `${base} · 点击 ${step.clicks || 0}/2`;
     if(step.type === "light") return `${base} · 拖动手电找透光角`;
     if(step.type === "hardness") return `${base} · 控制划片速度`;
-    if(step.type === "density") return `${base} · 排序 ${state.densityOrder.length}/5`;
+    if(step.type === "density") return `${base} · 排序 ${state.densityOrder.length}/3`;
     if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / 260 * 100))}%`;
     if(step.type === "repair") return `${base} · 点击 ${step.clicks || 0}/3`;
     if(step.type === "cut") return `${base} · 顺着长条角度拖拽`;
@@ -1975,7 +2139,16 @@ function renderPlay(){
     renderLensButtons();
     renderToolButtons();
     renderInspectionLayer();
+    renderWheelHint(step);
     renderHotspot();
+}
+function renderWheelHint(step){
+    const hint = document.getElementById("wheel-hint");
+    if(!step || step.type === "finish" || state.lensIndex === step.lens){
+        hint.classList.remove("show");
+        return;
+    }
+    hint.classList.add("show");
 }
 function renderLensButtons(){
     const grid = document.getElementById("lens-grid");
@@ -2013,12 +2186,16 @@ function renderInspectionLayer(){
     const step = currentStep();
     layer.innerHTML = "";
     layer.className = "inspection-layer";
-    if(!step || !["light","hardness","density"].includes(step.type)) return;
+    if(!step || !["inspect","light","hardness","density"].includes(step.type)) return;
     layer.classList.add("active");
     const wrongLens = state.lensIndex !== step.lens;
     if(wrongLens) layer.classList.add("locked");
+    if(step.type === "inspect"){
+        renderEvidenceStack(layer);
+        return;
+    }
     if(step.type === "light"){
-        const angle = step.lightAngle ?? 220;
+        const angle = step.lightAngle ?? 285;
         const distance = step.lightDistance ?? 34;
         const radians = angle * Math.PI / 180;
         const x = 50 + Math.cos(radians) * distance;
@@ -2033,12 +2210,13 @@ function renderInspectionLayer(){
         layer.style.setProperty("--exit-x", `${exitX}%`);
         layer.style.setProperty("--exit-y", `${exitY}%`);
         layer.innerHTML = `
-            <div class="light-block">${isClear ? "光透到对面，松手记录" : "角度不对，光被石体遮住"}</div>
+            <div class="light-block ${isClear ? "clear" : ""}">${isClear ? "光透到对面，松手记录" : "角度不对，光被石体遮住"}</div>
             ${isClear ? `<div class="light-exit"></div>` : ""}
             <div id="flashlight" class="flashlight" role="button" aria-label="可拖拽手电筒"></div>
             ${wrongLens ? `<div class="lens-warning">需要先切到 ${LENSES[step.lens].label} 才能操作手电</div>` : ""}
         `;
         layer.querySelector("#flashlight").addEventListener("pointerdown", startLightDrag);
+        renderEvidenceStack(layer);
         return;
     }
     if(step.type === "hardness"){
@@ -2049,6 +2227,7 @@ function renderInspectionLayer(){
             ${wrongLens ? `<div class="lens-warning">需要先切到 ${LENSES[step.lens].label} 才能划片</div>` : ""}
         `;
         layer.querySelector("#scratch-tool").addEventListener("pointerdown", startScratchDrag);
+        renderEvidenceStack(layer);
         return;
     }
     if(step.type === "density"){
@@ -2068,7 +2247,53 @@ function renderInspectionLayer(){
         layer.querySelectorAll(".sample-stone").forEach(btn=>{
             btn.addEventListener("click", ()=>placeDensitySample(btn.dataset.key));
         });
+        renderEvidenceStack(layer);
     }
+}
+function addEvidenceRecord(record){
+    state.evidenceRecords.push({ id:Date.now() + Math.random(), ...record });
+}
+function renderEvidenceStack(layer){
+    if(!state.evidenceRecords.length) return;
+    const gem = state.active ? gemById(state.active.gemId) : null;
+    const stack = document.createElement("div");
+    stack.className = "evidence-stack";
+    stack.innerHTML = state.evidenceRecords.map((record, index)=>{
+        const offset = index * 7;
+        const rot = [-5, 4, -2, 6, -4][index % 5];
+        const style = `--paper-x:${offset}px; --paper-y:${offset * .42}px; --paper-rot:${rot}deg; z-index:${index + 1}`;
+        if(record.type === "micro"){
+            return `
+                <div class="micro-record" style="${style}">
+                    <div class="micro-record-title">显微纹理记录 ${record.index}/2 · 待归档</div>
+                    <div class="micro-texture" style="--micro-color:${gem?.color || "#d8d0c4"}; --micro-x:${record.x}%; --micro-y:${record.y}%"></div>
+                </div>
+            `;
+        }
+        if(record.type === "light"){
+            return `
+                <div class="micro-record" style="${style}">
+                    <div class="micro-record-title">透光角度记录 · 待归档</div>
+                    <div class="light-record"></div>
+                </div>
+            `;
+        }
+        if(record.type === "hardness"){
+            return `
+                <div class="micro-record hardness" style="${style}">
+                    <div class="micro-record-title">硬度划痕记录 · 待归档</div>
+                    <div class="scratch-record"></div>
+                </div>
+            `;
+        }
+        return `
+            <div class="micro-record" style="${style}">
+                <div class="micro-record-title">密度排序记录 · 待归档</div>
+                <div class="density-record"></div>
+            </div>
+        `;
+    }).join("");
+    layer.appendChild(stack);
 }
 function cycleLensByWheel(deltaY){
     if(!state.active) return;
@@ -2115,8 +2340,11 @@ function finishLightDrag(){
     const step = currentStep();
     if(!state.lightDrag || !step || step.type !== "light") return;
     state.lightDrag = null;
-    const diff = angleDiff((step.lightAngle ?? 182) + 180, step.targetAngle ?? 2);
-    if(diff <= 14) completeCurrentStep(step);
+    const diff = angleDiff((step.lightAngle ?? 285) + 180, step.targetAngle ?? 2);
+    if(diff <= 14) {
+        addEvidenceRecord({ type:"light" });
+        completeCurrentStep(step);
+    }
     else toast("还没有透到对面，换个角度照。");
 }
 function startScratchDrag(e){
@@ -2150,7 +2378,13 @@ function finishScratchDrag(e){
     const dy = Math.abs(e.clientY - drag.startY);
     const elapsed = Math.max(1, performance.now() - drag.startTime);
     const speed = Math.abs(dx) / elapsed;
-    if(dx >= 190 && dy <= 58 && speed >= .18 && speed <= .62) completeCurrentStep(step);
+    if(dx >= 190 && dy <= 58 && speed >= .18 && speed <= .62) {
+        state.hardnessRecorded = true;
+        addEvidenceRecord({ type:"hardness" });
+        renderPlay();
+        addLog("硬度划痕记录完成，准备写入档案。");
+        setTimeout(()=>completeCurrentStep(step), 520);
+    }
     else {
         if(dx < 190) toast("划片距离不够，要从左往右完整滑过。");
         else if(speed < .18) toast("速度太慢，划痕不清晰。");
@@ -2165,10 +2399,15 @@ function resetScratchTool(){
 }
 function getDensitySamples(){
     const gem = state.active ? gemById(state.active.gemId) : GEM_BLUEPRINTS[0];
+    const index = GEM_BLUEPRINTS.findIndex(item=>item.id === gem.id);
+    const targetWeight = (index % 3) + 1;
+    const targetHint = targetWeight === 1 ? "轻 · 2.2" : targetWeight === 2 ? "中 · 3.1" : "重 · 4.4";
+    const lightWeight = targetWeight === 1 ? 2 : 1;
+    const heavyWeight = targetWeight === 3 ? 2 : 3;
     return [
-        { key:"glass", label:"玻璃样", hint:"轻 · 2.4", weight:1, color:"linear-gradient(135deg, #d7f3f6, #76b9c5)" },
-        { key:"target", label:"目标石", hint:"中 · 3.1", weight:2, color:gem.color },
-        { key:"ore", label:"重矿样", hint:"重 · 4.6", weight:3, color:"linear-gradient(135deg, #8c8794, #34303b)" }
+        { key:"glass", label:"玻璃样", hint:`${lightWeight === 1 ? "轻" : "中"} · ${lightWeight === 1 ? "2.4" : "3.0"}`, weight:lightWeight, color:"linear-gradient(135deg, #d7f3f6, #76b9c5)" },
+        { key:"target", label:"目标石", hint:targetHint, weight:targetWeight, color:gem.color },
+        { key:"ore", label:"重矿样", hint:`${heavyWeight === 2 ? "中" : "重"} · ${heavyWeight === 2 ? "3.2" : "4.6"}`, weight:heavyWeight, color:"linear-gradient(135deg, #8c8794, #34303b)" }
     ].sort((a,b)=>a.label.localeCompare(b.label, "zh-CN"));
 }
 function placeDensitySample(key){
@@ -2176,9 +2415,10 @@ function placeDensitySample(key){
     if(!step || step.type !== "density" || !canUseCurrentStep(step)) return;
     if(state.densityOrder.includes(key)) return;
     state.densityOrder.push(key);
-    const correct = ["glass","target","ore"];
+    const correct = getDensitySamples().slice().sort((a,b)=>a.weight - b.weight).map(sample=>sample.key);
     if(state.densityOrder.length >= correct.length){
         if(state.densityOrder.every((item, index)=>item === correct[index])){
+            addEvidenceRecord({ type:"density" });
             completeCurrentStep(step);
         } else {
             toast("排序不对，重新称一遍。");
@@ -2220,6 +2460,10 @@ function renderHotspot(){
     ring.style.top = `${pos.y}%`;
 }
 function defectStagePosition(step){
+    if(step.type === "inspect"){
+        const point = step.inspectPoints?.[Math.min(step.clicks || 0, 1)] || step.pos;
+        return { x:point.x, y:point.y };
+    }
     const scale = step.type === "shape" ? 0.42 : 0.48;
     const yLift = step.type === "repair" ? 8 : step.type === "clean" ? 3 : step.type === "shape" ? 4 : 0;
     return {
@@ -2248,6 +2492,7 @@ function clearHotspot(){
         layer.innerHTML = "";
         layer.className = "inspection-layer";
     }
+    document.getElementById("wheel-hint")?.classList.remove("show");
 }
 function canUseCurrentStep(step){
     if(!step) return;
@@ -2290,6 +2535,12 @@ function handleHotspotClick(){
     if(!canUseCurrentStep(step)) return;
     if(step.type === "inspect" || step.type === "hardness"){
         step.clicks = (step.clicks || 0) + 1;
+        if(step.type === "inspect"){
+            const point = step.inspectPoints?.[Math.min(step.clicks - 1, 1)] || step.pos;
+            state.microRecords.push(point);
+            addEvidenceRecord({ type:"micro", index:state.microRecords.length, x:point.x, y:point.y });
+            addLog(`记录第 ${state.microRecords.length} 张显微纹理，准备写入档案。`);
+        }
         if(step.clicks >= 2) completeCurrentStep(step);
         else {
             toast(`${TOOL_LABELS[step.type]}进度 ${step.clicks}/2`);
@@ -2421,10 +2672,25 @@ function completeActiveGem(){
     state.playedTypes.add(active.gemId);
     state.knownTypes.add(active.gemId);
     if(active.meta?.mode === "inspect"){
-        addLog(`${gem.name} 检验成功，已记录鉴定卡：推荐流程 ${pipelineCodeForGem(gem).join(" -> ")}（${flowSummary(gem)}）。`);
+        state.archiveFlashId = active.gemId;
+        const evidenceCount = state.evidenceRecords.length;
         state.active = null;
+        state.evidenceRecords = [];
+        state.microRecords = [];
+        state.hardnessRecorded = false;
+        document.body.classList.remove("playing");
+        document.getElementById("lens-stage").classList.add("idle");
+        clearHotspot();
+        addLog(`${gem.name} 检验成功，${evidenceCount} 条证据一起归档；左下档案已更新：推荐流程 ${pipelineCodeForGem(gem).join(" -> ")}（${flowSummary(gem)}）。`);
         renderMain();
-        finishRound("完成一次工具箱检验，桌面 hover 现在会显示名称和推荐流程。");
+        showScreen("screen-main");
+        toast(`${gem.name} 档案已更新`);
+        setTimeout(()=>{
+            if(state.archiveFlashId === gem.id){
+                state.archiveFlashId = null;
+                renderArchiveList();
+            }
+        }, 1100);
         return;
     }
     const amount = releaseTypeToPlate(active.gemId, "核心玩法完成后同类型出石");
@@ -2570,6 +2836,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
     });
     document.getElementById("collect-btn").addEventListener("click", openRewardModal);
     document.getElementById("inspect-btn").addEventListener("click", completeSelectedInspection);
+    document.getElementById("observation-stone").addEventListener("click", completeSelectedInspection);
     document.getElementById("zoom-reset-btn").addEventListener("click", resetDeskZoom);
     document.getElementById("run-pipeline-btn").addEventListener("click", startBatchFromBag);
     document.getElementById("data-pack-select").addEventListener("change", e=>applyDataPack(e.target.value));
