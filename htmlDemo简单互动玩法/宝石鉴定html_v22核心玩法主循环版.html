@@ -535,19 +535,90 @@
         height:220px;
         transform:translate(-50%, -50%);
         transform-style:flat;
-        transition:filter .2s ease, scale .22s ease;
+        transition:filter .2s ease, transform .28s ease;
     }
+    .gem3d.step-shape{ transform:translate(-50%, -50%) scale(1.28); }
+    .gem3d.shaped:not(.step-shape){ transform:translate(-50%, -50%) scale(.88); }
     .gem-core{
         inset:14px;
         border-radius:50%;
         clip-path:polygon(50% 0, 84% 12%, 100% 50%, 82% 86%, 50% 100%, 16% 88%, 0 50%, 16% 14%);
         box-shadow:inset -18px -24px 38px rgba(0,0,0,.18), inset 14px 16px 24px rgba(255,255,255,.32);
     }
+    .gem3d.shaped .gem-core{
+        clip-path:polygon(50% 5%, 78% 18%, 94% 48%, 78% 78%, 50% 94%, 22% 78%, 6% 48%, 22% 18%);
+    }
     .gem-core::before{
         background:
             radial-gradient(circle at 34% 28%, rgba(255,255,255,.68), transparent 22%),
             linear-gradient(36deg, transparent 0 28%, rgba(255,255,255,.28) 29% 31%, transparent 32%),
             linear-gradient(126deg, transparent 0 48%, rgba(0,0,0,.12) 49% 52%, transparent 53%);
+    }
+    .gem-surface,
+    .gem-surface::before,
+    .gem-surface::after{
+        content:"";
+        position:absolute;
+        inset:14px;
+        border-radius:50%;
+        clip-path:polygon(50% 0, 84% 12%, 100% 50%, 82% 86%, 50% 100%, 16% 88%, 0 50%, 16% 14%);
+        pointer-events:none;
+        opacity:0;
+        transition:opacity .2s ease;
+        z-index:2;
+    }
+    .gem3d.shaped .gem-surface,
+    .gem3d.shaped .gem-surface::before,
+    .gem3d.shaped .gem-surface::after{
+        clip-path:polygon(50% 5%, 78% 18%, 94% 48%, 78% 78%, 50% 94%, 22% 78%, 6% 48%, 22% 18%);
+    }
+    .gem3d.step-clean .gem-surface{
+        opacity:1;
+        background:
+            radial-gradient(circle at 24% 32%, rgba(83,78,72,.38) 0 4px, transparent 5px),
+            radial-gradient(circle at 62% 28%, rgba(83,78,72,.32) 0 6px, transparent 7px),
+            radial-gradient(circle at 52% 68%, rgba(83,78,72,.34) 0 5px, transparent 6px),
+            radial-gradient(circle at 74% 58%, rgba(83,78,72,.28) 0 4px, transparent 5px),
+            linear-gradient(145deg, rgba(120,112,102,.28), rgba(255,255,255,0) 60%);
+        mix-blend-mode:multiply;
+    }
+    .gem3d.step-repair .gem-surface{
+        opacity:1;
+        background:
+            linear-gradient(35deg, transparent 0 42%, rgba(52,32,29,.72) 43% 45%, transparent 46%),
+            linear-gradient(112deg, transparent 0 55%, rgba(255,236,214,.55) 56% 57%, transparent 58%);
+    }
+    .gem3d.step-repair .gem-surface::before{
+        opacity:1;
+        inset:48px 72px 56px 60px;
+        border-radius:0;
+        background:
+            linear-gradient(128deg, transparent 0 46%, rgba(52,32,29,.82) 47% 49%, transparent 50%),
+            linear-gradient(72deg, transparent 0 52%, rgba(52,32,29,.58) 53% 55%, transparent 56%);
+        clip-path:none;
+    }
+    .gem3d.step-cut .gem-surface{
+        opacity:1;
+        background:
+            linear-gradient(132deg, rgba(86,88,86,.64) 0 18%, transparent 19%),
+            linear-gradient(22deg, transparent 0 58%, rgba(114,116,112,.68) 59% 76%, transparent 77%),
+            radial-gradient(circle at 36% 70%, rgba(73,76,75,.54) 0 18%, transparent 19%);
+        mix-blend-mode:multiply;
+    }
+    .gem3d.step-cut .gem-surface::before{
+        opacity:1;
+        inset:26px 30px 88px 112px;
+        border-radius:8px;
+        background:rgba(96,98,94,.72);
+        transform:rotate(-18deg);
+        clip-path:polygon(10% 0, 100% 16%, 82% 100%, 0 76%);
+    }
+    .gem3d.step-shape .gem-surface{
+        opacity:1;
+        background:
+            radial-gradient(circle at 50% 42%, rgba(92,86,78,.42), transparent 52%),
+            linear-gradient(135deg, rgba(112,102,92,.42), rgba(255,255,255,0) 64%);
+        mix-blend-mode:multiply;
     }
     body:not(.playing) .gem3d,
     body:not(.playing) .hotspot,
@@ -690,6 +761,7 @@
                     </div>
                     <div id="gem3d" class="gem3d">
                         <div id="gem-core" class="gem-core"></div>
+                        <div class="gem-surface"></div>
                     </div>
                     <button id="hotspot" class="hotspot" aria-label="当前处理点"></button>
                     <div id="focus-ring" class="focus-ring"></div>
@@ -1028,6 +1100,10 @@ function renderPlay(){
     if(!active) return;
     const gem = gemById(active.gemId);
     const step = currentStep();
+    const gem3d = document.getElementById("gem3d");
+    const hasShaped = active.tasks.some(task=>task.type === "shape" && task.done);
+    const stepClass = step ? `step-${step.type}` : "";
+    gem3d.className = `gem3d ${stepClass} ${hasShaped ? "shaped" : ""}`.trim();
     document.getElementById("play-title").textContent = `${gem.name} · 核心玩法`;
     document.getElementById("status-gem").textContent = `${gem.name} / ${gem.version}`;
     document.getElementById("status-batch").textContent = `同类型 ${active.batchAmount} 颗`;
