@@ -38,6 +38,13 @@
         gap:18px;
         margin-bottom:18px;
     }
+    .top-actions{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        flex-wrap:wrap;
+        justify-content:flex-end;
+    }
     .title h1{ margin:0 0 6px; font-size:30px; letter-spacing:0; }
     .title p{ margin:0; color:var(--muted); }
     .btn{
@@ -52,6 +59,16 @@
     .btn.primary{ background:linear-gradient(180deg, #f3c36d, #d99d3c); border-color:#af742c; color:#2b1c0f; font-weight:700; }
     .btn.ghost{ background:rgba(255,255,255,.55); }
     .btn:disabled{ opacity:.45; cursor:not-allowed; }
+    .data-pack-select{
+        min-height:42px;
+        min-width:180px;
+        border:1px solid rgba(86,52,31,.22);
+        border-radius:8px;
+        background:#fff9ee;
+        color:var(--ink);
+        padding:0 12px;
+        box-shadow:0 6px 16px rgba(68,43,25,.08);
+    }
     .pill{
         display:inline-flex;
         align-items:center;
@@ -617,7 +634,8 @@
             <h1>素体袋鉴定台</h1>
             <p>拖拽素体袋或已知素体进入中间镜片区，直接在主 UI 内启动核心玩法。</p>
         </div>
-        <div>
+        <div class="top-actions">
+            <select id="data-pack-select" class="data-pack-select" aria-label="演示数据包"></select>
             <button class="btn ghost" id="reset-demo-btn">重置演示数据</button>
         </div>
     </div>
@@ -745,10 +763,33 @@ const GEM_BLUEPRINTS = [
     { id:"shoushan", name:"寿山石", version:"巴蜀·原石", kind:"原石", sub:"切除 + 定形 + 收光", rewardShards:5, color:"linear-gradient(135deg, #f0d2a7 0%, #b5794b 100%)", tasks:[{type:"cut", title:"残皮切除", lens:0, face:2, pos:{x:54,y:60}}, {type:"shape", title:"定形成型", lens:2, face:1, pos:{x:50,y:48}}, {type:"finish", title:"石面收光", lens:1, face:0, pos:{x:50,y:50}}] }
 ];
 
-const initialBag = {
-    pearl:3, garnet:2, sunstone:2, obsidian:2, fluorite:1, malachite:1,
-    agate:2, catseye:1, jadeite:1, turquoise:2, hetian:1, shoushan:1
+const DEMO_DATA_PACKS = {
+    fullCoverage:{
+        label:"全量流程验收",
+        note:"每一种素体都有可玩数量，用于完整跑通 12 种宝石。",
+        known:["pearl","garnet","obsidian"],
+        bag:{ pearl:3, garnet:2, sunstone:2, obsidian:2, fluorite:1, malachite:1, agate:2, catseye:1, jadeite:1, turquoise:2, hetian:1, shoushan:1 }
+    },
+    firstDiscovery:{
+        label:"首次识别验收",
+        note:"只预先识别珍珠，其余类型需要通过核心玩法逐步解锁。",
+        known:["pearl"],
+        bag:{ pearl:1, garnet:1, sunstone:1, obsidian:1, fluorite:1, malachite:1, agate:1, catseye:1, jadeite:1, turquoise:1, hetian:1, shoushan:1 }
+    },
+    batchKnown:{
+        label:"批量已知验收",
+        note:"多种已知素体数量较多，用于验证批量入口和盘子累计。",
+        known:["pearl","garnet","sunstone","obsidian","fluorite","agate","catseye","jadeite"],
+        bag:{ pearl:5, garnet:4, sunstone:4, obsidian:3, fluorite:3, malachite:1, agate:4, catseye:3, jadeite:3, turquoise:1, hetian:1, shoushan:1 }
+    },
+    rewardStress:{
+        label:"长奖励列表压测",
+        note:"每种素体多份，用于检查奖励弹窗长列表滚动和收集。",
+        known:["pearl","garnet","sunstone","obsidian","fluorite","malachite","agate","catseye","jadeite","turquoise","hetian","shoushan"],
+        bag:{ pearl:4, garnet:4, sunstone:4, obsidian:4, fluorite:4, malachite:4, agate:4, catseye:4, jadeite:4, turquoise:4, hetian:4, shoushan:4 }
+    }
 };
+const initialBag = DEMO_DATA_PACKS.fullCoverage.bag;
 const state = {
     bag:{ ...initialBag },
     knownTypes:new Set(["pearl","garnet","obsidian"]),
@@ -759,10 +800,17 @@ const state = {
     active:null,
     lensIndex:0,
     activeTool:"clean",
+    dataPackKey:"fullCoverage",
     dragPayload:null
 };
 
 function gemById(id){ return GEM_BLUEPRINTS.find(g => g.id === id); }
+function currentDataPack(){ return DEMO_DATA_PACKS[state.dataPackKey] || DEMO_DATA_PACKS.fullCoverage; }
+function normalizedBag(bag){
+    const result = {};
+    GEM_BLUEPRINTS.forEach(gem=>{ result[gem.id] = bag[gem.id] || 0; });
+    return result;
+}
 function bagTotal(){ return Object.values(state.bag).reduce((sum,n)=>sum+n,0); }
 function countInBag(id){ return state.bag[id] || 0; }
 function isUnseen(id){ return !state.playedTypes.has(id) && countInBag(id) > 0; }
@@ -798,10 +846,23 @@ function addLog(text){
 function renderMain(){
     document.getElementById("bag-count").textContent = bagTotal();
     document.getElementById("reward-pill").textContent = `待收集奖励：${state.rewards.length}`;
+    const packSelect = document.getElementById("data-pack-select");
+    if(packSelect) packSelect.value = state.dataPackKey;
     const toggle = document.getElementById("toggle-inventory-btn");
     if(toggle) toggle.textContent = document.body.classList.contains("inventory-open") ? "关闭背包" : "打开背包";
     renderKnownList();
     renderPlate();
+}
+function renderDataPackOptions(){
+    const select = document.getElementById("data-pack-select");
+    select.innerHTML = "";
+    Object.entries(DEMO_DATA_PACKS).forEach(([key, pack])=>{
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = pack.label;
+        select.appendChild(option);
+    });
+    select.value = state.dataPackKey;
 }
 function renderKnownList(){
     const list = document.getElementById("known-list");
@@ -1118,18 +1179,25 @@ function exitPlay(){
     renderMain();
     showScreen("screen-main");
 }
+function applyDataPack(key){
+    state.dataPackKey = DEMO_DATA_PACKS[key] ? key : "fullCoverage";
+    resetDemo();
+}
 function resetDemo(){
-    state.bag = { ...initialBag };
-    state.knownTypes = new Set(["pearl","garnet","obsidian"]);
+    const pack = currentDataPack();
+    state.bag = normalizedBag(pack.bag);
+    state.knownTypes = new Set(pack.known);
     state.playedTypes = new Set();
     state.plate = {};
     state.rewards = [];
     state.active = null;
+    state.pendingBatch = false;
     document.body.classList.remove("playing", "inventory-open");
     document.getElementById("reward-modal").classList.remove("show");
     document.getElementById("lens-stage").classList.add("idle");
     document.getElementById("main-log").innerHTML = "";
-    addLog("演示数据已重置。");
+    clearHotspot();
+    addLog(`已切换/重置为「${pack.label}」：${pack.note}`);
     renderMain();
     showScreen("screen-main");
 }
@@ -1210,8 +1278,10 @@ document.addEventListener("DOMContentLoaded", ()=>{
         if(e.key === "Escape") closeRewardModal();
     });
     document.getElementById("collect-btn").addEventListener("click", openRewardModal);
+    document.getElementById("data-pack-select").addEventListener("change", e=>applyDataPack(e.target.value));
     document.getElementById("reset-demo-btn").addEventListener("click", resetDemo);
     addLog("主 UI 已就绪：拖拽素体袋到镜片位置或批量入口。");
+    renderDataPackOptions();
     renderMain();
 });
 </script>
