@@ -178,7 +178,7 @@
         bottom:14px;
         box-shadow:18px -6px 0 #87c7b6, -14px -4px 0 #b66a5c;
     }
-    .stone-list{ display:grid; gap:8px; max-height:640px; overflow:auto; padding-right:4px; }
+    .stone-list{ display:grid; gap:8px; max-height:360px; overflow:auto; padding-right:4px; }
     .stone-card{
         border:1px solid rgba(86,52,31,.18);
         background:#fffaf1;
@@ -444,7 +444,7 @@
     }
     .workbench{
         display:grid;
-        grid-template-columns:230px minmax(420px, 1fr) 380px;
+        grid-template-columns:300px minmax(420px, 1fr) 380px;
         grid-template-rows:minmax(560px, calc(100vh - 150px));
         gap:16px;
         align-items:stretch;
@@ -458,6 +458,13 @@
         width:100%;
         margin:12px auto;
     }
+    .known-section{
+        min-height:0;
+        display:flex;
+        flex-direction:column;
+        gap:8px;
+    }
+    .known-section h3{ margin:0; font-size:16px; }
     .center-panel{
         position:relative;
         overflow:hidden;
@@ -633,19 +640,6 @@
         78%{ transform:translate(7px, 6px) rotate(12deg) scale(1.02); }
         100%{ transform:translate(0, 0) rotate(0deg) scale(1); opacity:1; }
     }
-    .inventory-panel{
-        position:fixed;
-        left:24px;
-        top:104px;
-        bottom:24px;
-        width:330px;
-        z-index:15;
-        transform:translateX(-112%);
-        transition:transform .22s ease;
-    }
-    body.inventory-open .inventory-panel{
-        transform:translateX(0);
-    }
     @media (max-width:1100px){
         .workbench{ grid-template-columns:1fr; grid-template-rows:auto auto auto; }
         .center-panel{ min-height:620px; }
@@ -669,19 +663,9 @@
         </div>
     </div>
 
-    <aside id="inventory-panel" class="panel inventory-panel">
-        <div class="panel-head">
-            <h2>左侧背包面板</h2>
-            <button class="btn ghost" id="close-inventory-btn">关闭</button>
-        </div>
-        <p class="inventory-note">已知种类素体可拖到镜片位置手动处理，也可拖到批量入口自动完成该类型。未识别类型会在核心玩法完成后进入已知列表。</p>
-        <div id="known-list" class="stone-list"></div>
-    </aside>
-
     <div class="workbench">
         <aside class="panel bag-panel">
             <h2>素体袋</h2>
-            <button class="btn" id="toggle-inventory-btn">打开背包</button>
             <div id="bag" class="bag" draggable="true" aria-label="素体袋">
                 <div>
                     <div id="bag-count" class="bag-count">0</div>
@@ -689,6 +673,11 @@
                 </div>
             </div>
             <p class="inventory-note">拖到中间镜片位置：手动玩一颗优先初见素体。拖到下方管道：批量处理整袋素体。</p>
+            <div class="known-section">
+                <h3>已知素体</h3>
+                <p class="inventory-note">拖到镜片位置手动处理；拖到批量入口自动完成该类型。</p>
+                <div id="known-list" class="stone-list"></div>
+            </div>
         </aside>
 
         <main class="panel center-panel">
@@ -874,8 +863,6 @@ function renderMain(){
     document.getElementById("reward-pill").textContent = `待收集奖励：${state.rewards.length}`;
     const packSelect = document.getElementById("data-pack-select");
     if(packSelect) packSelect.value = state.dataPackKey;
-    const toggle = document.getElementById("toggle-inventory-btn");
-    if(toggle) toggle.textContent = document.body.classList.contains("inventory-open") ? "关闭背包" : "打开背包";
     renderKnownList();
     renderPlate();
 }
@@ -1234,7 +1221,7 @@ function resetDemo(){
     state.rewards = [];
     state.active = null;
     state.pendingBatch = false;
-    document.body.classList.remove("playing", "inventory-open");
+    document.body.classList.remove("playing");
     document.getElementById("reward-modal").classList.remove("show");
     document.getElementById("lens-stage").classList.add("idle");
     document.getElementById("main-log").innerHTML = "";
@@ -1293,14 +1280,6 @@ function setupCoreMouseControls(){
 document.addEventListener("DOMContentLoaded", ()=>{
     setupDragDrop();
     setupCoreMouseControls();
-    document.getElementById("toggle-inventory-btn").addEventListener("click", ()=>{
-        document.body.classList.toggle("inventory-open");
-        renderMain();
-    });
-    document.getElementById("close-inventory-btn").addEventListener("click", ()=>{
-        document.body.classList.remove("inventory-open");
-        renderMain();
-    });
     document.getElementById("hotspot").addEventListener("click", tryCoreInteraction);
     document.getElementById("exit-play-btn").addEventListener("click", exitPlay);
     document.getElementById("finish-fast-btn").addEventListener("click", ()=>{
