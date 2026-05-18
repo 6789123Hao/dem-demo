@@ -892,6 +892,22 @@
         animation:archiveFlash .95s ease both;
         border-color:#d29b45;
     }
+    .archive-card.important{
+        position:relative;
+        box-shadow:0 0 0 3px rgba(210,155,69,.22), 0 14px 30px rgba(153,91,26,.16);
+    }
+    .archive-card.important::after{
+        content:"推荐流程已写入";
+        position:absolute;
+        right:8px;
+        top:8px;
+        border-radius:999px;
+        background:#d29b45;
+        color:#2b1c0f;
+        font-size:11px;
+        font-weight:900;
+        padding:4px 7px;
+    }
     .archive-card.locked{ opacity:.56; }
     .archive-dot{
         width:32px;
@@ -899,6 +915,17 @@
         border-radius:50%;
         border:2px solid rgba(45,32,20,.18);
         background:var(--stone-color);
+    }
+    .archive-flow{
+        margin-top:7px;
+        border:1px solid rgba(210,155,69,.38);
+        border-radius:8px;
+        background:#fff0c9;
+        padding:7px 8px;
+        color:#3f2a16;
+        font-size:12px;
+        font-weight:900;
+        line-height:1.45;
     }
     .archive-name{ font-weight:800; }
     .archive-meta{
@@ -1842,7 +1869,8 @@ function renderArchiveList(){
     GEM_BLUEPRINTS.forEach(gem=>{
         const known = state.knownTypes.has(gem.id);
         const card = document.createElement("div");
-        card.className = `archive-card ${known ? "" : "locked"} ${state.archiveFlashId === gem.id ? "flash" : ""}`;
+        const important = state.archiveFlashId === gem.id;
+        card.className = `archive-card ${known ? "" : "locked"} ${important ? "flash important" : ""}`;
         card.innerHTML = `
             <div class="archive-dot" style="--stone-color:${known ? gem.color : "linear-gradient(135deg, #d8d0c4, #8f8171)"}"></div>
             <div>
@@ -1852,6 +1880,7 @@ function renderArchiveList(){
                         ? `${gem.version}<br>特性：${gem.kind}，${gem.sub}<br>流程：${pipelineCodeForGem(gem).join(" -> ")} · ${flowSummary(gem)}`
                         : "完成桌面近景检验后记录名称、特性与推荐流程。"
                 }</div>
+                ${important ? `<div class="archive-flow">重要：按 ${pipelineCodeForGem(gem).join(" -> ")} 配置批量管道<br>${flowSummary(gem)}</div>` : ""}
             </div>
         `;
         list.appendChild(card);
@@ -2684,7 +2713,7 @@ function completeActiveGem(){
         addLog(`${gem.name} 检验成功，${evidenceCount} 条证据一起归档；左下档案已更新：推荐流程 ${pipelineCodeForGem(gem).join(" -> ")}（${flowSummary(gem)}）。`);
         renderMain();
         showScreen("screen-main");
-        toast(`${gem.name} 档案已更新`);
+        toast(`${gem.name} 推荐流程已写入左下档案`);
         setTimeout(()=>{
             if(state.archiveFlashId === gem.id){
                 state.archiveFlashId = null;
