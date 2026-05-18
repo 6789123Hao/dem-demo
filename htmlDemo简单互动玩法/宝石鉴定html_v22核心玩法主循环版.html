@@ -674,7 +674,7 @@
             <h2>左侧背包面板</h2>
             <button class="btn ghost" id="close-inventory-btn">关闭</button>
         </div>
-        <p class="inventory-note">已知种类素体可拖到镜片位置，直接手动处理该类型。未识别类型会在核心玩法完成后进入已知列表。</p>
+        <p class="inventory-note">已知种类素体可拖到镜片位置手动处理，也可拖到批量入口自动完成该类型。未识别类型会在核心玩法完成后进入已知列表。</p>
         <div id="known-list" class="stone-list"></div>
     </aside>
 
@@ -992,6 +992,16 @@ function startKnownStone(id){
     addLog(`从背包面板取出 ${gemById(id).name}，放入镜片位置。`);
     startCorePlay(id, { source:"known", continueBatch:false });
 }
+function completeKnownStoneInBatch(id){
+    if(state.active){ toast("当前素体处理中"); return; }
+    if(!state.knownTypes.has(id)){ toast("该素体种类尚未识别"); return; }
+    if(countInBag(id) <= 0){ toast("袋内没有这种素体"); return; }
+    const gem = gemById(id);
+    state.playedTypes.add(id);
+    const amount = releaseTypeToPlate(id, "已知类型拖入批量入口自动完成");
+    addLog(`${gem.name} 已知类型自动完成，同类型 ${amount} 颗出石到盘子。`);
+    renderMain();
+}
 function buildCoreTasks(gem){
     return gem.tasks.map((task, index)=>({
         ...task,
@@ -1257,7 +1267,8 @@ function setupDragDrop(){
     });
     bindDrop(document.getElementById("batch-drop"), payload=>{
         if(payload && payload.type === "bag") startBatchFromBag();
-        else toast("批量入口只接受素体袋");
+        else if(payload && payload.type === "known") completeKnownStoneInBatch(payload.id);
+        else toast("批量入口只接受素体袋或已知素体");
     });
 }
 function setupCoreMouseControls(){
