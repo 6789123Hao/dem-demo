@@ -69,6 +69,11 @@
         padding:0 12px;
         box-shadow:0 6px 16px rgba(68,43,25,.08);
     }
+    .gm-btn{
+        display:none;
+        border-style:dashed;
+    }
+    body.playing .gm-btn{ display:inline-flex; }
     .pill{
         display:inline-flex;
         align-items:center;
@@ -557,11 +562,33 @@
         display:none;
         z-index:5;
     }
+    .core-hint{
+        position:absolute;
+        left:50%;
+        top:22%;
+        transform:translateX(-50%);
+        z-index:6;
+        display:none;
+        width:min(360px, 68%);
+        margin:0;
+        padding:10px 14px;
+        border:1px solid rgba(86,52,31,.16);
+        border-radius:8px;
+        background:rgba(255,252,246,.72);
+        color:#5f5143;
+        text-align:center;
+        font-size:13px;
+        line-height:1.5;
+        box-shadow:0 10px 24px rgba(68,43,25,.12);
+        backdrop-filter:blur(4px);
+        pointer-events:none;
+    }
     body.playing .core-hud,
     body.playing .core-controls{
         display:grid;
         gap:10px;
     }
+    body.playing .core-hint{ display:block; }
     .right-panel{
         display:flex;
         flex-direction:column;
@@ -623,6 +650,7 @@
         .workbench{ grid-template-columns:1fr; grid-template-rows:auto auto auto; }
         .center-panel{ min-height:620px; }
         .core-hud,.core-controls{ position:relative; left:auto; right:auto; top:auto; width:auto; }
+        .core-hint{ top:24%; width:min(330px, 76%); }
     }
 </style>
 </head>
@@ -636,6 +664,7 @@
         </div>
         <div class="top-actions">
             <select id="data-pack-select" class="data-pack-select" aria-label="演示数据包"></select>
+            <button class="btn primary gm-btn" id="finish-fast-btn">GM完成当前素体</button>
             <button class="btn ghost" id="reset-demo-btn">重置演示数据</button>
         </div>
     </div>
@@ -684,8 +713,8 @@
                             <div class="progress"><div id="step-progress"></div></div>
                         </div>
                         <button class="btn ghost" id="exit-play-btn">退出玩法</button>
-                        <button class="btn primary" id="finish-fast-btn">演示完成当前素体</button>
                     </div>
+                    <p class="core-hint">滚轮切 Lens，右键切工具，点击处理点完成交互。</p>
                     <div class="core-controls">
                         <div class="step-box">
                             <h3>手动镜头</h3>
@@ -694,9 +723,6 @@
                         <div class="step-box">
                             <h3>手选工具</h3>
                             <div id="tool-grid" class="tool-grid"></div>
-                        </div>
-                        <div class="step-box">
-                            <p class="inventory-note">滚轮切 Lens，右键切工具，点击处理点完成交互。</p>
                         </div>
                     </div>
                 </div>
