@@ -1,0 +1,2583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>宝石鉴定 x22 - 鉴定流水线加强版</title>
+<style>
+    :root{
+        --bg:#f4eee3;
+        --ink:#2c241b;
+        --muted:#786b5c;
+        --line:#cab89f;
+        --wood:#8d5d36;
+        --wood-dark:#56341f;
+        --gold:#d29b45;
+        --green:#dceedd;
+        --blue:#e8edf6;
+        --danger:#f3d7d1;
+        --shadow:0 18px 48px rgba(68,43,25,.18);
+    }
+    *{ box-sizing:border-box; }
+    body{
+        margin:0;
+        min-height:100vh;
+        font-family:"Microsoft YaHei", system-ui, sans-serif;
+        color:var(--ink);
+        background:
+            radial-gradient(circle at 18% 12%, rgba(210,155,69,.18), transparent 34%),
+            linear-gradient(135deg, #fff9ef 0%, var(--bg) 58%, #eadcc9 100%);
+    }
+    button{ font:inherit; }
+    .screen{ display:none; min-height:100vh; padding:24px; }
+    .screen.active{ display:block; }
+    .topbar{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:18px;
+        margin-bottom:18px;
+    }
+    .top-actions{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        flex-wrap:wrap;
+        justify-content:flex-end;
+    }
+    .title h1{ margin:0 0 6px; font-size:30px; letter-spacing:0; }
+    .title p{ margin:0; color:var(--muted); }
+    .btn{
+        border:1px solid rgba(86,52,31,.22);
+        background:#fff9ee;
+        color:var(--ink);
+        border-radius:8px;
+        padding:10px 14px;
+        cursor:pointer;
+        box-shadow:0 6px 16px rgba(68,43,25,.08);
+    }
+    .btn.primary{ background:linear-gradient(180deg, #f3c36d, #d99d3c); border-color:#af742c; color:#2b1c0f; font-weight:700; }
+    .btn.ghost{ background:rgba(255,255,255,.55); }
+    .btn:disabled{ opacity:.45; cursor:not-allowed; }
+    .data-pack-select{
+        min-height:42px;
+        min-width:180px;
+        border:1px solid rgba(86,52,31,.22);
+        border-radius:8px;
+        background:#fff9ee;
+        color:var(--ink);
+        padding:0 12px;
+        box-shadow:0 6px 16px rgba(68,43,25,.08);
+    }
+    .gm-btn{
+        display:none;
+        border-style:dashed;
+    }
+    body.playing .gm-btn{ display:inline-flex; }
+    .pill{
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        border:1px solid rgba(86,52,31,.18);
+        background:rgba(255,255,255,.58);
+        border-radius:999px;
+        padding:6px 10px;
+        color:var(--muted);
+        font-size:13px;
+    }
+    .main-grid{
+        display:grid;
+        grid-template-columns:280px 1fr 320px;
+        gap:18px;
+        align-items:stretch;
+    }
+    .panel{
+        background:rgba(255,252,246,.86);
+        border:1px solid var(--line);
+        border-radius:8px;
+        box-shadow:var(--shadow);
+        padding:16px;
+    }
+    .panel h2,.panel h3{ margin:0 0 12px; font-size:18px; }
+    .bag{
+        position:relative;
+        width:min(330px, 88%);
+        aspect-ratio:1 / .92;
+        margin:26px auto 20px;
+        border:3px solid var(--wood-dark);
+        border-radius:36px 36px 18px 18px;
+        background:
+            radial-gradient(circle at 50% 18%, rgba(255,255,255,.26), transparent 34%),
+            linear-gradient(135deg, #b9854b, #6e4226);
+        cursor:default;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:#fff8e8;
+        text-align:center;
+        box-shadow:0 20px 36px rgba(83,50,28,.26);
+        user-select:none;
+    }
+    .bag:active{ cursor:default; }
+    .bag::before{
+        content:"";
+        position:absolute;
+        inset:18px 28px auto;
+        height:24px;
+        border-radius:999px;
+        background:#382114;
+        box-shadow:inset 0 3px 0 rgba(255,255,255,.12);
+    }
+    .bag-count{ font-size:48px; font-weight:800; line-height:1; }
+    .bag-label{ margin-top:8px; font-size:15px; color:#ffe8bf; }
+    .drop-row{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:16px;
+        margin-top:18px;
+    }
+    .drop-zone{
+        min-height:174px;
+        border:2px dashed rgba(86,52,31,.35);
+        border-radius:8px;
+        background:rgba(255,255,255,.42);
+        padding:16px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        text-align:center;
+        transition:.16s ease;
+    }
+    .drop-zone.over{ border-color:#b9792d; background:#fff4dc; transform:translateY(-2px); }
+    .lens-icon{
+        width:86px;
+        height:86px;
+        border:8px solid #5a4633;
+        border-radius:50%;
+        background:radial-gradient(circle at 35% 30%, #ffffff, #a7ddff 58%, #5588ab 100%);
+        margin-bottom:10px;
+    }
+    .batch-icon{
+        width:92px;
+        height:70px;
+        border:3px solid #5a4633;
+        border-radius:8px;
+        background:linear-gradient(135deg, #e8edf6, #fdfbf5);
+        margin-bottom:10px;
+        position:relative;
+    }
+    .batch-icon::after{
+        content:"";
+        position:absolute;
+        width:46px;
+        height:20px;
+        border-radius:50%;
+        background:#d29b45;
+        left:22px;
+        bottom:14px;
+        box-shadow:18px -6px 0 #87c7b6, -14px -4px 0 #b66a5c;
+    }
+    .stone-list{ display:grid; gap:8px; max-height:360px; overflow:auto; padding-right:4px; }
+    .stone-card{
+        border:1px solid rgba(86,52,31,.18);
+        background:#fffaf1;
+        border-radius:8px;
+        padding:10px;
+        display:grid;
+        grid-template-columns:34px 1fr auto;
+        gap:10px;
+        align-items:center;
+        cursor:grab;
+    }
+    .stone-card.locked{ opacity:.48; cursor:not-allowed; }
+    .stone-dot{ width:34px; height:34px; border-radius:50%; border:2px solid rgba(35,25,16,.22); }
+    .stone-name{ font-weight:700; }
+    .stone-meta{ font-size:12px; color:var(--muted); margin-top:2px; }
+    .inventory-note{ color:var(--muted); font-size:13px; line-height:1.7; margin:0 0 12px; }
+    .plate{
+        min-height:180px;
+        border:2px solid rgba(86,52,31,.22);
+        border-radius:50%;
+        background:radial-gradient(circle, #fffdf6 0%, #e2d7c8 70%, #bca98f 100%);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex-wrap:wrap;
+        gap:8px;
+        padding:22px;
+        margin-top:10px;
+    }
+    .plate-gem{
+        min-width:74px;
+        border:1px solid rgba(86,52,31,.2);
+        background:rgba(255,255,255,.72);
+        border-radius:8px;
+        padding:7px 9px;
+        font-size:13px;
+        text-align:center;
+    }
+    .log{
+        margin-top:14px;
+        min-height:150px;
+        max-height:210px;
+        overflow:auto;
+        padding:10px;
+        border-radius:8px;
+        border:1px solid rgba(86,52,31,.16);
+        background:rgba(255,255,255,.44);
+        color:var(--muted);
+        font-size:13px;
+        line-height:1.55;
+    }
+    .play-grid{
+        display:grid;
+        grid-template-columns:1fr 300px;
+        gap:18px;
+        min-height:calc(100vh - 116px);
+    }
+    .playfield{
+        position:relative;
+        overflow:hidden;
+        border:1px solid var(--line);
+        border-radius:8px;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,.72), rgba(237,225,207,.88)),
+            repeating-linear-gradient(90deg, transparent, transparent 28px, rgba(95,64,36,.04) 29px);
+        box-shadow:var(--shadow);
+    }
+    .lens-stage{
+        position:absolute;
+        inset:38px 44px 72px;
+        border:12px solid #5b4633;
+        border-radius:50%;
+        background:radial-gradient(circle at center, rgba(255,255,255,.72), rgba(125,196,226,.2) 62%, rgba(45,65,74,.12));
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        overflow:hidden;
+    }
+    .lens-stage::before{
+        content:"";
+        position:absolute;
+        inset:0;
+        background:var(--lens-filter, rgba(127,223,255,.28));
+        mix-blend-mode:multiply;
+        pointer-events:none;
+    }
+    .gem3d{
+        width:230px;
+        height:230px;
+        position:relative;
+        transform:translate(-50%, -50%);
+        transform-style:flat;
+        transition:transform .52s ease, filter .2s ease;
+        filter:drop-shadow(0 26px 24px rgba(52,35,21,.22));
+    }
+    .gem-core{
+        position:absolute;
+        inset:18px;
+        clip-path:polygon(50% 0, 88% 18%, 100% 56%, 66% 100%, 28% 94%, 0 55%, 12% 18%);
+        background:var(--gem-color);
+        border:2px solid rgba(255,255,255,.42);
+    }
+    .gem-core::before{
+        content:"";
+        position:absolute;
+        inset:0;
+        background:
+            linear-gradient(40deg, transparent 0 28%, rgba(255,255,255,.38) 29% 31%, transparent 32%),
+            linear-gradient(120deg, transparent 0 44%, rgba(0,0,0,.18) 45% 48%, transparent 49%),
+            radial-gradient(circle at 35% 28%, rgba(255,255,255,.55), transparent 24%);
+    }
+    .hotspot{
+        position:absolute;
+        width:42px;
+        height:42px;
+        border-radius:50%;
+        border:3px solid rgba(255,255,255,.92);
+        background:rgba(210,155,69,.82);
+        box-shadow:0 0 0 8px rgba(210,155,69,.18), 0 10px 24px rgba(0,0,0,.2);
+        transform:translate(-50%, -50%);
+        cursor:pointer;
+        z-index:4;
+        display:grid;
+        place-items:center;
+        color:#fffaf1;
+        font-size:12px;
+        font-weight:800;
+        line-height:1;
+        touch-action:none;
+    }
+    .hotspot.done{ opacity:0; pointer-events:none; }
+    .hotspot-inspect{ background:rgba(87,142,176,.82); box-shadow:0 0 0 8px rgba(87,142,176,.18), 0 10px 24px rgba(0,0,0,.2); }
+    .hotspot-light{
+        width:132px;
+        height:42px;
+        border-radius:999px;
+        background:linear-gradient(90deg, rgba(255,246,184,.9), rgba(255,255,255,.36));
+        box-shadow:0 0 0 10px rgba(255,224,116,.16), 0 0 28px rgba(255,224,116,.28);
+    }
+    .hotspot-hardness{
+        width:64px;
+        height:64px;
+        border-radius:12px;
+        background:rgba(95,110,120,.8);
+    }
+    .hotspot-density{
+        width:116px;
+        height:72px;
+        border-radius:50%;
+        background:rgba(120,158,146,.74);
+    }
+    .hotspot-clean{
+        width:130px;
+        height:130px;
+        border:2px dashed rgba(255,255,255,.9);
+        background:rgba(95,88,80,.36);
+        box-shadow:0 0 0 16px rgba(95,88,80,.14), inset 0 0 42px rgba(80,72,64,.24);
+    }
+    .hotspot-repair{
+        width:58px;
+        height:70px;
+        border-radius:58% 58% 62% 8%;
+        background:rgba(80,150,210,.76);
+        transform:translate(-50%, -50%) rotate(-45deg) scale(var(--repair-scale, 1));
+        transform-origin:center;
+        box-shadow:0 0 0 8px rgba(80,150,210,.18), inset 10px 8px 16px rgba(255,255,255,.26);
+        font-size:16px;
+        transition:transform .16s ease, opacity .16s ease;
+    }
+    .hotspot-cut{
+        width:132px;
+        height:30px;
+        border-radius:999px;
+        background:rgba(105,108,104,.82);
+        transform:translate(-50%, -50%) rotate(var(--cut-angle, -22deg));
+        box-shadow:0 0 0 8px rgba(92,94,90,.16), inset 0 4px 8px rgba(255,255,255,.2);
+    }
+    .hotspot-shape{
+        width:132px;
+        height:132px;
+        background:rgba(210,155,69,.1);
+        border-color:rgba(255,255,255,.86);
+        border-width:4px;
+        box-shadow:0 0 0 12px rgba(210,155,69,.1);
+        color:#fff7e2;
+        font-size:22px;
+    }
+    .hotspot-shape-circle{ border-radius:50%; }
+    .hotspot-shape-triangle{
+        border-radius:8px;
+        clip-path:polygon(50% 4%, 96% 92%, 4% 92%);
+    }
+    .hotspot-shape-square{
+        border-radius:12px;
+        background:rgba(210,155,69,.08);
+        outline:3px solid rgba(255,248,226,.82);
+        outline-offset:-15px;
+        clip-path:none;
+    }
+    .focus-ring{
+        position:absolute;
+        width:82px;
+        height:82px;
+        border:2px solid rgba(255,255,255,.7);
+        border-radius:50%;
+        transform:translate(-50%, -50%);
+        pointer-events:none;
+        animation:pulse 1s infinite;
+    }
+    .focus-ring-clean{ width:168px; height:168px; border-style:dashed; }
+    .focus-ring-repair{ width:86px; height:86px; }
+    .focus-ring-cut{
+        width:156px;
+        height:48px;
+        border-radius:999px;
+        transform:translate(-50%, -50%) rotate(var(--cut-angle, -22deg));
+        animation:none;
+        opacity:.82;
+    }
+    .focus-ring-shape{ width:158px; height:158px; animation:none; opacity:.78; }
+    .inspection-layer{
+        position:absolute;
+        inset:0;
+        z-index:4;
+        pointer-events:none;
+    }
+    .inspection-layer.active{ pointer-events:auto; }
+    .inspection-layer.locked{
+        filter:grayscale(.35);
+        opacity:.42;
+        pointer-events:none;
+    }
+    .lens-warning{
+        position:absolute;
+        left:50%;
+        top:72%;
+        transform:translateX(-50%);
+        z-index:8;
+        border:1px solid rgba(86,52,31,.18);
+        border-radius:8px;
+        background:rgba(255,252,246,.92);
+        color:#5f5143;
+        padding:9px 12px;
+        box-shadow:0 12px 28px rgba(52,35,21,.12);
+        font-size:13px;
+    }
+    .flashlight{
+        position:absolute;
+        left:var(--flash-x, 18%);
+        top:var(--flash-y, 48%);
+        width:74px;
+        height:38px;
+        border-radius:18px 8px 8px 18px;
+        border:2px solid rgba(86,52,31,.28);
+        background:linear-gradient(90deg, #5a4633, #c28f45);
+        box-shadow:0 12px 22px rgba(52,35,21,.2);
+        transform:translate(-50%, -50%) rotate(var(--flash-angle, 0deg));
+        cursor:grab;
+        touch-action:none;
+    }
+    .flashlight::after{
+        content:"";
+        position:absolute;
+        left:68px;
+        top:50%;
+        width:260px;
+        height:86px;
+        transform:translateY(-50%);
+        clip-path:polygon(0 38%, 100% 0, 100% 100%, 0 62%);
+        background:linear-gradient(90deg, rgba(255,232,135,.58), rgba(255,232,135,.08));
+        opacity:.36;
+        pointer-events:none;
+    }
+    .light-exit{
+        position:absolute;
+        width:54px;
+        height:54px;
+        border-radius:50%;
+        left:var(--exit-x, 72%);
+        top:var(--exit-y, 50%);
+        transform:translate(-50%, -50%);
+        background:radial-gradient(circle, rgba(255,246,184,.95), rgba(255,221,95,.26) 58%, transparent 70%);
+        box-shadow:0 0 30px rgba(255,221,95,.48);
+    }
+    .light-block{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:210px;
+        height:210px;
+        border-radius:50%;
+        transform:translate(-50%, -50%);
+        border:2px dashed rgba(86,52,31,.22);
+        color:#6b5541;
+        display:grid;
+        place-items:end center;
+        padding-bottom:18px;
+        font-size:12px;
+        pointer-events:none;
+    }
+    .scratch-tool{
+        position:absolute;
+        left:22%;
+        top:58%;
+        width:118px;
+        height:22px;
+        border-radius:999px;
+        border:1px solid rgba(86,52,31,.24);
+        background:linear-gradient(90deg, #f7f0e5, #8f9aa0 65%, #d9e3e5);
+        box-shadow:0 10px 18px rgba(52,35,21,.18);
+        cursor:grab;
+        touch-action:none;
+    }
+    .scratch-track{
+        position:absolute;
+        left:50%;
+        top:58%;
+        width:320px;
+        height:48px;
+        transform:translate(-50%, -50%);
+        border:2px dashed rgba(86,52,31,.24);
+        border-radius:999px;
+        pointer-events:none;
+    }
+    .scratch-meter{
+        position:absolute;
+        left:50%;
+        top:calc(58% + 40px);
+        transform:translateX(-50%);
+        width:260px;
+        height:8px;
+        border-radius:999px;
+        background:linear-gradient(90deg, #d9a391 0 28%, #86c79b 29% 68%, #d9a391 69% 100%);
+        box-shadow:inset 0 0 0 1px rgba(86,52,31,.14);
+    }
+    .scale-game{
+        position:absolute;
+        inset:16% 8% 8%;
+        display:grid;
+        grid-template-rows:150px auto 86px;
+        gap:12px;
+        pointer-events:auto;
+    }
+    .scale-pan{
+        justify-self:center;
+        width:280px;
+        border:3px solid rgba(86,52,31,.28);
+        border-radius:20px 20px 42px 42px;
+        background:linear-gradient(180deg, #fff8e8, #d8c6aa);
+        display:grid;
+        place-items:center;
+        color:#6b5541;
+        font-weight:800;
+        box-shadow:0 16px 30px rgba(52,35,21,.16);
+    }
+    .sample-row,.sort-row{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:10px;
+        flex-wrap:wrap;
+    }
+    .sample-stone{
+        width:96px;
+        height:66px;
+        border-radius:46% 54% 42% 58%;
+        border:2px solid rgba(45,32,20,.18);
+        background:var(--sample-color);
+        display:grid;
+        place-items:center;
+        color:#2c241b;
+        font-weight:900;
+        font-size:12px;
+        line-height:1.25;
+        text-align:center;
+        cursor:pointer;
+        box-shadow:inset -8px -10px 16px rgba(0,0,0,.13), inset 8px 8px 14px rgba(255,255,255,.28);
+    }
+    .sample-stone.placed{ opacity:.36; pointer-events:none; }
+    .sort-slot{
+        min-width:104px;
+        height:64px;
+        border:2px dashed rgba(86,52,31,.28);
+        border-radius:8px;
+        display:grid;
+        place-items:center;
+        background:rgba(255,252,246,.7);
+        color:#786b5c;
+        font-size:12px;
+    }
+    .drag-particle{
+        position:fixed;
+        left:0;
+        top:0;
+        width:10px;
+        height:10px;
+        border-radius:50%;
+        pointer-events:none;
+        z-index:999;
+        background:rgba(255,245,210,.86);
+        box-shadow:0 0 10px rgba(255,245,210,.38);
+        transform:translate(-50%, -50%);
+        animation:dragParticleDrop .48s ease-out forwards;
+    }
+    .drag-particle-clean{ background:rgba(134,124,108,.72); box-shadow:0 0 8px rgba(80,72,64,.26); }
+    .drag-particle-cut{ width:12px; height:7px; border-radius:3px; background:rgba(108,112,110,.78); }
+    .drag-particle-shape{ background:rgba(230,178,74,.82); box-shadow:0 0 12px rgba(230,178,74,.34); }
+    @keyframes dragParticleDrop{
+        0%{ opacity:.95; transform:translate(-50%, -50%) scale(1); }
+        100%{ opacity:0; transform:translate(calc(-50% + var(--particle-dx, 0px)), calc(-50% + 22px)) scale(.35); }
+    }
+    @keyframes pulse{
+        0%{ transform:translate(-50%, -50%) scale(.86); opacity:.8; }
+        100%{ transform:translate(-50%, -50%) scale(1.22); opacity:0; }
+    }
+    .side-panel{
+        display:flex;
+        flex-direction:column;
+        gap:12px;
+    }
+    .step-box{
+        background:rgba(255,252,246,.9);
+        border:1px solid var(--line);
+        border-radius:8px;
+        padding:14px;
+    }
+    .step-box h3{ margin:0 0 8px; }
+    .status-line{
+        display:grid;
+        grid-template-columns:94px 1fr;
+        gap:8px;
+        margin:8px 0;
+        color:var(--muted);
+    }
+    .status-line b{ color:var(--ink); }
+    .tool-grid,.lens-grid{ display:grid; grid-template-columns:1fr; gap:8px; }
+    .tool-btn,.lens-btn{
+        border:1px solid rgba(86,52,31,.2);
+        border-radius:8px;
+        background:#fffaf1;
+        padding:10px;
+        cursor:pointer;
+        text-align:left;
+    }
+    .tool-btn.active,.lens-btn.active{
+        border-color:#a96c27;
+        background:#ffe8bf;
+        font-weight:800;
+    }
+    .progress{
+        height:10px;
+        border-radius:999px;
+        background:rgba(86,52,31,.12);
+        overflow:hidden;
+        margin-top:10px;
+    }
+    .progress > div{
+        height:100%;
+        width:0;
+        background:linear-gradient(90deg, #d99d3c, #7cc7a5);
+        transition:width .2s ease;
+    }
+    .toast{
+        position:fixed;
+        left:50%;
+        bottom:24px;
+        transform:translateX(-50%) translateY(18px);
+        opacity:0;
+        pointer-events:none;
+        background:#3a2a1c;
+        color:#fff5df;
+        border-radius:8px;
+        padding:10px 14px;
+        box-shadow:0 16px 36px rgba(0,0,0,.24);
+        transition:.18s ease;
+        z-index:20;
+    }
+    .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+    .reward-list{
+        display:grid;
+        gap:10px;
+        margin-top:12px;
+        max-height:min(46vh, 420px);
+        overflow:auto;
+        padding-right:4px;
+    }
+    .reward-item{
+        display:flex;
+        justify-content:space-between;
+        gap:12px;
+        padding:10px;
+        border:1px solid rgba(86,52,31,.18);
+        border-radius:8px;
+        background:rgba(255,255,255,.62);
+    }
+    .reward-modal{
+        position:fixed;
+        inset:0;
+        z-index:18;
+        display:none;
+        place-items:center;
+        padding:24px;
+        background:rgba(44,36,27,.36);
+        backdrop-filter:blur(4px);
+    }
+    .reward-modal.show{ display:grid; }
+    .reward-dialog{
+        width:min(560px, 94vw);
+        max-height:88vh;
+        border:1px solid var(--line);
+        border-radius:8px;
+        background:#fffaf1;
+        box-shadow:0 28px 80px rgba(30,20,12,.34);
+        padding:20px;
+        display:flex;
+        flex-direction:column;
+    }
+    .reward-dialog h2{ margin:0 0 8px; }
+    .reward-dialog p{ margin:0 0 14px; color:var(--muted); }
+    .reward-actions{
+        display:flex;
+        justify-content:flex-end;
+        gap:10px;
+        flex:0 0 auto;
+        margin-top:16px;
+    }
+    .panel-head{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+        margin-bottom:12px;
+    }
+    .panel-head h2{ margin:0; }
+    .empty-state{ color:var(--muted); text-align:center; }
+    @media (max-width:1100px){
+        .main-grid{ grid-template-columns:1fr; }
+        .play-grid{ grid-template-columns:1fr; }
+        .side-panel{ order:-1; }
+    }
+    .workbench{
+        display:grid;
+        grid-template-columns:300px minmax(420px, 1fr) 380px;
+        grid-template-rows:minmax(560px, calc(100vh - 150px));
+        gap:16px;
+        align-items:stretch;
+    }
+    .bag-panel{
+        display:flex;
+        flex-direction:column;
+        gap:12px;
+    }
+    .bag-panel .bag{
+        width:min(210px, 86%);
+        margin:4px auto 8px;
+    }
+    .bag-panel .bag-count{ font-size:38px; }
+    .known-section{
+        min-height:0;
+        display:flex;
+        flex-direction:column;
+        gap:8px;
+    }
+    .known-section h3{ margin:0; font-size:16px; }
+    .archive-list{
+        display:grid;
+        gap:8px;
+        min-height:0;
+        overflow:auto;
+        padding-right:4px;
+    }
+    .archive-card{
+        border:1px solid rgba(86,52,31,.18);
+        border-radius:8px;
+        background:#fffaf1;
+        padding:10px;
+        display:grid;
+        grid-template-columns:32px 1fr;
+        gap:10px;
+        align-items:start;
+    }
+    .archive-card.locked{ opacity:.56; }
+    .archive-dot{
+        width:32px;
+        height:32px;
+        border-radius:50%;
+        border:2px solid rgba(45,32,20,.18);
+        background:var(--stone-color);
+    }
+    .archive-name{ font-weight:800; }
+    .archive-meta{
+        margin-top:3px;
+        color:var(--muted);
+        font-size:12px;
+        line-height:1.45;
+    }
+    .desktop-grid{
+        position:absolute;
+        inset:22px 24px 118px;
+        z-index:4;
+        transform-origin:var(--focus-x, 50%) var(--focus-y, 50%);
+        transition:transform .55s cubic-bezier(.18,.82,.28,1), filter .32s ease;
+    }
+    .lens-stage.focused .desktop-grid{
+        opacity:0;
+        transform:scale(.96);
+        pointer-events:none;
+    }
+    body.playing .desktop-grid,
+    body.playing .desk-detail,
+    body.playing .observation-stone,
+    body.playing .zoom-reset-btn{
+        display:none;
+    }
+    .desk-slot{
+        position:relative;
+        position:absolute;
+        left:var(--slot-x);
+        top:var(--slot-y);
+        width:118px;
+        height:108px;
+        border:1px solid rgba(86,52,31,.16);
+        border-radius:8px;
+        background:
+            radial-gradient(circle at 50% 44%, rgba(255,255,255,.54), transparent 54%),
+            linear-gradient(180deg, rgba(255,249,238,.8), rgba(228,208,181,.62));
+        display:grid;
+        place-items:center;
+        padding:8px;
+        transform:translate(-50%, -50%) rotate(var(--slot-tilt, 0deg));
+        animation:stoneScatterIn .86s cubic-bezier(.18,.86,.28,1.12) both;
+        animation-delay:var(--scatter-delay, 0ms);
+    }
+    .desk-slot.empty{
+        display:none;
+    }
+    .desk-slot.no-scatter{
+        animation:none;
+    }
+    .desk-stone{
+        width:66px;
+        height:58px;
+        border:2px solid rgba(45,32,20,.18);
+        border-radius:46% 54% 42% 58%;
+        background:var(--stone-color);
+        box-shadow:inset -10px -12px 18px rgba(0,0,0,.16), inset 9px 8px 15px rgba(255,255,255,.28), 0 12px 18px rgba(67,44,25,.18);
+        cursor:pointer;
+        transform:rotate(var(--stone-tilt, -4deg));
+    }
+    .desk-stone:active{ cursor:pointer; }
+    .desk-stone.selected{
+        outline:3px solid rgba(210,155,69,.7);
+        outline-offset:5px;
+        transform:rotate(var(--stone-tilt, -4deg)) scale(1.1);
+        animation:stoneFocusPulse .86s ease both;
+    }
+    .desk-count{
+        position:absolute;
+        right:7px;
+        top:7px;
+        min-width:26px;
+        height:22px;
+        border-radius:999px;
+        display:grid;
+        place-items:center;
+        font-size:12px;
+        font-weight:800;
+        color:#332214;
+        background:#ffe8bf;
+        border:1px solid rgba(86,52,31,.2);
+    }
+    .stone-overlay{
+        position:absolute;
+        left:50%;
+        width:150px;
+        top:calc(100% + 8px);
+        opacity:0;
+        transform:translate(-50%, 8px) rotate(calc(var(--slot-tilt, 0deg) * -1));
+        pointer-events:none;
+        transition:.14s ease;
+        border:1px solid rgba(86,52,31,.2);
+        border-radius:8px;
+        background:rgba(255,252,246,.94);
+        box-shadow:0 12px 24px rgba(58,37,21,.14);
+        padding:8px;
+        font-size:12px;
+        line-height:1.35;
+        z-index:20;
+    }
+    .desk-slot:hover .stone-overlay{
+        opacity:1;
+        transform:translate(-50%, 0) rotate(calc(var(--slot-tilt, 0deg) * -1));
+    }
+    .desk-slot:hover{
+        z-index:30;
+    }
+    .stone-overlay b{
+        display:block;
+        margin-bottom:3px;
+        font-size:13px;
+    }
+    .desk-detail{
+        position:absolute;
+        left:50%;
+        bottom:18px;
+        width:min(620px, calc(100% - 36px));
+        transform:translateX(-50%);
+        display:none;
+        grid-template-columns:76px 1fr auto;
+        align-items:center;
+        gap:14px;
+        padding:14px;
+        border:1px solid rgba(86,52,31,.18);
+        border-radius:8px;
+        background:rgba(255,252,246,.94);
+        box-shadow:0 18px 44px rgba(58,37,21,.18);
+        z-index:6;
+        animation:detailRise .24s ease both;
+    }
+    .desk-detail.show{ display:grid; }
+    .observation-stone{
+        position:absolute;
+        left:50%;
+        top:44%;
+        width:188px;
+        height:158px;
+        border-radius:46% 54% 42% 58%;
+        background:var(--stone-color);
+        border:3px solid rgba(45,32,20,.18);
+        box-shadow:
+            inset -28px -32px 44px rgba(0,0,0,.18),
+            inset 22px 20px 34px rgba(255,255,255,.34),
+            0 34px 54px rgba(55,38,24,.28);
+        opacity:0;
+        transform:translate(-50%, -50%) scale(.72) rotate(var(--observe-tilt, -4deg));
+        pointer-events:none;
+        transition:opacity .3s ease, transform .48s cubic-bezier(.18,.82,.28,1);
+        z-index:5;
+    }
+    .observation-stone::before{
+        content:"";
+        position:absolute;
+        inset:14px 18px auto;
+        height:42px;
+        border-radius:50%;
+        background:linear-gradient(90deg, rgba(255,255,255,.64), rgba(255,255,255,.05));
+        transform:rotate(-12deg);
+        mix-blend-mode:screen;
+    }
+    .lens-stage.focused .observation-stone{
+        opacity:1;
+        transform:translate(-50%, -50%) scale(1) rotate(var(--observe-tilt, -4deg));
+    }
+    .lens-stage.focused::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:44%;
+        width:300px;
+        height:300px;
+        border:12px solid rgba(76,58,42,.82);
+        border-radius:50%;
+        transform:translate(-50%, -50%);
+        box-shadow:inset 0 0 36px rgba(255,255,255,.44), 0 24px 48px rgba(44,36,27,.22);
+        pointer-events:none;
+        z-index:4;
+    }
+    .zoom-reset-btn{
+        position:absolute;
+        right:16px;
+        top:16px;
+        z-index:7;
+        display:none;
+        min-width:42px;
+        height:42px;
+        padding:0;
+        border-radius:50%;
+        font-size:20px;
+        line-height:1;
+    }
+    .lens-stage.focused .zoom-reset-btn{ display:grid; place-items:center; }
+    .detail-stone{
+        width:68px;
+        height:58px;
+        border-radius:46% 54% 42% 58%;
+        background:var(--stone-color);
+        border:2px solid rgba(45,32,20,.18);
+        box-shadow:inset -10px -12px 18px rgba(0,0,0,.16), inset 9px 8px 15px rgba(255,255,255,.28);
+    }
+    .detail-title{ font-weight:900; font-size:18px; }
+    .detail-meta{ color:var(--muted); font-size:13px; line-height:1.5; margin-top:4px; }
+    @keyframes stoneScatterIn{
+        0%{
+            opacity:0;
+            transform:translate(calc(-50% - var(--scatter-x, 320px)), calc(-50% - var(--scatter-y, 220px))) rotate(calc(var(--slot-tilt, 0deg) - 210deg)) scale(.68);
+        }
+        58%{
+            opacity:1;
+            transform:translate(calc(-50% + 16px), calc(-50% + 10px)) rotate(calc(var(--slot-tilt, 0deg) + 18deg)) scale(1.06);
+        }
+        76%{
+            transform:translate(calc(-50% - 7px), calc(-50% - 5px)) rotate(calc(var(--slot-tilt, 0deg) - 8deg)) scale(.98);
+        }
+        100%{
+            opacity:1;
+            transform:translate(-50%, -50%) rotate(var(--slot-tilt, 0deg)) scale(1);
+        }
+    }
+    @keyframes stoneFocusPulse{
+        0%{ filter:brightness(1); }
+        45%{ filter:brightness(1.18) drop-shadow(0 0 16px rgba(210,155,69,.42)); }
+        100%{ filter:brightness(1); }
+    }
+    @keyframes detailRise{
+        0%{ opacity:0; transform:translateX(-50%) translateY(10px); }
+        100%{ opacity:1; transform:translateX(-50%) translateY(0); }
+    }
+    .pipeline-board{
+        border:2px dashed rgba(86,52,31,.34);
+        border-radius:18px;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,.72), rgba(220,229,234,.72)),
+            repeating-linear-gradient(90deg, rgba(86,52,31,.1), rgba(86,52,31,.1) 2px, transparent 2px, transparent 22px);
+        display:grid;
+        grid-template-columns:auto 1fr auto;
+        gap:12px;
+        align-items:center;
+        padding:12px 14px;
+        transition:.16s ease;
+    }
+    .pipeline-board.over{ border-color:#b9792d; background:#fff4dc; transform:translateY(-2px); }
+    .pipe-chain{
+        display:grid;
+        grid-template-columns:1fr auto 1fr auto 1fr;
+        gap:8px;
+        align-items:center;
+    }
+    .pipe-stage{
+        min-height:70px;
+        border:2px solid rgba(63,84,92,.34);
+        border-radius:999px;
+        background:linear-gradient(180deg, #eef8fb, #b9d3dc);
+        box-shadow:inset 0 5px 0 rgba(255,255,255,.44), inset 0 -7px 12px rgba(68,91,100,.18);
+        display:grid;
+        grid-template-columns:1fr auto;
+        align-items:center;
+        gap:8px;
+        padding:8px 10px 8px 18px;
+    }
+    .pipe-choice strong{ display:block; font-size:18px; line-height:1; }
+    .pipe-choice span{ display:block; color:#5f5143; font-size:12px; margin-top:4px; }
+    .pipe-flip{
+        width:34px;
+        height:34px;
+        border-radius:50%;
+        border:1px solid rgba(86,52,31,.22);
+        background:#fff9ee;
+        cursor:pointer;
+        font-weight:900;
+    }
+    .pipe-joint{
+        color:#6b5541;
+        font-weight:900;
+    }
+    .pipeline-note{
+        margin:0;
+        color:var(--muted);
+        font-size:13px;
+        line-height:1.45;
+    }
+    .center-panel{
+        position:relative;
+        overflow:hidden;
+        min-height:560px;
+        padding:0;
+        background:linear-gradient(180deg, rgba(255,255,255,.8), rgba(229,245,248,.84));
+    }
+    .center-stage{
+        position:absolute;
+        inset:0;
+        display:grid;
+        grid-template-rows:1fr 118px;
+        gap:12px;
+        padding:18px;
+    }
+    .lens-stage{
+        position:relative;
+        inset:auto;
+        width:100%;
+        min-height:0;
+        border-radius:8px;
+        border:1px solid rgba(63,84,92,.22);
+        background:
+            radial-gradient(circle at 50% 42%, rgba(255,255,255,.86), rgba(204,238,244,.5) 42%, rgba(180,223,232,.42) 100%),
+            linear-gradient(180deg, #effcff, #d9f1f3);
+        overflow:hidden;
+        display:grid;
+        place-items:center;
+    }
+    .lens-stage.idle{
+        border:2px dashed rgba(86,52,31,.34);
+    }
+    .lens-stage.over{
+        border-color:#b9792d;
+        background:#fff4dc;
+        transform:translateY(-2px);
+    }
+    .lens-stage.idle .idle-copy{ display:none; }
+    .idle-copy{
+        position:absolute;
+        inset:0;
+        display:none;
+        place-content:center;
+        text-align:center;
+        color:var(--muted);
+        padding:28px;
+        z-index:3;
+        pointer-events:none;
+    }
+    .idle-copy h2{ margin:0 0 8px; color:var(--ink); }
+    .batch-pipe{
+        border:2px dashed rgba(86,52,31,.34);
+        border-radius:999px;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,.72), rgba(220,229,234,.72)),
+            repeating-linear-gradient(90deg, rgba(86,52,31,.12), rgba(86,52,31,.12) 2px, transparent 2px, transparent 22px);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        text-align:center;
+        transition:.16s ease;
+    }
+    .batch-pipe.over{ border-color:#b9792d; background:#fff4dc; transform:translateY(-2px); }
+    .gem3d{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:220px;
+        height:220px;
+        transform:translate(-50%, -50%);
+        transform-style:flat;
+        transition:filter .2s ease, transform .28s ease;
+    }
+    .gem3d.step-shape{ transform:translate(-50%, -50%) scale(1.28); }
+    .gem3d.step-inspect{ transform:translate(-50%, -50%) scale(1.48); }
+    .gem3d.step-light{ transform:translate(-50%, -50%) scale(1.08); }
+    .gem3d.step-hardness{ transform:translate(-50%, -50%) scale(1.42); }
+    .gem3d.step-density{ transform:translate(-50%, -50%) scale(.78); opacity:.48; }
+    .gem3d.shaped:not(.step-shape){ transform:translate(-50%, -50%) scale(.88); }
+    .gem-core{
+        inset:14px;
+        border-radius:50%;
+        clip-path:polygon(50% 0, 84% 12%, 100% 50%, 82% 86%, 50% 100%, 16% 88%, 0 50%, 16% 14%);
+        box-shadow:inset -18px -24px 38px rgba(0,0,0,.18), inset 14px 16px 24px rgba(255,255,255,.32);
+    }
+    .gem3d.shaped .gem-core{
+        clip-path:polygon(50% 5%, 78% 18%, 94% 48%, 78% 78%, 50% 94%, 22% 78%, 6% 48%, 22% 18%);
+    }
+    .gem-core::before{
+        background:
+            radial-gradient(circle at 34% 28%, rgba(255,255,255,.68), transparent 22%),
+            linear-gradient(36deg, transparent 0 28%, rgba(255,255,255,.28) 29% 31%, transparent 32%),
+            linear-gradient(126deg, transparent 0 48%, rgba(0,0,0,.12) 49% 52%, transparent 53%);
+    }
+    .gem-surface,
+    .gem-surface::before,
+    .gem-surface::after{
+        content:"";
+        position:absolute;
+        inset:14px;
+        border-radius:50%;
+        clip-path:polygon(50% 0, 84% 12%, 100% 50%, 82% 86%, 50% 100%, 16% 88%, 0 50%, 16% 14%);
+        pointer-events:none;
+        opacity:0;
+        transition:opacity .2s ease;
+        z-index:2;
+    }
+    .gem3d.shaped .gem-surface,
+    .gem3d.shaped .gem-surface::before,
+    .gem3d.shaped .gem-surface::after{
+        clip-path:polygon(50% 5%, 78% 18%, 94% 48%, 78% 78%, 50% 94%, 22% 78%, 6% 48%, 22% 18%);
+    }
+    .gem3d.step-clean .gem-surface{
+        opacity:1;
+        background:
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(83,78,72,.5) 0 30px, transparent 58px),
+            radial-gradient(circle at 24% 32%, rgba(83,78,72,.38) 0 4px, transparent 5px),
+            radial-gradient(circle at 62% 28%, rgba(83,78,72,.32) 0 6px, transparent 7px),
+            radial-gradient(circle at 52% 68%, rgba(83,78,72,.34) 0 5px, transparent 6px),
+            radial-gradient(circle at 74% 58%, rgba(83,78,72,.28) 0 4px, transparent 5px),
+            linear-gradient(145deg, rgba(120,112,102,.28), rgba(255,255,255,0) 60%);
+        mix-blend-mode:multiply;
+    }
+    .gem3d.step-repair .gem-surface{
+        opacity:1;
+        background:
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(80,150,210,.28) 0 18px, transparent 30px),
+            linear-gradient(35deg, transparent 0 42%, rgba(52,32,29,.72) 43% 45%, transparent 46%),
+            linear-gradient(112deg, transparent 0 55%, rgba(255,236,214,.55) 56% 57%, transparent 58%);
+    }
+    .gem3d.step-repair .gem-surface::before{
+        opacity:1;
+        inset:48px 72px 56px 60px;
+        border-radius:0;
+        background:
+            linear-gradient(128deg, transparent 0 46%, rgba(52,32,29,.82) 47% 49%, transparent 50%),
+            linear-gradient(72deg, transparent 0 52%, rgba(52,32,29,.58) 53% 55%, transparent 56%);
+        clip-path:none;
+    }
+    .gem3d.step-cut .gem-surface{
+        opacity:1;
+        background:
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(88,90,86,.5) 0 22px, transparent 42px),
+            linear-gradient(132deg, rgba(86,88,86,.64) 0 18%, transparent 19%),
+            linear-gradient(22deg, transparent 0 58%, rgba(114,116,112,.68) 59% 76%, transparent 77%),
+            radial-gradient(circle at 36% 70%, rgba(73,76,75,.54) 0 18%, transparent 19%);
+        mix-blend-mode:multiply;
+    }
+    .gem3d.step-cut .gem-surface::before{
+        opacity:1;
+        inset:26px 30px 88px 112px;
+        border-radius:8px;
+        background:rgba(96,98,94,.72);
+        transform:rotate(-18deg);
+        clip-path:polygon(10% 0, 100% 16%, 82% 100%, 0 76%);
+    }
+    .gem3d.step-shape .gem-surface{
+        opacity:1;
+        background:
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(92,86,78,.52), transparent 38%),
+            linear-gradient(135deg, rgba(112,102,92,.42), rgba(255,255,255,0) 64%);
+        mix-blend-mode:multiply;
+    }
+    body:not(.playing) .gem3d,
+    body:not(.playing) .hotspot,
+    body:not(.playing) .focus-ring{
+        display:none;
+    }
+    .core-hud{
+        position:absolute;
+        left:18px;
+        top:18px;
+        width:260px;
+        display:none;
+        z-index:5;
+    }
+    .core-controls{
+        position:absolute;
+        right:18px;
+        top:18px;
+        width:210px;
+        display:none;
+        z-index:5;
+    }
+    .core-hint{
+        position:absolute;
+        left:50%;
+        top:22%;
+        transform:translateX(-50%);
+        z-index:6;
+        display:none;
+        width:min(360px, 68%);
+        margin:0;
+        padding:10px 14px;
+        border:1px solid rgba(86,52,31,.16);
+        border-radius:8px;
+        background:rgba(255,252,246,.72);
+        color:#5f5143;
+        text-align:center;
+        font-size:13px;
+        line-height:1.5;
+        box-shadow:0 10px 24px rgba(68,43,25,.12);
+        backdrop-filter:blur(4px);
+        pointer-events:none;
+    }
+    body.playing .core-hud,
+    body.playing .core-controls{
+        display:grid;
+        gap:10px;
+    }
+    body.playing .core-hint{ display:block; }
+    .right-panel{
+        display:flex;
+        flex-direction:column;
+        justify-content:flex-end;
+        gap:12px;
+    }
+    .collect-cta{
+        width:100%;
+        min-height:58px;
+        font-size:20px;
+        letter-spacing:0;
+        box-shadow:0 14px 30px rgba(153,91,26,.24);
+    }
+    .plate{
+        min-height:360px;
+        align-content:flex-end;
+        justify-content:center;
+        align-items:flex-end;
+        overflow:hidden;
+        position:relative;
+    }
+    .plate-gem{
+        min-width:34px;
+        width:34px;
+        height:34px;
+        border-radius:50%;
+        padding:0;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:11px;
+        color:#2b1c0f;
+        box-shadow:0 8px 14px rgba(58,37,21,.16);
+        transform-origin:center bottom;
+        animation:gemDrop .72s cubic-bezier(.18,.82,.32,1.12) both;
+        animation-delay:var(--delay, 0ms);
+    }
+    @keyframes gemDrop{
+        0%{ transform:translate(var(--from-x, -120px), -250px) rotate(-210deg) scale(.72); opacity:0; }
+        46%{ transform:translate(18px, 12px) rotate(42deg) scale(1.08); opacity:1; }
+        63%{ transform:translate(-10px, -22px) rotate(-22deg) scale(.96); }
+        78%{ transform:translate(7px, 6px) rotate(12deg) scale(1.02); }
+        100%{ transform:translate(0, 0) rotate(0deg) scale(1); opacity:1; }
+    }
+    @media (max-width:1100px){
+        .workbench{ grid-template-columns:1fr; grid-template-rows:auto auto auto; }
+        .center-panel{ min-height:620px; }
+        .core-hud,.core-controls{ position:relative; left:auto; right:auto; top:auto; width:auto; }
+        .core-hint{ top:24%; width:min(330px, 76%); }
+    }
+</style>
+</head>
+<body>
+<section id="screen-main" class="screen active">
+    <div class="topbar">
+        <div class="title">
+            <span class="pill">鉴定流水线加强版</span>
+            <h1>工具箱鉴定台</h1>
+            <p>打开鉴定台后先观察桌面散落素体，点击单颗石头进入近景详情；完成检验后再配置批量管道。</p>
+        </div>
+        <div class="top-actions">
+            <select id="data-pack-select" class="data-pack-select" aria-label="演示数据包"></select>
+            <button class="btn primary gm-btn" id="finish-fast-btn">GM完成当前素体</button>
+            <button class="btn ghost" id="reset-demo-btn">重置演示数据</button>
+        </div>
+    </div>
+
+    <div class="workbench">
+        <aside class="panel bag-panel">
+            <h2>鉴定档案</h2>
+            <div id="bag" class="bag" aria-label="素体袋">
+                <div>
+                    <div id="bag-count" class="bag-count">0</div>
+                    <div class="bag-label">袋内素体</div>
+                </div>
+            </div>
+            <p class="inventory-note">左下档案记录已经检验成功的石头。未检验的类型只保留未知占位，完成检验后显示特性和推荐流程。</p>
+            <div class="known-section">
+                <h3>左下角档案</h3>
+                <div id="archive-list" class="archive-list"></div>
+            </div>
+        </aside>
+
+        <main class="panel center-panel">
+            <div class="center-stage">
+                <div id="lens-stage" class="lens-stage idle">
+                    <div class="idle-copy">
+                        <h2>桌面散落素体</h2>
+                        <p>点击其中一个石头，镜头会靠近并显示详情。</p>
+                    </div>
+                    <div id="desktop-grid" class="desktop-grid"></div>
+                    <div id="observation-stone" class="observation-stone"></div>
+                    <div id="desk-detail" class="desk-detail">
+                        <div id="detail-stone" class="detail-stone"></div>
+                        <div>
+                            <div id="detail-title" class="detail-title">未知素体</div>
+                            <div id="detail-meta" class="detail-meta">点击桌面石头查看详情。</div>
+                        </div>
+                        <button id="inspect-btn" class="btn primary" type="button">检验</button>
+                    </div>
+                    <button id="zoom-reset-btn" class="btn ghost zoom-reset-btn" type="button" aria-label="缩小回桌面">↙</button>
+                    <div id="gem3d" class="gem3d">
+                        <div id="gem-core" class="gem-core"></div>
+                        <div class="gem-surface"></div>
+                    </div>
+                    <div id="inspection-layer" class="inspection-layer"></div>
+                    <button id="hotspot" class="hotspot" aria-label="当前处理点"></button>
+                    <div id="focus-ring" class="focus-ring"></div>
+                    <div class="core-hud">
+                        <div class="step-box">
+                            <h3 id="play-title">检验流程</h3>
+                            <div class="status-line"><span>类型</span><b id="status-gem">-</b></div>
+                            <div class="status-line"><span>本次出石</span><b id="status-batch">-</b></div>
+                            <div class="status-line"><span>自动观察面</span><b id="status-face">Face 1</b></div>
+                            <div class="status-line"><span>当前步骤</span><b id="status-step">-</b></div>
+                            <div class="progress"><div id="step-progress"></div></div>
+                        </div>
+                        <button class="btn ghost" id="exit-play-btn">退出玩法</button>
+                    </div>
+                    <p class="core-hint">滚轮切 Lens，右键切工具，点击处理点完成交互。</p>
+                    <div class="core-controls">
+                        <div class="step-box">
+                            <h3>手动镜头</h3>
+                            <div id="lens-grid" class="lens-grid"></div>
+                        </div>
+                        <div class="step-box">
+                            <h3>手选工具</h3>
+                            <div id="tool-grid" class="tool-grid"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="batch-drop" class="pipeline-board">
+                    <div>
+                        <h3>批量管道</h3>
+                        <p class="pipeline-note">运行批量时，只会完成已识别且流程匹配的类型。</p>
+                    </div>
+                    <div id="pipeline-chain" class="pipe-chain"></div>
+                    <div>
+                        <button id="run-pipeline-btn" class="btn primary" type="button">运行批量</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <aside class="panel right-panel">
+            <h2>盘子与奖励</h2>
+            <span id="reward-pill" class="pill">待收集奖励：0</span>
+            <button class="btn primary collect-cta" id="collect-btn">收集奖励</button>
+            <div id="plate" class="plate"></div>
+            <div id="main-log" class="log"></div>
+        </aside>
+    </div>
+</section>
+
+<div id="reward-modal" class="reward-modal" role="dialog" aria-modal="true" aria-labelledby="reward-modal-title">
+    <div class="reward-dialog">
+        <span class="pill">结算奖励</span>
+        <h2 id="reward-modal-title">收集奖励</h2>
+        <p>以下是当前盘子里累计的全部奖励，确认后会清空待收集列表。</p>
+        <div id="reward-list" class="reward-list"></div>
+        <div class="reward-actions">
+            <button class="btn ghost" id="reward-close-btn">关闭</button>
+            <button class="btn primary" id="reward-back-btn">收集奖励</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const TOOL_LABELS = {
+    clean:"清洁",
+    repair:"修补",
+    cut:"切除",
+    shape:"定形",
+    finish:"收光",
+    inspect:"放大镜",
+    light:"透光",
+    hardness:"硬度",
+    density:"称重"
+};
+const LENSES = [
+    { key:"A", label:"Lens A", filter:"rgba(127,223,255,.28)" },
+    { key:"B", label:"Lens B", filter:"rgba(214,156,255,.28)" },
+    { key:"C", label:"Lens C", filter:"rgba(151,232,163,.28)" }
+];
+const FACES = ["Face 1","Face 2","Face 3"];
+const SHAPE_TARGETS = ["circle", "triangle", "square"];
+const SHAPE_LABELS = { circle:"圆形", triangle:"三角形", square:"正方形" };
+const SHAPE_MARKS = { circle:"○", triangle:"△", square:"□" };
+const PIPELINE_STAGES = [
+    {
+        key:"surface",
+        options:[
+            { code:"A", label:"清洁筛", op:"clean" },
+            { code:"B", label:"修补筛", op:"repair" }
+        ]
+    },
+    {
+        key:"craft",
+        options:[
+            { code:"C", label:"切除夹", op:"cut" },
+            { code:"D", label:"修整夹", op:"shape" }
+        ]
+    },
+    {
+        key:"finish",
+        options:[
+            { code:"E", label:"收光布", op:"finish" },
+            { code:"F", label:"复核盘", op:"review" }
+        ]
+    }
+];
+const INSPECTION_TESTS = [
+    { type:"inspect", title:"放大镜观察纹理与包裹体", lens:0, face:0, pos:{x:50,y:46} },
+    { type:"light", title:"小手电透光看内部带纹", lens:1, face:1, pos:{x:56,y:52}, cutAngle:8 },
+    { type:"hardness", title:"边角硬度轻划测试", lens:2, face:2, pos:{x:42,y:58} },
+    { type:"density", title:"小天平称重判断密度区间", lens:0, face:1, pos:{x:50,y:56} }
+];
+const DESK_SCATTER_POINTS = [
+    { x:17, y:18, tilt:-10 },
+    { x:31, y:14, tilt:7 },
+    { x:45, y:22, tilt:-4 },
+    { x:24, y:34, tilt:12 },
+    { x:39, y:39, tilt:-12 },
+    { x:58, y:32, tilt:6 },
+    { x:15, y:51, tilt:5 },
+    { x:34, y:58, tilt:-7 },
+    { x:52, y:54, tilt:14 },
+    { x:70, y:47, tilt:-5 },
+    { x:61, y:70, tilt:8 },
+    { x:81, y:64, tilt:-11 }
+];
+const GEM_BLUEPRINTS = [
+    { id:"pearl", name:"珍珠", version:"西西亚·城市成品", kind:"成品宝石", sub:"清洁 + 上光", rewardShards:2, color:"linear-gradient(135deg, #fff8ee 0%, #d8d2d8 100%)", tasks:[{type:"clean", title:"表面污渍", lens:0, face:1, pos:{x:50,y:54}}, {type:"finish", title:"表面上光", lens:2, face:0, pos:{x:55,y:50}}] },
+    { id:"garnet", name:"石榴石", version:"西西亚·城市成品", kind:"成品宝石", sub:"修补 + 抛光", rewardShards:3, color:"linear-gradient(135deg, #b85a52 0%, #6d1f23 100%)", tasks:[{type:"repair", title:"边缘缺口", lens:1, face:2, pos:{x:58,y:42}}, {type:"finish", title:"最终抛光", lens:2, face:0, pos:{x:50,y:50}}] },
+    { id:"sunstone", name:"砂金石", version:"西西亚·城市成品", kind:"成品宝石", sub:"清洁 + 修补 + 抛光", rewardShards:3, color:"linear-gradient(135deg, #f1b07c 0%, #9a4f2d 100%)", tasks:[{type:"clean", title:"表面雾层", lens:1, face:0, pos:{x:62,y:34}}, {type:"repair", title:"细小缺角", lens:2, face:1, pos:{x:40,y:60}}, {type:"finish", title:"最终抛光", lens:0, face:2, pos:{x:50,y:52}}] },
+    { id:"obsidian", name:"黑曜石", version:"茜尔梅斯·魔法原石", kind:"原石", sub:"切除 + 定形", rewardShards:3, color:"linear-gradient(135deg, #6f6b83 0%, #15131f 100%)", tasks:[{type:"cut", title:"裂区切除", lens:0, face:0, pos:{x:58,y:38}}, {type:"shape", title:"定形成型", lens:2, face:1, pos:{x:50,y:50}}] },
+    { id:"fluorite", name:"萤石", version:"茜尔梅斯·魔法原石", kind:"原石", sub:"切除 + 定形 + 收光", rewardShards:4, color:"linear-gradient(135deg, #bca7e8 0%, #4f5a7e 100%)", tasks:[{type:"cut", title:"杂层切除", lens:1, face:1, pos:{x:62,y:52}}, {type:"shape", title:"定形成型", lens:2, face:2, pos:{x:50,y:48}}, {type:"finish", title:"表层收光", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"malachite", name:"孔雀石", version:"茜尔梅斯·魔法原石", kind:"原石", sub:"清洁 + 切除 + 定形 + 收光", rewardShards:5, color:"linear-gradient(135deg, #6ec07f 0%, #1d5a38 100%)", tasks:[{type:"clean", title:"表层矿皮", lens:0, face:0, pos:{x:62,y:40}}, {type:"cut", title:"杂脉切除", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"定形成型", lens:1, face:2, pos:{x:50,y:50}}, {type:"finish", title:"石面收光", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"agate", name:"玛瑙", version:"长安·城市成品", kind:"成品宝石", sub:"清洁 + 修补 + 收光", rewardShards:4, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", tasks:[{type:"clean", title:"表面脏层", lens:0, face:0, pos:{x:60,y:36}}, {type:"repair", title:"下缘缺口", lens:2, face:2, pos:{x:46,y:64}}, {type:"finish", title:"整体收光", lens:1, face:1, pos:{x:50,y:52}}] },
+    { id:"catseye", name:"猫眼石", version:"长安·城市成品", kind:"成品宝石", sub:"修补 + 抛光", rewardShards:5, color:"linear-gradient(135deg, #d8f1a8 0%, #7ea042 100%)", tasks:[{type:"repair", title:"边缘损伤", lens:2, face:1, pos:{x:56,y:40}}, {type:"finish", title:"最终抛光", lens:1, face:2, pos:{x:50,y:50}}] },
+    { id:"jadeite", name:"翡翠", version:"长安·城市成品", kind:"成品宝石", sub:"修补 + 上蜡", rewardShards:5, color:"linear-gradient(135deg, #b8f0c6 0%, #3d9b63 100%)", tasks:[{type:"repair", title:"边缘细裂", lens:1, face:1, pos:{x:56,y:62}}, {type:"finish", title:"表层上蜡", lens:2, face:0, pos:{x:50,y:50}}] },
+    { id:"turquoise", name:"绿松石", version:"巴蜀·原石", kind:"原石", sub:"清洁 + 切除 + 定形 + 收光", rewardShards:6, color:"linear-gradient(135deg, #86dfd0 0%, #2a8f89 100%)", tasks:[{type:"clean", title:"泥皮遮挡", lens:0, face:0, pos:{x:62,y:40}}, {type:"cut", title:"脉络杂质切除", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"定形成型", lens:1, face:2, pos:{x:50,y:50}}, {type:"finish", title:"石面收光", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"hetian", name:"和田玉", version:"巴蜀·原石", kind:"原石", sub:"切除 + 定形 + 收光", rewardShards:5, color:"linear-gradient(135deg, #edf0d5 0%, #a9b484 100%)", tasks:[{type:"cut", title:"杂质筋切除", lens:1, face:1, pos:{x:40,y:52}}, {type:"shape", title:"定形成型", lens:2, face:2, pos:{x:50,y:50}}, {type:"finish", title:"玉面收光", lens:0, face:0, pos:{x:52,y:52}}] },
+    { id:"shoushan", name:"寿山石", version:"巴蜀·原石", kind:"原石", sub:"切除 + 定形 + 收光", rewardShards:5, color:"linear-gradient(135deg, #f0d2a7 0%, #b5794b 100%)", tasks:[{type:"cut", title:"残皮切除", lens:0, face:2, pos:{x:54,y:60}}, {type:"shape", title:"定形成型", lens:2, face:1, pos:{x:50,y:48}}, {type:"finish", title:"石面收光", lens:1, face:0, pos:{x:50,y:50}}] }
+];
+
+const DEMO_DATA_PACKS = {
+    fullCoverage:{
+        label:"全量流程验收",
+        note:"每一种素体都有可玩数量，用于完整跑通 12 种宝石。",
+        known:["pearl","garnet","obsidian"],
+        bag:{ pearl:3, garnet:2, sunstone:2, obsidian:2, fluorite:1, malachite:1, agate:2, catseye:1, jadeite:1, turquoise:2, hetian:1, shoushan:1 }
+    },
+    firstDiscovery:{
+        label:"首次识别验收",
+        note:"只预先识别珍珠，其余类型需要通过核心玩法逐步解锁。",
+        known:["pearl"],
+        bag:{ pearl:1, garnet:1, sunstone:1, obsidian:1, fluorite:1, malachite:1, agate:1, catseye:1, jadeite:1, turquoise:1, hetian:1, shoushan:1 }
+    },
+    batchKnown:{
+        label:"批量已知验收",
+        note:"多种已知素体数量较多，用于验证批量入口和盘子累计。",
+        known:["pearl","garnet","sunstone","obsidian","fluorite","agate","catseye","jadeite"],
+        bag:{ pearl:5, garnet:4, sunstone:4, obsidian:3, fluorite:3, malachite:1, agate:4, catseye:3, jadeite:3, turquoise:1, hetian:1, shoushan:1 }
+    },
+    rewardStress:{
+        label:"长奖励列表压测",
+        note:"每种素体多份，用于检查奖励弹窗长列表滚动和收集。",
+        known:["pearl","garnet","sunstone","obsidian","fluorite","malachite","agate","catseye","jadeite","turquoise","hetian","shoushan"],
+        bag:{ pearl:4, garnet:4, sunstone:4, obsidian:4, fluorite:4, malachite:4, agate:4, catseye:4, jadeite:4, turquoise:4, hetian:4, shoushan:4 }
+    }
+};
+const initialBag = DEMO_DATA_PACKS.fullCoverage.bag;
+const state = {
+    bag:{ ...initialBag },
+    knownTypes:new Set(["pearl","garnet","obsidian"]),
+    playedTypes:new Set(),
+    plate:{},
+    rewards:[],
+    pendingBatch:false,
+    active:null,
+    lensIndex:0,
+    activeTool:"clean",
+    dataPackKey:"fullCoverage",
+    pipeline:[0,0,0],
+    selectedStoneId:null,
+    scatterAnimated:false,
+    dragPayload:null,
+    defectDrag:null,
+    lightDrag:null,
+    scratchDrag:null,
+    densityOrder:[],
+    suppressNextClick:false
+};
+
+function gemById(id){ return GEM_BLUEPRINTS.find(g => g.id === id); }
+function currentDataPack(){ return DEMO_DATA_PACKS[state.dataPackKey] || DEMO_DATA_PACKS.fullCoverage; }
+function normalizedBag(bag){
+    const result = {};
+    GEM_BLUEPRINTS.forEach(gem=>{ result[gem.id] = bag[gem.id] || 0; });
+    return result;
+}
+function bagTotal(){ return Object.values(state.bag).reduce((sum,n)=>sum+n,0); }
+function countInBag(id){ return state.bag[id] || 0; }
+function isUnseen(id){ return !state.playedTypes.has(id) && countInBag(id) > 0; }
+function pipelineCodeForGem(gem){
+    const taskTypes = new Set(gem.tasks.map(task=>task.type));
+    return [
+        taskTypes.has("repair") ? "B" : "A",
+        taskTypes.has("cut") ? "C" : "D",
+        taskTypes.has("finish") ? "E" : "F"
+    ];
+}
+function currentPipelineCode(){
+    return PIPELINE_STAGES.map((stage, index)=>stage.options[state.pipeline[index]].code);
+}
+function pipelineMatchesGem(gem){
+    const expected = pipelineCodeForGem(gem);
+    const active = currentPipelineCode();
+    return expected.every((code, index)=>code === active[index]);
+}
+function flowSummary(gem){
+    return gem.tasks.map(task=>TOOL_LABELS[task.type]).join(" -> ");
+}
+function sortedBagIds(){
+    return GEM_BLUEPRINTS
+        .map(g=>g.id)
+        .filter(id=>countInBag(id)>0)
+        .sort((a,b)=>{
+            const ua = isUnseen(a) ? 0 : 1;
+            const ub = isUnseen(b) ? 0 : 1;
+            if(ua !== ub) return ua - ub;
+            return GEM_BLUEPRINTS.findIndex(g=>g.id===a) - GEM_BLUEPRINTS.findIndex(g=>g.id===b);
+        });
+}
+function showScreen(id){
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+let toastTimer = null;
+function toast(text){
+    const el = document.getElementById("toast");
+    el.textContent = text;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>el.classList.remove("show"), 1500);
+}
+function addLog(text){
+    const log = document.getElementById("main-log");
+    const line = document.createElement("div");
+    line.textContent = text;
+    log.prepend(line);
+}
+function renderMain(){
+    document.getElementById("bag-count").textContent = bagTotal();
+    document.getElementById("reward-pill").textContent = `待收集奖励：${state.rewards.length}`;
+    const packSelect = document.getElementById("data-pack-select");
+    if(packSelect) packSelect.value = state.dataPackKey;
+    renderDesktopStones();
+    renderArchiveList();
+    renderStoneDetail();
+    renderPipeline();
+    renderPlate();
+}
+function renderDataPackOptions(){
+    const select = document.getElementById("data-pack-select");
+    select.innerHTML = "";
+    Object.entries(DEMO_DATA_PACKS).forEach(([key, pack])=>{
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = pack.label;
+        select.appendChild(option);
+    });
+    select.value = state.dataPackKey;
+}
+function renderDesktopStones(){
+    const grid = document.getElementById("desktop-grid");
+    grid.innerHTML = "";
+    const shouldAnimateScatter = !state.scatterAnimated;
+    GEM_BLUEPRINTS.forEach((gem, index)=>{
+        const amount = countInBag(gem.id);
+        const known = state.knownTypes.has(gem.id);
+        const point = DESK_SCATTER_POINTS[index % DESK_SCATTER_POINTS.length];
+        const slot = document.createElement("div");
+        slot.className = `desk-slot ${amount > 0 ? "" : "empty"} ${shouldAnimateScatter ? "" : "no-scatter"}`;
+        slot.style.setProperty("--slot-x", `${point.x}%`);
+        slot.style.setProperty("--slot-y", `${point.y}%`);
+        slot.style.setProperty("--slot-tilt", `${point.tilt}deg`);
+        slot.style.setProperty("--scatter-delay", `${index * 58}ms`);
+        slot.style.setProperty("--scatter-x", `${260 + (index % 4) * 34}px`);
+        slot.style.setProperty("--scatter-y", `${180 + (index % 3) * 30}px`);
+        if(amount > 0){
+            const stone = document.createElement("div");
+            stone.className = `desk-stone ${state.selectedStoneId === gem.id ? "selected" : ""}`;
+            stone.draggable = false;
+            stone.style.setProperty("--stone-color", gem.color);
+            stone.style.setProperty("--stone-tilt", `${[-7, 4, -2, 8][index % 4]}deg`);
+            stone.addEventListener("click", ()=>selectDeskStone(gem.id));
+            slot.appendChild(stone);
+            const count = document.createElement("div");
+            count.className = "desk-count";
+            count.textContent = amount;
+            slot.appendChild(count);
+            const overlay = document.createElement("div");
+            overlay.className = "stone-overlay";
+            overlay.innerHTML = known
+                ? `<b>${gem.name}</b><span>${gem.version}</span><br><span>推荐流程 ${pipelineCodeForGem(gem).join(" -> ")}</span>`
+                : `<b>未知素体</b><span>点击查看近景，然后进行检验</span>`;
+            slot.appendChild(overlay);
+        }
+        grid.appendChild(slot);
+    });
+    state.scatterAnimated = true;
+}
+function renderArchiveList(){
+    const list = document.getElementById("archive-list");
+    list.innerHTML = "";
+    GEM_BLUEPRINTS.forEach(gem=>{
+        const known = state.knownTypes.has(gem.id);
+        const card = document.createElement("div");
+        card.className = `archive-card ${known ? "" : "locked"}`;
+        card.innerHTML = `
+            <div class="archive-dot" style="--stone-color:${known ? gem.color : "linear-gradient(135deg, #d8d0c4, #8f8171)"}"></div>
+            <div>
+                <div class="archive-name">${known ? gem.name : "未知素体档案"}</div>
+                <div class="archive-meta">${
+                    known
+                        ? `${gem.version}<br>特性：${gem.kind}，${gem.sub}<br>流程：${pipelineCodeForGem(gem).join(" -> ")} · ${flowSummary(gem)}`
+                        : "完成桌面近景检验后记录名称、特性与推荐流程。"
+                }</div>
+            </div>
+        `;
+        list.appendChild(card);
+    });
+}
+function selectDeskStone(id){
+    state.selectedStoneId = id;
+    const gem = gemById(id);
+    addLog(`镜头靠近一颗${state.knownTypes.has(id) ? gem.name : "未知素体"}。`);
+    renderMain();
+}
+function resetDeskZoom(){
+    state.selectedStoneId = null;
+    document.getElementById("desk-detail").classList.remove("show");
+    document.getElementById("lens-stage").classList.remove("focused");
+    renderMain();
+}
+function renderStoneDetail(){
+    const detail = document.getElementById("desk-detail");
+    const stage = document.getElementById("lens-stage");
+    const grid = document.getElementById("desktop-grid");
+    if(!state.selectedStoneId || countInBag(state.selectedStoneId) <= 0){
+        detail.classList.remove("show");
+        stage.classList.remove("focused");
+        return;
+    }
+    const gem = gemById(state.selectedStoneId);
+    const known = state.knownTypes.has(gem.id);
+    const point = DESK_SCATTER_POINTS[GEM_BLUEPRINTS.findIndex(item=>item.id === gem.id) % DESK_SCATTER_POINTS.length];
+    const observationStone = document.getElementById("observation-stone");
+    grid.style.setProperty("--focus-x", `${point.x}%`);
+    grid.style.setProperty("--focus-y", `${point.y}%`);
+    observationStone.style.setProperty("--stone-color", gem.color);
+    observationStone.style.setProperty("--observe-tilt", `${point.tilt}deg`);
+    document.getElementById("detail-stone").style.setProperty("--stone-color", gem.color);
+    document.getElementById("detail-title").textContent = known ? gem.name : "未知素体";
+    document.getElementById("detail-meta").innerHTML = known
+        ? `${gem.version}<br>特性：${gem.kind}，${gem.sub}<br>推荐流程：${pipelineCodeForGem(gem).join(" -> ")} · ${flowSummary(gem)}`
+        : `袋内数量：${countInBag(gem.id)}<br>检验流程稍后制作；现在点击“检验”会先记录档案。`;
+    document.getElementById("inspect-btn").textContent = known ? "已检验" : "检验";
+    document.getElementById("inspect-btn").disabled = known;
+    stage.classList.add("focused");
+    detail.classList.add("show");
+}
+function renderPipeline(){
+    const chain = document.getElementById("pipeline-chain");
+    chain.innerHTML = "";
+    PIPELINE_STAGES.forEach((stage, index)=>{
+        const option = stage.options[state.pipeline[index]];
+        const stageEl = document.createElement("div");
+        stageEl.className = "pipe-stage";
+        stageEl.innerHTML = `
+            <div class="pipe-choice">
+                <strong>${option.code}</strong>
+                <span>${option.label}</span>
+            </div>
+            <button class="pipe-flip" type="button" aria-label="翻转第 ${index + 1} 段管道">↻</button>
+        `;
+        stageEl.querySelector("button").addEventListener("click", ()=>{
+            state.pipeline[index] = state.pipeline[index] ? 0 : 1;
+            renderPipeline();
+            toast(`第 ${index + 1} 段切到 ${stage.options[state.pipeline[index]].code}`);
+        });
+        chain.appendChild(stageEl);
+        if(index < PIPELINE_STAGES.length - 1){
+            const joint = document.createElement("div");
+            joint.className = "pipe-joint";
+            joint.textContent = "→";
+            chain.appendChild(joint);
+        }
+    });
+}
+function renderPlate(){
+    const plate = document.getElementById("plate");
+    plate.innerHTML = "";
+    const ids = Object.keys(state.plate).filter(id=>state.plate[id]>0);
+    if(!ids.length){
+        plate.innerHTML = `<div class="empty-state">盘子里还没有成石</div>`;
+        return;
+    }
+    let index = 0;
+    ids.forEach(id=>{
+        const gem = gemById(id);
+        const amount = state.plate[id];
+        for(let i = 0; i < amount; i++){
+            const item = document.createElement("div");
+            item.className = "plate-gem";
+            item.title = `${gem.name} ${i + 1}/${amount}`;
+            item.style.background = gem.color;
+            item.style.setProperty("--delay", `${Math.min(index, 24) * 55}ms`);
+            item.style.setProperty("--from-x", `${index % 2 === 0 ? -140 : 140}px`);
+            item.textContent = gem.name.slice(0, 1);
+            plate.appendChild(item);
+            index += 1;
+        }
+    });
+}
+function firstUnseenOrFirstBagId(){
+    const sorted = sortedBagIds();
+    return sorted[0] || null;
+}
+function releaseTypeToPlate(id, reason){
+    const amount = countInBag(id);
+    if(amount <= 0) return 0;
+    state.bag[id] = 0;
+    state.plate[id] = (state.plate[id] || 0) + amount;
+    const gem = gemById(id);
+    state.rewards.push({ id, amount, shards:gem.rewardShards * amount, reason });
+    state.knownTypes.add(id);
+    return amount;
+}
+function releaseKnownTypesForBatch(){
+    let released = 0;
+    sortedBagIds().forEach(id=>{
+        if(state.knownTypes.has(id)){
+            const gem = gemById(id);
+            const amount = releaseTypeToPlate(id, "整袋批量入口自动完成已知类型");
+            if(amount > 0){
+                state.playedTypes.add(id);
+                released += amount;
+                addLog(`${gem.name} 已知类型自动完成，同类型 ${amount} 颗出石到盘子。`);
+            }
+        }
+    });
+    if(released) addLog(`批量入口依次自动完成 ${released} 颗已知素体。`);
+    return released;
+}
+function startManualFromBag(){
+    if(state.active){ toast("当前素体处理中"); return; }
+    const id = firstUnseenOrFirstBagId();
+    if(!id){ toast("素体袋为空"); return; }
+    startInspectionStone(id);
+}
+function startBatchFromBag(){
+    if(state.active){ toast("当前素体处理中"); return; }
+    if(!bagTotal()){ toast("素体袋为空"); return; }
+    addLog(`运行批量管道：${currentPipelineCode().join(" -> ")}。`);
+    releasePipelineMatches();
+    renderMain();
+    finishRound("批量管道运行完成，未识别或流程不匹配的素体留在桌面。");
+}
+function startKnownStone(id){
+    if(state.active){ toast("当前素体处理中"); return; }
+    if(countInBag(id) <= 0){ toast("袋内没有这种素体"); return; }
+    startInspectionStone(id);
+}
+function startInspectionStone(id){
+    if(state.active){ toast("当前素体处理中"); return; }
+    if(countInBag(id) <= 0){ toast("袋内没有这种素体"); return; }
+    const gem = gemById(id);
+    addLog(`捡起一颗${state.knownTypes.has(id) ? gem.name : "未知素体"}，开始工具箱检验。`);
+    startCorePlay(id, { source:"desktop", mode:"inspect", continueBatch:false });
+}
+function completeSelectedInspection(){
+    const id = state.selectedStoneId;
+    if(!id){ toast("先点击桌面上的一颗石头"); return; }
+    if(countInBag(id) <= 0){ toast("这个位置没有素体"); return; }
+    const gem = gemById(id);
+    if(state.knownTypes.has(id)){ toast("这类石头已经有档案"); return; }
+    addLog(`进入 ${gem.name} 的工具箱检验玩法。`);
+    startCorePlay(id, { source:"desktop", mode:"inspect", continueBatch:false });
+}
+function completeKnownStoneInBatch(id){
+    if(state.active){ toast("当前素体处理中"); return; }
+    runPipelineForIds([id]);
+}
+function releasePipelineMatches(){
+    runPipelineForIds(sortedBagIds());
+}
+function runPipelineForIds(ids){
+    let released = 0;
+    let blocked = 0;
+    ids.forEach(id=>{
+        if(countInBag(id) <= 0) return;
+        const gem = gemById(id);
+        if(!state.knownTypes.has(id)){
+            blocked += 1;
+            addLog(`${knownOrUnknownName(id)} 尚未检验成功，批量管道不接收。`);
+            return;
+        }
+        if(!pipelineMatchesGem(gem)){
+            blocked += 1;
+            addLog(`${gem.name} 需要 ${pipelineCodeForGem(gem).join(" -> ")}，当前管道不匹配，退回桌面。`);
+            return;
+        }
+        state.playedTypes.add(id);
+        const amount = releaseTypeToPlate(id, `流水线 ${currentPipelineCode().join(" -> ")} 批量完成`);
+        released += amount;
+        addLog(`${gem.name} 匹配管道，同类型 ${amount} 颗出石到盘子。`);
+    });
+    if(released) addLog(`批量管道完成 ${released} 颗素体。`);
+    if(blocked && !released) toast("没有可批量完成的匹配石头");
+    renderMain();
+}
+function knownOrUnknownName(id){
+    return state.knownTypes.has(id) ? gemById(id).name : "未知素体";
+}
+function buildCoreTasks(gem, mode){
+    const sourceTasks = mode === "inspect" ? INSPECTION_TESTS : gem.tasks;
+    return sourceTasks.map((task, index)=>({
+        ...task,
+        id:`${gem.id}_${index}`,
+        done:false,
+        clicks:0,
+        dragDistance:0,
+        shapeTarget: task.targetShape || SHAPE_TARGETS[(GEM_BLUEPRINTS.findIndex(g=>g.id === gem.id) + index) % SHAPE_TARGETS.length],
+        cutAngle: task.cutAngle ?? [-32, -18, 22, 34][(GEM_BLUEPRINTS.findIndex(g=>g.id === gem.id) + index) % 4]
+    }));
+}
+function startCorePlay(id, meta){
+    const gem = gemById(id);
+    state.active = {
+        gemId:id,
+        meta,
+        tasks:buildCoreTasks(gem, meta?.mode),
+        stepIndex:0,
+        batchAmount:countInBag(id)
+    };
+    state.lensIndex = 0;
+    state.activeTool = state.active.tasks[0]?.type || "clean";
+    state.lightDrag = null;
+    state.scratchDrag = null;
+    state.densityOrder = [];
+    document.body.classList.add("playing");
+    document.getElementById("lens-stage").classList.remove("idle");
+    document.getElementById("lens-stage").classList.remove("focused");
+    document.getElementById("desk-detail").classList.remove("show");
+    showScreen("screen-main");
+    renderPlay();
+}
+function currentStep(){
+    if(!state.active) return null;
+    return state.active.tasks[state.active.stepIndex] || null;
+}
+function stepStatusText(step){
+    const base = `${TOOL_LABELS[step.type]} · ${step.title}`;
+    if(step.type === "inspect") return `${base} · 点击 ${step.clicks || 0}/2`;
+    if(step.type === "light") return `${base} · 拖动手电找透光角`;
+    if(step.type === "hardness") return `${base} · 控制划片速度`;
+    if(step.type === "density") return `${base} · 排序 ${state.densityOrder.length}/5`;
+    if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / 260 * 100))}%`;
+    if(step.type === "repair") return `${base} · 点击 ${step.clicks || 0}/3`;
+    if(step.type === "cut") return `${base} · 顺着长条角度拖拽`;
+    if(step.type === "shape") return `${base} · 描摹${SHAPE_LABELS[step.shapeTarget]}`;
+    return base;
+}
+function stepHintText(step){
+    if(!step) return "滚轮切 Lens，右键切工具，点击处理点完成交互。";
+    if(step.type === "inspect") return "放大镜：点击两处纹理/包裹体，记录第一条鉴定证据。";
+    if(step.type === "light") return "透光：拖动手电筒，它会一直照向宝石；只有正确角度会在对面透出光，透出时松手。";
+    if(step.type === "hardness") return "硬度：按住划片从左往右滑过放大的宝石，速度太快或太慢都不会记录。";
+    if(step.type === "density") return "称重：点击样品石按从轻到重排序，目标石也在其中，顺序正确才完成。";
+    if(step.type === "clean") return "清洁：按住范围圈，在瑕疵上来回拖拽擦除。";
+    if(step.type === "repair") return "修补：连续点击水滴形瑕疵 3 次。";
+    if(step.type === "cut") return "切除：按住长条瑕疵，沿相近角度拖拽切除。";
+    if(step.type === "shape") return `定形：按住形状特效，拖拽描摹${SHAPE_LABELS[step.shapeTarget]}。`;
+    return "收光：点击处理点完成收光。";
+}
+function renderPlay(){
+    const active = state.active;
+    if(!active) return;
+    const gem = gemById(active.gemId);
+    const step = currentStep();
+    const gem3d = document.getElementById("gem3d");
+    const hasShaped = active.tasks.some(task=>task.type === "shape" && task.done);
+    const stepClass = step ? `step-${step.type}` : "";
+    gem3d.className = `gem3d ${stepClass} ${hasShaped ? "shaped" : ""}`.trim();
+    gem3d.style.setProperty("--defect-x", step ? `${step.pos.x}%` : "50%");
+    gem3d.style.setProperty("--defect-y", step ? `${step.pos.y}%` : "50%");
+    const inspecting = active.meta?.mode === "inspect";
+    document.getElementById("play-title").textContent = `${inspecting ? "未知素体" : gem.name} · ${inspecting ? "工具箱检验" : "核心玩法"}`;
+    document.getElementById("status-gem").textContent = inspecting && !state.knownTypes.has(gem.id) ? "未知素体 / 待识别" : `${gem.name} / ${gem.version}`;
+    document.getElementById("status-batch").textContent = `同类型 ${active.batchAmount} 颗`;
+    document.getElementById("status-step").textContent = step ? stepStatusText(step) : "完成";
+    document.getElementById("status-face").textContent = step ? `${FACES[step.face]}（自动）` : "完成";
+    document.querySelector(".core-hint").textContent = stepHintText(step);
+    document.getElementById("step-progress").style.width = `${(active.stepIndex / active.tasks.length) * 100}%`;
+    document.getElementById("gem-core").style.setProperty("--gem-color", gem.color);
+    document.getElementById("lens-stage").style.setProperty("--lens-filter", LENSES[state.lensIndex].filter);
+    state.scatterAnimated = true;
+    renderLensButtons();
+    renderToolButtons();
+    renderInspectionLayer();
+    renderHotspot();
+}
+function renderLensButtons(){
+    const grid = document.getElementById("lens-grid");
+    grid.innerHTML = "";
+    LENSES.forEach((lens, index)=>{
+        const btn = document.createElement("button");
+        btn.className = `lens-btn ${state.lensIndex === index ? "active" : ""}`;
+        btn.textContent = lens.label;
+        btn.addEventListener("click", ()=>{
+            state.lensIndex = index;
+            renderPlay();
+            toast(`切换到 ${lens.label}`);
+        });
+        grid.appendChild(btn);
+    });
+}
+function renderToolButtons(){
+    const grid = document.getElementById("tool-grid");
+    grid.innerHTML = "";
+    const order = state.active?.meta?.mode === "inspect" ? ["inspect","light","hardness","density"] : ["clean","repair","cut","shape","finish"];
+    order.forEach(type=>{
+        const btn = document.createElement("button");
+        btn.className = `tool-btn ${state.activeTool === type ? "active" : ""}`;
+        btn.textContent = TOOL_LABELS[type];
+        btn.addEventListener("click", ()=>{
+            state.activeTool = type;
+            renderPlay();
+            toast(`切换到${TOOL_LABELS[type]}工具`);
+        });
+        grid.appendChild(btn);
+    });
+}
+function renderInspectionLayer(){
+    const layer = document.getElementById("inspection-layer");
+    const step = currentStep();
+    layer.innerHTML = "";
+    layer.className = "inspection-layer";
+    if(!step || !["light","hardness","density"].includes(step.type)) return;
+    layer.classList.add("active");
+    const wrongLens = state.lensIndex !== step.lens;
+    if(wrongLens) layer.classList.add("locked");
+    if(step.type === "light"){
+        const angle = step.lightAngle ?? 220;
+        const distance = step.lightDistance ?? 34;
+        const radians = angle * Math.PI / 180;
+        const x = 50 + Math.cos(radians) * distance;
+        const y = 50 + Math.sin(radians) * distance;
+        const exitAngle = angleDiff(angle + 180, step.targetAngle ?? 2);
+        const isClear = exitAngle <= 14;
+        const exitX = 50 - Math.cos(radians) * 28;
+        const exitY = 50 - Math.sin(radians) * 28;
+        layer.style.setProperty("--flash-x", `${x}%`);
+        layer.style.setProperty("--flash-y", `${y}%`);
+        layer.style.setProperty("--flash-angle", `${angleToCenter(x, y)}deg`);
+        layer.style.setProperty("--exit-x", `${exitX}%`);
+        layer.style.setProperty("--exit-y", `${exitY}%`);
+        layer.innerHTML = `
+            <div class="light-block">${isClear ? "光透到对面，松手记录" : "角度不对，光被石体遮住"}</div>
+            ${isClear ? `<div class="light-exit"></div>` : ""}
+            <div id="flashlight" class="flashlight" role="button" aria-label="可拖拽手电筒"></div>
+            ${wrongLens ? `<div class="lens-warning">需要先切到 ${LENSES[step.lens].label} 才能操作手电</div>` : ""}
+        `;
+        layer.querySelector("#flashlight").addEventListener("pointerdown", startLightDrag);
+        return;
+    }
+    if(step.type === "hardness"){
+        layer.innerHTML = `
+            <div class="scratch-track"></div>
+            <div class="scratch-meter"></div>
+            <div id="scratch-tool" class="scratch-tool" role="button" aria-label="可拖拽划片"></div>
+            ${wrongLens ? `<div class="lens-warning">需要先切到 ${LENSES[step.lens].label} 才能划片</div>` : ""}
+        `;
+        layer.querySelector("#scratch-tool").addEventListener("pointerdown", startScratchDrag);
+        return;
+    }
+    if(step.type === "density"){
+        const samples = getDensitySamples();
+        layer.innerHTML = `
+            <div class="scale-game">
+                <div class="scale-pan">小天平 · 读标签，从轻到重排序</div>
+                <div class="sample-row">
+                    ${samples.map(sample=>`<button class="sample-stone ${state.densityOrder.includes(sample.key) ? "placed" : ""}" data-key="${sample.key}" style="--sample-color:${sample.color}">${sample.label}<br>${sample.hint}</button>`).join("")}
+                </div>
+                <div class="sort-row">
+                    ${[0,1,2].map(index=>`<div class="sort-slot">${state.densityOrder[index] ? samples.find(s=>s.key === state.densityOrder[index])?.label : index + 1}</div>`).join("")}
+                </div>
+                ${wrongLens ? `<div class="lens-warning">需要先切到 ${LENSES[step.lens].label} 才能称重排序</div>` : ""}
+            </div>
+        `;
+        layer.querySelectorAll(".sample-stone").forEach(btn=>{
+            btn.addEventListener("click", ()=>placeDensitySample(btn.dataset.key));
+        });
+    }
+}
+function cycleLensByWheel(deltaY){
+    if(!state.active) return;
+    const dir = deltaY >= 0 ? 1 : -1;
+    state.lensIndex = (state.lensIndex + dir + LENSES.length) % LENSES.length;
+    renderPlay();
+    toast(`切换到 ${LENSES[state.lensIndex].label}`);
+}
+function cycleToolByRightClick(){
+    if(!state.active) return;
+    const order = state.active.meta?.mode === "inspect" ? ["inspect","light","hardness","density"] : ["clean","repair","cut","shape","finish"];
+    const current = order.indexOf(state.activeTool);
+    const next = order[(current + 1 + order.length) % order.length];
+    state.activeTool = next;
+    renderPlay();
+    toast(`切换到${TOOL_LABELS[next]}工具`);
+}
+function angleToCenter(x, y){
+    return Math.atan2(50 - y, 50 - x) * 180 / Math.PI;
+}
+function startLightDrag(e){
+    const step = currentStep();
+    if(!step || step.type !== "light" || !canUseCurrentStep(step)) return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    state.lightDrag = { pointerId:e.pointerId };
+    window.addEventListener("pointermove", updateLightDrag);
+    window.addEventListener("pointerup", finishLightDrag, { once:true });
+}
+function updateLightDrag(e){
+    const step = currentStep();
+    if(!state.lightDrag || !step || step.type !== "light") return;
+    const stage = document.getElementById("lens-stage").getBoundingClientRect();
+    const x = ((e.clientX - stage.left) / stage.width) * 100;
+    const y = ((e.clientY - stage.top) / stage.height) * 100;
+    const dx = x - 50;
+    const dy = y - 50;
+    step.lightAngle = Math.atan2(dy, dx) * 180 / Math.PI;
+    step.lightDistance = Math.max(26, Math.min(40, Math.hypot(dx, dy)));
+    renderPlay();
+}
+function finishLightDrag(){
+    window.removeEventListener("pointermove", updateLightDrag);
+    const step = currentStep();
+    if(!state.lightDrag || !step || step.type !== "light") return;
+    state.lightDrag = null;
+    const diff = angleDiff((step.lightAngle ?? 182) + 180, step.targetAngle ?? 2);
+    if(diff <= 14) completeCurrentStep(step);
+    else toast("还没有透到对面，换个角度照。");
+}
+function startScratchDrag(e){
+    const step = currentStep();
+    if(!step || step.type !== "hardness" || !canUseCurrentStep(step)) return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    state.scratchDrag = {
+        pointerId:e.pointerId,
+        startX:e.clientX,
+        startY:e.clientY,
+        startTime:performance.now()
+    };
+    window.addEventListener("pointermove", updateScratchDrag);
+    window.addEventListener("pointerup", finishScratchDrag, { once:true });
+}
+function updateScratchDrag(e){
+    if(!state.scratchDrag) return;
+    const stage = document.getElementById("lens-stage").getBoundingClientRect();
+    const x = Math.max(18, Math.min(82, ((e.clientX - stage.left) / stage.width) * 100));
+    const tool = document.getElementById("scratch-tool");
+    if(tool) tool.style.left = `${x}%`;
+}
+function finishScratchDrag(e){
+    window.removeEventListener("pointermove", updateScratchDrag);
+    const drag = state.scratchDrag;
+    const step = currentStep();
+    state.scratchDrag = null;
+    if(!drag || !step || step.type !== "hardness") return;
+    const dx = e.clientX - drag.startX;
+    const dy = Math.abs(e.clientY - drag.startY);
+    const elapsed = Math.max(1, performance.now() - drag.startTime);
+    const speed = Math.abs(dx) / elapsed;
+    if(dx >= 190 && dy <= 58 && speed >= .18 && speed <= .62) completeCurrentStep(step);
+    else {
+        if(dx < 190) toast("划片距离不够，要从左往右完整滑过。");
+        else if(speed < .18) toast("速度太慢，划痕不清晰。");
+        else if(speed > .62) toast("速度太快，要小心翼翼地划过去。");
+        else toast("划片偏离太多，再稳一点。");
+        resetScratchTool();
+    }
+}
+function resetScratchTool(){
+    const tool = document.getElementById("scratch-tool");
+    if(tool) tool.style.left = "22%";
+}
+function getDensitySamples(){
+    const gem = state.active ? gemById(state.active.gemId) : GEM_BLUEPRINTS[0];
+    return [
+        { key:"glass", label:"玻璃样", hint:"轻 · 2.4", weight:1, color:"linear-gradient(135deg, #d7f3f6, #76b9c5)" },
+        { key:"target", label:"目标石", hint:"中 · 3.1", weight:2, color:gem.color },
+        { key:"ore", label:"重矿样", hint:"重 · 4.6", weight:3, color:"linear-gradient(135deg, #8c8794, #34303b)" }
+    ].sort((a,b)=>a.label.localeCompare(b.label, "zh-CN"));
+}
+function placeDensitySample(key){
+    const step = currentStep();
+    if(!step || step.type !== "density" || !canUseCurrentStep(step)) return;
+    if(state.densityOrder.includes(key)) return;
+    state.densityOrder.push(key);
+    const correct = ["glass","target","ore"];
+    if(state.densityOrder.length >= correct.length){
+        if(state.densityOrder.every((item, index)=>item === correct[index])){
+            completeCurrentStep(step);
+        } else {
+            toast("排序不对，重新称一遍。");
+            state.densityOrder = [];
+            renderPlay();
+        }
+        return;
+    }
+    renderPlay();
+}
+function renderHotspot(){
+    const step = currentStep();
+    const spot = document.getElementById("hotspot");
+    const ring = document.getElementById("focus-ring");
+    if(step && ["light","hardness","density"].includes(step.type)){
+        spot.style.display = "none";
+        ring.style.display = "none";
+        return;
+    }
+    const visibleOnLens = step && (step.type === "finish" || state.lensIndex === step.lens);
+    if(!visibleOnLens){
+        spot.style.display = "none";
+        ring.style.display = "none";
+        return;
+    }
+    spot.style.display = "grid";
+    ring.style.display = "block";
+    spot.className = `hotspot hotspot-${step.type} ${step.type === "shape" ? `hotspot-shape-${step.shapeTarget}` : ""}`;
+    ring.className = `focus-ring focus-ring-${step.type}`;
+    spot.style.setProperty("--cut-angle", `${step.cutAngle || -22}deg`);
+    ring.style.setProperty("--cut-angle", `${step.cutAngle || -22}deg`);
+    spot.style.setProperty("--repair-scale", step.type === "repair" ? Math.max(.58, 1 - (step.clicks || 0) * .18) : 1);
+    spot.textContent = hotspotLabel(step);
+    spot.setAttribute("aria-label", `${TOOL_LABELS[step.type]}瑕疵：${step.title}`);
+    const pos = defectStagePosition(step);
+    spot.style.left = `${pos.x}%`;
+    spot.style.top = `${pos.y}%`;
+    ring.style.left = `${pos.x}%`;
+    ring.style.top = `${pos.y}%`;
+}
+function defectStagePosition(step){
+    const scale = step.type === "shape" ? 0.42 : 0.48;
+    const yLift = step.type === "repair" ? 8 : step.type === "clean" ? 3 : step.type === "shape" ? 4 : 0;
+    return {
+        x:50 + (step.pos.x - 50) * scale,
+        y:50 + (step.pos.y - 50) * scale - yLift
+    };
+}
+function hotspotLabel(step){
+    if(step.type === "inspect") return "观";
+    if(step.type === "light") return "光";
+    if(step.type === "hardness") return "划";
+    if(step.type === "density") return "称";
+    if(step.type === "clean") return "擦";
+    if(step.type === "repair") return "滴";
+    if(step.type === "cut") return "切";
+    if(step.type === "shape") return SHAPE_MARKS[step.shapeTarget];
+    return "";
+}
+function clearHotspot(){
+    const spot = document.getElementById("hotspot");
+    const ring = document.getElementById("focus-ring");
+    const layer = document.getElementById("inspection-layer");
+    if(spot) spot.style.display = "none";
+    if(ring) ring.style.display = "none";
+    if(layer){
+        layer.innerHTML = "";
+        layer.className = "inspection-layer";
+    }
+}
+function canUseCurrentStep(step){
+    if(!step) return;
+    if(step.type !== "finish" && state.lensIndex !== step.lens){
+        toast(`镜头不对，需要 ${LENSES[step.lens].label}`);
+        return false;
+    }
+    if(state.activeTool !== step.type){
+        toast(`工具不对，需要${TOOL_LABELS[step.type]}`);
+        return false;
+    }
+    return true;
+}
+function completeCurrentStep(step){
+    step.done = true;
+    state.active.stepIndex += 1;
+    state.lightDrag = null;
+    state.scratchDrag = null;
+    state.densityOrder = [];
+    toast(`完成 ${TOOL_LABELS[step.type]}`);
+    if(state.active.stepIndex >= state.active.tasks.length){
+        completeActiveGem();
+    } else {
+        const next = currentStep();
+        state.activeTool = next.type;
+        renderPlay();
+    }
+}
+function tryCoreInteraction(){
+    const step = currentStep();
+    if(!canUseCurrentStep(step)) return;
+    completeCurrentStep(step);
+}
+function handleHotspotClick(){
+    if(state.suppressNextClick){
+        state.suppressNextClick = false;
+        return;
+    }
+    const step = currentStep();
+    if(!canUseCurrentStep(step)) return;
+    if(step.type === "inspect" || step.type === "hardness"){
+        step.clicks = (step.clicks || 0) + 1;
+        if(step.clicks >= 2) completeCurrentStep(step);
+        else {
+            toast(`${TOOL_LABELS[step.type]}进度 ${step.clicks}/2`);
+            renderPlay();
+        }
+        return;
+    }
+    if(step.type === "repair"){
+        step.clicks = (step.clicks || 0) + 1;
+        if(step.clicks >= 3) completeCurrentStep(step);
+        else {
+            toast(`修补进度 ${step.clicks}/3`);
+            renderPlay();
+        }
+        return;
+    }
+    if(step.type === "finish" || step.type === "density"){
+        if(step.type === "density") toast("请在天平区域点击样品石完成排序。");
+        if(step.type === "density") return;
+        completeCurrentStep(step);
+        return;
+    }
+    if(step.type === "light") toast("按住光带，顺着透光方向拖动。");
+    if(step.type === "clean") toast("按住瑕疵范围来回拖拽擦拭。");
+    if(step.type === "cut") toast("按住长条，沿相近角度拖拽切除。");
+    if(step.type === "shape") toast(`按住形状，拖拽描摹${SHAPE_LABELS[step.shapeTarget]}。`);
+}
+function startDefectDrag(e){
+    const step = currentStep();
+    if(!step || !["clean","cut","shape","light"].includes(step.type)) return;
+    if(!canUseCurrentStep(step)) return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    state.defectDrag = {
+        type:step.type,
+        pointerId:e.pointerId,
+        startX:e.clientX,
+        startY:e.clientY,
+        lastX:e.clientX,
+        lastY:e.clientY,
+        distance:0,
+        lastParticleDistance:0,
+        points:[{ x:e.clientX, y:e.clientY }]
+    };
+    spawnDragParticle(e.clientX, e.clientY, step.type);
+}
+function updateDefectDrag(e){
+    const drag = state.defectDrag;
+    const step = currentStep();
+    if(!drag || !step || drag.pointerId !== e.pointerId) return;
+    const dx = e.clientX - drag.lastX;
+    const dy = e.clientY - drag.lastY;
+    drag.distance += Math.hypot(dx, dy);
+    drag.lastX = e.clientX;
+    drag.lastY = e.clientY;
+    drag.points.push({ x:e.clientX, y:e.clientY });
+    if(drag.distance - drag.lastParticleDistance >= 18){
+        spawnDragParticle(e.clientX, e.clientY, step.type);
+        drag.lastParticleDistance = drag.distance;
+    }
+    if(step.type === "clean"){
+        step.dragDistance = Math.max(step.dragDistance || 0, drag.distance);
+        renderPlay();
+        if(step.dragDistance >= 260){
+            state.suppressNextClick = true;
+            state.defectDrag = null;
+            completeCurrentStep(step);
+        }
+    }
+}
+function spawnDragParticle(x, y, type){
+    const particle = document.createElement("span");
+    particle.className = `drag-particle drag-particle-${type}`;
+    particle.style.left = `${x}px`;
+    particle.style.top = `${y}px`;
+    particle.style.setProperty("--particle-dx", `${(Math.random() - .5) * 22}px`);
+    document.body.appendChild(particle);
+    setTimeout(()=>particle.remove(), 520);
+}
+function finishDefectDrag(e){
+    const drag = state.defectDrag;
+    const step = currentStep();
+    if(!drag || !step || drag.pointerId !== e.pointerId) return;
+    state.defectDrag = null;
+    state.suppressNextClick = true;
+    if(step.type === "cut" || step.type === "light"){
+        const dx = e.clientX - drag.startX;
+        const dy = e.clientY - drag.startY;
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        const diff = angleDiff(angle, step.cutAngle || 0);
+        if(drag.distance >= 80 && diff <= 24) completeCurrentStep(step);
+        else toast(step.type === "light" ? "光带角度不对，要顺着透光方向拖动。" : "切除角度不对，要顺着长条方向拖拽。");
+        return;
+    }
+    if(step.type === "shape"){
+        if(traceMatchesShape(drag.points, step.shapeTarget)){
+            completeCurrentStep(step);
+        } else {
+            toast(`描摹不完整，再顺着${SHAPE_LABELS[step.shapeTarget]}轮廓拖一遍。`);
+        }
+    }
+}
+function angleDiff(a, b){
+    let diff = Math.abs((((a - b) % 180) + 180) % 180);
+    return diff > 90 ? 180 - diff : diff;
+}
+function traceMatchesShape(points, shape){
+    if(points.length < 4) return false;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity, distance = 0;
+    points.forEach((point, index)=>{
+        minX = Math.min(minX, point.x);
+        minY = Math.min(minY, point.y);
+        maxX = Math.max(maxX, point.x);
+        maxY = Math.max(maxY, point.y);
+        if(index > 0) distance += Math.hypot(point.x - points[index - 1].x, point.y - points[index - 1].y);
+    });
+    const width = maxX - minX;
+    const height = maxY - minY;
+    const aspect = width / Math.max(1, height);
+    if(width < 42 || height < 42) return false;
+    if(shape === "circle") return distance >= 220 && aspect > .62 && aspect < 1.55;
+    if(shape === "triangle") return distance >= 170 && width > 56 && height > 48;
+    return distance >= 210 && aspect > .72 && aspect < 1.35;
+}
+function completeActiveGem(){
+    const active = state.active;
+    const gem = gemById(active.gemId);
+    clearHotspot();
+    state.playedTypes.add(active.gemId);
+    state.knownTypes.add(active.gemId);
+    if(active.meta?.mode === "inspect"){
+        addLog(`${gem.name} 检验成功，已记录鉴定卡：推荐流程 ${pipelineCodeForGem(gem).join(" -> ")}（${flowSummary(gem)}）。`);
+        state.active = null;
+        renderMain();
+        finishRound("完成一次工具箱检验，桌面 hover 现在会显示名称和推荐流程。");
+        return;
+    }
+    const amount = releaseTypeToPlate(active.gemId, "核心玩法完成后同类型出石");
+    addLog(`${gem.name} 鉴定完成，同类型 ${amount} 颗一起出石到盘子。`);
+    state.active = null;
+    renderMain();
+    if(active.meta.continueBatch){
+        const nextId = firstUnseenOrFirstBagId();
+        if(nextId){
+            setTimeout(()=>startCorePlay(nextId, { source:"batch", continueBatch:true }), 450);
+            return;
+        }
+        state.pendingBatch = false;
+        finishRound("整袋素体处理完成。");
+        return;
+    }
+    finishRound("完成一次核心玩法。");
+}
+function finishRound(message){
+    document.body.classList.remove("playing");
+    document.getElementById("lens-stage").classList.add("idle");
+    clearHotspot();
+    addLog(message);
+    renderMain();
+    showScreen("screen-main");
+}
+function renderRewards(){
+    const list = document.getElementById("reward-list");
+    list.innerHTML = "";
+    if(!state.rewards.length){
+        list.innerHTML = `<div class="empty-state">没有待收集奖励</div>`;
+        return;
+    }
+    state.rewards.forEach(reward=>{
+        const gem = gemById(reward.id);
+        const item = document.createElement("div");
+        item.className = "reward-item";
+        item.innerHTML = `<span>${gem.name} 成石 ×${reward.amount}<br><small>${reward.reason}</small></span><b>碎精 ×${reward.shards}</b>`;
+        list.appendChild(item);
+    });
+}
+function openRewardModal(){
+    renderRewards();
+    document.getElementById("reward-modal").classList.add("show");
+}
+function closeRewardModal(){
+    document.getElementById("reward-modal").classList.remove("show");
+}
+function collectRewards(){
+    if(!state.rewards.length){
+        toast("没有待收集奖励");
+        closeRewardModal();
+        return;
+    }
+    addLog(`收集 ${state.rewards.length} 组奖励。`);
+    state.rewards = [];
+    state.plate = {};
+    document.body.classList.remove("playing");
+    document.getElementById("lens-stage").classList.add("idle");
+    closeRewardModal();
+    renderMain();
+    showScreen("screen-main");
+}
+function exitPlay(){
+    if(state.active){
+        addLog(`${gemById(state.active.gemId).name} 玩法退出，未完成的同类型素体留在袋中。`);
+    }
+    state.active = null;
+    state.pendingBatch = false;
+    document.body.classList.remove("playing");
+    document.getElementById("lens-stage").classList.add("idle");
+    clearHotspot();
+    renderMain();
+    showScreen("screen-main");
+}
+function applyDataPack(key){
+    state.dataPackKey = DEMO_DATA_PACKS[key] ? key : "fullCoverage";
+    resetDemo();
+}
+function resetDemo(){
+    const pack = currentDataPack();
+    state.bag = normalizedBag(pack.bag);
+    state.knownTypes = new Set(pack.known);
+    state.playedTypes = new Set();
+    state.plate = {};
+    state.rewards = [];
+    state.active = null;
+    state.pendingBatch = false;
+    state.selectedStoneId = null;
+    state.scatterAnimated = false;
+    document.body.classList.remove("playing");
+    document.getElementById("reward-modal").classList.remove("show");
+    document.getElementById("lens-stage").classList.add("idle");
+    document.getElementById("main-log").innerHTML = "";
+    clearHotspot();
+    addLog(`已切换/重置为「${pack.label}」：${pack.note}`);
+    renderMain();
+    showScreen("screen-main");
+}
+function setupCoreMouseControls(){
+    const playScreen = document.getElementById("screen-main");
+    playScreen.addEventListener("wheel", e=>{
+        if(!state.active && state.selectedStoneId && e.deltaY > 0){
+            e.preventDefault();
+            resetDeskZoom();
+            return;
+        }
+        if(!state.active) return;
+        e.preventDefault();
+        cycleLensByWheel(e.deltaY);
+    }, { passive:false });
+    playScreen.addEventListener("contextmenu", e=>{
+        if(!state.active) return;
+        e.preventDefault();
+        cycleToolByRightClick();
+    });
+}
+document.addEventListener("DOMContentLoaded", ()=>{
+    setupCoreMouseControls();
+    const hotspot = document.getElementById("hotspot");
+    hotspot.addEventListener("click", handleHotspotClick);
+    hotspot.addEventListener("pointerdown", startDefectDrag);
+    hotspot.addEventListener("pointermove", updateDefectDrag);
+    hotspot.addEventListener("pointerup", finishDefectDrag);
+    hotspot.addEventListener("pointercancel", finishDefectDrag);
+    document.getElementById("exit-play-btn").addEventListener("click", exitPlay);
+    document.getElementById("finish-fast-btn").addEventListener("click", ()=>{
+        if(!state.active) return;
+        while(state.active && currentStep()){
+            const step = currentStep();
+            state.lensIndex = step.lens;
+            state.activeTool = step.type;
+            tryCoreInteraction();
+        }
+    });
+    document.getElementById("reward-back-btn").addEventListener("click", collectRewards);
+    document.getElementById("reward-close-btn").addEventListener("click", closeRewardModal);
+    document.getElementById("reward-modal").addEventListener("click", e=>{
+        if(e.target.id === "reward-modal") closeRewardModal();
+    });
+    document.addEventListener("keydown", e=>{
+        if(e.key === "Escape") closeRewardModal();
+    });
+    document.getElementById("collect-btn").addEventListener("click", openRewardModal);
+    document.getElementById("inspect-btn").addEventListener("click", completeSelectedInspection);
+    document.getElementById("zoom-reset-btn").addEventListener("click", resetDeskZoom);
+    document.getElementById("run-pipeline-btn").addEventListener("click", startBatchFromBag);
+    document.getElementById("data-pack-select").addEventListener("change", e=>applyDataPack(e.target.value));
+    document.getElementById("reset-demo-btn").addEventListener("click", resetDemo);
+    addLog("鉴定台已就绪：点击中间桌面石头查看近景，检验完成后会写入左下档案。");
+    renderDataPackOptions();
+    renderMain();
+});
+</script>
+</body>
+</html>
