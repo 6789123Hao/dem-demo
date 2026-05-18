@@ -1144,6 +1144,28 @@
     }
     .detail-title{ font-weight:900; font-size:18px; }
     .detail-meta{ color:var(--muted); font-size:13px; line-height:1.5; margin-top:4px; }
+    .detail-report-label{
+        display:inline-flex;
+        margin-bottom:4px;
+        border-radius:999px;
+        background:#fff0c9;
+        border:1px solid rgba(210,155,69,.4);
+        color:#5b321e;
+        padding:3px 8px;
+        font-size:12px;
+        font-weight:900;
+    }
+    .detail-flow{
+        margin-top:8px;
+        border:1px solid rgba(210,155,69,.38);
+        border-radius:8px;
+        background:#fff0c9;
+        padding:7px 8px;
+        color:#3f2a16;
+        font-size:13px;
+        font-weight:900;
+        line-height:1.45;
+    }
     @keyframes stoneScatterIn{
         0%{
             opacity:0;
@@ -1918,8 +1940,8 @@ function renderStoneDetail(){
     document.getElementById("detail-stone").style.setProperty("--stone-color", gem.color);
     document.getElementById("detail-title").textContent = known ? gem.name : "未知素体";
     document.getElementById("detail-meta").innerHTML = known
-        ? `${gem.version}<br>特性：${gem.kind}，${gem.sub}<br>推荐流程：${pipelineCodeForGem(gem).join(" -> ")} · ${flowSummary(gem)}`
-        : `袋内数量：${countInBag(gem.id)}<br>检验流程稍后制作；现在点击“检验”会先记录档案。`;
+        ? `<span class="detail-report-label">报告</span><br>${gem.version}<br>特性：${gem.kind}，${gem.sub}<div class="detail-flow">推荐流程：${pipelineCodeForGem(gem).join(" -> ")}<br>${flowSummary(gem)}</div>`
+        : `<span class="detail-report-label">待检验报告</span><br>袋内数量：${countInBag(gem.id)}<br>完成检验后，这里会显示报告和推荐流程。`;
     document.getElementById("inspect-btn").textContent = known ? "已检验" : "检验";
     document.getElementById("inspect-btn").disabled = known;
     stage.classList.add("focused");
