@@ -322,9 +322,11 @@
         height:70px;
         border-radius:58% 58% 62% 8%;
         background:rgba(80,150,210,.76);
-        transform:translate(-50%, -50%) rotate(-45deg);
+        transform:translate(-50%, -50%) rotate(-45deg) scale(var(--repair-scale, 1));
+        transform-origin:center;
         box-shadow:0 0 0 8px rgba(80,150,210,.18), inset 10px 8px 16px rgba(255,255,255,.26);
         font-size:16px;
+        transition:transform .16s ease, opacity .16s ease;
     }
     .hotspot-cut{
         width:132px;
@@ -377,6 +379,27 @@
         opacity:.82;
     }
     .focus-ring-shape{ width:158px; height:158px; animation:none; opacity:.78; }
+    .drag-particle{
+        position:fixed;
+        left:0;
+        top:0;
+        width:10px;
+        height:10px;
+        border-radius:50%;
+        pointer-events:none;
+        z-index:999;
+        background:rgba(255,245,210,.86);
+        box-shadow:0 0 10px rgba(255,245,210,.38);
+        transform:translate(-50%, -50%);
+        animation:dragParticleDrop .48s ease-out forwards;
+    }
+    .drag-particle-clean{ background:rgba(134,124,108,.72); box-shadow:0 0 8px rgba(80,72,64,.26); }
+    .drag-particle-cut{ width:12px; height:7px; border-radius:3px; background:rgba(108,112,110,.78); }
+    .drag-particle-shape{ background:rgba(230,178,74,.82); box-shadow:0 0 12px rgba(230,178,74,.34); }
+    @keyframes dragParticleDrop{
+        0%{ opacity:.95; transform:translate(-50%, -50%) scale(1); }
+        100%{ opacity:0; transform:translate(calc(-50% + var(--particle-dx, 0px)), calc(-50% + 22px)) scale(.35); }
+    }
     @keyframes pulse{
         0%{ transform:translate(-50%, -50%) scale(.86); opacity:.8; }
         100%{ transform:translate(-50%, -50%) scale(1.22); opacity:0; }
@@ -1261,17 +1284,19 @@ function renderHotspot(){
     const step = currentStep();
     const spot = document.getElementById("hotspot");
     const ring = document.getElementById("focus-ring");
-    if(!step || state.lensIndex !== step.lens){
+    const visibleOnLens = step && (step.type === "finish" || state.lensIndex === step.lens);
+    if(!visibleOnLens){
         spot.style.display = "none";
         ring.style.display = "none";
         return;
     }
-    spot.style.display = "block";
+    spot.style.display = "grid";
     ring.style.display = "block";
     spot.className = `hotspot hotspot-${step.type} ${step.type === "shape" ? `hotspot-shape-${step.shapeTarget}` : ""}`;
     ring.className = `focus-ring focus-ring-${step.type}`;
     spot.style.setProperty("--cut-angle", `${step.cutAngle || -22}deg`);
     ring.style.setProperty("--cut-angle", `${step.cutAngle || -22}deg`);
+    spot.style.setProperty("--repair-scale", step.type === "repair" ? Math.max(.58, 1 - (step.clicks || 0) * .18) : 1);
     spot.textContent = hotspotLabel(step);
     spot.setAttribute("aria-label", `${TOOL_LABELS[step.type]}瑕疵：${step.title}`);
     const pos = defectStagePosition(step);
@@ -1303,7 +1328,7 @@ function clearHotspot(){
 }
 function canUseCurrentStep(step){
     if(!step) return;
-    if(state.lensIndex !== step.lens){
+    if(step.type !== "finish" && state.lensIndex !== step.lens){
         toast(`镜头不对，需要 ${LENSES[step.lens].label}`);
         return false;
     }
@@ -1368,8 +1393,10 @@ function startDefectDrag(e){
         lastX:e.clientX,
         lastY:e.clientY,
         distance:0,
+        lastParticleDistance:0,
         points:[{ x:e.clientX, y:e.clientY }]
     };
+    spawnDragParticle(e.clientX, e.clientY, step.type);
 }
 function updateDefectDrag(e){
     const drag = state.defectDrag;
@@ -1381,6 +1408,10 @@ function updateDefectDrag(e){
     drag.lastX = e.clientX;
     drag.lastY = e.clientY;
     drag.points.push({ x:e.clientX, y:e.clientY });
+    if(drag.distance - drag.lastParticleDistance >= 18){
+        spawnDragParticle(e.clientX, e.clientY, step.type);
+        drag.lastParticleDistance = drag.distance;
+    }
     if(step.type === "clean"){
         step.dragDistance = Math.max(step.dragDistance || 0, drag.distance);
         renderPlay();
@@ -1390,6 +1421,15 @@ function updateDefectDrag(e){
             completeCurrentStep(step);
         }
     }
+}
+function spawnDragParticle(x, y, type){
+    const particle = document.createElement("span");
+    particle.className = `drag-particle drag-particle-${type}`;
+    particle.style.left = `${x}px`;
+    particle.style.top = `${y}px`;
+    particle.style.setProperty("--particle-dx", `${(Math.random() - .5) * 22}px`);
+    document.body.appendChild(particle);
+    setTimeout(()=>particle.remove(), 520);
 }
 function finishDefectDrag(e){
     const drag = state.defectDrag;
