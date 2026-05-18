@@ -31,6 +31,7 @@
     button{ font:inherit; }
     .screen{ display:none; min-height:100vh; padding:24px; }
     .screen.active{ display:block; }
+    #screen-main{ position:relative; }
     .topbar{
         display:flex;
         align-items:center;
@@ -74,6 +75,20 @@
         border-style:dashed;
     }
     body.playing .gm-btn{ display:inline-flex; }
+    .entry-drag-cue{
+        position:absolute;
+        left:28px;
+        top:118px;
+        z-index:8;
+        pointer-events:none;
+        color:rgba(78,48,28,.82);
+        font-size:clamp(42px, 5.8vw, 86px);
+        font-weight:900;
+        line-height:1;
+        letter-spacing:0;
+        text-shadow:0 5px 0 rgba(255,248,226,.92), 0 18px 30px rgba(68,43,25,.22);
+    }
+    body.playing .entry-drag-cue{ display:none; }
     .pill{
         display:inline-flex;
         align-items:center;
@@ -851,6 +866,8 @@
             <button class="btn ghost" id="reset-demo-btn">重置演示数据</button>
         </div>
     </div>
+
+    <div class="entry-drag-cue">←拖拽开始→</div>
 
     <div class="workbench">
         <aside class="panel bag-panel">
