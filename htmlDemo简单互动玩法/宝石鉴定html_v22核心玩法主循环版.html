@@ -957,11 +957,17 @@ function releaseTypeToPlate(id, reason){
 function releaseKnownTypesForBatch(){
     let released = 0;
     sortedBagIds().forEach(id=>{
-        if(state.playedTypes.has(id)){
-            released += releaseTypeToPlate(id, "批量处理已鉴定类型");
+        if(state.knownTypes.has(id)){
+            const gem = gemById(id);
+            const amount = releaseTypeToPlate(id, "整袋批量入口自动完成已知类型");
+            if(amount > 0){
+                state.playedTypes.add(id);
+                released += amount;
+                addLog(`${gem.name} 已知类型自动完成，同类型 ${amount} 颗出石到盘子。`);
+            }
         }
     });
-    if(released) addLog(`批量入口先处理 ${released} 颗已鉴定素体。`);
+    if(released) addLog(`批量入口依次自动完成 ${released} 颗已知素体。`);
     return released;
 }
 function startManualFromBag(){
