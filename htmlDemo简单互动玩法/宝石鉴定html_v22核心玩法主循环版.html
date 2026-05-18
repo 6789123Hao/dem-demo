@@ -311,11 +311,11 @@
     }
     .hotspot.done{ opacity:0; pointer-events:none; }
     .hotspot-clean{
-        width:96px;
-        height:96px;
+        width:130px;
+        height:130px;
         border:2px dashed rgba(255,255,255,.9);
         background:rgba(95,88,80,.36);
-        box-shadow:0 0 0 12px rgba(95,88,80,.14), inset 0 0 32px rgba(80,72,64,.22);
+        box-shadow:0 0 0 16px rgba(95,88,80,.14), inset 0 0 42px rgba(80,72,64,.24);
     }
     .hotspot-repair{
         width:58px;
@@ -324,6 +324,7 @@
         background:rgba(80,150,210,.76);
         transform:translate(-50%, -50%) rotate(-45deg);
         box-shadow:0 0 0 8px rgba(80,150,210,.18), inset 10px 8px 16px rgba(255,255,255,.26);
+        font-size:16px;
     }
     .hotspot-cut{
         width:132px;
@@ -334,11 +335,14 @@
         box-shadow:0 0 0 8px rgba(92,94,90,.16), inset 0 4px 8px rgba(255,255,255,.2);
     }
     .hotspot-shape{
-        width:94px;
-        height:94px;
-        background:rgba(210,155,69,.2);
+        width:132px;
+        height:132px;
+        background:rgba(210,155,69,.1);
         border-color:rgba(255,255,255,.86);
-        box-shadow:0 0 0 10px rgba(210,155,69,.12);
+        border-width:4px;
+        box-shadow:0 0 0 12px rgba(210,155,69,.1);
+        color:#fff7e2;
+        font-size:22px;
     }
     .hotspot-shape-circle{ border-radius:50%; }
     .hotspot-shape-triangle{
@@ -346,8 +350,11 @@
         clip-path:polygon(50% 4%, 96% 92%, 4% 92%);
     }
     .hotspot-shape-square{
-        border-radius:10px;
-        clip-path:polygon(8% 8%, 92% 8%, 92% 92%, 8% 92%);
+        border-radius:12px;
+        background:rgba(210,155,69,.08);
+        outline:3px solid rgba(255,248,226,.82);
+        outline-offset:-15px;
+        clip-path:none;
     }
     .focus-ring{
         position:absolute;
@@ -359,7 +366,7 @@
         pointer-events:none;
         animation:pulse 1s infinite;
     }
-    .focus-ring-clean{ width:128px; height:128px; border-style:dashed; }
+    .focus-ring-clean{ width:168px; height:168px; border-style:dashed; }
     .focus-ring-repair{ width:86px; height:86px; }
     .focus-ring-cut{
         width:156px;
@@ -369,7 +376,7 @@
         animation:none;
         opacity:.82;
     }
-    .focus-ring-shape{ width:120px; height:120px; }
+    .focus-ring-shape{ width:158px; height:158px; animation:none; opacity:.78; }
     @keyframes pulse{
         0%{ transform:translate(-50%, -50%) scale(.86); opacity:.8; }
         100%{ transform:translate(-50%, -50%) scale(1.22); opacity:0; }
@@ -632,7 +639,7 @@
     .gem3d.step-clean .gem-surface{
         opacity:1;
         background:
-            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(83,78,72,.48) 0 18px, transparent 38px),
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(83,78,72,.5) 0 30px, transparent 58px),
             radial-gradient(circle at 24% 32%, rgba(83,78,72,.38) 0 4px, transparent 5px),
             radial-gradient(circle at 62% 28%, rgba(83,78,72,.32) 0 6px, transparent 7px),
             radial-gradient(circle at 52% 68%, rgba(83,78,72,.34) 0 5px, transparent 6px),
@@ -643,7 +650,7 @@
     .gem3d.step-repair .gem-surface{
         opacity:1;
         background:
-            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(80,150,210,.24) 0 22px, transparent 34px),
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(80,150,210,.28) 0 18px, transparent 30px),
             linear-gradient(35deg, transparent 0 42%, rgba(52,32,29,.72) 43% 45%, transparent 46%),
             linear-gradient(112deg, transparent 0 55%, rgba(255,236,214,.55) 56% 57%, transparent 58%);
     }
@@ -1166,7 +1173,7 @@ function currentStep(){
 }
 function stepStatusText(step){
     const base = `${TOOL_LABELS[step.type]} · ${step.title}`;
-    if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / 140 * 100))}%`;
+    if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / 260 * 100))}%`;
     if(step.type === "repair") return `${base} · 点击 ${step.clicks || 0}/3`;
     if(step.type === "cut") return `${base} · 顺着长条角度拖拽`;
     if(step.type === "shape") return `${base} · 描摹${SHAPE_LABELS[step.shapeTarget]}`;
@@ -1267,14 +1274,23 @@ function renderHotspot(){
     ring.style.setProperty("--cut-angle", `${step.cutAngle || -22}deg`);
     spot.textContent = hotspotLabel(step);
     spot.setAttribute("aria-label", `${TOOL_LABELS[step.type]}瑕疵：${step.title}`);
-    spot.style.left = `${step.pos.x}%`;
-    spot.style.top = `${step.pos.y}%`;
-    ring.style.left = `${step.pos.x}%`;
-    ring.style.top = `${step.pos.y}%`;
+    const pos = defectStagePosition(step);
+    spot.style.left = `${pos.x}%`;
+    spot.style.top = `${pos.y}%`;
+    ring.style.left = `${pos.x}%`;
+    ring.style.top = `${pos.y}%`;
+}
+function defectStagePosition(step){
+    const scale = step.type === "shape" ? 0.42 : 0.48;
+    const yLift = step.type === "repair" ? 8 : step.type === "clean" ? 3 : step.type === "shape" ? 4 : 0;
+    return {
+        x:50 + (step.pos.x - 50) * scale,
+        y:50 + (step.pos.y - 50) * scale - yLift
+    };
 }
 function hotspotLabel(step){
     if(step.type === "clean") return "擦";
-    if(step.type === "repair") return "";
+    if(step.type === "repair") return "滴";
     if(step.type === "cut") return "切";
     if(step.type === "shape") return SHAPE_MARKS[step.shapeTarget];
     return "";
@@ -1368,7 +1384,7 @@ function updateDefectDrag(e){
     if(step.type === "clean"){
         step.dragDistance = Math.max(step.dragDistance || 0, drag.distance);
         renderPlay();
-        if(step.dragDistance >= 140){
+        if(step.dragDistance >= 260){
             state.suppressNextClick = true;
             state.defectDrag = null;
             completeCurrentStep(step);
