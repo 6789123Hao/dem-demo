@@ -528,6 +528,32 @@
         background:#ffe8bf;
         font-weight:800;
     }
+    .tool-panel{ display:none; }
+    .current-tool-card{
+        display:none;
+        align-items:center;
+        gap:12px;
+        padding:12px;
+        border:1px solid rgba(86,52,31,.18);
+        border-radius:8px;
+        background:rgba(255,252,246,.86);
+        box-shadow:0 10px 24px rgba(68,43,25,.1);
+    }
+    body.playing .current-tool-card{ display:flex; }
+    .current-tool-icon{
+        width:46px;
+        height:76px;
+        border-radius:999px;
+        display:grid;
+        place-items:center;
+        font-size:26px;
+        font-weight:900;
+        color:#fff8e8;
+        background:linear-gradient(180deg, #6d4a32, #3f2a1d);
+        box-shadow:inset 0 0 0 3px rgba(255,255,255,.18), 0 10px 16px rgba(68,43,25,.16);
+    }
+    .current-tool-text strong{ display:block; font-size:16px; }
+    .current-tool-text span{ display:block; color:var(--muted); font-size:12px; margin-top:3px; }
     .progress{
         height:10px;
         border-radius:999px;
@@ -724,19 +750,26 @@
         border-radius:22px;
         clip-path:polygon(42% 0, 82% 10%, 100% 44%, 88% 82%, 48% 100%, 14% 88%, 0 48%, 16% 12%);
         box-shadow:inset -18px -24px 38px rgba(0,0,0,.18), inset 14px 16px 24px rgba(255,255,255,.32);
-        background-image:var(--gem-stage-image), var(--gem-color);
-        background-size:cover, cover;
+        background-image:var(--gem-stage-image), var(--gem-texture), var(--gem-color);
+        background-size:cover, cover, cover;
         background-position:center;
-        transition:clip-path .35s ease, border-radius .35s ease, filter .24s ease, background-image .2s ease;
+        transform:scale(var(--gem-scale, 1));
+        transition:clip-path .35s ease, border-radius .35s ease, filter .24s ease, background-image .2s ease, transform .35s ease;
     }
     .gem3d.visual-raw .gem-core{
-        clip-path:polygon(45% 0, 77% 7%, 100% 36%, 92% 76%, 54% 100%, 18% 88%, 0 54%, 14% 16%);
+        clip-path:var(--raw-clip, polygon(45% 0, 77% 7%, 100% 36%, 92% 76%, 54% 100%, 18% 88%, 0 54%, 14% 16%));
         filter:saturate(.68) brightness(.78);
     }
     .gem3d.visual-cut .gem-core,
-    .gem3d.visual-cracked .gem-core,
-    .gem3d.visual-repaired .gem-core{
-        clip-path:polygon(42% 0, 82% 10%, 100% 44%, 78% 52%, 88% 82%, 48% 100%, 14% 88%, 0 48%, 16% 12%);
+    .gem3d.gem-kind-rough.visual-cracked .gem-core,
+    .gem3d.gem-kind-rough.visual-repaired .gem-core{
+        clip-path:var(--cut-clip, polygon(50% 4%, 82% 18%, 96% 50%, 80% 82%, 50% 96%, 18% 82%, 4% 50%, 18% 18%));
+        --gem-scale:var(--cut-scale, .86);
+    }
+    .gem3d.gem-kind-finished.visual-cracked .gem-core,
+    .gem3d.gem-kind-finished.visual-repaired .gem-core{
+        clip-path:var(--cut-clip, polygon(50% 4%, 82% 18%, 96% 50%, 80% 82%, 50% 96%, 18% 82%, 4% 50%, 18% 18%));
+        --gem-scale:.96;
     }
     .gem3d.visual-shaped.shape-circle .gem-core,
     .gem3d.visual-cleaned.shape-circle .gem-core{
@@ -802,18 +835,16 @@
     }
     .gem3d.visual-raw .gem-surface{
         opacity:1;
-        background:
+        background:var(--raw-surface, linear-gradient(132deg, rgba(112,108,96,.6) 0 28%, transparent 29%)),
             radial-gradient(circle at 20% 30%, rgba(86,84,76,.4) 0 18%, transparent 19%),
-            radial-gradient(circle at 78% 64%, rgba(70,72,68,.36) 0 20%, transparent 21%),
-            linear-gradient(132deg, rgba(112,108,96,.6) 0 28%, transparent 29%),
-            linear-gradient(28deg, transparent 0 58%, rgba(80,84,82,.45) 59% 78%, transparent 79%);
+            radial-gradient(circle at 78% 64%, rgba(70,72,68,.36) 0 20%, transparent 21%);
         mix-blend-mode:multiply;
     }
     .gem3d.visual-cut .gem-surface{
         opacity:1;
         background:
             linear-gradient(124deg, transparent 0 52%, rgba(255,255,255,.28) 53% 55%, transparent 56%),
-            radial-gradient(circle at 76% 46%, rgba(44,36,27,.42) 0 18%, transparent 19%);
+            radial-gradient(circle at 48% 54%, rgba(44,36,27,.16) 0 26%, transparent 27%);
         mix-blend-mode:multiply;
     }
     .gem3d.visual-cracked .gem-surface,
@@ -1047,7 +1078,7 @@
                             <h3>手动镜头</h3>
                             <div id="lens-grid" class="lens-grid"></div>
                         </div>
-                        <div class="step-box">
+                        <div class="step-box tool-panel">
                             <h3>手选工具</h3>
                             <div id="tool-grid" class="tool-grid"></div>
                         </div>
@@ -1064,6 +1095,13 @@
 
         <aside class="panel right-panel">
             <h2>盘子与奖励</h2>
+            <div id="current-tool-card" class="current-tool-card">
+                <div id="current-tool-icon" class="current-tool-icon">-</div>
+                <div class="current-tool-text">
+                    <strong id="current-tool-name">等待工具</strong>
+                    <span id="current-tool-note">进入玩法后显示当前步骤工具</span>
+                </div>
+            </div>
             <span id="reward-pill" class="pill">待收集奖励：0</span>
             <button class="btn primary collect-cta" id="collect-btn">收集奖励</button>
             <div id="plate" class="plate"></div>
@@ -1094,6 +1132,13 @@ const TOOL_LABELS = {
     cut:"切除",
     shape:"定型"
 };
+const TOOL_ICONS = { cut:"切", repair:"滴", shape:"型", clean:"净" };
+const TOOL_NOTES = {
+    cut:"沿灰色石皮拖拽切开",
+    repair:"三次滴入修复液",
+    shape:"描摹目标轮廓定型",
+    clean:"擦净后闪光收纳"
+};
 const LENSES = [
     { key:"A", label:"Lens A", filter:"rgba(127,223,255,.28)" },
     { key:"B", label:"Lens B", filter:"rgba(214,156,255,.28)" },
@@ -1117,6 +1162,20 @@ const GEM_BLUEPRINTS = [
     { id:"hetian", name:"和田玉", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #edf0d5 0%, #a9b484 100%)", assetBase:"assets/gems/hetian", tasks:[{type:"cut", title:"杂质筋切除", lens:1, face:1, pos:{x:40,y:52}}, {type:"shape", title:"圆润定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:50}}, {type:"clean", title:"玉面净化", lens:0, face:0, pos:{x:52,y:52}}] },
     { id:"shoushan", name:"寿山石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #f0d2a7 0%, #b5794b 100%)", assetBase:"assets/gems/shoushan", tasks:[{type:"cut", title:"残皮切除", lens:0, face:2, pos:{x:54,y:60}}, {type:"shape", title:"方章定型", targetShape:"square", lens:2, face:1, pos:{x:50,y:48}}, {type:"clean", title:"石面净化", lens:1, face:0, pos:{x:50,y:50}}] }
 ];
+const GEM_VISUALS = {
+    pearl:{ rawClip:"circle(48% at 50% 50%)", cutClip:"circle(45% at 50% 50%)", cutScale:.92, texture:"radial-gradient(circle at 34% 28%, rgba(255,255,255,.78), transparent 22%)" },
+    agate:{ rawClip:"polygon(50% 0, 88% 18%, 96% 60%, 68% 98%, 28% 92%, 4% 54%, 18% 12%)", cutClip:"polygon(50% 5%, 84% 20%, 92% 58%, 66% 92%, 30% 88%, 8% 52%, 20% 18%)", cutScale:.9, texture:"repeating-linear-gradient(28deg, rgba(255,238,214,.2) 0 8px, rgba(128,54,43,.16) 8px 16px)" },
+    garnet:{ rawClip:"polygon(48% 0, 86% 16%, 98% 52%, 76% 90%, 38% 100%, 6% 70%, 12% 20%)", cutClip:"polygon(50% 4%, 84% 18%, 94% 54%, 72% 90%, 36% 94%, 10% 66%, 18% 18%)", cutScale:.88, texture:"linear-gradient(145deg, rgba(255,255,255,.18), transparent 42%)" },
+    sunstone:{ rawClip:"polygon(36% 0, 78% 8%, 100% 44%, 90% 80%, 48% 100%, 10% 84%, 0 42%, 16% 12%)", cutClip:"polygon(40% 4%, 78% 12%, 94% 44%, 84% 78%, 48% 94%, 14% 80%, 8% 44%, 20% 16%)", cutScale:.86, texture:"radial-gradient(circle at 62% 36%, rgba(255,222,120,.28) 0 18%, transparent 19%)" },
+    catseye:{ rawClip:"polygon(50% 2%, 88% 24%, 92% 68%, 58% 96%, 22% 86%, 4% 48%, 20% 12%)", cutClip:"polygon(50% 10%, 84% 28%, 86% 66%, 56% 88%, 24% 82%, 12% 50%, 24% 20%)", cutScale:.88, texture:"linear-gradient(96deg, transparent 0 46%, rgba(255,255,220,.42) 47% 52%, transparent 53%)" },
+    jadeite:{ rawClip:"polygon(46% 0, 82% 14%, 100% 48%, 82% 88%, 44% 100%, 8% 78%, 0 36%, 18% 8%)", cutClip:"polygon(48% 6%, 80% 18%, 92% 48%, 78% 84%, 44% 92%, 14% 72%, 8% 38%, 22% 14%)", cutScale:.87, texture:"radial-gradient(circle at 42% 44%, rgba(255,255,255,.24), transparent 28%)" },
+    obsidian:{ rawClip:"polygon(50% 0, 92% 22%, 100% 66%, 68% 100%, 18% 86%, 0 42%, 22% 8%)", cutClip:"polygon(50% 6%, 86% 22%, 92% 62%, 66% 92%, 24% 82%, 8% 44%, 24% 16%)", cutScale:.82, texture:"linear-gradient(132deg, rgba(255,255,255,.16), transparent 32%, rgba(0,0,0,.24) 70%)" },
+    fluorite:{ rawClip:"polygon(42% 0, 82% 8%, 100% 42%, 88% 82%, 52% 100%, 14% 86%, 0 48%, 16% 10%)", cutClip:"polygon(44% 6%, 80% 12%, 92% 42%, 82% 78%, 52% 92%, 20% 82%, 8% 48%, 20% 16%)", cutScale:.84, texture:"linear-gradient(38deg, rgba(255,255,255,.22), transparent 36%, rgba(138,106,210,.16) 62%)" },
+    malachite:{ rawClip:"polygon(40% 0, 78% 6%, 100% 38%, 86% 82%, 48% 100%, 8% 82%, 0 44%, 18% 10%)", cutClip:"polygon(42% 6%, 78% 12%, 92% 40%, 80% 78%, 48% 92%, 16% 78%, 8% 44%, 22% 16%)", cutScale:.84, texture:"repeating-radial-gradient(circle at 50% 52%, rgba(255,255,255,.12) 0 8px, rgba(17,76,45,.18) 9px 18px)" },
+    turquoise:{ rawClip:"polygon(44% 0, 86% 12%, 98% 50%, 76% 94%, 30% 96%, 0 58%, 16% 16%)", cutClip:"polygon(46% 8%, 82% 18%, 90% 50%, 72% 86%, 34% 88%, 10% 56%, 22% 20%)", cutScale:.84, texture:"linear-gradient(62deg, transparent 0 42%, rgba(35,80,76,.28) 43% 46%, transparent 47%)" },
+    hetian:{ rawClip:"polygon(50% 0, 84% 16%, 98% 52%, 76% 92%, 34% 100%, 2% 66%, 12% 20%)", cutClip:"polygon(50% 8%, 80% 20%, 90% 52%, 70% 86%, 36% 92%, 12% 64%, 20% 24%)", cutScale:.86, texture:"radial-gradient(circle at 48% 40%, rgba(255,255,255,.28), transparent 34%)" },
+    shoushan:{ rawClip:"polygon(36% 0, 78% 10%, 100% 48%, 84% 90%, 42% 100%, 6% 74%, 0 32%, 18% 8%)", cutClip:"polygon(38% 8%, 76% 18%, 92% 48%, 78% 84%, 42% 92%, 14% 70%, 10% 34%, 22% 16%)", cutScale:.84, texture:"linear-gradient(128deg, rgba(255,255,255,.2), transparent 38%, rgba(128,73,38,.16) 72%)" }
+};
 
 const DEMO_DATA_PACKS = {
     fullCoverage:{
@@ -1207,6 +1266,7 @@ function renderMain(){
     if(packSelect) packSelect.value = state.dataPackKey;
     renderKnownList();
     renderPlate();
+    renderCurrentTool();
 }
 function renderDataPackOptions(){
     const select = document.getElementById("data-pack-select");
@@ -1411,6 +1471,25 @@ function stageImageValue(gem, visual){
         : visual.stage;
     return `url("${gem.assetBase}/${suffix}.png")`;
 }
+function applyGemVisualVars(gem3d, gem){
+    const visual = GEM_VISUALS[gem.id] || {};
+    gem3d.style.setProperty("--raw-clip", visual.rawClip || "polygon(45% 0, 77% 7%, 100% 36%, 92% 76%, 54% 100%, 18% 88%, 0 54%, 14% 16%)");
+    gem3d.style.setProperty("--cut-clip", visual.cutClip || "polygon(50% 4%, 82% 18%, 96% 50%, 80% 82%, 50% 96%, 18% 82%, 4% 50%, 18% 18%)");
+    gem3d.style.setProperty("--cut-scale", visual.cutScale || .86);
+    gem3d.style.setProperty("--gem-texture", visual.texture || "linear-gradient(145deg, rgba(255,255,255,.18), transparent 44%)");
+    gem3d.classList.add(`gem-${gem.id}`);
+}
+function renderCurrentTool(){
+    const icon = document.getElementById("current-tool-icon");
+    const name = document.getElementById("current-tool-name");
+    const note = document.getElementById("current-tool-note");
+    if(!icon || !name || !note) return;
+    const step = currentStep();
+    const type = step?.type || state.activeTool;
+    icon.textContent = TOOL_ICONS[type] || "-";
+    name.textContent = step ? TOOL_LABELS[type] : "等待工具";
+    note.textContent = step ? TOOL_NOTES[type] : "进入玩法后显示当前步骤工具";
+}
 function renderPlay(){
     const active = state.active;
     if(!active) return;
@@ -1419,7 +1498,9 @@ function renderPlay(){
     const gem3d = document.getElementById("gem3d");
     const visual = visualStateForActive(active, step);
     const stepClass = step ? `step-${step.type}` : "";
-    gem3d.className = `gem3d ${stepClass} visual-${visual.stage} ${visual.shape ? `shape-${visual.shape}` : ""}`.trim();
+    const kindClass = gem.kind === "原石" ? "gem-kind-rough" : "gem-kind-finished";
+    gem3d.className = `gem3d ${kindClass} ${stepClass} visual-${visual.stage} ${visual.shape ? `shape-${visual.shape}` : ""}`.trim();
+    applyGemVisualVars(gem3d, gem);
     gem3d.style.setProperty("--defect-x", step ? `${step.pos.x}%` : "50%");
     gem3d.style.setProperty("--defect-y", step ? `${step.pos.y}%` : "50%");
     gem3d.style.setProperty("--gem-stage-image", stageImageValue(gem, visual));
@@ -1434,6 +1515,7 @@ function renderPlay(){
     document.getElementById("lens-stage").style.setProperty("--lens-filter", LENSES[state.lensIndex].filter);
     renderLensButtons();
     renderToolButtons();
+    renderCurrentTool();
     renderHotspot();
 }
 function renderLensButtons(){
@@ -1837,7 +1919,6 @@ function setupCoreMouseControls(){
     playScreen.addEventListener("contextmenu", e=>{
         if(!state.active) return;
         e.preventDefault();
-        cycleToolByRightClick();
     });
 }
 document.addEventListener("DOMContentLoaded", ()=>{
