@@ -211,6 +211,26 @@
     .stone-meta{ font-size:12px; color:var(--muted); margin-top:2px; }
     .star-rank{ color:#c48a2f; font-weight:900; letter-spacing:1px; }
     .inventory-note{ color:var(--muted); font-size:13px; line-height:1.7; margin:0 0 12px; }
+    .sort-row{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:8px;
+        margin:0 0 10px;
+    }
+    .sort-btn{
+        border:1px solid rgba(86,52,31,.18);
+        border-radius:8px;
+        background:#fffaf1;
+        color:var(--ink);
+        min-height:34px;
+        cursor:pointer;
+        font-weight:700;
+    }
+    .sort-btn.active{
+        border-color:#a96c27;
+        background:#ffe8bf;
+        box-shadow:inset 0 0 0 1px rgba(169,108,39,.18);
+    }
     .plate{
         min-height:180px;
         border:2px solid rgba(86,52,31,.22);
@@ -1153,7 +1173,11 @@
             <p class="inventory-note">拖到中间镜片位置：整袋连续游玩。v23 隐藏批量管道，优先展示宝石状态变化。</p>
             <div class="known-section">
                 <h3>宝石选择</h3>
-                <p class="inventory-note">列表为验收入口，星级和流程直接显示；未知类型完成一次后解锁。</p>
+                <p class="inventory-note">列表暂时全部视为已知，随时可拖拽；可按拾取数量或星级排序。</p>
+                <div class="sort-row" aria-label="宝石排序">
+                    <button class="sort-btn active" type="button" data-sort="quantity">按拾取数量</button>
+                    <button class="sort-btn" type="button" data-sort="rarity">按星级</button>
+                </div>
                 <div id="known-list" class="stone-list"></div>
             </div>
         </aside>
@@ -1315,9 +1339,10 @@ const DEMO_DATA_PACKS = {
     }
 };
 const initialBag = DEMO_DATA_PACKS.fullCoverage.bag;
+const ALL_GEM_IDS = GEM_BLUEPRINTS.map(gem=>gem.id);
 const state = {
     bag:{ ...initialBag },
-    knownTypes:new Set(DEMO_DATA_PACKS.fullCoverage.known),
+    knownTypes:new Set(ALL_GEM_IDS),
     playedTypes:new Set(),
     plate:{},
     rewards:[],
@@ -1326,6 +1351,7 @@ const state = {
     lensIndex:0,
     activeTool:"clean",
     dataPackKey:"fullCoverage",
+    listSortKey:"quantity",
     dragPayload:null,
     defectDrag:null,
     suppressNextClick:false
@@ -1351,6 +1377,18 @@ function sortedBagIds(){
             if(ua !== ub) return ua - ub;
             return GEM_BLUEPRINTS.findIndex(g=>g.id===a) - GEM_BLUEPRINTS.findIndex(g=>g.id===b);
         });
+}
+function sortedListGems(){
+    return [...GEM_BLUEPRINTS].sort((a,b)=>{
+        if(state.listSortKey === "rarity"){
+            if(b.rarity !== a.rarity) return b.rarity - a.rarity;
+            if(countInBag(b.id) !== countInBag(a.id)) return countInBag(b.id) - countInBag(a.id);
+        } else {
+            if(countInBag(b.id) !== countInBag(a.id)) return countInBag(b.id) - countInBag(a.id);
+            if(b.rarity !== a.rarity) return b.rarity - a.rarity;
+        }
+        return GEM_BLUEPRINTS.findIndex(g=>g.id===a.id) - GEM_BLUEPRINTS.findIndex(g=>g.id===b.id);
+    });
 }
 function showScreen(id){
     document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
@@ -1380,6 +1418,14 @@ function setupLogPanel(){
         if(!log.contains(e.target)) log.classList.remove("expanded");
     });
 }
+function setupSortControls(){
+    document.querySelectorAll(".sort-btn").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+            state.listSortKey = btn.dataset.sort || "quantity";
+            renderKnownList();
+        });
+    });
+}
 function renderMain(){
     document.getElementById("bag-count").textContent = bagTotal();
     document.getElementById("reward-pill").textContent = `待收集奖励：${state.rewards.length}`;
@@ -1403,8 +1449,11 @@ function renderDataPackOptions(){
 function renderKnownList(){
     const list = document.getElementById("known-list");
     list.innerHTML = "";
-    GEM_BLUEPRINTS.forEach(gem=>{
-        const known = state.knownTypes.has(gem.id);
+    document.querySelectorAll(".sort-btn").forEach(btn=>{
+        btn.classList.toggle("active", btn.dataset.sort === state.listSortKey);
+    });
+    sortedListGems().forEach(gem=>{
+        const known = true;
         const card = document.createElement("div");
         card.className = `stone-card ${known ? "" : "locked"}`;
         card.draggable = known;
@@ -2002,7 +2051,7 @@ function applyDataPack(key){
 function resetDemo(){
     const pack = currentDataPack();
     state.bag = normalizedBag(pack.bag);
-    state.knownTypes = new Set(pack.known);
+    state.knownTypes = new Set(ALL_GEM_IDS);
     state.playedTypes = new Set();
     state.plate = {};
     state.rewards = [];
@@ -2067,6 +2116,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
     setupDragDrop();
     setupCoreMouseControls();
     setupLogPanel();
+    setupSortControls();
     const hotspot = document.getElementById("hotspot");
     hotspot.addEventListener("click", handleHotspotClick);
     hotspot.addEventListener("pointerdown", startDefectDrag);
