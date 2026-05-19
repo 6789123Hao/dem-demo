@@ -464,19 +464,23 @@
         width:180px;
         height:180px;
         position:absolute;
-        background:rgba(210,155,69,.1);
-        border-color:rgba(255,255,255,.86);
-        border-width:4px;
-        box-shadow:0 0 0 12px rgba(210,155,69,.1);
+        background:transparent;
+        border-color:transparent;
+        border-width:0;
+        box-shadow:none;
         color:#fff7e2;
         font-size:22px;
     }
-    .hotspot-shape-circle{ border-radius:50%; }
-    .hotspot-shape-triangle{
+    .hotspot-shape-circle{
         border-radius:50%;
+        border:4px solid rgba(255,255,255,.86);
+        background:rgba(210,155,69,.1);
+        box-shadow:0 0 0 12px rgba(210,155,69,.1);
+    }
+    .hotspot-shape-triangle{
         border-color:transparent;
         background:transparent;
-        box-shadow:0 0 0 18px rgba(210,155,69,.08);
+        box-shadow:none;
         clip-path:none;
         color:transparent;
     }
@@ -493,18 +497,15 @@
         filter:drop-shadow(0 0 10px rgba(210,155,69,.28)) drop-shadow(0 3px 8px rgba(0,0,0,.18));
     }
     .hotspot-shape-triangle::after{
-        content:"描边";
+        content:"";
         position:absolute;
         left:50%;
         top:50%;
-        width:auto;
-        height:auto;
-        transform:translate(-50%, 44px);
-        background:transparent;
-        color:#fff7e2;
-        font-size:15px;
-        font-weight:900;
-        text-shadow:0 2px 8px rgba(70,44,22,.46);
+        width:104px;
+        height:92px;
+        transform:translate(-50%, -42%);
+        background:rgba(87,134,92,.66);
+        clip-path:polygon(50% 0, 100% 100%, 0 100%);
     }
     .hotspot-shape-square{
         border-radius:12px;
@@ -513,6 +514,16 @@
         outline-offset:-22px;
         clip-path:none;
     }
+    .shape-label{
+        position:relative;
+        z-index:2;
+        color:#fff7e2;
+        font-size:15px;
+        font-weight:900;
+        text-shadow:0 2px 8px rgba(70,44,22,.46);
+        pointer-events:none;
+    }
+    .hotspot-shape-triangle .shape-label{ transform:translateY(42px); }
     .focus-ring{
         position:absolute;
         width:82px;
@@ -534,6 +545,8 @@
         opacity:.82;
     }
     .focus-ring-shape{ width:214px; height:214px; animation:none; opacity:.78; }
+    .focus-ring-shape-triangle,
+    .focus-ring-shape-square{ display:none !important; }
     .lens-scroll-cue{
         position:absolute;
         left:50%;
@@ -1567,7 +1580,7 @@ function startManualFromBag(){
     startCorePlay(id, { source:"bag-one", continueBatch:false });
 }
 function startBatchFromBag(){
-    if(state.active){ toast("当前素体处理中"); return; }
+    if(state.active) abandonActiveGem("切换为整袋处理。");
     if(!bagTotal()){ toast("素体袋为空"); return; }
     addLog("倒出很多素体，进入批量处理管道。");
     releaseKnownTypesForBatch();
@@ -1581,7 +1594,7 @@ function startBatchFromBag(){
     }
 }
 function startKnownStone(id){
-    if(state.active){ toast("当前素体处理中"); return; }
+    if(state.active) abandonActiveGem(`切换到 ${gemById(id).name}。`);
     if(countInBag(id) <= 0){ toast("袋内没有这种素体"); return; }
     addLog(`从背包面板取出 ${gemById(id).name}，放入镜片位置。`);
     startCorePlay(id, { source:"known", continueBatch:false });
@@ -1606,6 +1619,14 @@ function buildCoreTasks(gem){
         cutAngle: task.cutAngle ?? [-32, -18, 22, 34][(GEM_BLUEPRINTS.findIndex(g=>g.id === gem.id) + index) % 4]
     }));
 }
+function abandonActiveGem(message){
+    if(!state.active) return;
+    const gem = gemById(state.active.gemId);
+    clearHotspot();
+    state.active = null;
+    state.pendingBatch = false;
+    addLog(`${gem.name} 未完成，已退出当前处理。${message}`);
+}
 function startCorePlay(id, meta){
     const gem = gemById(id);
     state.active = {
@@ -1628,7 +1649,7 @@ function currentStep(){
 }
 function stepStatusText(step){
     const base = `${TOOL_LABELS[step.type]} · ${step.title}`;
-    if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / 260 * 100))}%`;
+    if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / 420 * 100))}%`;
     if(step.type === "repair") return `${base} · 点击 ${step.clicks || 0}/3`;
     if(step.type === "cut") return `${base} · 顺着长条角度拖拽`;
     if(step.type === "shape") return `${base} · 描边${SHAPE_LABELS[step.shapeTarget]}`;
@@ -1781,11 +1802,15 @@ function renderHotspot(){
     spot.style.display = "grid";
     ring.style.display = "block";
     spot.className = `hotspot hotspot-${step.type} ${step.type === "shape" ? `hotspot-shape-${step.shapeTarget}` : ""}`;
-    ring.className = `focus-ring focus-ring-${step.type}`;
+    ring.className = `focus-ring focus-ring-${step.type} ${step.type === "shape" ? `focus-ring-shape-${step.shapeTarget}` : ""}`;
     spot.style.setProperty("--cut-angle", `${step.cutAngle || -22}deg`);
     ring.style.setProperty("--cut-angle", `${step.cutAngle || -22}deg`);
     spot.style.setProperty("--repair-scale", step.type === "repair" ? Math.max(.58, 1 - (step.clicks || 0) * .18) : 1);
-    spot.textContent = hotspotLabel(step);
+    if(step.type === "shape"){
+        spot.innerHTML = `<span class="shape-label">${hotspotLabel(step)}</span>`;
+    } else {
+        spot.textContent = hotspotLabel(step);
+    }
     spot.setAttribute("aria-label", `${TOOL_LABELS[step.type]}瑕疵：${step.title}`);
     const pos = defectStagePosition(step);
     spot.style.left = `${pos.x}%`;
@@ -1805,7 +1830,7 @@ function hotspotLabel(step){
     if(step.type === "clean") return "←擦→";
     if(step.type === "repair") return "滴";
     if(step.type === "cut") return "  滑→→→       ";
-    if(step.type === "shape") return `${SHAPE_MARKS[step.shapeTarget]} 描边`;
+    if(step.type === "shape") return "描边";
     return "";
 }
 function clearHotspot(){
@@ -1915,7 +1940,7 @@ function updateDefectDrag(e){
     if(step.type === "clean"){
         step.dragDistance = Math.max(step.dragDistance || 0, drag.distance);
         renderPlay();
-        if(step.dragDistance >= 260){
+        if(step.dragDistance >= 420){
             state.suppressNextClick = true;
             state.defectDrag = null;
             completeCurrentStep(step);
