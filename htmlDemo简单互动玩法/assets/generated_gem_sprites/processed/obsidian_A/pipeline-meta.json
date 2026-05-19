@@ -1,0 +1,219 @@
+{
+  "target": "asset",
+  "mode": "sheet",
+  "prompt": "",
+  "role": "",
+  "input": "C:\\Users\\linglingshuai\\Downloads\\dem-demo-main\\dem-demo-main\\htmlDemo\u7b80\u5355\u4e92\u52a8\u73a9\u6cd5\\assets\\generated_gem_sprites\\raw\\obsidian_A_raw_sheet.png",
+  "threshold": 100,
+  "edge_threshold": 150,
+  "duration": 220,
+  "rows": 2,
+  "cols": 3,
+  "cell_size": 128,
+  "fit_scale": 0.92,
+  "trim_border": 4,
+  "edge_clean_depth": 3,
+  "align": "center",
+  "shared_scale": true,
+  "component_mode": "all",
+  "component_padding": 24,
+  "min_component_area": 1,
+  "edge_touch_margin": 3,
+  "frame_labels": [
+    "obsidian_A-1",
+    "obsidian_A-2",
+    "obsidian_A-3",
+    "obsidian_A-4",
+    "obsidian_A-5",
+    "obsidian_A-6"
+  ],
+  "frames": [
+    {
+      "grid": [
+        0,
+        0
+      ],
+      "source_box": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        57,
+        69,
+        469,
+        465
+      ],
+      "edge_touch": false,
+      "output_size": [
+        117,
+        113
+      ],
+      "paste_position": [
+        5,
+        7
+      ]
+    },
+    {
+      "grid": [
+        0,
+        1
+      ],
+      "source_box": [
+        512,
+        0,
+        1024,
+        512
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        55,
+        88,
+        455,
+        460
+      ],
+      "edge_touch": false,
+      "output_size": [
+        114,
+        106
+      ],
+      "paste_position": [
+        7,
+        11
+      ]
+    },
+    {
+      "grid": [
+        0,
+        2
+      ],
+      "source_box": [
+        1024,
+        0,
+        1536,
+        512
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        55,
+        88,
+        456,
+        460
+      ],
+      "edge_touch": false,
+      "output_size": [
+        114,
+        106
+      ],
+      "paste_position": [
+        7,
+        11
+      ]
+    },
+    {
+      "grid": [
+        1,
+        0
+      ],
+      "source_box": [
+        0,
+        512,
+        512,
+        1024
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        64,
+        24,
+        456,
+        416
+      ],
+      "edge_touch": false,
+      "output_size": [
+        112,
+        112
+      ],
+      "paste_position": [
+        8,
+        8
+      ]
+    },
+    {
+      "grid": [
+        1,
+        1
+      ],
+      "source_box": [
+        512,
+        512,
+        1024,
+        1024
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        36,
+        20,
+        432,
+        408
+      ],
+      "edge_touch": false,
+      "output_size": [
+        113,
+        110
+      ],
+      "paste_position": [
+        7,
+        9
+      ]
+    },
+    {
+      "grid": [
+        1,
+        2
+      ],
+      "source_box": [
+        1024,
+        512,
+        1536,
+        1024
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        38,
+        21,
+        432,
+        408
+      ],
+      "edge_touch": false,
+      "output_size": [
+        112,
+        110
+      ],
+      "paste_position": [
+        8,
+        9
+      ]
+    }
+  ],
+  "edge_touch_frames": []
+}

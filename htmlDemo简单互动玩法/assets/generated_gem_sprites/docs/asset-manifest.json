@@ -1,0 +1,46 @@
+{
+  "batch": "v23_gem_sprite_direction_2026_05_20",
+  "purpose": "First selectable realistic 3D sprite direction pass for the v23 stone processing flow.",
+  "sets": {
+    "obsidian_A": {
+      "gemId": "obsidian",
+      "kind": "raw_stone",
+      "stages": ["raw_skin", "cut_inner", "cracked", "repaired", "shaped", "cleaned"]
+    },
+    "obsidian_B": {
+      "gemId": "obsidian",
+      "kind": "raw_stone",
+      "stages": ["raw_skin", "cut_inner", "cracked", "repaired", "shaped", "cleaned"]
+    },
+    "fluorite_A": {
+      "gemId": "fluorite",
+      "kind": "raw_stone",
+      "stages": ["raw_skin", "cut_inner", "cracked", "repaired", "shaped", "cleaned"]
+    },
+    "fluorite_B": {
+      "gemId": "fluorite",
+      "kind": "raw_stone",
+      "stages": ["raw_skin", "cut_inner", "cracked", "repaired", "shaped", "cleaned"]
+    },
+    "pearl_A": {
+      "gemId": "pearl",
+      "kind": "finished_stone",
+      "stages": ["raw_finished", "cracked", "repaired", "cleaned"]
+    },
+    "pearl_B": {
+      "gemId": "pearl",
+      "kind": "finished_stone",
+      "stages": ["raw_finished", "cracked", "repaired", "cleaned"]
+    },
+    "agate_A": {
+      "gemId": "agate",
+      "kind": "finished_stone",
+      "stages": ["raw_finished", "cracked", "repaired", "cleaned"]
+    },
+    "agate_B": {
+      "gemId": "agate",
+      "kind": "finished_stone",
+      "stages": ["raw_finished", "cracked", "repaired", "cleaned"]
+    }
+  }
+}

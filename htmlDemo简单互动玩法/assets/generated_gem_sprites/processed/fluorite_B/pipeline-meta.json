@@ -1,0 +1,219 @@
+{
+  "target": "asset",
+  "mode": "sheet",
+  "prompt": "",
+  "role": "",
+  "input": "C:\\Users\\linglingshuai\\Downloads\\dem-demo-main\\dem-demo-main\\htmlDemo\u7b80\u5355\u4e92\u52a8\u73a9\u6cd5\\assets\\generated_gem_sprites\\raw\\fluorite_B_raw_sheet.png",
+  "threshold": 100,
+  "edge_threshold": 150,
+  "duration": 220,
+  "rows": 2,
+  "cols": 3,
+  "cell_size": 128,
+  "fit_scale": 0.86,
+  "trim_border": 4,
+  "edge_clean_depth": 3,
+  "align": "center",
+  "shared_scale": true,
+  "component_mode": "all",
+  "component_padding": 28,
+  "min_component_area": 1,
+  "edge_touch_margin": 3,
+  "frame_labels": [
+    "fluorite_B-1",
+    "fluorite_B-2",
+    "fluorite_B-3",
+    "fluorite_B-4",
+    "fluorite_B-5",
+    "fluorite_B-6"
+  ],
+  "frames": [
+    {
+      "grid": [
+        0,
+        0
+      ],
+      "source_box": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        112,
+        115,
+        500,
+        504
+      ],
+      "edge_touch": false,
+      "output_size": [
+        109,
+        110
+      ],
+      "paste_position": [
+        9,
+        9
+      ]
+    },
+    {
+      "grid": [
+        0,
+        1
+      ],
+      "source_box": [
+        512,
+        0,
+        1024,
+        512
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        112,
+        189,
+        420,
+        495
+      ],
+      "edge_touch": false,
+      "output_size": [
+        87,
+        86
+      ],
+      "paste_position": [
+        20,
+        21
+      ]
+    },
+    {
+      "grid": [
+        0,
+        2
+      ],
+      "source_box": [
+        1024,
+        0,
+        1536,
+        512
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        59,
+        189,
+        367,
+        495
+      ],
+      "edge_touch": false,
+      "output_size": [
+        87,
+        86
+      ],
+      "paste_position": [
+        20,
+        21
+      ]
+    },
+    {
+      "grid": [
+        1,
+        0
+      ],
+      "source_box": [
+        0,
+        512,
+        512,
+        1024
+      ],
+      "component_mode": "all",
+      "component_count": 3,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        154,
+        83,
+        463,
+        398
+      ],
+      "edge_touch": false,
+      "output_size": [
+        87,
+        89
+      ],
+      "paste_position": [
+        20,
+        19
+      ]
+    },
+    {
+      "grid": [
+        1,
+        1
+      ],
+      "source_box": [
+        512,
+        512,
+        1024,
+        1024
+      ],
+      "component_mode": "all",
+      "component_count": 4,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        125,
+        108,
+        405,
+        410
+      ],
+      "edge_touch": false,
+      "output_size": [
+        79,
+        85
+      ],
+      "paste_position": [
+        24,
+        21
+      ]
+    },
+    {
+      "grid": [
+        1,
+        2
+      ],
+      "source_box": [
+        1024,
+        512,
+        1536,
+        1024
+      ],
+      "component_mode": "all",
+      "component_count": 2,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        58,
+        107,
+        348,
+        410
+      ],
+      "edge_touch": false,
+      "output_size": [
+        82,
+        85
+      ],
+      "paste_position": [
+        23,
+        21
+      ]
+    }
+  ],
+  "edge_touch_frames": []
+}
