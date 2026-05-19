@@ -1043,8 +1043,16 @@
     .right-panel{
         display:flex;
         flex-direction:column;
-        justify-content:flex-end;
+        justify-content:flex-start;
         gap:12px;
+    }
+    .reward-dock{
+        margin-top:72px;
+        display:grid;
+        gap:12px;
+    }
+    .right-panel > #reward-pill{
+        margin-top:72px;
     }
     .collect-cta{
         width:100%;
@@ -1088,6 +1096,8 @@
         .workbench{ grid-template-columns:1fr; grid-template-rows:auto auto auto; }
         .center-panel{ min-height:620px; }
         .core-hud,.core-controls{ position:relative; left:auto; right:auto; top:auto; width:auto; }
+        .reward-dock{ margin-top:18px; }
+        .right-panel > #reward-pill{ margin-top:18px; }
         .core-hint{ top:24%; width:min(330px, 76%); }
     }
 </style>
