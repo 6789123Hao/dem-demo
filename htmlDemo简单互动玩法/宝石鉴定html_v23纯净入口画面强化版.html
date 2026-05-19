@@ -1181,14 +1181,14 @@
             <h2>素体袋</h2>
             <div id="bag" class="bag" draggable="true" aria-label="素体袋">
                 <div>
-                    <div id="bag-count" class="bag-count">0</div>
-                    <div class="bag-label">袋内素体</div>
+                    <div id="bag-count" class="bag-count">0素体</div>
+                    <div class="bag-label">整袋处理</div>
                 </div>
             </div>
-            <p class="inventory-note">拖到中间镜片位置：整袋连续游玩。v23 隐藏批量管道，优先展示宝石状态变化。</p>
+            <p class="inventory-note">拖到中间镜片位置后，会按袋内数量连续处理素体。</p>
             <div class="known-section">
-                <h3>宝石选择</h3>
-                <p class="inventory-note">列表暂时全部视为已知，随时可拖拽；可按拾取数量或星级排序。</p>
+                <h3>素体选择</h3>
+                <p class="inventory-note">选择一种素体拖入镜片位置，或使用排序快速找到目标。</p>
                 <div class="sort-row" aria-label="宝石排序">
                     <button class="sort-btn active" type="button" data-sort="quantity">按拾取数量</button>
                     <button class="sort-btn" type="button" data-sort="rarity">按星级</button>
@@ -1448,7 +1448,7 @@ function setupSortControls(){
     });
 }
 function renderMain(){
-    document.getElementById("bag-count").textContent = bagTotal();
+    document.getElementById("bag-count").textContent = `${bagTotal()}素体`;
     document.getElementById("reward-pill").textContent = `待收集奖励：${state.rewards.length}`;
     const packSelect = document.getElementById("data-pack-select");
     if(packSelect) packSelect.value = state.dataPackKey;
