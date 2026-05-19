@@ -947,12 +947,12 @@
     .gem3d.step-clean .gem-surface{
         opacity:1;
         background:
-            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(83,78,72,.5) 0 30px, transparent 58px),
-            radial-gradient(circle at 24% 32%, rgba(83,78,72,.38) 0 4px, transparent 5px),
-            radial-gradient(circle at 62% 28%, rgba(83,78,72,.32) 0 6px, transparent 7px),
-            radial-gradient(circle at 52% 68%, rgba(83,78,72,.34) 0 5px, transparent 6px),
-            radial-gradient(circle at 74% 58%, rgba(83,78,72,.28) 0 4px, transparent 5px),
-            linear-gradient(145deg, rgba(120,112,102,.28), rgba(255,255,255,0) 60%);
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(83,78,72,.28) 0 30px, transparent 58px),
+            radial-gradient(circle at 24% 32%, rgba(83,78,72,.22) 0 4px, transparent 5px),
+            radial-gradient(circle at 62% 28%, rgba(83,78,72,.2) 0 6px, transparent 7px),
+            radial-gradient(circle at 52% 68%, rgba(83,78,72,.2) 0 5px, transparent 6px),
+            radial-gradient(circle at 74% 58%, rgba(83,78,72,.18) 0 4px, transparent 5px),
+            linear-gradient(145deg, rgba(120,112,102,.16), rgba(255,255,255,0) 60%);
         mix-blend-mode:multiply;
     }
     .gem3d.step-cut .gem-surface{
@@ -1118,7 +1118,7 @@
                     <div class="bag-label">袋内素体</div>
                 </div>
             </div>
-            <p class="inventory-note">拖到中间镜片位置：手动验收一颗素体。v23 隐藏批量管道，优先展示单颗宝石状态变化。</p>
+            <p class="inventory-note">拖到中间镜片位置：整袋连续游玩。v23 隐藏批量管道，优先展示宝石状态变化。</p>
             <div class="known-section">
                 <h3>宝石选择</h3>
                 <p class="inventory-note">列表为验收入口，星级和流程直接显示；未知类型完成一次后解锁。</p>
@@ -2000,7 +2000,7 @@ function setupDragDrop(){
     };
     bindDrop(document.getElementById("lens-stage"), payload=>{
         if(!payload) return;
-        if(payload.type === "bag") startManualFromBag();
+        if(payload.type === "bag") startBatchFromBag();
         if(payload.type === "known") startKnownStone(payload.id);
     });
     bindDrop(document.getElementById("batch-drop"), payload=>{
