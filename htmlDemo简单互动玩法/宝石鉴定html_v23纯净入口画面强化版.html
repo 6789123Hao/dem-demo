@@ -234,10 +234,10 @@
         text-align:center;
     }
     .log{
-        margin-top:14px;
-        min-height:150px;
-        max-height:210px;
-        overflow:auto;
+        margin-top:8px;
+        min-height:0;
+        max-height:58px;
+        overflow:hidden;
         padding:10px;
         border-radius:8px;
         border:1px solid rgba(86,52,31,.16);
@@ -245,6 +245,28 @@
         color:var(--muted);
         font-size:13px;
         line-height:1.55;
+        cursor:pointer;
+        transition:max-height .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+    .log > div{
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+    }
+    .log > div:nth-child(n+3){ display:none; }
+    .log.expanded{
+        max-height:210px;
+        overflow:auto;
+        background:rgba(255,255,255,.82);
+        box-shadow:0 14px 28px rgba(68,43,25,.12);
+    }
+    .log.expanded > div{
+        white-space:normal;
+    }
+    .log.expanded > div:nth-child(n+3){ display:block; }
+    .log:empty::before{
+        content:"...";
+        color:rgba(86,52,31,.38);
     }
     .play-grid{
         display:grid;
@@ -1348,6 +1370,16 @@ function addLog(text){
     line.textContent = text;
     log.prepend(line);
 }
+function setupLogPanel(){
+    const log = document.getElementById("main-log");
+    log.addEventListener("click", e=>{
+        e.stopPropagation();
+        log.classList.toggle("expanded");
+    });
+    document.addEventListener("click", e=>{
+        if(!log.contains(e.target)) log.classList.remove("expanded");
+    });
+}
 function renderMain(){
     document.getElementById("bag-count").textContent = bagTotal();
     document.getElementById("reward-pill").textContent = `待收集奖励：${state.rewards.length}`;
@@ -2034,6 +2066,7 @@ function setupCoreMouseControls(){
 document.addEventListener("DOMContentLoaded", ()=>{
     setupDragDrop();
     setupCoreMouseControls();
+    setupLogPanel();
     const hotspot = document.getElementById("hotspot");
     hotspot.addEventListener("click", handleHotspotClick);
     hotspot.addEventListener("pointerdown", startDefectDrag);
