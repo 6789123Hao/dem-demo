@@ -327,11 +327,35 @@
     }
     .hotspot.done{ opacity:0; pointer-events:none; }
     .hotspot-clean{
-        width:130px;
-        height:130px;
+        width:220px;
+        height:220px;
+        border-color:transparent;
+        background:transparent;
+        box-shadow:none;
+        color:transparent;
+    }
+    .hotspot-clean::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:168px;
+        height:168px;
+        transform:translate(-50%, -50%);
+        border-radius:50%;
         border:2px dashed rgba(255,255,255,.9);
         background:rgba(95,88,80,.36);
-        box-shadow:0 0 0 16px rgba(95,88,80,.14), inset 0 0 42px rgba(80,72,64,.24);
+        box-shadow:0 0 0 16px rgba(95,88,80,.14), inset 0 0 48px rgba(80,72,64,.24);
+    }
+    .hotspot-clean::after{
+        content:"擦";
+        position:absolute;
+        left:50%;
+        top:50%;
+        transform:translate(-50%, -50%);
+        color:#fffaf1;
+        font-size:13px;
+        font-weight:800;
     }
     .hotspot-repair{
         width:58px;
@@ -378,8 +402,8 @@
         font-weight:800;
     }
     .hotspot-shape{
-        width:132px;
-        height:132px;
+        width:180px;
+        height:180px;
         position:absolute;
         background:rgba(210,155,69,.1);
         border-color:rgba(255,255,255,.86);
@@ -401,8 +425,8 @@
         position:absolute;
         left:50%;
         top:50%;
-        width:102px;
-        height:92px;
+        width:136px;
+        height:124px;
         transform:translate(-50%, -45%);
         background:rgba(255,248,226,.95);
         clip-path:polygon(50% 0, 100% 100%, 0 100%);
@@ -413,8 +437,8 @@
         position:absolute;
         left:50%;
         top:50%;
-        width:78px;
-        height:68px;
+        width:104px;
+        height:92px;
         transform:translate(-50%, -42%);
         background:rgba(87,134,92,.66);
         clip-path:polygon(50% 0, 100% 100%, 0 100%);
@@ -423,7 +447,7 @@
         border-radius:12px;
         background:rgba(210,155,69,.08);
         outline:3px solid rgba(255,248,226,.82);
-        outline-offset:-15px;
+        outline-offset:-22px;
         clip-path:none;
     }
     .focus-ring{
@@ -436,7 +460,7 @@
         pointer-events:none;
         animation:pulse 1s infinite;
     }
-    .focus-ring-clean{ width:168px; height:168px; border-style:dashed; }
+    .focus-ring-clean{ width:236px; height:236px; border-style:dashed; }
     .focus-ring-repair{ width:86px; height:86px; }
     .focus-ring-cut{
         width:238px;
@@ -446,7 +470,7 @@
         animation:none;
         opacity:.82;
     }
-    .focus-ring-shape{ width:158px; height:158px; animation:none; opacity:.78; }
+    .focus-ring-shape{ width:214px; height:214px; animation:none; opacity:.78; }
     .lens-scroll-cue{
         position:absolute;
         left:50%;
@@ -511,6 +535,26 @@
     .drag-particle-clean{ background:rgba(134,124,108,.72); box-shadow:0 0 8px rgba(80,72,64,.26); }
     .drag-particle-cut{ width:12px; height:7px; border-radius:3px; background:rgba(108,112,110,.78); }
     .drag-particle-shape{ background:rgba(230,178,74,.82); box-shadow:0 0 12px rgba(230,178,74,.34); }
+    .finish-fragment{
+        position:fixed;
+        left:0;
+        top:0;
+        width:13px;
+        height:9px;
+        border-radius:3px;
+        pointer-events:none;
+        z-index:999;
+        background:rgba(116,112,102,.82);
+        box-shadow:0 3px 8px rgba(44,36,27,.18);
+        transform:translate(-50%, -50%) rotate(var(--frag-rot, 0deg));
+        animation:finishFragmentFall .72s ease-in forwards;
+    }
+    .finish-fragment-shape{ background:rgba(226,174,75,.88); }
+    @keyframes finishFragmentFall{
+        0%{ opacity:0; transform:translate(-50%, -50%) rotate(var(--frag-rot, 0deg)) scale(.7); }
+        18%{ opacity:1; }
+        100%{ opacity:0; transform:translate(calc(-50% + var(--frag-dx, 0px)), calc(-50% + var(--frag-dy, 92px))) rotate(calc(var(--frag-rot, 0deg) + 120deg)) scale(.35); }
+    }
     @keyframes dragParticleDrop{
         0%{ opacity:.95; transform:translate(-50%, -50%) scale(1); }
         100%{ opacity:0; transform:translate(calc(-50% + var(--particle-dx, 0px)), calc(-50% + 22px)) scale(.35); }
@@ -876,20 +920,29 @@
     .gem3d.visual-cracked .gem-surface,
     .gem3d.step-repair .gem-surface{
         opacity:1;
-        background:
-            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(80,150,210,.24) 0 18px, transparent 32px),
-            linear-gradient(35deg, transparent 0 42%, rgba(52,32,29,.72) 43% 45%, transparent 46%),
-            linear-gradient(112deg, transparent 0 55%, rgba(255,236,214,.55) 56% 57%, transparent 58%);
+        overflow:hidden;
+        background:radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(80,150,210,.18) 0 18px, transparent 34px);
     }
     .gem3d.visual-cracked .gem-surface::before,
     .gem3d.step-repair .gem-surface::before{
-        opacity:1;
-        inset:48px 72px 56px 60px;
+        opacity:var(--crack-main-opacity, 1);
+        inset:40px 54px 48px 54px;
         border-radius:0;
         background:
-            linear-gradient(128deg, transparent 0 46%, rgba(52,32,29,.82) 47% 49%, transparent 50%),
-            linear-gradient(72deg, transparent 0 52%, rgba(52,32,29,.58) 53% 55%, transparent 56%);
-        clip-path:none;
+            linear-gradient(128deg, transparent 0 47%, rgba(45,28,25,.82) 48% 49%, transparent 50%),
+            linear-gradient(82deg, transparent 0 39%, rgba(45,28,25,.58) 40% 41%, transparent 42%),
+            linear-gradient(42deg, transparent 0 62%, rgba(45,28,25,.52) 63% 64%, transparent 65%);
+        clip-path:polygon(18% 4%, 62% 0, 78% 26%, 62% 46%, 86% 88%, 42% 100%, 22% 70%, 36% 42%);
+    }
+    .gem3d.visual-cracked .gem-surface::after,
+    .gem3d.step-repair .gem-surface::after{
+        opacity:var(--crack-branch-opacity, .72);
+        inset:62px 82px 68px 70px;
+        border-radius:0;
+        background:
+            linear-gradient(28deg, transparent 0 46%, rgba(45,28,25,.58) 47% 49%, transparent 50%),
+            linear-gradient(142deg, transparent 0 48%, rgba(255,236,214,.42) 49% 50%, transparent 51%);
+        clip-path:polygon(6% 26%, 58% 0, 100% 48%, 74% 100%, 38% 70%);
     }
     .gem3d.step-clean .gem-surface{
         opacity:1;
@@ -1529,6 +1582,9 @@ function renderPlay(){
     applyGemVisualVars(gem3d, gem);
     gem3d.style.setProperty("--defect-x", step ? `${step.pos.x}%` : "50%");
     gem3d.style.setProperty("--defect-y", step ? `${step.pos.y}%` : "50%");
+    const repairProgress = step?.type === "repair" ? Math.min(step.clicks || 0, 3) : 0;
+    gem3d.style.setProperty("--crack-main-opacity", Math.max(0, 1 - repairProgress * .34));
+    gem3d.style.setProperty("--crack-branch-opacity", Math.max(0, .72 - repairProgress * .26));
     gem3d.style.setProperty("--gem-stage-image", stageImageValue(gem, visual));
     document.getElementById("play-title").textContent = `${gem.name} · 核心玩法`;
     document.getElementById("status-gem").textContent = `${"★".repeat(gem.rarity)} ${gem.name} / ${gem.version}`;
@@ -1654,6 +1710,7 @@ function canUseCurrentStep(step){
     return true;
 }
 function completeCurrentStep(step){
+    if(step.type === "cut" || step.type === "shape") spawnCompletionFragments(step.type);
     step.done = true;
     state.active.stepIndex += 1;
     toast(`完成 ${TOOL_LABELS[step.type]}`);
@@ -1754,6 +1811,23 @@ function spawnDragParticle(x, y, type){
     particle.style.setProperty("--particle-dx", `${(Math.random() - .5) * 22}px`);
     document.body.appendChild(particle);
     setTimeout(()=>particle.remove(), 520);
+}
+function spawnCompletionFragments(type){
+    const spot = document.getElementById("hotspot");
+    const rect = spot?.getBoundingClientRect();
+    const originX = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+    const originY = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
+    for(let i = 0; i < 12; i++){
+        const fragment = document.createElement("span");
+        fragment.className = `finish-fragment finish-fragment-${type}`;
+        fragment.style.left = `${originX + (Math.random() - .5) * 80}px`;
+        fragment.style.top = `${originY + (Math.random() - .5) * 34}px`;
+        fragment.style.setProperty("--frag-dx", `${(Math.random() - .5) * 110}px`);
+        fragment.style.setProperty("--frag-dy", `${70 + Math.random() * 90}px`);
+        fragment.style.setProperty("--frag-rot", `${Math.random() * 160 - 80}deg`);
+        document.body.appendChild(fragment);
+        setTimeout(()=>fragment.remove(), 820);
+    }
 }
 function finishDefectDrag(e){
     const drag = state.defectDrag;
