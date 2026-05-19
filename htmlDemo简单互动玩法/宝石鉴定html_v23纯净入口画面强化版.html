@@ -405,13 +405,13 @@
         box-shadow:0 0 0 16px rgba(95,88,80,.14), inset 0 0 48px rgba(80,72,64,.24);
     }
     .hotspot-clean::after{
-        content:"擦";
+        content:"←擦→";
         position:absolute;
         left:50%;
         top:50%;
         transform:translate(-50%, -50%);
         color:#fffaf1;
-        font-size:13px;
+        font-size:15px;
         font-weight:800;
     }
     .hotspot-repair{
@@ -434,6 +434,7 @@
         transform:translate(-50%, -50%) rotate(var(--cut-angle, -22deg));
         box-shadow:none;
         color:transparent;
+        white-space:pre;
     }
     .hotspot-cut::before{
         content:"";
@@ -449,14 +450,15 @@
         box-shadow:0 0 0 8px rgba(92,94,90,.16), inset 0 4px 8px rgba(255,255,255,.2);
     }
     .hotspot-cut::after{
-        content:"切";
+        content:"  滑→→→       ";
         position:absolute;
         left:50%;
         top:50%;
         transform:translate(-50%, -50%);
         color:#fffaf1;
-        font-size:12px;
+        font-size:13px;
         font-weight:800;
+        white-space:pre;
     }
     .hotspot-shape{
         width:180px;
@@ -471,9 +473,10 @@
     }
     .hotspot-shape-circle{ border-radius:50%; }
     .hotspot-shape-triangle{
-        border-radius:14px;
-        border-color:rgba(255,255,255,.38);
-        background:rgba(210,155,69,.06);
+        border-radius:50%;
+        border-color:transparent;
+        background:transparent;
+        box-shadow:0 0 0 18px rgba(210,155,69,.08);
         clip-path:none;
         color:transparent;
     }
@@ -490,15 +493,18 @@
         filter:drop-shadow(0 0 10px rgba(210,155,69,.28)) drop-shadow(0 3px 8px rgba(0,0,0,.18));
     }
     .hotspot-shape-triangle::after{
-        content:"";
+        content:"描边";
         position:absolute;
         left:50%;
         top:50%;
-        width:104px;
-        height:92px;
-        transform:translate(-50%, -42%);
-        background:rgba(87,134,92,.66);
-        clip-path:polygon(50% 0, 100% 100%, 0 100%);
+        width:auto;
+        height:auto;
+        transform:translate(-50%, 44px);
+        background:transparent;
+        color:#fff7e2;
+        font-size:15px;
+        font-weight:900;
+        text-shadow:0 2px 8px rgba(70,44,22,.46);
     }
     .hotspot-shape-square{
         border-radius:12px;
@@ -1625,7 +1631,7 @@ function stepStatusText(step){
     if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / 260 * 100))}%`;
     if(step.type === "repair") return `${base} · 点击 ${step.clicks || 0}/3`;
     if(step.type === "cut") return `${base} · 顺着长条角度拖拽`;
-    if(step.type === "shape") return `${base} · 描摹${SHAPE_LABELS[step.shapeTarget]}`;
+    if(step.type === "shape") return `${base} · 描边${SHAPE_LABELS[step.shapeTarget]}`;
     return base;
 }
 function stepHintText(step){
@@ -1633,7 +1639,7 @@ function stepHintText(step){
     if(step.type === "clean") return "清洁：按住范围圈，在瑕疵上来回拖拽擦除。";
     if(step.type === "repair") return "修补：连续点击水滴形瑕疵 3 次。";
     if(step.type === "cut") return "切除：按住长条瑕疵，沿相近角度拖拽切除。";
-    if(step.type === "shape") return `定型：按住形状特效，拖拽描摹${SHAPE_LABELS[step.shapeTarget]}。`;
+    if(step.type === "shape") return `定型：按住形状特效，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`;
     return "完成当前宝石。";
 }
 function visualStateForActive(active, step){
@@ -1796,10 +1802,10 @@ function defectStagePosition(step){
     };
 }
 function hotspotLabel(step){
-    if(step.type === "clean") return "擦";
+    if(step.type === "clean") return "←擦→";
     if(step.type === "repair") return "滴";
-    if(step.type === "cut") return "切";
-    if(step.type === "shape") return SHAPE_MARKS[step.shapeTarget];
+    if(step.type === "cut") return "  滑→→→       ";
+    if(step.type === "shape") return `${SHAPE_MARKS[step.shapeTarget]} 描边`;
     return "";
 }
 function clearHotspot(){
@@ -1871,7 +1877,7 @@ function handleHotspotClick(){
     }
     if(step.type === "clean") toast("按住瑕疵范围来回拖拽擦拭。");
     if(step.type === "cut") toast("按住长条，沿相近角度拖拽切除。");
-    if(step.type === "shape") toast(`按住形状，拖拽描摹${SHAPE_LABELS[step.shapeTarget]}。`);
+    if(step.type === "shape") toast(`按住形状，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`);
 }
 function startDefectDrag(e){
     const step = currentStep();
@@ -1961,7 +1967,7 @@ function finishDefectDrag(e){
         if(traceMatchesShape(drag.points, step.shapeTarget)){
             completeCurrentStep(step);
         } else {
-            toast(`描摹不完整，再顺着${SHAPE_LABELS[step.shapeTarget]}轮廓拖一遍。`);
+            toast(`描边不完整，再顺着${SHAPE_LABELS[step.shapeTarget]}轮廓拖一遍。`);
         }
     }
 }
