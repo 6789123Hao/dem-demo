@@ -400,9 +400,9 @@
         height:168px;
         transform:translate(-50%, -50%);
         border-radius:50%;
-        border:2px dashed rgba(255,255,255,.9);
+        border:0;
         background:rgba(95,88,80,.36);
-        box-shadow:0 0 0 16px rgba(95,88,80,.14), inset 0 0 48px rgba(80,72,64,.24);
+        box-shadow:0 0 0 16px rgba(95,88,80,.16), inset 0 0 52px rgba(42,36,31,.28), 0 12px 24px rgba(34,28,23,.16);
     }
     .hotspot-clean::after{
         content:"←擦→";
@@ -534,7 +534,7 @@
         pointer-events:none;
         animation:pulse 1s infinite;
     }
-    .focus-ring-clean{ width:236px; height:236px; border-style:dashed; }
+    .focus-ring-clean{ display:none !important; }
     .focus-ring-repair{ width:86px; height:86px; }
     .focus-ring-cut{
         width:238px;
