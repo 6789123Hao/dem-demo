@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>宝石鉴定 v23 - 纯净入口画面强化版</title>
+<style>
+    :root{
+        --bg:#f4eee3;
+        --ink:#2c241b;
+        --muted:#786b5c;
+        --line:#cab89f;
+        --wood:#8d5d36;
+        --wood-dark:#56341f;
+        --gold:#d29b45;
+        --green:#dceedd;
+        --blue:#e8edf6;
+        --danger:#f3d7d1;
+        --shadow:0 18px 48px rgba(68,43,25,.18);
+    }
+    *{ box-sizing:border-box; }
+    body{
+        margin:0;
+        min-height:100vh;
+        font-family:"Microsoft YaHei", system-ui, sans-serif;
+        color:var(--ink);
+        background:
+            radial-gradient(circle at 18% 12%, rgba(210,155,69,.18), transparent 34%),
+            linear-gradient(135deg, #fff9ef 0%, var(--bg) 58%, #eadcc9 100%);
+    }
+    button{ font:inherit; }
+    .screen{ display:none; min-height:100vh; padding:24px; }
+    .screen.active{ display:block; }
+    #screen-main{ position:relative; }
+    .topbar{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:18px;
+        margin-bottom:18px;
+    }
+    .top-actions{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        flex-wrap:wrap;
+        justify-content:flex-end;
+    }
+    .title h1{ margin:0 0 6px; font-size:30px; letter-spacing:0; }
+    .title p{ margin:0; color:var(--muted); }
+    .btn{
+        border:1px solid rgba(86,52,31,.22);
+        background:#fff9ee;
+        color:var(--ink);
+        border-radius:8px;
+        padding:10px 14px;
+        cursor:pointer;
+        box-shadow:0 6px 16px rgba(68,43,25,.08);
+    }
+    .btn.primary{ background:linear-gradient(180deg, #f3c36d, #d99d3c); border-color:#af742c; color:#2b1c0f; font-weight:700; }
+    .btn.ghost{ background:rgba(255,255,255,.55); }
+    .btn:disabled{ opacity:.45; cursor:not-allowed; }
+    .data-pack-select{
+        min-height:42px;
+        min-width:180px;
+        border:1px solid rgba(86,52,31,.22);
+        border-radius:8px;
+        background:#fff9ee;
+        color:var(--ink);
+        padding:0 12px;
+        box-shadow:0 6px 16px rgba(68,43,25,.08);
+    }
+    .gm-btn{
+        display:none;
+        border-style:dashed;
+    }
+    body.playing .gm-btn{ display:inline-flex; }
+    .entry-drag-cue{
+        position:absolute;
+        left:28px;
+        top:118px;
+        z-index:8;
+        pointer-events:none;
+        color:rgba(78,48,28,.82);
+        font-size:clamp(42px, 5.8vw, 86px);
+        font-weight:900;
+        line-height:1;
+        letter-spacing:0;
+        text-shadow:0 5px 0 rgba(255,248,226,.92), 0 18px 30px rgba(68,43,25,.22);
+    }
+    body.playing .entry-drag-cue{ display:none; }
+    .pill{
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        border:1px solid rgba(86,52,31,.18);
+        background:rgba(255,255,255,.58);
+        border-radius:999px;
+        padding:6px 10px;
+        color:var(--muted);
+        font-size:13px;
+    }
+    .main-grid{
+        display:grid;
+        grid-template-columns:280px 1fr 320px;
+        gap:18px;
+        align-items:stretch;
+    }
+    .panel{
+        background:rgba(255,252,246,.86);
+        border:1px solid var(--line);
+        border-radius:8px;
+        box-shadow:var(--shadow);
+        padding:16px;
+    }
+    .panel h2,.panel h3{ margin:0 0 12px; font-size:18px; }
+    .bag{
+        position:relative;
+        width:min(330px, 88%);
+        aspect-ratio:1 / .92;
+        margin:26px auto 20px;
+        border:3px solid var(--wood-dark);
+        border-radius:36px 36px 18px 18px;
+        background:
+            radial-gradient(circle at 50% 18%, rgba(255,255,255,.26), transparent 34%),
+            linear-gradient(135deg, #b9854b, #6e4226);
+        cursor:grab;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:#fff8e8;
+        text-align:center;
+        box-shadow:0 20px 36px rgba(83,50,28,.26);
+        user-select:none;
+    }
+    .bag:active{ cursor:grabbing; }
+    .bag::before{
+        content:"";
+        position:absolute;
+        inset:18px 28px auto;
+        height:24px;
+        border-radius:999px;
+        background:#382114;
+        box-shadow:inset 0 3px 0 rgba(255,255,255,.12);
+    }
+    .bag-count{ font-size:48px; font-weight:800; line-height:1; }
+    .bag-label{ margin-top:8px; font-size:15px; color:#ffe8bf; }
+    .drop-row{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:16px;
+        margin-top:18px;
+    }
+    .drop-zone{
+        min-height:174px;
+        border:2px dashed rgba(86,52,31,.35);
+        border-radius:8px;
+        background:rgba(255,255,255,.42);
+        padding:16px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        text-align:center;
+        transition:.16s ease;
+    }
+    .drop-zone.over{ border-color:#b9792d; background:#fff4dc; transform:translateY(-2px); }
+    .lens-icon{
+        width:86px;
+        height:86px;
+        border:8px solid #5a4633;
+        border-radius:50%;
+        background:radial-gradient(circle at 35% 30%, #ffffff, #a7ddff 58%, #5588ab 100%);
+        margin-bottom:10px;
+    }
+    .batch-icon{
+        width:92px;
+        height:70px;
+        border:3px solid #5a4633;
+        border-radius:8px;
+        background:linear-gradient(135deg, #e8edf6, #fdfbf5);
+        margin-bottom:10px;
+        position:relative;
+    }
+    .batch-icon::after{
+        content:"";
+        position:absolute;
+        width:46px;
+        height:20px;
+        border-radius:50%;
+        background:#d29b45;
+        left:22px;
+        bottom:14px;
+        box-shadow:18px -6px 0 #87c7b6, -14px -4px 0 #b66a5c;
+    }
+    .stone-list{ display:grid; gap:8px; max-height:none; overflow:auto; padding-right:4px; }
+    .stone-card{
+        border:1px solid rgba(86,52,31,.18);
+        background:#fffaf1;
+        border-radius:8px;
+        padding:10px;
+        display:grid;
+        grid-template-columns:34px 1fr auto;
+        gap:10px;
+        align-items:center;
+        cursor:grab;
+    }
+    .stone-card.locked{ opacity:.48; cursor:not-allowed; }
+    .stone-dot{ width:34px; height:34px; border-radius:50%; border:2px solid rgba(35,25,16,.22); }
+    .stone-name{ font-weight:700; }
+    .stone-meta{ font-size:12px; color:var(--muted); margin-top:2px; }
+    .star-rank{ color:#c48a2f; font-weight:900; letter-spacing:1px; }
+    .inventory-note{ color:var(--muted); font-size:13px; line-height:1.7; margin:0 0 12px; }
+    .plate{
+        min-height:180px;
+        border:2px solid rgba(86,52,31,.22);
+        border-radius:50%;
+        background:radial-gradient(circle, #fffdf6 0%, #e2d7c8 70%, #bca98f 100%);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex-wrap:wrap;
+        gap:8px;
+        padding:22px;
+        margin-top:10px;
+    }
+    .plate-gem{
+        min-width:74px;
+        border:1px solid rgba(86,52,31,.2);
+        background:rgba(255,255,255,.72);
+        border-radius:8px;
+        padding:7px 9px;
+        font-size:13px;
+        text-align:center;
+    }
+    .log{
+        margin-top:14px;
+        min-height:150px;
+        max-height:210px;
+        overflow:auto;
+        padding:10px;
+        border-radius:8px;
+        border:1px solid rgba(86,52,31,.16);
+        background:rgba(255,255,255,.44);
+        color:var(--muted);
+        font-size:13px;
+        line-height:1.55;
+    }
+    .play-grid{
+        display:grid;
+        grid-template-columns:1fr 300px;
+        gap:18px;
+        min-height:calc(100vh - 116px);
+    }
+    .playfield{
+        position:relative;
+        overflow:hidden;
+        border:1px solid var(--line);
+        border-radius:8px;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,.72), rgba(237,225,207,.88)),
+            repeating-linear-gradient(90deg, transparent, transparent 28px, rgba(95,64,36,.04) 29px);
+        box-shadow:var(--shadow);
+    }
+    .lens-stage{
+        position:absolute;
+        inset:38px 44px 72px;
+        border:12px solid #5b4633;
+        border-radius:50%;
+        background:radial-gradient(circle at center, rgba(255,255,255,.72), rgba(125,196,226,.2) 62%, rgba(45,65,74,.12));
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        overflow:hidden;
+    }
+    .lens-stage::before{
+        content:"";
+        position:absolute;
+        inset:0;
+        background:var(--lens-filter, rgba(127,223,255,.28));
+        mix-blend-mode:multiply;
+        pointer-events:none;
+    }
+    .gem3d{
+        width:230px;
+        height:230px;
+        position:relative;
+        transform:translate(-50%, -50%);
+        transform-style:flat;
+        transition:transform .52s ease, filter .2s ease;
+        filter:drop-shadow(0 26px 24px rgba(52,35,21,.22));
+    }
+    .gem-core{
+        position:absolute;
+        inset:18px;
+        clip-path:polygon(50% 0, 88% 18%, 100% 56%, 66% 100%, 28% 94%, 0 55%, 12% 18%);
+        background:var(--gem-color);
+        border:2px solid rgba(255,255,255,.42);
+    }
+    .gem-core::before{
+        content:"";
+        position:absolute;
+        inset:0;
+        background:
+            linear-gradient(40deg, transparent 0 28%, rgba(255,255,255,.38) 29% 31%, transparent 32%),
+            linear-gradient(120deg, transparent 0 44%, rgba(0,0,0,.18) 45% 48%, transparent 49%),
+            radial-gradient(circle at 35% 28%, rgba(255,255,255,.55), transparent 24%);
+    }
+    .hotspot{
+        position:absolute;
+        width:42px;
+        height:42px;
+        border-radius:50%;
+        border:3px solid rgba(255,255,255,.92);
+        background:rgba(210,155,69,.82);
+        box-shadow:0 0 0 8px rgba(210,155,69,.18), 0 10px 24px rgba(0,0,0,.2);
+        transform:translate(-50%, -50%);
+        cursor:pointer;
+        z-index:4;
+        display:grid;
+        place-items:center;
+        color:#fffaf1;
+        font-size:12px;
+        font-weight:800;
+        line-height:1;
+        touch-action:none;
+    }
+    .hotspot.done{ opacity:0; pointer-events:none; }
+    .hotspot-clean{
+        width:130px;
+        height:130px;
+        border:2px dashed rgba(255,255,255,.9);
+        background:rgba(95,88,80,.36);
+        box-shadow:0 0 0 16px rgba(95,88,80,.14), inset 0 0 42px rgba(80,72,64,.24);
+    }
+    .hotspot-repair{
+        width:58px;
+        height:70px;
+        border-radius:58% 58% 62% 8%;
+        background:rgba(80,150,210,.76);
+        transform:translate(-50%, -50%) rotate(-45deg) scale(var(--repair-scale, 1));
+        transform-origin:center;
+        box-shadow:0 0 0 8px rgba(80,150,210,.18), inset 10px 8px 16px rgba(255,255,255,.26);
+        font-size:16px;
+        transition:transform .16s ease, opacity .16s ease;
+    }
+    .hotspot-cut{
+        width:132px;
+        height:30px;
+        border-radius:999px;
+        background:rgba(105,108,104,.82);
+        transform:translate(-50%, -50%) rotate(var(--cut-angle, -22deg));
+        box-shadow:0 0 0 8px rgba(92,94,90,.16), inset 0 4px 8px rgba(255,255,255,.2);
+    }
+    .hotspot-shape{
+        width:132px;
+        height:132px;
+        position:absolute;
+        background:rgba(210,155,69,.1);
+        border-color:rgba(255,255,255,.86);
+        border-width:4px;
+        box-shadow:0 0 0 12px rgba(210,155,69,.1);
+        color:#fff7e2;
+        font-size:22px;
+    }
+    .hotspot-shape-circle{ border-radius:50%; }
+    .hotspot-shape-triangle{
+        border-radius:14px;
+        border-color:rgba(255,255,255,.38);
+        background:rgba(210,155,69,.06);
+        clip-path:none;
+        color:transparent;
+    }
+    .hotspot-shape-triangle::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:102px;
+        height:92px;
+        transform:translate(-50%, -45%);
+        background:rgba(255,248,226,.95);
+        clip-path:polygon(50% 0, 100% 100%, 0 100%);
+        filter:drop-shadow(0 0 10px rgba(210,155,69,.28)) drop-shadow(0 3px 8px rgba(0,0,0,.18));
+    }
+    .hotspot-shape-triangle::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:78px;
+        height:68px;
+        transform:translate(-50%, -42%);
+        background:rgba(87,134,92,.66);
+        clip-path:polygon(50% 0, 100% 100%, 0 100%);
+    }
+    .hotspot-shape-square{
+        border-radius:12px;
+        background:rgba(210,155,69,.08);
+        outline:3px solid rgba(255,248,226,.82);
+        outline-offset:-15px;
+        clip-path:none;
+    }
+    .focus-ring{
+        position:absolute;
+        width:82px;
+        height:82px;
+        border:2px solid rgba(255,255,255,.7);
+        border-radius:50%;
+        transform:translate(-50%, -50%);
+        pointer-events:none;
+        animation:pulse 1s infinite;
+    }
+    .focus-ring-clean{ width:168px; height:168px; border-style:dashed; }
+    .focus-ring-repair{ width:86px; height:86px; }
+    .focus-ring-cut{
+        width:156px;
+        height:48px;
+        border-radius:999px;
+        transform:translate(-50%, -50%) rotate(var(--cut-angle, -22deg));
+        animation:none;
+        opacity:.82;
+    }
+    .focus-ring-shape{ width:158px; height:158px; animation:none; opacity:.78; }
+    .lens-scroll-cue{
+        position:absolute;
+        left:50%;
+        top:56%;
+        width:74px;
+        height:94px;
+        transform:translate(-50%, -50%);
+        z-index:5;
+        display:none;
+        pointer-events:none;
+        border:5px solid rgba(255,248,226,.95);
+        border-radius:36px;
+        background:rgba(44,36,27,.34);
+        box-shadow:0 12px 30px rgba(44,36,27,.22), inset 0 0 18px rgba(255,255,255,.12);
+    }
+    .lens-scroll-cue::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:15px;
+        width:9px;
+        height:22px;
+        transform:translateX(-50%);
+        border-radius:999px;
+        background:rgba(255,248,226,.95);
+        animation:wheelNudge 1s ease-in-out infinite;
+    }
+    .lens-scroll-cue::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        bottom:-31px;
+        width:22px;
+        height:22px;
+        transform:translateX(-50%) rotate(45deg);
+        border-right:5px solid rgba(255,248,226,.95);
+        border-bottom:5px solid rgba(255,248,226,.95);
+        animation:wheelArrowDown 1s ease-in-out infinite;
+    }
+    @keyframes wheelNudge{
+        0%, 100%{ transform:translate(-50%, 0); opacity:.95; }
+        55%{ transform:translate(-50%, 16px); opacity:.45; }
+    }
+    @keyframes wheelArrowDown{
+        0%, 100%{ transform:translate(-50%, -2px) rotate(45deg); opacity:.9; }
+        55%{ transform:translate(-50%, 8px) rotate(45deg); opacity:.42; }
+    }
+    .drag-particle{
+        position:fixed;
+        left:0;
+        top:0;
+        width:10px;
+        height:10px;
+        border-radius:50%;
+        pointer-events:none;
+        z-index:999;
+        background:rgba(255,245,210,.86);
+        box-shadow:0 0 10px rgba(255,245,210,.38);
+        transform:translate(-50%, -50%);
+        animation:dragParticleDrop .48s ease-out forwards;
+    }
+    .drag-particle-clean{ background:rgba(134,124,108,.72); box-shadow:0 0 8px rgba(80,72,64,.26); }
+    .drag-particle-cut{ width:12px; height:7px; border-radius:3px; background:rgba(108,112,110,.78); }
+    .drag-particle-shape{ background:rgba(230,178,74,.82); box-shadow:0 0 12px rgba(230,178,74,.34); }
+    @keyframes dragParticleDrop{
+        0%{ opacity:.95; transform:translate(-50%, -50%) scale(1); }
+        100%{ opacity:0; transform:translate(calc(-50% + var(--particle-dx, 0px)), calc(-50% + 22px)) scale(.35); }
+    }
+    @keyframes pulse{
+        0%{ transform:translate(-50%, -50%) scale(.86); opacity:.8; }
+        100%{ transform:translate(-50%, -50%) scale(1.22); opacity:0; }
+    }
+    .side-panel{
+        display:flex;
+        flex-direction:column;
+        gap:12px;
+    }
+    .step-box{
+        background:rgba(255,252,246,.9);
+        border:1px solid var(--line);
+        border-radius:8px;
+        padding:14px;
+    }
+    .step-box h3{ margin:0 0 8px; }
+    .status-line{
+        display:grid;
+        grid-template-columns:94px 1fr;
+        gap:8px;
+        margin:8px 0;
+        color:var(--muted);
+    }
+    .status-line b{ color:var(--ink); }
+    .tool-grid,.lens-grid{ display:grid; grid-template-columns:1fr; gap:8px; }
+    .tool-btn,.lens-btn{
+        border:1px solid rgba(86,52,31,.2);
+        border-radius:8px;
+        background:#fffaf1;
+        padding:10px;
+        cursor:pointer;
+        text-align:left;
+    }
+    .tool-btn.active,.lens-btn.active{
+        border-color:#a96c27;
+        background:#ffe8bf;
+        font-weight:800;
+    }
+    .progress{
+        height:10px;
+        border-radius:999px;
+        background:rgba(86,52,31,.12);
+        overflow:hidden;
+        margin-top:10px;
+    }
+    .progress > div{
+        height:100%;
+        width:0;
+        background:linear-gradient(90deg, #d99d3c, #7cc7a5);
+        transition:width .2s ease;
+    }
+    .toast{
+        position:fixed;
+        left:50%;
+        bottom:24px;
+        transform:translateX(-50%) translateY(18px);
+        opacity:0;
+        pointer-events:none;
+        background:#3a2a1c;
+        color:#fff5df;
+        border-radius:8px;
+        padding:10px 14px;
+        box-shadow:0 16px 36px rgba(0,0,0,.24);
+        transition:.18s ease;
+        z-index:20;
+    }
+    .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+    .reward-list{
+        display:grid;
+        gap:10px;
+        margin-top:12px;
+        max-height:min(46vh, 420px);
+        overflow:auto;
+        padding-right:4px;
+    }
+    .reward-item{
+        display:flex;
+        justify-content:space-between;
+        gap:12px;
+        padding:10px;
+        border:1px solid rgba(86,52,31,.18);
+        border-radius:8px;
+        background:rgba(255,255,255,.62);
+    }
+    .reward-modal{
+        position:fixed;
+        inset:0;
+        z-index:18;
+        display:none;
+        place-items:center;
+        padding:24px;
+        background:rgba(44,36,27,.36);
+        backdrop-filter:blur(4px);
+    }
+    .reward-modal.show{ display:grid; }
+    .reward-dialog{
+        width:min(560px, 94vw);
+        max-height:88vh;
+        border:1px solid var(--line);
+        border-radius:8px;
+        background:#fffaf1;
+        box-shadow:0 28px 80px rgba(30,20,12,.34);
+        padding:20px;
+        display:flex;
+        flex-direction:column;
+    }
+    .reward-dialog h2{ margin:0 0 8px; }
+    .reward-dialog p{ margin:0 0 14px; color:var(--muted); }
+    .reward-actions{
+        display:flex;
+        justify-content:flex-end;
+        gap:10px;
+        flex:0 0 auto;
+        margin-top:16px;
+    }
+    .panel-head{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+        margin-bottom:12px;
+    }
+    .panel-head h2{ margin:0; }
+    .empty-state{ color:var(--muted); text-align:center; }
+    @media (max-width:1100px){
+        .main-grid{ grid-template-columns:1fr; }
+        .play-grid{ grid-template-columns:1fr; }
+        .side-panel{ order:-1; }
+    }
+    .workbench{
+        display:grid;
+        grid-template-columns:360px minmax(500px, 1fr) 340px;
+        grid-template-rows:minmax(560px, calc(100vh - 150px));
+        gap:16px;
+        align-items:stretch;
+    }
+    .bag-panel{
+        display:flex;
+        flex-direction:column;
+        gap:12px;
+    }
+    .bag-panel .bag{
+        width:min(144px, 58%);
+        margin:0 auto 6px;
+    }
+    .bag-panel .bag-count{ font-size:30px; }
+    .bag-panel .bag-label{ font-size:12px; }
+    .known-section{
+        min-height:0;
+        display:flex;
+        flex-direction:column;
+        gap:8px;
+        flex:1;
+    }
+    .known-section h3{ margin:0; font-size:16px; }
+    .center-panel{
+        position:relative;
+        overflow:hidden;
+        min-height:560px;
+        padding:0;
+        background:linear-gradient(180deg, rgba(255,255,255,.8), rgba(229,245,248,.84));
+    }
+    .center-stage{
+        position:absolute;
+        inset:0;
+        display:grid;
+        grid-template-rows:1fr;
+        gap:12px;
+        padding:18px;
+    }
+    .lens-stage{
+        position:relative;
+        inset:auto;
+        width:100%;
+        min-height:0;
+        border-radius:8px;
+        border:1px solid rgba(63,84,92,.22);
+        background:
+            radial-gradient(circle at 50% 42%, rgba(255,255,255,.86), rgba(204,238,244,.5) 42%, rgba(180,223,232,.42) 100%),
+            linear-gradient(180deg, #effcff, #d9f1f3);
+        overflow:hidden;
+    }
+    .lens-stage.idle{
+        border:2px dashed rgba(86,52,31,.34);
+    }
+    .lens-stage.over{
+        border-color:#b9792d;
+        background:#fff4dc;
+        transform:translateY(-2px);
+    }
+    .lens-stage.idle .idle-copy{ display:block; }
+    .idle-copy{
+        position:absolute;
+        inset:0;
+        display:none;
+        place-content:center;
+        text-align:center;
+        color:var(--muted);
+        padding:28px;
+        z-index:3;
+        pointer-events:none;
+    }
+    .idle-copy h2{ margin:0 0 8px; color:var(--ink); }
+    .batch-pipe{
+        display:none;
+        border:2px dashed rgba(86,52,31,.34);
+        border-radius:999px;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,.72), rgba(220,229,234,.72)),
+            repeating-linear-gradient(90deg, rgba(86,52,31,.12), rgba(86,52,31,.12) 2px, transparent 2px, transparent 22px);
+        align-items:center;
+        align-items:center;
+        justify-content:center;
+        text-align:center;
+        transition:.16s ease;
+    }
+    .batch-pipe.over{ border-color:#b9792d; background:#fff4dc; transform:translateY(-2px); }
+    .gem3d{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:220px;
+        height:220px;
+        transform:translate(-50%, -50%);
+        transform-style:flat;
+        transition:filter .2s ease, transform .28s ease;
+    }
+    .gem3d.step-shape{ transform:translate(-50%, -50%) scale(1.28); }
+    .gem3d.visual-shaped:not(.step-shape){ transform:translate(-50%, -50%) scale(.9); }
+    .gem-core{
+        inset:14px;
+        border-radius:22px;
+        clip-path:polygon(42% 0, 82% 10%, 100% 44%, 88% 82%, 48% 100%, 14% 88%, 0 48%, 16% 12%);
+        box-shadow:inset -18px -24px 38px rgba(0,0,0,.18), inset 14px 16px 24px rgba(255,255,255,.32);
+        background-image:var(--gem-stage-image), var(--gem-color);
+        background-size:cover, cover;
+        background-position:center;
+        transition:clip-path .35s ease, border-radius .35s ease, filter .24s ease, background-image .2s ease;
+    }
+    .gem3d.visual-raw .gem-core{
+        clip-path:polygon(45% 0, 77% 7%, 100% 36%, 92% 76%, 54% 100%, 18% 88%, 0 54%, 14% 16%);
+        filter:saturate(.68) brightness(.78);
+    }
+    .gem3d.visual-cut .gem-core,
+    .gem3d.visual-cracked .gem-core,
+    .gem3d.visual-repaired .gem-core{
+        clip-path:polygon(42% 0, 82% 10%, 100% 44%, 78% 52%, 88% 82%, 48% 100%, 14% 88%, 0 48%, 16% 12%);
+    }
+    .gem3d.visual-shaped.shape-circle .gem-core,
+    .gem3d.visual-cleaned.shape-circle .gem-core{
+        border-radius:50%;
+        clip-path:circle(48% at 50% 50%);
+    }
+    .gem3d.visual-shaped.shape-triangle .gem-core,
+    .gem3d.visual-cleaned.shape-triangle .gem-core{
+        border-radius:18px;
+        clip-path:polygon(50% 2%, 96% 94%, 4% 94%);
+    }
+    .gem3d.visual-shaped.shape-square .gem-core,
+    .gem3d.visual-cleaned.shape-square .gem-core{
+        border-radius:10px;
+        clip-path:polygon(14% 8%, 86% 8%, 92% 86%, 12% 92%);
+    }
+    .gem3d.visual-cleaned .gem-core{
+        filter:saturate(1.28) brightness(1.18);
+        box-shadow:inset -12px -16px 30px rgba(0,0,0,.12), inset 20px 18px 34px rgba(255,255,255,.42), 0 0 34px rgba(255,245,190,.55);
+    }
+    .gem-core::before{
+        background:
+            radial-gradient(circle at 34% 28%, rgba(255,255,255,.68), transparent 22%),
+            linear-gradient(36deg, transparent 0 28%, rgba(255,255,255,.28) 29% 31%, transparent 32%),
+            linear-gradient(126deg, transparent 0 48%, rgba(0,0,0,.12) 49% 52%, transparent 53%);
+    }
+    .gem-surface,
+    .gem-surface::before,
+    .gem-surface::after{
+        content:"";
+        position:absolute;
+        inset:14px;
+        border-radius:50%;
+        clip-path:polygon(50% 0, 84% 12%, 100% 50%, 82% 86%, 50% 100%, 16% 88%, 0 50%, 16% 14%);
+        pointer-events:none;
+        opacity:0;
+        transition:opacity .2s ease;
+        z-index:2;
+    }
+    .gem3d.visual-shaped.shape-circle .gem-surface,
+    .gem3d.visual-shaped.shape-circle .gem-surface::before,
+    .gem3d.visual-shaped.shape-circle .gem-surface::after,
+    .gem3d.visual-cleaned.shape-circle .gem-surface,
+    .gem3d.visual-cleaned.shape-circle .gem-surface::before,
+    .gem3d.visual-cleaned.shape-circle .gem-surface::after{
+        clip-path:circle(48% at 50% 50%);
+    }
+    .gem3d.visual-shaped.shape-triangle .gem-surface,
+    .gem3d.visual-shaped.shape-triangle .gem-surface::before,
+    .gem3d.visual-shaped.shape-triangle .gem-surface::after,
+    .gem3d.visual-cleaned.shape-triangle .gem-surface,
+    .gem3d.visual-cleaned.shape-triangle .gem-surface::before,
+    .gem3d.visual-cleaned.shape-triangle .gem-surface::after{
+        clip-path:polygon(50% 2%, 96% 94%, 4% 94%);
+    }
+    .gem3d.visual-shaped.shape-square .gem-surface,
+    .gem3d.visual-shaped.shape-square .gem-surface::before,
+    .gem3d.visual-shaped.shape-square .gem-surface::after,
+    .gem3d.visual-cleaned.shape-square .gem-surface,
+    .gem3d.visual-cleaned.shape-square .gem-surface::before,
+    .gem3d.visual-cleaned.shape-square .gem-surface::after{
+        clip-path:polygon(14% 8%, 86% 8%, 92% 86%, 12% 92%);
+    }
+    .gem3d.visual-raw .gem-surface{
+        opacity:1;
+        background:
+            radial-gradient(circle at 20% 30%, rgba(86,84,76,.4) 0 18%, transparent 19%),
+            radial-gradient(circle at 78% 64%, rgba(70,72,68,.36) 0 20%, transparent 21%),
+            linear-gradient(132deg, rgba(112,108,96,.6) 0 28%, transparent 29%),
+            linear-gradient(28deg, transparent 0 58%, rgba(80,84,82,.45) 59% 78%, transparent 79%);
+        mix-blend-mode:multiply;
+    }
+    .gem3d.visual-cut .gem-surface{
+        opacity:1;
+        background:
+            linear-gradient(124deg, transparent 0 52%, rgba(255,255,255,.28) 53% 55%, transparent 56%),
+            radial-gradient(circle at 76% 46%, rgba(44,36,27,.42) 0 18%, transparent 19%);
+        mix-blend-mode:multiply;
+    }
+    .gem3d.visual-cracked .gem-surface,
+    .gem3d.step-repair .gem-surface{
+        opacity:1;
+        background:
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(80,150,210,.24) 0 18px, transparent 32px),
+            linear-gradient(35deg, transparent 0 42%, rgba(52,32,29,.72) 43% 45%, transparent 46%),
+            linear-gradient(112deg, transparent 0 55%, rgba(255,236,214,.55) 56% 57%, transparent 58%);
+    }
+    .gem3d.visual-cracked .gem-surface::before,
+    .gem3d.step-repair .gem-surface::before{
+        opacity:1;
+        inset:48px 72px 56px 60px;
+        border-radius:0;
+        background:
+            linear-gradient(128deg, transparent 0 46%, rgba(52,32,29,.82) 47% 49%, transparent 50%),
+            linear-gradient(72deg, transparent 0 52%, rgba(52,32,29,.58) 53% 55%, transparent 56%);
+        clip-path:none;
+    }
+    .gem3d.step-clean .gem-surface{
+        opacity:1;
+        background:
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(83,78,72,.5) 0 30px, transparent 58px),
+            radial-gradient(circle at 24% 32%, rgba(83,78,72,.38) 0 4px, transparent 5px),
+            radial-gradient(circle at 62% 28%, rgba(83,78,72,.32) 0 6px, transparent 7px),
+            radial-gradient(circle at 52% 68%, rgba(83,78,72,.34) 0 5px, transparent 6px),
+            radial-gradient(circle at 74% 58%, rgba(83,78,72,.28) 0 4px, transparent 5px),
+            linear-gradient(145deg, rgba(120,112,102,.28), rgba(255,255,255,0) 60%);
+        mix-blend-mode:multiply;
+    }
+    .gem3d.step-cut .gem-surface{
+        opacity:1;
+        background:
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(88,90,86,.5) 0 22px, transparent 42px),
+            linear-gradient(132deg, rgba(86,88,86,.64) 0 18%, transparent 19%),
+            linear-gradient(22deg, transparent 0 58%, rgba(114,116,112,.68) 59% 76%, transparent 77%),
+            radial-gradient(circle at 36% 70%, rgba(73,76,75,.54) 0 18%, transparent 19%);
+        mix-blend-mode:multiply;
+    }
+    .gem3d.step-cut .gem-surface::before{
+        opacity:1;
+        inset:26px 30px 88px 112px;
+        border-radius:8px;
+        background:rgba(96,98,94,.72);
+        transform:rotate(-18deg);
+        clip-path:polygon(10% 0, 100% 16%, 82% 100%, 0 76%);
+    }
+    .gem3d.step-shape .gem-surface{
+        opacity:1;
+        background:
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(92,86,78,.52), transparent 38%),
+            linear-gradient(135deg, rgba(112,102,92,.42), rgba(255,255,255,0) 64%);
+        mix-blend-mode:multiply;
+    }
+    .collection-flash{
+        position:fixed;
+        inset:0;
+        z-index:1000;
+        pointer-events:none;
+        background:radial-gradient(circle at center, rgba(255,255,255,.96), rgba(255,232,158,.78) 38%, transparent 70%);
+        animation:collectionFlash .72s ease-out forwards;
+    }
+    @keyframes collectionFlash{
+        0%{ opacity:0; transform:scale(.92); }
+        32%{ opacity:1; transform:scale(1); }
+        100%{ opacity:0; transform:scale(1.16); }
+    }
+    body:not(.playing) .gem3d,
+    body:not(.playing) .hotspot,
+    body:not(.playing) .focus-ring{
+        display:none;
+    }
+    .core-hud{
+        position:absolute;
+        left:18px;
+        top:18px;
+        width:260px;
+        display:none;
+        z-index:5;
+    }
+    .core-controls{
+        position:absolute;
+        right:18px;
+        top:18px;
+        width:210px;
+        display:none;
+        z-index:5;
+    }
+    .core-hint{
+        position:absolute;
+        left:50%;
+        top:22%;
+        transform:translateX(-50%);
+        z-index:6;
+        display:none;
+        width:min(360px, 68%);
+        margin:0;
+        padding:10px 14px;
+        border:1px solid rgba(86,52,31,.16);
+        border-radius:8px;
+        background:rgba(255,252,246,.72);
+        color:#5f5143;
+        text-align:center;
+        font-size:13px;
+        line-height:1.5;
+        box-shadow:0 10px 24px rgba(68,43,25,.12);
+        backdrop-filter:blur(4px);
+        pointer-events:none;
+    }
+    body.playing .core-hud,
+    body.playing .core-controls{
+        display:grid;
+        gap:10px;
+    }
+    body.playing .core-hint{ display:block; }
+    .right-panel{
+        display:flex;
+        flex-direction:column;
+        justify-content:flex-end;
+        gap:12px;
+    }
+    .collect-cta{
+        width:100%;
+        min-height:58px;
+        font-size:20px;
+        letter-spacing:0;
+        box-shadow:0 14px 30px rgba(153,91,26,.24);
+    }
+    .plate{
+        min-height:360px;
+        align-content:flex-end;
+        justify-content:center;
+        align-items:flex-end;
+        overflow:hidden;
+        position:relative;
+    }
+    .plate-gem{
+        min-width:34px;
+        width:34px;
+        height:34px;
+        border-radius:50%;
+        padding:0;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:11px;
+        color:#2b1c0f;
+        box-shadow:0 8px 14px rgba(58,37,21,.16);
+        transform-origin:center bottom;
+        animation:gemDrop .72s cubic-bezier(.18,.82,.32,1.12) both;
+        animation-delay:var(--delay, 0ms);
+    }
+    @keyframes gemDrop{
+        0%{ transform:translate(var(--from-x, -120px), -250px) rotate(-210deg) scale(.72); opacity:0; }
+        46%{ transform:translate(18px, 12px) rotate(42deg) scale(1.08); opacity:1; }
+        63%{ transform:translate(-10px, -22px) rotate(-22deg) scale(.96); }
+        78%{ transform:translate(7px, 6px) rotate(12deg) scale(1.02); }
+        100%{ transform:translate(0, 0) rotate(0deg) scale(1); opacity:1; }
+    }
+    @media (max-width:1100px){
+        .workbench{ grid-template-columns:1fr; grid-template-rows:auto auto auto; }
+        .center-panel{ min-height:620px; }
+        .core-hud,.core-controls{ position:relative; left:auto; right:auto; top:auto; width:auto; }
+        .core-hint{ top:24%; width:min(330px, 76%); }
+    }
+</style>
+</head>
+<body>
+<section id="screen-main" class="screen active">
+    <div class="topbar">
+        <div class="title">
+            <span class="pill">v23 纯净入口</span>
+            <h1>宝石素体鉴定台</h1>
+            <p>选择宝石素体进入镜片区，按切除、修补、定型、清洁的状态链完成验收。</p>
+        </div>
+        <div class="top-actions">
+            <select id="data-pack-select" class="data-pack-select" aria-label="演示数据包"></select>
+            <button class="btn primary gm-btn" id="finish-fast-btn">GM完成当前素体</button>
+            <button class="btn ghost" id="reset-demo-btn">重置演示数据</button>
+        </div>
+    </div>
+
+    <div class="entry-drag-cue">←拖拽开始→</div>
+
+    <div class="workbench">
+        <aside class="panel bag-panel">
+            <h2>素体袋</h2>
+            <div id="bag" class="bag" draggable="true" aria-label="素体袋">
+                <div>
+                    <div id="bag-count" class="bag-count">0</div>
+                    <div class="bag-label">袋内素体</div>
+                </div>
+            </div>
+            <p class="inventory-note">拖到中间镜片位置：手动验收一颗素体。v23 隐藏批量管道，优先展示单颗宝石状态变化。</p>
+            <div class="known-section">
+                <h3>宝石选择</h3>
+                <p class="inventory-note">列表为验收入口，星级和流程直接显示；未知类型完成一次后解锁。</p>
+                <div id="known-list" class="stone-list"></div>
+            </div>
+        </aside>
+
+        <main class="panel center-panel">
+            <div class="center-stage">
+                <div id="lens-stage" class="lens-stage idle">
+                    <div class="idle-copy">
+                        <h2>镜片位置 / 核心玩法区域</h2>
+                        <p>拖入素体袋或已知素体后，玩法会在这里直接展开。</p>
+                    </div>
+                    <div id="gem3d" class="gem3d">
+                        <div id="gem-core" class="gem-core"></div>
+                        <div class="gem-surface"></div>
+                    </div>
+                    <button id="hotspot" class="hotspot" aria-label="当前处理点"></button>
+                    <div id="focus-ring" class="focus-ring"></div>
+                    <div id="lens-scroll-cue" class="lens-scroll-cue" aria-label="向下滚轮切换镜头"></div>
+                    <div class="core-hud">
+                        <div class="step-box">
+                            <h3 id="play-title">鉴定玩法</h3>
+                            <div class="status-line"><span>类型</span><b id="status-gem">-</b></div>
+                            <div class="status-line"><span>本次出石</span><b id="status-batch">-</b></div>
+                            <div class="status-line"><span>自动观察面</span><b id="status-face">Face 1</b></div>
+                            <div class="status-line"><span>当前步骤</span><b id="status-step">-</b></div>
+                            <div class="progress"><div id="step-progress"></div></div>
+                        </div>
+                        <button class="btn ghost" id="exit-play-btn">退出玩法</button>
+                    </div>
+                    <p class="core-hint">滚轮切 Lens，右键切工具，点击处理点完成交互。</p>
+                    <div class="core-controls">
+                        <div class="step-box">
+                            <h3>手动镜头</h3>
+                            <div id="lens-grid" class="lens-grid"></div>
+                        </div>
+                        <div class="step-box">
+                            <h3>手选工具</h3>
+                            <div id="tool-grid" class="tool-grid"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="batch-drop" class="batch-pipe">
+                    <div>
+                        <h3>批量入口管道</h3>
+                        <p>拖入素体袋，先处理已鉴定类型，再逐个处理初见类型。</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <aside class="panel right-panel">
+            <h2>盘子与奖励</h2>
+            <span id="reward-pill" class="pill">待收集奖励：0</span>
+            <button class="btn primary collect-cta" id="collect-btn">收集奖励</button>
+            <div id="plate" class="plate"></div>
+            <div id="main-log" class="log"></div>
+        </aside>
+    </div>
+</section>
+
+<div id="reward-modal" class="reward-modal" role="dialog" aria-modal="true" aria-labelledby="reward-modal-title">
+    <div class="reward-dialog">
+        <span class="pill">结算奖励</span>
+        <h2 id="reward-modal-title">收集奖励</h2>
+        <p>以下是当前盘子里累计的全部奖励，确认后会清空待收集列表。</p>
+        <div id="reward-list" class="reward-list"></div>
+        <div class="reward-actions">
+            <button class="btn ghost" id="reward-close-btn">关闭</button>
+            <button class="btn primary" id="reward-back-btn">收集奖励</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const TOOL_LABELS = {
+    clean:"清洁",
+    repair:"修补",
+    cut:"切除",
+    shape:"定型"
+};
+const LENSES = [
+    { key:"A", label:"Lens A", filter:"rgba(127,223,255,.28)" },
+    { key:"B", label:"Lens B", filter:"rgba(214,156,255,.28)" },
+    { key:"C", label:"Lens C", filter:"rgba(151,232,163,.28)" }
+];
+const FACES = ["Face 1","Face 2","Face 3"];
+const SHAPE_TARGETS = ["circle", "triangle", "square"];
+const SHAPE_LABELS = { circle:"圆形", triangle:"三角形", square:"正方形" };
+const SHAPE_MARKS = { circle:"○", triangle:"△", square:"□" };
+const GEM_BLUEPRINTS = [
+    { id:"pearl", name:"珍珠", rarity:3, version:"西西亚·三星成石", kind:"成品宝石", sub:"清洁收尾", rewardShards:6, color:"linear-gradient(135deg, #fff9ef 0%, #d9d3dd 100%)", assetBase:"assets/gems/pearl", tasks:[{type:"clean", title:"柔光净化", lens:0, face:1, pos:{x:50,y:54}}] },
+    { id:"agate", name:"玛瑙", rarity:3, version:"长安·三星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", assetBase:"assets/gems/agate", tasks:[{type:"repair", title:"下缘细裂", lens:2, face:2, pos:{x:46,y:64}}, {type:"clean", title:"通透净化", lens:1, face:1, pos:{x:50,y:52}}] },
+    { id:"garnet", name:"石榴石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b85a52 0%, #6d1f23 100%)", assetBase:"assets/gems/garnet", tasks:[{type:"repair", title:"边缘缺口", lens:1, face:2, pos:{x:58,y:42}}, {type:"clean", title:"血色提亮", lens:2, face:0, pos:{x:50,y:50}}] },
+    { id:"sunstone", name:"砂金石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #f1b07c 0%, #9a4f2d 100%)", assetBase:"assets/gems/sunstone", tasks:[{type:"repair", title:"细小缺角", lens:2, face:1, pos:{x:40,y:60}}, {type:"clean", title:"金砂唤亮", lens:0, face:2, pos:{x:50,y:52}}] },
+    { id:"catseye", name:"猫眼石", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #d8f1a8 0%, #7ea042 100%)", assetBase:"assets/gems/catseye", tasks:[{type:"repair", title:"猫眼边缘损伤", lens:2, face:1, pos:{x:56,y:40}}, {type:"clean", title:"瞳线净化", lens:1, face:2, pos:{x:50,y:50}}] },
+    { id:"jadeite", name:"翡翠", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b8f0c6 0%, #3d9b63 100%)", assetBase:"assets/gems/jadeite", tasks:[{type:"repair", title:"边缘细裂", lens:1, face:1, pos:{x:56,y:62}}, {type:"clean", title:"翠面净化", lens:2, face:0, pos:{x:50,y:50}}] },
+    { id:"obsidian", name:"黑曜石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6f6b83 0%, #15131f 100%)", assetBase:"assets/gems/obsidian", tasks:[{type:"cut", title:"石皮切除", lens:0, face:0, pos:{x:58,y:38}}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:2, face:1, pos:{x:50,y:50}}, {type:"clean", title:"黑镜净化", lens:1, face:0, pos:{x:52,y:50}}] },
+    { id:"fluorite", name:"萤石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #bca7e8 0%, #4f5a7e 100%)", assetBase:"assets/gems/fluorite", tasks:[{type:"cut", title:"杂层切除", lens:1, face:1, pos:{x:62,y:52}}, {type:"shape", title:"圆形成球", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"clean", title:"荧光净化", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"malachite", name:"孔雀石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6ec07f 0%, #1d5a38 100%)", assetBase:"assets/gems/malachite", tasks:[{type:"cut", title:"矿皮切除", lens:0, face:0, pos:{x:62,y:40}}, {type:"repair", title:"孔雀纹裂", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"正方定型", targetShape:"square", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"石面净化", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"turquoise", name:"绿松石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #86dfd0 0%, #2a8f89 100%)", assetBase:"assets/gems/turquoise", tasks:[{type:"cut", title:"泥皮切除", lens:0, face:0, pos:{x:62,y:40}}, {type:"repair", title:"脉络裂隙", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"松石净化", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"hetian", name:"和田玉", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #edf0d5 0%, #a9b484 100%)", assetBase:"assets/gems/hetian", tasks:[{type:"cut", title:"杂质筋切除", lens:1, face:1, pos:{x:40,y:52}}, {type:"shape", title:"圆润定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:50}}, {type:"clean", title:"玉面净化", lens:0, face:0, pos:{x:52,y:52}}] },
+    { id:"shoushan", name:"寿山石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #f0d2a7 0%, #b5794b 100%)", assetBase:"assets/gems/shoushan", tasks:[{type:"cut", title:"残皮切除", lens:0, face:2, pos:{x:54,y:60}}, {type:"shape", title:"方章定型", targetShape:"square", lens:2, face:1, pos:{x:50,y:48}}, {type:"clean", title:"石面净化", lens:1, face:0, pos:{x:50,y:50}}] }
+];
+
+const DEMO_DATA_PACKS = {
+    fullCoverage:{
+        label:"全量流程验收",
+        note:"每一种素体都有可玩数量，用于完整跑通 12 种宝石。",
+        known:["pearl","agate","garnet","sunstone","catseye","jadeite","obsidian","fluorite","malachite","turquoise","hetian","shoushan"],
+        bag:{ pearl:3, garnet:2, sunstone:2, obsidian:2, fluorite:1, malachite:1, agate:2, catseye:1, jadeite:1, turquoise:2, hetian:1, shoushan:1 }
+    },
+    firstDiscovery:{
+        label:"首次识别验收",
+        note:"只预先识别珍珠，其余类型需要通过核心玩法逐步解锁。",
+        known:["pearl"],
+        bag:{ pearl:1, garnet:1, sunstone:1, obsidian:1, fluorite:1, malachite:1, agate:1, catseye:1, jadeite:1, turquoise:1, hetian:1, shoushan:1 }
+    },
+    batchKnown:{
+        label:"批量已知验收",
+        note:"多种已知素体数量较多，用于验证批量入口和盘子累计。",
+        known:["pearl","garnet","sunstone","obsidian","fluorite","agate","catseye","jadeite"],
+        bag:{ pearl:5, garnet:4, sunstone:4, obsidian:3, fluorite:3, malachite:1, agate:4, catseye:3, jadeite:3, turquoise:1, hetian:1, shoushan:1 }
+    },
+    rewardStress:{
+        label:"长奖励列表压测",
+        note:"每种素体多份，用于检查奖励弹窗长列表滚动和收集。",
+        known:["pearl","garnet","sunstone","obsidian","fluorite","malachite","agate","catseye","jadeite","turquoise","hetian","shoushan"],
+        bag:{ pearl:4, garnet:4, sunstone:4, obsidian:4, fluorite:4, malachite:4, agate:4, catseye:4, jadeite:4, turquoise:4, hetian:4, shoushan:4 }
+    }
+};
+const initialBag = DEMO_DATA_PACKS.fullCoverage.bag;
+const state = {
+    bag:{ ...initialBag },
+    knownTypes:new Set(DEMO_DATA_PACKS.fullCoverage.known),
+    playedTypes:new Set(),
+    plate:{},
+    rewards:[],
+    pendingBatch:false,
+    active:null,
+    lensIndex:0,
+    activeTool:"clean",
+    dataPackKey:"fullCoverage",
+    dragPayload:null,
+    defectDrag:null,
+    suppressNextClick:false
+};
+
+function gemById(id){ return GEM_BLUEPRINTS.find(g => g.id === id); }
+function currentDataPack(){ return DEMO_DATA_PACKS[state.dataPackKey] || DEMO_DATA_PACKS.fullCoverage; }
+function normalizedBag(bag){
+    const result = {};
+    GEM_BLUEPRINTS.forEach(gem=>{ result[gem.id] = bag[gem.id] || 0; });
+    return result;
+}
+function bagTotal(){ return Object.values(state.bag).reduce((sum,n)=>sum+n,0); }
+function countInBag(id){ return state.bag[id] || 0; }
+function isUnseen(id){ return !state.playedTypes.has(id) && countInBag(id) > 0; }
+function sortedBagIds(){
+    return GEM_BLUEPRINTS
+        .map(g=>g.id)
+        .filter(id=>countInBag(id)>0)
+        .sort((a,b)=>{
+            const ua = isUnseen(a) ? 0 : 1;
+            const ub = isUnseen(b) ? 0 : 1;
+            if(ua !== ub) return ua - ub;
+            return GEM_BLUEPRINTS.findIndex(g=>g.id===a) - GEM_BLUEPRINTS.findIndex(g=>g.id===b);
+        });
+}
+function showScreen(id){
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+let toastTimer = null;
+function toast(text){
+    const el = document.getElementById("toast");
+    el.textContent = text;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>el.classList.remove("show"), 1500);
+}
+function addLog(text){
+    const log = document.getElementById("main-log");
+    const line = document.createElement("div");
+    line.textContent = text;
+    log.prepend(line);
+}
+function renderMain(){
+    document.getElementById("bag-count").textContent = bagTotal();
+    document.getElementById("reward-pill").textContent = `待收集奖励：${state.rewards.length}`;
+    const packSelect = document.getElementById("data-pack-select");
+    if(packSelect) packSelect.value = state.dataPackKey;
+    renderKnownList();
+    renderPlate();
+}
+function renderDataPackOptions(){
+    const select = document.getElementById("data-pack-select");
+    select.innerHTML = "";
+    Object.entries(DEMO_DATA_PACKS).forEach(([key, pack])=>{
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = pack.label;
+        select.appendChild(option);
+    });
+    select.value = state.dataPackKey;
+}
+function renderKnownList(){
+    const list = document.getElementById("known-list");
+    list.innerHTML = "";
+    GEM_BLUEPRINTS.forEach(gem=>{
+        const known = state.knownTypes.has(gem.id);
+        const card = document.createElement("div");
+        card.className = `stone-card ${known ? "" : "locked"}`;
+        card.draggable = known;
+        card.innerHTML = `
+            <div class="stone-dot" style="background:${gem.color}"></div>
+            <div>
+                <div class="stone-name">${known ? gem.name : "未知素体"}</div>
+                <div class="stone-meta">${known ? `<span class="star-rank">${"★".repeat(gem.rarity)}</span> · ${gem.sub} · 袋内 ${countInBag(gem.id)}` : "完成一次核心玩法后解锁"}</div>
+            </div>
+            <span class="pill">${known ? "可拖拽" : "未识别"}</span>
+        `;
+        if(known){
+            card.addEventListener("dragstart", e=>{
+                state.dragPayload = { type:"known", id:gem.id };
+                e.dataTransfer.setData("text/plain", JSON.stringify(state.dragPayload));
+            });
+        }
+        list.appendChild(card);
+    });
+}
+function renderPlate(){
+    const plate = document.getElementById("plate");
+    plate.innerHTML = "";
+    const ids = Object.keys(state.plate).filter(id=>state.plate[id]>0);
+    if(!ids.length){
+        plate.innerHTML = `<div class="empty-state">盘子里还没有成石</div>`;
+        return;
+    }
+    let index = 0;
+    ids.forEach(id=>{
+        const gem = gemById(id);
+        const amount = state.plate[id];
+        for(let i = 0; i < amount; i++){
+            const item = document.createElement("div");
+            item.className = "plate-gem";
+            item.title = `${gem.name} ${i + 1}/${amount}`;
+            item.style.background = gem.color;
+            item.style.setProperty("--delay", `${Math.min(index, 24) * 55}ms`);
+            item.style.setProperty("--from-x", `${index % 2 === 0 ? -140 : 140}px`);
+            item.textContent = gem.name.slice(0, 1);
+            plate.appendChild(item);
+            index += 1;
+        }
+    });
+}
+function firstUnseenOrFirstBagId(){
+    const sorted = sortedBagIds();
+    return sorted[0] || null;
+}
+function releaseTypeToPlate(id, reason){
+    const amount = countInBag(id);
+    if(amount <= 0) return 0;
+    state.bag[id] = 0;
+    state.plate[id] = (state.plate[id] || 0) + amount;
+    const gem = gemById(id);
+    state.rewards.push({ id, amount, shards:gem.rewardShards * amount, reason });
+    state.knownTypes.add(id);
+    return amount;
+}
+function releaseKnownTypesForBatch(){
+    let released = 0;
+    sortedBagIds().forEach(id=>{
+        if(state.knownTypes.has(id)){
+            const gem = gemById(id);
+            const amount = releaseTypeToPlate(id, "整袋批量入口自动完成已知类型");
+            if(amount > 0){
+                state.playedTypes.add(id);
+                released += amount;
+                addLog(`${gem.name} 已知类型自动完成，同类型 ${amount} 颗出石到盘子。`);
+            }
+        }
+    });
+    if(released) addLog(`批量入口依次自动完成 ${released} 颗已知素体。`);
+    return released;
+}
+function startManualFromBag(){
+    if(state.active){ toast("当前素体处理中"); return; }
+    const id = firstUnseenOrFirstBagId();
+    if(!id){ toast("素体袋为空"); return; }
+    addLog(`倒出一颗 ${gemById(id).name} 素体，袋子回到原处。`);
+    startCorePlay(id, { source:"bag-one", continueBatch:false });
+}
+function startBatchFromBag(){
+    if(state.active){ toast("当前素体处理中"); return; }
+    if(!bagTotal()){ toast("素体袋为空"); return; }
+    addLog("倒出很多素体，进入批量处理管道。");
+    releaseKnownTypesForBatch();
+    renderMain();
+    const nextId = firstUnseenOrFirstBagId();
+    if(nextId){
+        state.pendingBatch = true;
+        startCorePlay(nextId, { source:"batch", continueBatch:true });
+    } else {
+        finishRound("袋子已清空，批量处理完成。");
+    }
+}
+function startKnownStone(id){
+    if(state.active){ toast("当前素体处理中"); return; }
+    if(!state.knownTypes.has(id)){ toast("该素体种类尚未识别"); return; }
+    if(countInBag(id) <= 0){ toast("袋内没有这种素体"); return; }
+    addLog(`从背包面板取出 ${gemById(id).name}，放入镜片位置。`);
+    startCorePlay(id, { source:"known", continueBatch:false });
+}
+function completeKnownStoneInBatch(id){
+    if(state.active){ toast("当前素体处理中"); return; }
+    if(!state.knownTypes.has(id)){ toast("该素体种类尚未识别"); return; }
+    if(countInBag(id) <= 0){ toast("袋内没有这种素体"); return; }
+    const gem = gemById(id);
+    state.playedTypes.add(id);
+    const amount = releaseTypeToPlate(id, "已知类型拖入批量入口自动完成");
+    addLog(`${gem.name} 已知类型自动完成，同类型 ${amount} 颗出石到盘子。`);
+    renderMain();
+}
+function buildCoreTasks(gem){
+    return gem.tasks.map((task, index)=>({
+        ...task,
+        id:`${gem.id}_${index}`,
+        done:false,
+        clicks:0,
+        dragDistance:0,
+        shapeTarget: task.targetShape || SHAPE_TARGETS[(GEM_BLUEPRINTS.findIndex(g=>g.id === gem.id) + index) % SHAPE_TARGETS.length],
+        cutAngle: task.cutAngle ?? [-32, -18, 22, 34][(GEM_BLUEPRINTS.findIndex(g=>g.id === gem.id) + index) % 4]
+    }));
+}
+function startCorePlay(id, meta){
+    const gem = gemById(id);
+    state.active = {
+        gemId:id,
+        meta,
+        tasks:buildCoreTasks(gem),
+        stepIndex:0,
+        batchAmount:countInBag(id)
+    };
+    state.lensIndex = 0;
+    state.activeTool = state.active.tasks[0]?.type || "clean";
+    document.body.classList.add("playing");
+    document.getElementById("lens-stage").classList.remove("idle");
+    showScreen("screen-main");
+    renderPlay();
+}
+function currentStep(){
+    if(!state.active) return null;
+    return state.active.tasks[state.active.stepIndex] || null;
+}
+function stepStatusText(step){
+    const base = `${TOOL_LABELS[step.type]} · ${step.title}`;
+    if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / 260 * 100))}%`;
+    if(step.type === "repair") return `${base} · 点击 ${step.clicks || 0}/3`;
+    if(step.type === "cut") return `${base} · 顺着长条角度拖拽`;
+    if(step.type === "shape") return `${base} · 描摹${SHAPE_LABELS[step.shapeTarget]}`;
+    return base;
+}
+function stepHintText(step){
+    if(!step) return "滚轮切 Lens，右键切工具，点击处理点完成交互。";
+    if(step.type === "clean") return "清洁：按住范围圈，在瑕疵上来回拖拽擦除。";
+    if(step.type === "repair") return "修补：连续点击水滴形瑕疵 3 次。";
+    if(step.type === "cut") return "切除：按住长条瑕疵，沿相近角度拖拽切除。";
+    if(step.type === "shape") return `定型：按住形状特效，拖拽描摹${SHAPE_LABELS[step.shapeTarget]}。`;
+    return "完成当前宝石。";
+}
+function visualStateForActive(active, step){
+    const tasks = active.tasks;
+    const hasCut = tasks.some(task=>task.type === "cut");
+    const hasRepair = tasks.some(task=>task.type === "repair");
+    const cutDone = tasks.some(task=>task.type === "cut" && task.done);
+    const repairDone = tasks.some(task=>task.type === "repair" && task.done);
+    const shapeTask = tasks.find(task=>task.type === "shape");
+    const shapeDone = shapeTask && shapeTask.done;
+    const cleanDone = tasks.some(task=>task.type === "clean" && task.done);
+    let stage = hasCut && !cutDone ? "raw" : "cut";
+    if(!hasCut) stage = hasRepair && !repairDone ? "cracked" : "repaired";
+    if(hasCut && cutDone) stage = hasRepair && !repairDone ? "cracked" : hasRepair ? "repaired" : "cut";
+    if(shapeDone) stage = "shaped";
+    if(cleanDone) stage = "cleaned";
+    if(step && step.type === "clean" && !cleanDone) stage = shapeDone ? "shaped" : stage;
+    return {
+        stage,
+        shape: shapeDone ? shapeTask.shapeTarget : null
+    };
+}
+function stageImageValue(gem, visual){
+    if(!gem.assetBase) return "none";
+    const suffix = visual.stage === "shaped" || visual.stage === "cleaned"
+        ? `${visual.stage}_${visual.shape || "cut"}`
+        : visual.stage;
+    return `url("${gem.assetBase}/${suffix}.png")`;
+}
+function renderPlay(){
+    const active = state.active;
+    if(!active) return;
+    const gem = gemById(active.gemId);
+    const step = currentStep();
+    const gem3d = document.getElementById("gem3d");
+    const visual = visualStateForActive(active, step);
+    const stepClass = step ? `step-${step.type}` : "";
+    gem3d.className = `gem3d ${stepClass} visual-${visual.stage} ${visual.shape ? `shape-${visual.shape}` : ""}`.trim();
+    gem3d.style.setProperty("--defect-x", step ? `${step.pos.x}%` : "50%");
+    gem3d.style.setProperty("--defect-y", step ? `${step.pos.y}%` : "50%");
+    gem3d.style.setProperty("--gem-stage-image", stageImageValue(gem, visual));
+    document.getElementById("play-title").textContent = `${gem.name} · 核心玩法`;
+    document.getElementById("status-gem").textContent = `${"★".repeat(gem.rarity)} ${gem.name} / ${gem.version}`;
+    document.getElementById("status-batch").textContent = `同类型 ${active.batchAmount} 颗`;
+    document.getElementById("status-step").textContent = step ? stepStatusText(step) : "完成";
+    document.getElementById("status-face").textContent = step ? `${FACES[step.face]}（自动）` : "完成";
+    document.querySelector(".core-hint").textContent = stepHintText(step);
+    document.getElementById("step-progress").style.width = `${(active.stepIndex / active.tasks.length) * 100}%`;
+    document.getElementById("gem-core").style.setProperty("--gem-color", gem.color);
+    document.getElementById("lens-stage").style.setProperty("--lens-filter", LENSES[state.lensIndex].filter);
+    renderLensButtons();
+    renderToolButtons();
+    renderHotspot();
+}
+function renderLensButtons(){
+    const grid = document.getElementById("lens-grid");
+    grid.innerHTML = "";
+    LENSES.forEach((lens, index)=>{
+        const btn = document.createElement("button");
+        btn.className = `lens-btn ${state.lensIndex === index ? "active" : ""}`;
+        btn.textContent = lens.label;
+        btn.addEventListener("click", ()=>{
+            state.lensIndex = index;
+            renderPlay();
+            toast(`切换到 ${lens.label}`);
+        });
+        grid.appendChild(btn);
+    });
+}
+function renderToolButtons(){
+    const grid = document.getElementById("tool-grid");
+    grid.innerHTML = "";
+    ["cut","repair","shape","clean"].forEach(type=>{
+        const btn = document.createElement("button");
+        btn.className = `tool-btn ${state.activeTool === type ? "active" : ""}`;
+        btn.textContent = TOOL_LABELS[type];
+        btn.addEventListener("click", ()=>{
+            state.activeTool = type;
+            renderPlay();
+            toast(`切换到${TOOL_LABELS[type]}工具`);
+        });
+        grid.appendChild(btn);
+    });
+}
+function cycleLensByWheel(deltaY){
+    if(!state.active) return;
+    const dir = deltaY >= 0 ? 1 : -1;
+    state.lensIndex = (state.lensIndex + dir + LENSES.length) % LENSES.length;
+    renderPlay();
+    toast(`切换到 ${LENSES[state.lensIndex].label}`);
+}
+function cycleToolByRightClick(){
+    if(!state.active) return;
+    const order = ["cut","repair","shape","clean"];
+    const current = order.indexOf(state.activeTool);
+    const next = order[(current + 1 + order.length) % order.length];
+    state.activeTool = next;
+    renderPlay();
+    toast(`切换到${TOOL_LABELS[next]}工具`);
+}
+function renderHotspot(){
+    const step = currentStep();
+    const spot = document.getElementById("hotspot");
+    const ring = document.getElementById("focus-ring");
+    const scrollCue = document.getElementById("lens-scroll-cue");
+    const visibleOnLens = step && state.lensIndex === step.lens;
+    if(!visibleOnLens){
+        spot.style.display = "none";
+        ring.style.display = "none";
+        if(scrollCue) scrollCue.style.display = step ? "block" : "none";
+        return;
+    }
+    if(scrollCue) scrollCue.style.display = "none";
+    spot.style.display = "grid";
+    ring.style.display = "block";
+    spot.className = `hotspot hotspot-${step.type} ${step.type === "shape" ? `hotspot-shape-${step.shapeTarget}` : ""}`;
+    ring.className = `focus-ring focus-ring-${step.type}`;
+    spot.style.setProperty("--cut-angle", `${step.cutAngle || -22}deg`);
+    ring.style.setProperty("--cut-angle", `${step.cutAngle || -22}deg`);
+    spot.style.setProperty("--repair-scale", step.type === "repair" ? Math.max(.58, 1 - (step.clicks || 0) * .18) : 1);
+    spot.textContent = hotspotLabel(step);
+    spot.setAttribute("aria-label", `${TOOL_LABELS[step.type]}瑕疵：${step.title}`);
+    const pos = defectStagePosition(step);
+    spot.style.left = `${pos.x}%`;
+    spot.style.top = `${pos.y}%`;
+    ring.style.left = `${pos.x}%`;
+    ring.style.top = `${pos.y}%`;
+}
+function defectStagePosition(step){
+    const scale = step.type === "shape" ? 0.42 : 0.48;
+    const yLift = step.type === "repair" ? 8 : step.type === "clean" ? 3 : step.type === "shape" ? 4 : 0;
+    return {
+        x:50 + (step.pos.x - 50) * scale,
+        y:50 + (step.pos.y - 50) * scale - yLift
+    };
+}
+function hotspotLabel(step){
+    if(step.type === "clean") return "擦";
+    if(step.type === "repair") return "滴";
+    if(step.type === "cut") return "切";
+    if(step.type === "shape") return SHAPE_MARKS[step.shapeTarget];
+    return "";
+}
+function clearHotspot(){
+    const spot = document.getElementById("hotspot");
+    const ring = document.getElementById("focus-ring");
+    const scrollCue = document.getElementById("lens-scroll-cue");
+    if(spot) spot.style.display = "none";
+    if(ring) ring.style.display = "none";
+    if(scrollCue) scrollCue.style.display = "none";
+}
+function canUseCurrentStep(step){
+    if(!step) return;
+    if(state.lensIndex !== step.lens){
+        toast(`镜头不对，需要 ${LENSES[step.lens].label}`);
+        return false;
+    }
+    if(state.activeTool !== step.type){
+        toast(`工具不对，需要${TOOL_LABELS[step.type]}`);
+        return false;
+    }
+    return true;
+}
+function completeCurrentStep(step){
+    step.done = true;
+    state.active.stepIndex += 1;
+    toast(`完成 ${TOOL_LABELS[step.type]}`);
+    if(state.active.stepIndex >= state.active.tasks.length){
+        if(step.type === "clean"){
+            renderPlay();
+            triggerCollectionFlash();
+            setTimeout(()=>completeActiveGem(), 520);
+        } else {
+            completeActiveGem();
+        }
+    } else {
+        const next = currentStep();
+        state.activeTool = next.type;
+        renderPlay();
+    }
+}
+function triggerCollectionFlash(){
+    document.querySelectorAll(".collection-flash").forEach(el=>el.remove());
+    const flash = document.createElement("div");
+    flash.className = "collection-flash";
+    document.body.appendChild(flash);
+    setTimeout(()=>flash.remove(), 760);
+}
+function tryCoreInteraction(){
+    const step = currentStep();
+    if(!canUseCurrentStep(step)) return;
+    completeCurrentStep(step);
+}
+function handleHotspotClick(){
+    if(state.suppressNextClick){
+        state.suppressNextClick = false;
+        return;
+    }
+    const step = currentStep();
+    if(!canUseCurrentStep(step)) return;
+    if(step.type === "repair"){
+        step.clicks = (step.clicks || 0) + 1;
+        if(step.clicks >= 3) completeCurrentStep(step);
+        else {
+            toast(`修补进度 ${step.clicks}/3`);
+            renderPlay();
+        }
+        return;
+    }
+    if(step.type === "clean") toast("按住瑕疵范围来回拖拽擦拭。");
+    if(step.type === "cut") toast("按住长条，沿相近角度拖拽切除。");
+    if(step.type === "shape") toast(`按住形状，拖拽描摹${SHAPE_LABELS[step.shapeTarget]}。`);
+}
+function startDefectDrag(e){
+    const step = currentStep();
+    if(!step || !["clean","cut","shape"].includes(step.type)) return;
+    if(!canUseCurrentStep(step)) return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    state.defectDrag = {
+        type:step.type,
+        pointerId:e.pointerId,
+        startX:e.clientX,
+        startY:e.clientY,
+        lastX:e.clientX,
+        lastY:e.clientY,
+        distance:0,
+        lastParticleDistance:0,
+        points:[{ x:e.clientX, y:e.clientY }]
+    };
+    spawnDragParticle(e.clientX, e.clientY, step.type);
+}
+function updateDefectDrag(e){
+    const drag = state.defectDrag;
+    const step = currentStep();
+    if(!drag || !step || drag.pointerId !== e.pointerId) return;
+    const dx = e.clientX - drag.lastX;
+    const dy = e.clientY - drag.lastY;
+    drag.distance += Math.hypot(dx, dy);
+    drag.lastX = e.clientX;
+    drag.lastY = e.clientY;
+    drag.points.push({ x:e.clientX, y:e.clientY });
+    if(drag.distance - drag.lastParticleDistance >= 18){
+        spawnDragParticle(e.clientX, e.clientY, step.type);
+        drag.lastParticleDistance = drag.distance;
+    }
+    if(step.type === "clean"){
+        step.dragDistance = Math.max(step.dragDistance || 0, drag.distance);
+        renderPlay();
+        if(step.dragDistance >= 260){
+            state.suppressNextClick = true;
+            state.defectDrag = null;
+            completeCurrentStep(step);
+        }
+    }
+}
+function spawnDragParticle(x, y, type){
+    const particle = document.createElement("span");
+    particle.className = `drag-particle drag-particle-${type}`;
+    particle.style.left = `${x}px`;
+    particle.style.top = `${y}px`;
+    particle.style.setProperty("--particle-dx", `${(Math.random() - .5) * 22}px`);
+    document.body.appendChild(particle);
+    setTimeout(()=>particle.remove(), 520);
+}
+function finishDefectDrag(e){
+    const drag = state.defectDrag;
+    const step = currentStep();
+    if(!drag || !step || drag.pointerId !== e.pointerId) return;
+    state.defectDrag = null;
+    state.suppressNextClick = true;
+    if(step.type === "cut"){
+        const dx = e.clientX - drag.startX;
+        const dy = e.clientY - drag.startY;
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        const diff = angleDiff(angle, step.cutAngle || 0);
+        if(drag.distance >= 80 && diff <= 24) completeCurrentStep(step);
+        else toast("切除角度不对，要顺着长条方向拖拽。");
+        return;
+    }
+    if(step.type === "shape"){
+        if(traceMatchesShape(drag.points, step.shapeTarget)){
+            completeCurrentStep(step);
+        } else {
+            toast(`描摹不完整，再顺着${SHAPE_LABELS[step.shapeTarget]}轮廓拖一遍。`);
+        }
+    }
+}
+function angleDiff(a, b){
+    let diff = Math.abs((((a - b) % 180) + 180) % 180);
+    return diff > 90 ? 180 - diff : diff;
+}
+function traceMatchesShape(points, shape){
+    if(points.length < 4) return false;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity, distance = 0;
+    points.forEach((point, index)=>{
+        minX = Math.min(minX, point.x);
+        minY = Math.min(minY, point.y);
+        maxX = Math.max(maxX, point.x);
+        maxY = Math.max(maxY, point.y);
+        if(index > 0) distance += Math.hypot(point.x - points[index - 1].x, point.y - points[index - 1].y);
+    });
+    const width = maxX - minX;
+    const height = maxY - minY;
+    const aspect = width / Math.max(1, height);
+    if(width < 42 || height < 42) return false;
+    if(shape === "circle") return distance >= 220 && aspect > .62 && aspect < 1.55;
+    if(shape === "triangle") return distance >= 170 && width > 56 && height > 48;
+    return distance >= 210 && aspect > .72 && aspect < 1.35;
+}
+function completeActiveGem(){
+    const active = state.active;
+    const gem = gemById(active.gemId);
+    clearHotspot();
+    state.playedTypes.add(active.gemId);
+    state.knownTypes.add(active.gemId);
+    const amount = releaseTypeToPlate(active.gemId, "核心玩法完成后同类型出石");
+    addLog(`${gem.name} 鉴定完成，同类型 ${amount} 颗一起出石到盘子。`);
+    state.active = null;
+    renderMain();
+    if(active.meta.continueBatch){
+        const nextId = firstUnseenOrFirstBagId();
+        if(nextId){
+            setTimeout(()=>startCorePlay(nextId, { source:"batch", continueBatch:true }), 450);
+            return;
+        }
+        state.pendingBatch = false;
+        finishRound("整袋素体处理完成。");
+        return;
+    }
+    finishRound("完成一次核心玩法。");
+}
+function finishRound(message){
+    document.body.classList.remove("playing");
+    document.getElementById("lens-stage").classList.add("idle");
+    clearHotspot();
+    addLog(message);
+    renderMain();
+    showScreen("screen-main");
+}
+function renderRewards(){
+    const list = document.getElementById("reward-list");
+    list.innerHTML = "";
+    if(!state.rewards.length){
+        list.innerHTML = `<div class="empty-state">没有待收集奖励</div>`;
+        return;
+    }
+    state.rewards.forEach(reward=>{
+        const gem = gemById(reward.id);
+        const item = document.createElement("div");
+        item.className = "reward-item";
+        item.innerHTML = `<span>${gem.name} 成石 ×${reward.amount}<br><small>${reward.reason}</small></span><b>碎精 ×${reward.shards}</b>`;
+        list.appendChild(item);
+    });
+}
+function openRewardModal(){
+    renderRewards();
+    document.getElementById("reward-modal").classList.add("show");
+}
+function closeRewardModal(){
+    document.getElementById("reward-modal").classList.remove("show");
+}
+function collectRewards(){
+    if(!state.rewards.length){
+        toast("没有待收集奖励");
+        closeRewardModal();
+        return;
+    }
+    addLog(`收集 ${state.rewards.length} 组奖励。`);
+    state.rewards = [];
+    state.plate = {};
+    document.body.classList.remove("playing");
+    document.getElementById("lens-stage").classList.add("idle");
+    closeRewardModal();
+    renderMain();
+    showScreen("screen-main");
+}
+function exitPlay(){
+    if(state.active){
+        addLog(`${gemById(state.active.gemId).name} 玩法退出，未完成的同类型素体留在袋中。`);
+    }
+    state.active = null;
+    state.pendingBatch = false;
+    document.body.classList.remove("playing");
+    document.getElementById("lens-stage").classList.add("idle");
+    clearHotspot();
+    renderMain();
+    showScreen("screen-main");
+}
+function applyDataPack(key){
+    state.dataPackKey = DEMO_DATA_PACKS[key] ? key : "fullCoverage";
+    resetDemo();
+}
+function resetDemo(){
+    const pack = currentDataPack();
+    state.bag = normalizedBag(pack.bag);
+    state.knownTypes = new Set(pack.known);
+    state.playedTypes = new Set();
+    state.plate = {};
+    state.rewards = [];
+    state.active = null;
+    state.pendingBatch = false;
+    document.body.classList.remove("playing");
+    document.getElementById("reward-modal").classList.remove("show");
+    document.getElementById("lens-stage").classList.add("idle");
+    document.getElementById("main-log").innerHTML = "";
+    clearHotspot();
+    addLog(`已切换/重置为「${pack.label}」：${pack.note}`);
+    renderMain();
+    showScreen("screen-main");
+}
+function setupDragDrop(){
+    const bag = document.getElementById("bag");
+    bag.addEventListener("dragstart", e=>{
+        state.dragPayload = { type:"bag" };
+        e.dataTransfer.setData("text/plain", JSON.stringify(state.dragPayload));
+    });
+    const bindDrop = (el, onDrop)=>{
+        el.addEventListener("dragover", e=>{
+            e.preventDefault();
+            el.classList.add("over");
+        });
+        el.addEventListener("dragleave", ()=>el.classList.remove("over"));
+        el.addEventListener("drop", e=>{
+            e.preventDefault();
+            el.classList.remove("over");
+            let payload = state.dragPayload;
+            try{
+                payload = JSON.parse(e.dataTransfer.getData("text/plain")) || payload;
+            }catch(err){}
+            onDrop(payload);
+            state.dragPayload = null;
+        });
+    };
+    bindDrop(document.getElementById("lens-stage"), payload=>{
+        if(!payload) return;
+        if(payload.type === "bag") startManualFromBag();
+        if(payload.type === "known") startKnownStone(payload.id);
+    });
+    bindDrop(document.getElementById("batch-drop"), payload=>{
+        if(payload && payload.type === "bag") startBatchFromBag();
+        else if(payload && payload.type === "known") completeKnownStoneInBatch(payload.id);
+        else toast("批量入口只接受素体袋或已知素体");
+    });
+}
+function setupCoreMouseControls(){
+    const playScreen = document.getElementById("screen-main");
+    playScreen.addEventListener("wheel", e=>{
+        if(!state.active) return;
+        e.preventDefault();
+        cycleLensByWheel(e.deltaY);
+    }, { passive:false });
+    playScreen.addEventListener("contextmenu", e=>{
+        if(!state.active) return;
+        e.preventDefault();
+        cycleToolByRightClick();
+    });
+}
+document.addEventListener("DOMContentLoaded", ()=>{
+    setupDragDrop();
+    setupCoreMouseControls();
+    const hotspot = document.getElementById("hotspot");
+    hotspot.addEventListener("click", handleHotspotClick);
+    hotspot.addEventListener("pointerdown", startDefectDrag);
+    hotspot.addEventListener("pointermove", updateDefectDrag);
+    hotspot.addEventListener("pointerup", finishDefectDrag);
+    hotspot.addEventListener("pointercancel", finishDefectDrag);
+    document.getElementById("exit-play-btn").addEventListener("click", exitPlay);
+    document.getElementById("finish-fast-btn").addEventListener("click", ()=>{
+        if(!state.active) return;
+        while(state.active && currentStep()){
+            const step = currentStep();
+            state.lensIndex = step.lens;
+            state.activeTool = step.type;
+            tryCoreInteraction();
+        }
+    });
+    document.getElementById("reward-back-btn").addEventListener("click", collectRewards);
+    document.getElementById("reward-close-btn").addEventListener("click", closeRewardModal);
+    document.getElementById("reward-modal").addEventListener("click", e=>{
+        if(e.target.id === "reward-modal") closeRewardModal();
+    });
+    document.addEventListener("keydown", e=>{
+        if(e.key === "Escape") closeRewardModal();
+    });
+    document.getElementById("collect-btn").addEventListener("click", openRewardModal);
+    document.getElementById("data-pack-select").addEventListener("change", e=>applyDataPack(e.target.value));
+    document.getElementById("reset-demo-btn").addEventListener("click", resetDemo);
+    addLog("主 UI 已就绪：拖拽素体袋到镜片位置或批量入口。");
+    renderDataPackOptions();
+    renderMain();
+});
+</script>
+</body>
+</html>
