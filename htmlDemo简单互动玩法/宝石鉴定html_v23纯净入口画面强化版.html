@@ -207,7 +207,22 @@
     }
     .stone-card.locked{ opacity:.48; cursor:not-allowed; }
     .stone-dot{ width:34px; height:34px; border-radius:50%; border:2px solid rgba(35,25,16,.22); }
-    .stone-name{ font-weight:700; }
+    .stone-name{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:8px;
+        font-weight:700;
+    }
+    .stone-count{
+        padding:2px 7px;
+        border-radius:999px;
+        background:rgba(169,108,39,.12);
+        color:#7c4d1d;
+        font-size:12px;
+        font-weight:900;
+        white-space:nowrap;
+    }
     .stone-meta{ font-size:12px; color:var(--muted); margin-top:2px; }
     .star-rank{ color:#c48a2f; font-weight:900; letter-spacing:1px; }
     .inventory-note{ color:var(--muted); font-size:13px; line-height:1.7; margin:0 0 12px; }
@@ -1284,7 +1299,7 @@ const SHAPE_TARGETS = ["circle", "triangle", "square"];
 const SHAPE_LABELS = { circle:"圆形", triangle:"三角形", square:"正方形" };
 const SHAPE_MARKS = { circle:"○", triangle:"△", square:"□" };
 const GEM_BLUEPRINTS = [
-    { id:"pearl", name:"珍珠", rarity:3, version:"西西亚·三星成石", kind:"成品宝石", sub:"清洁收尾", rewardShards:6, color:"linear-gradient(135deg, #fff9ef 0%, #d9d3dd 100%)", assetBase:"assets/gems/pearl", tasks:[{type:"clean", title:"柔光净化", lens:0, face:1, pos:{x:50,y:54}}] },
+    { id:"pearl", name:"珍珠", rarity:3, version:"西西亚·三星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #fff9ef 0%, #d9d3dd 100%)", assetBase:"assets/gems/pearl", tasks:[{type:"repair", title:"珠层细裂", lens:2, face:1, pos:{x:54,y:46}}, {type:"clean", title:"柔光净化", lens:0, face:1, pos:{x:50,y:54}}] },
     { id:"agate", name:"玛瑙", rarity:3, version:"长安·三星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", assetBase:"assets/gems/agate", tasks:[{type:"repair", title:"下缘细裂", lens:2, face:2, pos:{x:46,y:64}}, {type:"clean", title:"通透净化", lens:1, face:1, pos:{x:50,y:52}}] },
     { id:"garnet", name:"石榴石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b85a52 0%, #6d1f23 100%)", assetBase:"assets/gems/garnet", tasks:[{type:"repair", title:"边缘缺口", lens:1, face:2, pos:{x:58,y:42}}, {type:"clean", title:"血色提亮", lens:2, face:0, pos:{x:50,y:50}}] },
     { id:"sunstone", name:"砂金石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #f1b07c 0%, #9a4f2d 100%)", assetBase:"assets/gems/sunstone", tasks:[{type:"repair", title:"细小缺角", lens:2, face:1, pos:{x:40,y:60}}, {type:"clean", title:"金砂唤亮", lens:0, face:2, pos:{x:50,y:52}}] },
@@ -1339,10 +1354,9 @@ const DEMO_DATA_PACKS = {
     }
 };
 const initialBag = DEMO_DATA_PACKS.fullCoverage.bag;
-const ALL_GEM_IDS = GEM_BLUEPRINTS.map(gem=>gem.id);
 const state = {
     bag:{ ...initialBag },
-    knownTypes:new Set(ALL_GEM_IDS),
+    knownTypes:new Set(DEMO_DATA_PACKS.fullCoverage.known),
     playedTypes:new Set(),
     plate:{},
     rewards:[],
@@ -1352,6 +1366,7 @@ const state = {
     activeTool:"clean",
     dataPackKey:"fullCoverage",
     listSortKey:"quantity",
+    raritySortDir:-1,
     dragPayload:null,
     defectDrag:null,
     suppressNextClick:false
@@ -1381,7 +1396,7 @@ function sortedBagIds(){
 function sortedListGems(){
     return [...GEM_BLUEPRINTS].sort((a,b)=>{
         if(state.listSortKey === "rarity"){
-            if(b.rarity !== a.rarity) return b.rarity - a.rarity;
+            if(b.rarity !== a.rarity) return state.raritySortDir * (a.rarity - b.rarity);
             if(countInBag(b.id) !== countInBag(a.id)) return countInBag(b.id) - countInBag(a.id);
         } else {
             if(countInBag(b.id) !== countInBag(a.id)) return countInBag(b.id) - countInBag(a.id);
@@ -1421,7 +1436,13 @@ function setupLogPanel(){
 function setupSortControls(){
     document.querySelectorAll(".sort-btn").forEach(btn=>{
         btn.addEventListener("click", ()=>{
-            state.listSortKey = btn.dataset.sort || "quantity";
+            const nextSort = btn.dataset.sort || "quantity";
+            if(nextSort === "rarity" && state.listSortKey === "rarity"){
+                state.raritySortDir *= -1;
+            } else {
+                state.listSortKey = nextSort;
+                if(nextSort === "rarity") state.raritySortDir = -1;
+            }
             renderKnownList();
         });
     });
@@ -1451,6 +1472,7 @@ function renderKnownList(){
     list.innerHTML = "";
     document.querySelectorAll(".sort-btn").forEach(btn=>{
         btn.classList.toggle("active", btn.dataset.sort === state.listSortKey);
+        if(btn.dataset.sort === "rarity") btn.textContent = `按星级 ${state.raritySortDir < 0 ? "高→低" : "低→高"}`;
     });
     sortedListGems().forEach(gem=>{
         const known = true;
@@ -1460,8 +1482,8 @@ function renderKnownList(){
         card.innerHTML = `
             <div class="stone-dot" style="background:${gem.color}"></div>
             <div>
-                <div class="stone-name">${known ? gem.name : "未知素体"}</div>
-                <div class="stone-meta">${known ? `<span class="star-rank">${"★".repeat(gem.rarity)}</span> · ${gem.sub} · 袋内 ${countInBag(gem.id)}` : "完成一次核心玩法后解锁"}</div>
+                <div class="stone-name"><span>${gem.name}</span><span class="stone-count">×${countInBag(gem.id)}</span></div>
+                <div class="stone-meta"><span class="star-rank">${"★".repeat(gem.rarity)}</span> · ${gem.sub}</div>
             </div>
             <span class="pill">${known ? "可拖拽" : "未识别"}</span>
         `;
@@ -1552,14 +1574,12 @@ function startBatchFromBag(){
 }
 function startKnownStone(id){
     if(state.active){ toast("当前素体处理中"); return; }
-    if(!state.knownTypes.has(id)){ toast("该素体种类尚未识别"); return; }
     if(countInBag(id) <= 0){ toast("袋内没有这种素体"); return; }
     addLog(`从背包面板取出 ${gemById(id).name}，放入镜片位置。`);
     startCorePlay(id, { source:"known", continueBatch:false });
 }
 function completeKnownStoneInBatch(id){
     if(state.active){ toast("当前素体处理中"); return; }
-    if(!state.knownTypes.has(id)){ toast("该素体种类尚未识别"); return; }
     if(countInBag(id) <= 0){ toast("袋内没有这种素体"); return; }
     const gem = gemById(id);
     state.playedTypes.add(id);
@@ -2051,7 +2071,7 @@ function applyDataPack(key){
 function resetDemo(){
     const pack = currentDataPack();
     state.bag = normalizedBag(pack.bag);
-    state.knownTypes = new Set(ALL_GEM_IDS);
+    state.knownTypes = new Set(pack.known);
     state.playedTypes = new Set();
     state.plate = {};
     state.rewards = [];
