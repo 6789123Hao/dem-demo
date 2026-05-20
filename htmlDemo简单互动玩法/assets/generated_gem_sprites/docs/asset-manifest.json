@@ -41,6 +41,50 @@
       "gemId": "agate",
       "kind": "finished_stone",
       "stages": ["raw_finished", "cracked", "repaired", "cleaned"]
+    },
+    "garnet": {
+      "gemId": "garnet",
+      "kind": "finished_stone",
+      "stages": ["raw_finished", "cracked", "repaired", "cleaned"]
+    },
+    "sunstone": {
+      "gemId": "sunstone",
+      "kind": "finished_stone",
+      "stages": ["raw_finished", "cracked", "repaired", "cleaned"]
+    },
+    "catseye": {
+      "gemId": "catseye",
+      "kind": "finished_stone",
+      "stages": ["raw_finished", "cracked", "repaired", "cleaned"]
+    },
+    "jadeite": {
+      "gemId": "jadeite",
+      "kind": "finished_stone",
+      "stages": ["raw_finished", "cracked", "repaired", "cleaned"]
+    },
+    "malachite": {
+      "gemId": "malachite",
+      "kind": "raw_stone",
+      "shape": "square",
+      "stages": ["raw_skin", "cut_inner", "cracked", "repaired", "shaped", "cleaned"]
+    },
+    "turquoise": {
+      "gemId": "turquoise",
+      "kind": "raw_stone",
+      "shape": "triangle",
+      "stages": ["raw_skin", "cut_inner", "cracked", "repaired", "shaped", "cleaned"]
+    },
+    "hetian": {
+      "gemId": "hetian",
+      "kind": "raw_stone",
+      "shape": "circle",
+      "stages": ["raw_skin", "cut_inner", "cracked", "repaired", "shaped", "cleaned"]
+    },
+    "shoushan": {
+      "gemId": "shoushan",
+      "kind": "raw_stone",
+      "shape": "square",
+      "stages": ["raw_skin", "cut_inner", "cracked", "repaired", "shaped", "cleaned"]
     }
   }
 }

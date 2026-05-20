@@ -2,7 +2,7 @@
 
 Date: 2026-05-20
 
-This batch is a first art-direction pass for the current v23 mainline: stone-body processing / cutting / repair / shaping / clean collection. The old appraisal-flow direction is not the target for these assets.
+This batch is a first art-direction pass for the current v23/v24 mainline: stone-body processing / cutting / repair / shaping / clean collection. The old appraisal-flow direction is not the target for these assets.
 
 ## Generated Sets
 
@@ -15,6 +15,11 @@ Finished stones, 2 versions each:
 
 - `pearl_A`, `pearl_B`
 - `agate_A`, `agate_B`
+
+v24 direct HTML replacement sets:
+
+- Finished stones: `garnet`, `sunstone`, `catseye`, `jadeite`
+- Raw stones: `malachite`, `turquoise`, `hetian`, `shoushan`
 
 ## Stage Naming
 
@@ -43,6 +48,6 @@ Finished stone sets use four stages:
 
 ## Current QC
 
-The generate2dsprite processor completed for all 8 sets. `pipeline-meta.json` reports no edge-touch frames in this pass.
+The generate2dsprite processor completed for all 16 stored sets. `pipeline-meta.json` reports no edge-touch frames in this pass.
 
-These are not final committed game assets yet. Treat them as selectable visual directions for consistency, material language, and cut-shape preference.
+The v24 HTML currently maps all 12 gem ids to `assets/gems_v24`, with the first selected direction for obsidian / fluorite / pearl / agate and direct replacement sheets for the remaining 8 gems.

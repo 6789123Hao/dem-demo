@@ -623,7 +623,7 @@
         background:rgba(116,112,102,.82);
         box-shadow:0 3px 8px rgba(44,36,27,.18);
         transform:translate(-50%, -50%) rotate(var(--frag-rot, 0deg));
-        animation:finishFragmentFall .72s ease-in forwards;
+        animation:finishFragmentFall .9s ease-in forwards;
     }
     .finish-fragment-shape{ background:rgba(226,174,75,.88); }
     @keyframes finishFragmentFall{
@@ -1178,6 +1178,23 @@
         transform-origin:center bottom;
         animation:gemDrop .72s cubic-bezier(.18,.82,.32,1.12) both;
         animation-delay:var(--delay, 0ms);
+        background-size:contain !important;
+        background-repeat:no-repeat !important;
+        background-position:center !important;
+    }
+    .plate-gem.with-image{
+        color:transparent;
+        box-shadow:none;
+        filter:drop-shadow(0 8px 10px rgba(58,37,21,.18));
+    }
+    .plate-gem-shape-circle{ border-radius:50%; }
+    .plate-gem-shape-triangle{
+        border-radius:0;
+        clip-path:polygon(50% 0, 96% 92%, 4% 92%);
+    }
+    .plate-gem-shape-square{
+        border-radius:6px;
+        clip-path:polygon(12% 8%, 88% 8%, 92% 88%, 10% 92%);
     }
     @keyframes gemDrop{
         0%{ transform:translate(var(--from-x, -120px), -250px) rotate(-210deg) scale(.72); opacity:0; }
@@ -1545,18 +1562,37 @@ function renderPlate(){
     ids.forEach(id=>{
         const gem = gemById(id);
         const amount = state.plate[id];
+        const shape = rewardShapeForGem(gem);
+        const image = plateGemImageValue(gem, shape);
         for(let i = 0; i < amount; i++){
             const item = document.createElement("div");
-            item.className = "plate-gem";
+            item.className = `plate-gem plate-gem-shape-${shape} ${image ? "with-image" : ""}`;
             item.title = `${gem.name} ${i + 1}/${amount}`;
-            item.style.background = gem.color;
+            if(image){
+                item.style.backgroundImage = image;
+            } else {
+                item.style.background = gem.color;
+            }
             item.style.setProperty("--delay", `${Math.min(index, 24) * 55}ms`);
             item.style.setProperty("--from-x", `${index % 2 === 0 ? -140 : 140}px`);
-            item.textContent = gem.name.slice(0, 1);
+            item.textContent = image ? "" : gem.name.slice(0, 1);
             plate.appendChild(item);
             index += 1;
         }
     });
+}
+function rewardShapeForGem(gem){
+    const shapeTask = gem.tasks.find(task=>task.type === "shape");
+    if(shapeTask?.targetShape === "triangle") return "triangle";
+    if(shapeTask?.targetShape === "square") return "square";
+    return "circle";
+}
+function plateGemImageValue(gem, shape){
+    const base = V24_ENTITY_ASSETS[gem.id];
+    if(!base) return "";
+    const shapedName = shape === "circle" ? "cleaned_circle" : shape === "triangle" ? "cleaned_triangle" : "cleaned_square";
+    const fallback = gem.tasks.some(task=>task.type === "shape") ? shapedName : "cleaned";
+    return `url("${base}/${fallback}.png")`;
 }
 function firstUnseenOrFirstBagId(){
     const sorted = sortedBagIds();
@@ -1710,7 +1746,15 @@ const V24_ENTITY_ASSETS = {
     pearl:"assets/gems_v24/pearl",
     agate:"assets/gems_v24/agate",
     obsidian:"assets/gems_v24/obsidian",
-    fluorite:"assets/gems_v24/fluorite"
+    fluorite:"assets/gems_v24/fluorite",
+    garnet:"assets/gems_v24/garnet",
+    sunstone:"assets/gems_v24/sunstone",
+    catseye:"assets/gems_v24/catseye",
+    jadeite:"assets/gems_v24/jadeite",
+    malachite:"assets/gems_v24/malachite",
+    turquoise:"assets/gems_v24/turquoise",
+    hetian:"assets/gems_v24/hetian",
+    shoushan:"assets/gems_v24/shoushan"
 };
 function applyGemVisualVars(gem3d, gem){
     const visual = GEM_VISUALS[gem.id] || {};
@@ -1984,16 +2028,20 @@ function spawnCompletionFragments(type){
     const rect = spot?.getBoundingClientRect();
     const originX = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
     const originY = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
-    for(let i = 0; i < 12; i++){
+    const count = type === "cut" ? 28 : 14;
+    for(let i = 0; i < count; i++){
+        const side = i % 2 === 0 ? -1 : 1;
+        const cutDx = side * (74 + Math.random() * 190);
+        const cutDy = 94 + Math.random() * 150;
         const fragment = document.createElement("span");
         fragment.className = `finish-fragment finish-fragment-${type}`;
-        fragment.style.left = `${originX + (Math.random() - .5) * 80}px`;
-        fragment.style.top = `${originY + (Math.random() - .5) * 34}px`;
-        fragment.style.setProperty("--frag-dx", `${(Math.random() - .5) * 110}px`);
-        fragment.style.setProperty("--frag-dy", `${70 + Math.random() * 90}px`);
-        fragment.style.setProperty("--frag-rot", `${Math.random() * 160 - 80}deg`);
+        fragment.style.left = `${originX + (Math.random() - .5) * 96}px`;
+        fragment.style.top = `${originY + (Math.random() - .5) * 42}px`;
+        fragment.style.setProperty("--frag-dx", `${type === "cut" ? cutDx : (Math.random() - .5) * 120}px`);
+        fragment.style.setProperty("--frag-dy", `${type === "cut" ? cutDy : 70 + Math.random() * 90}px`);
+        fragment.style.setProperty("--frag-rot", `${Math.random() * 220 - 110}deg`);
         document.body.appendChild(fragment);
-        setTimeout(()=>fragment.remove(), 820);
+        setTimeout(()=>fragment.remove(), 980);
     }
 }
 function finishDefectDrag(e){

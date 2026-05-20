@@ -1,0 +1,219 @@
+{
+  "target": "asset",
+  "mode": "sheet",
+  "prompt": "",
+  "role": "",
+  "input": "C:\\tmp\\dem-demo-git-20260518\\htmlDemo\u7b80\u5355\u4e92\u52a8\u73a9\u6cd5\\assets\\generated_gem_sprites\\raw\\hetian_raw_sheet.png",
+  "threshold": 100,
+  "edge_threshold": 150,
+  "duration": 220,
+  "rows": 2,
+  "cols": 3,
+  "cell_size": 128,
+  "fit_scale": 0.86,
+  "trim_border": 4,
+  "edge_clean_depth": 3,
+  "align": "center",
+  "shared_scale": true,
+  "component_mode": "all",
+  "component_padding": 28,
+  "min_component_area": 1,
+  "edge_touch_margin": 3,
+  "frame_labels": [
+    "hetian-1",
+    "hetian-2",
+    "hetian-3",
+    "hetian-4",
+    "hetian-5",
+    "hetian-6"
+  ],
+  "frames": [
+    {
+      "grid": [
+        0,
+        0
+      ],
+      "source_box": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        119,
+        110,
+        487,
+        496
+      ],
+      "edge_touch": false,
+      "output_size": [
+        104,
+        110
+      ],
+      "paste_position": [
+        12,
+        9
+      ]
+    },
+    {
+      "grid": [
+        0,
+        1
+      ],
+      "source_box": [
+        512,
+        0,
+        1024,
+        512
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        97,
+        146,
+        412,
+        488
+      ],
+      "edge_touch": false,
+      "output_size": [
+        89,
+        97
+      ],
+      "paste_position": [
+        19,
+        15
+      ]
+    },
+    {
+      "grid": [
+        0,
+        2
+      ],
+      "source_box": [
+        1024,
+        0,
+        1536,
+        512
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        53,
+        146,
+        368,
+        488
+      ],
+      "edge_touch": false,
+      "output_size": [
+        89,
+        97
+      ],
+      "paste_position": [
+        19,
+        15
+      ]
+    },
+    {
+      "grid": [
+        1,
+        0
+      ],
+      "source_box": [
+        0,
+        512,
+        512,
+        1024
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        134,
+        78,
+        451,
+        422
+      ],
+      "edge_touch": false,
+      "output_size": [
+        90,
+        98
+      ],
+      "paste_position": [
+        19,
+        15
+      ]
+    },
+    {
+      "grid": [
+        1,
+        1
+      ],
+      "source_box": [
+        512,
+        512,
+        1024,
+        1024
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        100,
+        85,
+        407,
+        401
+      ],
+      "edge_touch": false,
+      "output_size": [
+        87,
+        90
+      ],
+      "paste_position": [
+        20,
+        19
+      ]
+    },
+    {
+      "grid": [
+        1,
+        2
+      ],
+      "source_box": [
+        1024,
+        512,
+        1536,
+        1024
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        53,
+        83,
+        361,
+        402
+      ],
+      "edge_touch": false,
+      "output_size": [
+        87,
+        90
+      ],
+      "paste_position": [
+        20,
+        19
+      ]
+    }
+  ],
+  "edge_touch_frames": []
+}

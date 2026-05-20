@@ -1,0 +1,219 @@
+{
+  "target": "asset",
+  "mode": "sheet",
+  "prompt": "",
+  "role": "",
+  "input": "C:\\tmp\\dem-demo-git-20260518\\htmlDemo\u7b80\u5355\u4e92\u52a8\u73a9\u6cd5\\assets\\generated_gem_sprites\\raw\\malachite_raw_sheet.png",
+  "threshold": 100,
+  "edge_threshold": 150,
+  "duration": 220,
+  "rows": 2,
+  "cols": 3,
+  "cell_size": 128,
+  "fit_scale": 0.86,
+  "trim_border": 4,
+  "edge_clean_depth": 3,
+  "align": "center",
+  "shared_scale": true,
+  "component_mode": "all",
+  "component_padding": 28,
+  "min_component_area": 1,
+  "edge_touch_margin": 3,
+  "frame_labels": [
+    "malachite-1",
+    "malachite-2",
+    "malachite-3",
+    "malachite-4",
+    "malachite-5",
+    "malachite-6"
+  ],
+  "frames": [
+    {
+      "grid": [
+        0,
+        0
+      ],
+      "source_box": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        85,
+        82,
+        487,
+        480
+      ],
+      "edge_touch": false,
+      "output_size": [
+        110,
+        108
+      ],
+      "paste_position": [
+        9,
+        10
+      ]
+    },
+    {
+      "grid": [
+        0,
+        1
+      ],
+      "source_box": [
+        512,
+        0,
+        1024,
+        512
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        79,
+        115,
+        434,
+        473
+      ],
+      "edge_touch": false,
+      "output_size": [
+        97,
+        98
+      ],
+      "paste_position": [
+        15,
+        15
+      ]
+    },
+    {
+      "grid": [
+        0,
+        2
+      ],
+      "source_box": [
+        1024,
+        0,
+        1536,
+        512
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        41,
+        116,
+        395,
+        473
+      ],
+      "edge_touch": false,
+      "output_size": [
+        96,
+        97
+      ],
+      "paste_position": [
+        16,
+        15
+      ]
+    },
+    {
+      "grid": [
+        1,
+        0
+      ],
+      "source_box": [
+        0,
+        512,
+        512,
+        1024
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        116,
+        65,
+        463,
+        426
+      ],
+      "edge_touch": false,
+      "output_size": [
+        95,
+        98
+      ],
+      "paste_position": [
+        16,
+        15
+      ]
+    },
+    {
+      "grid": [
+        1,
+        1
+      ],
+      "source_box": [
+        512,
+        512,
+        1024,
+        1024
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        106,
+        87,
+        412,
+        413
+      ],
+      "edge_touch": false,
+      "output_size": [
+        83,
+        89
+      ],
+      "paste_position": [
+        22,
+        19
+      ]
+    },
+    {
+      "grid": [
+        1,
+        2
+      ],
+      "source_box": [
+        1024,
+        512,
+        1536,
+        1024
+      ],
+      "component_mode": "all",
+      "component_count": 1,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        65,
+        88,
+        371,
+        413
+      ],
+      "edge_touch": false,
+      "output_size": [
+        83,
+        88
+      ],
+      "paste_position": [
+        22,
+        20
+      ]
+    }
+  ],
+  "edge_touch_frames": []
+}

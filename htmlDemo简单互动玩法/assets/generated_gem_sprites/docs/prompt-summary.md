@@ -45,3 +45,37 @@ Four stages: warm orange-red banded agate, cracked banding, repaired, cleaned ov
 ### agate_B
 
 Four stages: honey amber/deep red banded agate with S-shaped band, cracked, repaired, cleaned faceted oval reward.
+
+## v24 Direct Replacement Sheets
+
+### garnet
+
+Four stages: deep red finished garnet, cracked surface, repaired surface, polished cleaned reward.
+
+### sunstone
+
+Four stages: warm orange-gold finished sunstone with glitter inclusions, cracked, repaired, polished cleaned reward.
+
+### catseye
+
+Four stages: honey-green catseye cabochon with bright chatoyant band, cracked, repaired, polished cleaned reward.
+
+### jadeite
+
+Four stages: saturated green jadeite, cracked, repaired, polished cleaned reward.
+
+### malachite
+
+Six stages: rough green-banded stone skin, cut inner body, cracked, repaired, square shaped, cleaned square reward.
+
+### turquoise
+
+Six stages: rough gray-brown skin with turquoise hints, cut inner turquoise body, cracked, repaired, triangular shaped, cleaned triangular reward.
+
+### hetian
+
+Six stages: pale river-worn jade skin, cut warm white-green core, cracked, repaired, round shaped, cleaned round reward.
+
+### shoushan
+
+Six stages: amber-yellow rough skin, cut warm orange core, cracked, repaired, square seal-like shaped, cleaned square reward.
