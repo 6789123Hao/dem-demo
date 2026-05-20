@@ -211,8 +211,26 @@
         display:flex;
         align-items:center;
         justify-content:space-between;
-        gap:8px;
+        gap:6px;
         font-weight:700;
+    }
+    .stone-title{
+        display:flex;
+        align-items:center;
+        gap:6px;
+        min-width:0;
+    }
+    .stone-title > span:first-child{
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+    }
+    .stone-rarity{
+        color:#b8761d;
+        font-size:12px;
+        font-weight:900;
+        letter-spacing:0;
+        white-space:nowrap;
     }
     .stone-count{
         padding:2px 7px;
@@ -1213,11 +1231,11 @@
         clip-path:polygon(12% 8%, 88% 8%, 92% 88%, 10% 92%);
     }
     @keyframes gemDrop{
-        0%{ transform:translate(var(--from-x, -120px), -250px) rotate(-210deg) scale(.72); opacity:0; }
-        46%{ transform:translate(18px, 12px) rotate(42deg) scale(1.08); opacity:1; }
-        63%{ transform:translate(-10px, -22px) rotate(-22deg) scale(.96); }
-        78%{ transform:translate(7px, 6px) rotate(12deg) scale(1.02); }
-        100%{ transform:translate(0, 0) rotate(0deg) scale(1); opacity:1; }
+        0%{ transform:translate(var(--from-x, -120px), -250px) rotate(calc(-210deg + var(--drop-rot, 0deg))) scale(.72); opacity:0; }
+        46%{ transform:translate(18px, 12px) rotate(calc(42deg + var(--drop-rot, 0deg))) scale(1.08); opacity:1; }
+        63%{ transform:translate(-10px, -22px) rotate(calc(-22deg + var(--rest-rot, 0deg))) scale(.96); }
+        78%{ transform:translate(7px, 6px) rotate(calc(12deg + var(--rest-rot, 0deg))) scale(1.02); }
+        100%{ transform:translate(0, 0) rotate(var(--rest-rot, 0deg)) scale(1); opacity:1; }
     }
     @media (max-width:1100px){
         .workbench{ grid-template-columns:1fr; grid-template-rows:auto auto auto; }
@@ -1411,25 +1429,25 @@ const DEMO_DATA_PACKS = {
         label:"全量流程验收",
         note:"每一种素体都有可玩数量，用于完整跑通 12 种宝石。",
         known:["pearl","agate","garnet","sunstone","catseye","jadeite","obsidian","fluorite","malachite","turquoise","hetian","shoushan"],
-        bag:{ pearl:3, garnet:2, sunstone:2, obsidian:2, fluorite:1, malachite:1, agate:2, catseye:1, jadeite:1, turquoise:2, hetian:1, shoushan:1 }
+        bag:{ pearl:2, agate:6, garnet:1, sunstone:5, catseye:3, jadeite:8, obsidian:4, fluorite:7, malachite:2, turquoise:9, hetian:1, shoushan:6 }
     },
     firstDiscovery:{
         label:"首次识别验收",
         note:"只预先识别珍珠，其余类型需要通过核心玩法逐步解锁。",
         known:["pearl"],
-        bag:{ pearl:1, garnet:1, sunstone:1, obsidian:1, fluorite:1, malachite:1, agate:1, catseye:1, jadeite:1, turquoise:1, hetian:1, shoushan:1 }
+        bag:{ pearl:1, agate:3, garnet:1, sunstone:2, catseye:1, jadeite:4, obsidian:2, fluorite:1, malachite:3, turquoise:2, hetian:1, shoushan:4 }
     },
     batchKnown:{
         label:"批量已知验收",
         note:"多种已知素体数量较多，用于验证批量入口和盘子累计。",
         known:["pearl","garnet","sunstone","obsidian","fluorite","agate","catseye","jadeite"],
-        bag:{ pearl:5, garnet:4, sunstone:4, obsidian:3, fluorite:3, malachite:1, agate:4, catseye:3, jadeite:3, turquoise:1, hetian:1, shoushan:1 }
+        bag:{ pearl:7, agate:2, garnet:5, sunstone:9, catseye:1, jadeite:6, obsidian:3, fluorite:8, malachite:1, turquoise:4, hetian:2, shoushan:1 }
     },
     rewardStress:{
         label:"长奖励列表压测",
         note:"每种素体多份，用于检查奖励弹窗长列表滚动和收集。",
         known:["pearl","garnet","sunstone","obsidian","fluorite","malachite","agate","catseye","jadeite","turquoise","hetian","shoushan"],
-        bag:{ pearl:4, garnet:4, sunstone:4, obsidian:4, fluorite:4, malachite:4, agate:4, catseye:4, jadeite:4, turquoise:4, hetian:4, shoushan:4 }
+        bag:{ pearl:10, agate:4, garnet:8, sunstone:3, catseye:12, jadeite:5, obsidian:9, fluorite:2, malachite:11, turquoise:6, hetian:7, shoushan:1 }
     }
 };
 const initialBag = DEMO_DATA_PACKS.fullCoverage.bag;
@@ -1561,8 +1579,11 @@ function renderKnownList(){
         card.innerHTML = `
             <div class="stone-dot" style="background:${gem.color}"></div>
             <div>
-                <div class="stone-name"><span>${gem.name}</span><span class="stone-count">×${countInBag(gem.id)}</span></div>
-                <div class="stone-meta"><span class="star-rank">${"★".repeat(gem.rarity)}</span> · ${gem.sub}</div>
+                <div class="stone-name">
+                    <span class="stone-title"><span>${gem.name}</span><span class="stone-rarity">${"★".repeat(gem.rarity)}</span></span>
+                    <span class="stone-count">×${countInBag(gem.id)}</span>
+                </div>
+                <div class="stone-meta">${gem.sub}</div>
             </div>
             <span class="pill">${known ? "可拖拽" : "未识别"}</span>
         `;
@@ -1600,6 +1621,8 @@ function renderPlate(){
             }
             item.style.setProperty("--delay", `${Math.min(index, 24) * 55}ms`);
             item.style.setProperty("--from-x", `${index % 2 === 0 ? -140 : 140}px`);
+            item.style.setProperty("--drop-rot", `${Math.random() * 220 - 110}deg`);
+            item.style.setProperty("--rest-rot", `${Math.random() * 26 - 13}deg`);
             item.textContent = image ? "" : gem.name.slice(0, 1);
             plate.appendChild(item);
             index += 1;
