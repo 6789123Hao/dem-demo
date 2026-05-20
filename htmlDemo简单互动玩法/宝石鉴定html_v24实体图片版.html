@@ -1592,7 +1592,7 @@ function plateGemImageValue(gem, shape){
     if(!base) return "";
     const shapedName = shape === "circle" ? "cleaned_circle" : shape === "triangle" ? "cleaned_triangle" : "cleaned_square";
     const fallback = gem.tasks.some(task=>task.type === "shape") ? shapedName : "cleaned";
-    return `url("${base}/${fallback}.png")`;
+    return `url("${base}/${fallback}.png?${V24_ASSET_VERSION}")`;
 }
 function firstUnseenOrFirstBagId(){
     const sorted = sortedBagIds();
@@ -1735,12 +1735,13 @@ function visualStateForActive(active, step){
         shape: shapeDone ? shapeTask.shapeTarget : null
     };
 }
+const V24_ASSET_VERSION = "v24-39a6c26-12gems";
 function stageImageValue(gem, visual){
     if(!gem.assetBase) return "none";
     const suffix = visual.stage === "shaped" || visual.stage === "cleaned"
         ? `${visual.stage}_${visual.shape || "cut"}`
         : visual.stage;
-    return `url("${gem.assetBase}/${suffix}.png")`;
+    return `url("${gem.assetBase}/${suffix}.png?${V24_ASSET_VERSION}")`;
 }
 const V24_ENTITY_ASSETS = {
     pearl:"assets/gems_v24/pearl",
