@@ -1133,10 +1133,13 @@
     }
     body.playing .core-hint{ display:block; }
     .right-panel{
+        position:relative;
         display:flex;
         flex-direction:column;
         justify-content:flex-start;
         gap:12px;
+        min-height:0;
+        padding-bottom:458px;
     }
     .reward-dock{
         margin-top:72px;
@@ -1146,6 +1149,14 @@
     .right-panel > #reward-pill{
         margin-top:72px;
     }
+    .right-panel > .log{
+        position:absolute;
+        left:18px;
+        right:18px;
+        bottom:18px;
+        z-index:2;
+        margin-top:0;
+    }
     .collect-cta{
         width:100%;
         min-height:58px;
@@ -1154,14 +1165,19 @@
         box-shadow:0 14px 30px rgba(153,91,26,.24);
     }
     .plate{
+        position:absolute;
+        left:18px;
+        right:18px;
+        bottom:86px;
         min-height:360px;
+        height:360px;
         align-content:flex-end;
         justify-content:center;
         align-items:flex-end;
         overflow:hidden;
-        position:relative;
         box-sizing:border-box;
         padding:28px 22px 62px;
+        margin-top:0;
     }
     .plate-gem{
         min-width:34px;
@@ -1209,6 +1225,15 @@
         .core-hud,.core-controls{ position:relative; left:auto; right:auto; top:auto; width:auto; }
         .reward-dock{ margin-top:18px; }
         .right-panel > #reward-pill{ margin-top:18px; }
+        .right-panel{ padding-bottom:0; }
+        .right-panel > .log,
+        .right-panel > .plate{
+            position:relative;
+            left:auto;
+            right:auto;
+            bottom:auto;
+            width:auto;
+        }
         .core-hint{ top:24%; width:min(330px, 76%); }
     }
 </style>
