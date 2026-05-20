@@ -206,7 +206,21 @@
         cursor:grab;
     }
     .stone-card.locked{ opacity:.48; cursor:not-allowed; }
-    .stone-dot{ width:34px; height:34px; border-radius:50%; border:2px solid rgba(35,25,16,.22); }
+    .stone-dot{
+        width:34px;
+        height:34px;
+        border-radius:50%;
+        border:2px solid rgba(35,25,16,.22);
+        background-size:contain !important;
+        background-repeat:no-repeat !important;
+        background-position:center !important;
+        box-shadow:0 5px 10px rgba(54,36,20,.14);
+    }
+    .stone-dot.with-image{
+        border-color:transparent;
+        background-color:transparent !important;
+        filter:drop-shadow(0 5px 7px rgba(54,36,20,.18));
+    }
     .stone-name{
         display:flex;
         align-items:center;
@@ -1568,11 +1582,12 @@ function renderKnownList(){
     });
     sortedListGems().forEach(gem=>{
         const known = true;
+        const dotImage = stoneDotImageValue(gem);
         const card = document.createElement("div");
         card.className = `stone-card ${known ? "" : "locked"}`;
         card.draggable = known;
         card.innerHTML = `
-            <div class="stone-dot" style="background:${gem.color}"></div>
+            <div class="stone-dot ${dotImage ? "with-image" : ""}" style="${dotImage ? `background-image:${dotImage}` : `background:${gem.color}`}"></div>
             <div>
                 <div class="stone-name">
                     <span class="stone-title"><span>${gem.name}</span><span class="stone-rarity">${"★".repeat(gem.rarity)}</span></span>
@@ -1590,6 +1605,10 @@ function renderKnownList(){
         }
         list.appendChild(card);
     });
+}
+function stoneDotImageValue(gem){
+    const base = V24_ENTITY_ASSETS[gem.id];
+    return base ? `url("${base}/raw.png?${V24_ASSET_VERSION}")` : "";
 }
 function renderPlate(){
     const plate = document.getElementById("plate");
