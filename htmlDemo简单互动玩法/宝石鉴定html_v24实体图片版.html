@@ -507,23 +507,18 @@
         position:absolute;
         left:50%;
         top:50%;
-        width:136px;
-        height:124px;
-        transform:translate(-50%, -45%);
-        background:rgba(255,248,226,.95);
-        clip-path:polygon(50% 0, 100% 100%, 0 100%);
+        width:152px;
+        height:132px;
+        transform:translate(-50%, -46%);
+        background:
+            linear-gradient(61deg, transparent calc(50% - 2px), rgba(255,248,226,.96) calc(50% - 2px) calc(50% + 2px), transparent calc(50% + 2px)) left bottom / 50% 100% no-repeat,
+            linear-gradient(-61deg, transparent calc(50% - 2px), rgba(255,248,226,.96) calc(50% - 2px) calc(50% + 2px), transparent calc(50% + 2px)) right bottom / 50% 100% no-repeat,
+            linear-gradient(90deg, transparent 0 7%, rgba(255,248,226,.96) 7% 93%, transparent 93% 100%) center bottom / 100% 5px no-repeat;
+        clip-path:none;
         filter:drop-shadow(0 0 10px rgba(210,155,69,.28)) drop-shadow(0 3px 8px rgba(0,0,0,.18));
     }
     .hotspot-shape-triangle::after{
-        content:"";
-        position:absolute;
-        left:50%;
-        top:50%;
-        width:104px;
-        height:92px;
-        transform:translate(-50%, -42%);
-        background:rgba(87,134,92,.66);
-        clip-path:polygon(50% 0, 100% 100%, 0 100%);
+        display:none;
     }
     .hotspot-shape-square{
         border-radius:12px;
