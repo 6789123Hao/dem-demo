@@ -218,7 +218,6 @@
     }
     .stone-dot.with-image{
         border-color:transparent;
-        background-color:transparent !important;
         filter:drop-shadow(0 5px 7px rgba(54,36,20,.18));
     }
     .stone-name{
@@ -1596,7 +1595,7 @@ function renderKnownList(){
         card.className = `stone-card ${known ? "" : "locked"}`;
         card.draggable = known;
         card.innerHTML = `
-            <div class="stone-dot ${dotImage ? "with-image" : ""}" style="${dotImage ? `background-image:${dotImage}` : `background:${gem.color}`}"></div>
+            <div class="stone-dot ${dotImage ? "with-image" : ""}" style="background:${gem.color}; ${dotImage ? `background-image:${dotImage}` : ""}"></div>
             <div>
                 <div class="stone-name">
                     <span class="stone-title"><span>${gem.name}</span><span class="stone-rarity">${"★".repeat(gem.rarity)}</span></span>
@@ -1617,7 +1616,7 @@ function renderKnownList(){
 }
 function stoneDotImageValue(gem){
     const base = V24_ENTITY_ASSETS[gem.id];
-    return base ? `url("${base}/raw.png?${V24_ASSET_VERSION}")` : "";
+    return base ? `url("${base}/raw.png")` : "";
 }
 function renderPlate(){
     const plate = document.getElementById("plate");
