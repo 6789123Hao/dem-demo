@@ -1616,7 +1616,7 @@ function renderKnownList(){
 }
 function stoneDotImageValue(gem){
     const base = V24_ENTITY_ASSETS[gem.id];
-    return base ? `url("${base}/raw.png")` : "";
+    return base ? `url(${base}/raw.png)` : "";
 }
 function renderPlate(){
     const plate = document.getElementById("plate");
