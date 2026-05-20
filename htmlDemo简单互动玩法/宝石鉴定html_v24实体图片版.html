@@ -77,18 +77,61 @@
     body.playing .gm-btn{ display:inline-flex; }
     .entry-drag-cue{
         position:absolute;
-        left:28px;
-        top:118px;
+        left:348px;
+        top:205px;
+        width:132px;
+        height:100%;
         z-index:8;
         pointer-events:none;
-        color:rgba(78,48,28,.82);
-        font-size:clamp(42px, 5.8vw, 86px);
-        font-weight:900;
-        line-height:1;
-        letter-spacing:0;
-        text-shadow:0 5px 0 rgba(255,248,226,.92), 0 18px 30px rgba(68,43,25,.22);
     }
     body.playing .entry-drag-cue{ display:none; }
+    .drag-link-arrow{
+        position:absolute;
+        left:0;
+        width:132px;
+        height:54px;
+        overflow:visible;
+        filter:drop-shadow(0 9px 14px rgba(83,50,28,.14));
+        opacity:0;
+        animation:dragArrowPulse 2.1s ease-in-out infinite;
+    }
+    .drag-link-arrow-bag{
+        top:0;
+    }
+    .drag-link-arrow-list{
+        top:314px;
+        animation-delay:.72s;
+    }
+    .drag-arrow-pad{
+        fill:rgba(255,252,244,.22);
+        stroke:rgba(255,248,226,.58);
+        stroke-width:2;
+    }
+    .drag-arrow-shadow{
+        fill:none;
+        stroke:rgba(78,48,28,.18);
+        stroke-width:16;
+        stroke-linecap:round;
+        stroke-linejoin:round;
+    }
+    .drag-arrow-line{
+        fill:none;
+        stroke:rgba(255,248,226,.98);
+        stroke-width:10;
+        stroke-linecap:round;
+        stroke-linejoin:round;
+    }
+    .drag-arrow-glint{
+        fill:none;
+        stroke:rgba(255,255,255,.72);
+        stroke-width:3;
+        stroke-linecap:round;
+        stroke-linejoin:round;
+    }
+    @keyframes dragArrowPulse{
+        0%,100%{ opacity:0; transform:translateX(-10px) scale(.96); }
+        34%,68%{ opacity:1; transform:translateX(0) scale(1); }
+    }
     .pill{
         display:inline-flex;
         align-items:center;
@@ -206,6 +249,10 @@
         cursor:grab;
     }
     .stone-card.locked{ opacity:.48; cursor:not-allowed; }
+    .stone-card.empty .pill{
+        opacity:.42;
+        filter:grayscale(1);
+    }
     .stone-dot{
         width:34px;
         height:34px;
@@ -290,6 +337,16 @@
         padding:22px;
         margin-top:10px;
     }
+    .plate-actions{
+        display:grid;
+        grid-template-columns:1fr;
+        gap:8px;
+        margin-top:8px;
+    }
+    .organize-plate-btn{
+        min-height:34px;
+        font-size:13px;
+    }
     .plate-gem{
         min-width:74px;
         border:1px solid rgba(86,52,31,.2);
@@ -333,6 +390,20 @@
     .log:empty::before{
         content:"...";
         color:rgba(86,52,31,.38);
+    }
+    .top-log{
+        position:relative;
+        z-index:30;
+        max-width:980px;
+        min-height:38px;
+        max-height:38px;
+        margin:10px auto 0;
+        border-radius:10px;
+        background:rgba(255,252,246,.86);
+        box-shadow:0 8px 22px rgba(68,43,25,.08);
+    }
+    .top-log.expanded{
+        max-height:180px;
     }
     .play-grid{
         display:grid;
@@ -458,7 +529,11 @@
         width:58px;
         height:70px;
         border-radius:58% 58% 62% 8%;
-        background:rgba(80,150,210,.76);
+        background:
+            radial-gradient(circle at 27% 34%, rgba(255,255,255,.62) 0 3px, transparent 4px),
+            radial-gradient(circle at 47% 24%, rgba(255,255,255,.74) 0 3px, transparent 4px),
+            radial-gradient(circle at 68% 38%, rgba(255,255,255,.56) 0 3px, transparent 4px),
+            rgba(80,150,210,.76);
         transform:translate(-50%, -50%) rotate(-45deg) scale(var(--repair-scale, 1));
         transform-origin:center;
         box-shadow:0 0 0 8px rgba(80,150,210,.18), inset 10px 8px 16px rgba(255,255,255,.26);
@@ -529,13 +604,10 @@
         position:absolute;
         left:50%;
         top:50%;
-        width:152px;
-        height:132px;
-        transform:translate(-50%, -46%);
-        background:
-            linear-gradient(61deg, transparent calc(50% - 2px), rgba(255,248,226,.96) calc(50% - 2px) calc(50% + 2px), transparent calc(50% + 2px)) left bottom / 50% 100% no-repeat,
-            linear-gradient(-61deg, transparent calc(50% - 2px), rgba(255,248,226,.96) calc(50% - 2px) calc(50% + 2px), transparent calc(50% + 2px)) right bottom / 50% 100% no-repeat,
-            linear-gradient(90deg, transparent 0 7%, rgba(255,248,226,.96) 7% 93%, transparent 93% 100%) center bottom / 100% 5px no-repeat;
+        width:174px;
+        height:158px;
+        transform:translate(-50%, -48%);
+        background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 174 158'%3E%3Cpath d='M87 8 L166 148 L8 148 Z' fill='rgba(210,155,69,0.10)' stroke='rgba(255,248,226,0.96)' stroke-width='6' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M87 22 L152 140 L22 140' fill='none' stroke='rgba(255,255,255,0.32)' stroke-width='2' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
         clip-path:none;
         filter:drop-shadow(0 0 10px rgba(210,155,69,.28)) drop-shadow(0 3px 8px rgba(0,0,0,.18));
     }
@@ -694,6 +766,63 @@
         color:var(--muted);
     }
     .status-line b{ color:var(--ink); }
+    .notebook-card{
+        position:relative;
+        width:220px;
+        padding:16px 14px 14px 22px;
+        border:1px solid rgba(86,52,31,.22);
+        border-left:8px solid rgba(126,84,47,.42);
+        border-radius:6px 12px 12px 6px;
+        background:
+            linear-gradient(90deg, rgba(126,84,47,.16) 0 1px, transparent 1px 100%) 18px 0 / 100% 100% no-repeat,
+            repeating-linear-gradient(180deg, transparent 0 25px, rgba(86,52,31,.08) 26px 27px),
+            rgba(255,252,246,.94);
+        box-shadow:0 14px 28px rgba(68,43,25,.12);
+        transform:rotate(-.35deg);
+    }
+    .notebook-title{
+        margin:0 0 10px;
+        font-size:18px;
+        font-weight:900;
+        color:#3d2b1d;
+    }
+    .notebook-line{
+        display:block;
+        margin:6px 0;
+        color:#493729;
+        line-height:1.35;
+        font-size:13px;
+    }
+    .notebook-label{
+        font-weight:900;
+        color:#7a4d24;
+    }
+    .notebook-steps{
+        display:grid;
+        gap:4px;
+        margin-top:6px;
+    }
+    .notebook-step{
+        position:relative;
+        padding-left:18px;
+        min-height:18px;
+        color:#6f6254;
+        font-size:12px;
+        line-height:1.3;
+    }
+    .notebook-step.active{
+        color:#2f2419;
+        font-weight:900;
+    }
+    .notebook-step.active::before{
+        content:"›";
+        position:absolute;
+        left:2px;
+        top:-1px;
+        color:#c4862e;
+        font-size:20px;
+        line-height:1;
+    }
     .tool-grid,.lens-grid{ display:grid; grid-template-columns:1fr; gap:8px; }
     .tool-btn,.lens-btn{
         border:1px solid rgba(86,52,31,.2);
@@ -710,31 +839,117 @@
     }
     .tool-panel{ display:none; }
     .current-tool-card{
-        display:none;
+        position:relative;
+        display:flex;
         align-items:center;
-        gap:12px;
+        gap:14px;
         justify-content:center;
-        padding:12px;
+        min-height:184px;
+        padding:14px 12px;
         border:1px solid rgba(86,52,31,.18);
         border-radius:8px;
-        background:rgba(255,252,246,.86);
+        background:linear-gradient(180deg, rgba(255,252,246,.94), rgba(239,219,188,.82));
         box-shadow:0 10px 24px rgba(68,43,25,.1);
+        overflow:hidden;
     }
-    body.playing .current-tool-card{ display:flex; }
-    .current-tool-icon{
-        width:58px;
-        height:132px;
-        border-radius:999px;
+    .current-tool-card::before{
+        content:"";
+        position:absolute;
+        left:8px;
+        right:8px;
+        top:8px;
+        height:calc(100% - 16px);
+        border-radius:7px;
+        background:linear-gradient(180deg, #8a5f3c, #4c3423);
         display:grid;
         place-items:center;
-        font-size:26px;
+        color:#ffe8bf;
+        font-weight:900;
+        letter-spacing:0;
+        box-shadow:inset 0 -5px 10px rgba(0,0,0,.16), 0 10px 18px rgba(72,44,25,.18);
+        transform:translateY(0);
+        transition:transform .44s cubic-bezier(.18,.82,.32,1), opacity .28s ease;
+        z-index:3;
+    }
+    body.playing .current-tool-card::before{
+        transform:translateY(calc(-100% - 14px));
+        opacity:.18;
+    }
+    .current-tool-icon{
+        position:relative;
+        z-index:2;
+        width:166px;
+        height:154px;
+        border-radius:18px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        overflow:hidden;
+        font-size:34px;
         font-weight:900;
         color:#fff8e8;
         background:linear-gradient(180deg, #6d4a32, #3f2a1d);
         box-shadow:inset 0 0 0 3px rgba(255,255,255,.18), 0 10px 16px rgba(68,43,25,.16);
     }
-    .current-tool-text strong{ display:block; font-size:16px; }
-    .current-tool-text span{ display:block; color:var(--muted); font-size:12px; margin-top:3px; }
+    .tool-wheel{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:center;
+        gap:10px;
+        width:238px;
+        transition:transform .34s ease;
+    }
+    .tool-wheel-item{
+        flex:0 0 auto;
+        width:72px;
+        height:118px;
+        border-radius:18px;
+        display:grid;
+        place-items:center;
+        background:rgba(255,248,226,.13);
+        box-shadow:inset 0 0 0 2px rgba(255,255,255,.14);
+        opacity:.5;
+        transform:scale(.82);
+    }
+    .tool-wheel-item.active{
+        width:84px;
+        height:144px;
+        opacity:1;
+        transform:scale(1);
+        background:rgba(255,232,191,.2);
+    }
+    .current-tool-text{
+        position:relative;
+        z-index:2;
+        min-width:96px;
+    }
+    .current-tool-text strong{ display:block; font-size:18px; }
+    .current-tool-text span{ display:block; color:var(--muted); font-size:12px; margin-top:4px; }
+    .current-tool-card.tool-switching .current-tool-text{
+        animation:toolTextFade .28s ease both;
+    }
+    .current-tool-card.tool-switching .tool-wheel{
+        animation:toolWheelRoll .42s cubic-bezier(.18,.82,.32,1) both;
+    }
+    .current-tool-card.tool-switching.roll-left .tool-wheel{
+        animation-name:toolWheelRollLeft;
+    }
+    @keyframes toolTextFade{
+        0%{ opacity:.15; transform:translateY(4px); }
+        48%{ opacity:0; transform:translateY(-3px); }
+        100%{ opacity:1; transform:translateX(0); }
+    }
+    @keyframes toolWheelRoll{
+        0%{ transform:translateX(58px); }
+        54%{ transform:translateX(-14px); }
+        100%{ transform:translateX(0); }
+    }
+    @keyframes toolWheelRollLeft{
+        0%{ transform:translateX(-58px); }
+        54%{ transform:translateX(14px); }
+        100%{ transform:translateX(0); }
+    }
     .progress{
         height:10px;
         border-radius:999px;
@@ -854,7 +1069,7 @@
     .known-section h3{ margin:0; font-size:16px; }
     .center-panel{
         position:relative;
-        overflow:hidden;
+        overflow:visible;
         min-height:560px;
         padding:0;
         background:linear-gradient(180deg, rgba(255,255,255,.8), rgba(229,245,248,.84));
@@ -924,8 +1139,34 @@
         transform-style:flat;
         transition:filter .2s ease, transform .28s ease;
     }
+    .gem3d.gem-enter{
+        animation:gemEnter .66s cubic-bezier(.16,.88,.24,1.08) both;
+    }
+    .gem3d.gem-step-swap{
+        animation:gemStepSwap .36s ease both;
+    }
+    .gem3d.gem-collect-exit{
+        animation:gemCollectExit .86s cubic-bezier(.18,.74,.22,1) forwards;
+        z-index:8;
+    }
     .gem3d.step-shape{ transform:translate(-50%, -50%) scale(1.28); }
     .gem3d.visual-shaped:not(.step-shape){ transform:translate(-50%, -50%) scale(.9); }
+    @keyframes gemEnter{
+        0%{ opacity:0; transform:translate(-76%, -62%) rotate(-18deg) scale(.62); filter:blur(4px) drop-shadow(0 18px 18px rgba(52,35,21,.12)); }
+        64%{ opacity:1; transform:translate(-48%, -50%) rotate(4deg) scale(1.08); filter:blur(0) drop-shadow(0 26px 24px rgba(52,35,21,.22)); }
+        100%{ opacity:1; transform:translate(-50%, -50%) rotate(0deg) scale(1); filter:blur(0) drop-shadow(0 26px 24px rgba(52,35,21,.22)); }
+    }
+    @keyframes gemStepSwap{
+        0%,100%{ transform:translate(-50%, -50%) scale(1); filter:drop-shadow(0 26px 24px rgba(52,35,21,.22)); }
+        18%{ transform:translate(calc(-50% - 5px), calc(-50% + 2px)) rotate(-2deg) scale(1.035); }
+        36%{ transform:translate(calc(-50% + 5px), calc(-50% - 2px)) rotate(2deg) scale(1.045); filter:brightness(1.14) drop-shadow(0 30px 28px rgba(52,35,21,.25)); }
+        56%{ transform:translate(calc(-50% - 3px), calc(-50% - 1px)) rotate(-1deg) scale(1.02); }
+    }
+    @keyframes gemCollectExit{
+        0%{ opacity:1; transform:translate(-50%, -50%) scale(1); filter:brightness(1.08) drop-shadow(0 0 22px rgba(255,244,178,.42)); }
+        28%{ opacity:1; transform:translate(-50%, -50%) scale(1.42); filter:brightness(1.34) drop-shadow(0 0 34px rgba(255,244,178,.72)); }
+        100%{ opacity:0; transform:translate(124%, -50%) rotate(16deg) scale(.64); filter:brightness(1.18) drop-shadow(0 0 18px rgba(255,244,178,.38)); }
+    }
     .gem-core{
         inset:14px;
         border-radius:22px;
@@ -1128,10 +1369,14 @@
         position:absolute;
         left:18px;
         top:18px;
-        width:260px;
+        width:220px;
         display:none;
         z-index:5;
     }
+    .play-exit-btn{
+        display:none;
+    }
+    body.playing .play-exit-btn{ display:inline-flex; }
     .core-controls{
         position:absolute;
         right:18px;
@@ -1174,50 +1419,62 @@
         justify-content:flex-start;
         gap:12px;
         min-height:0;
-        padding-bottom:458px;
+        padding-bottom:382px;
     }
     .reward-dock{
         margin-top:72px;
         display:grid;
         gap:12px;
     }
-    .right-panel > #reward-pill{
-        margin-top:72px;
-    }
-    .right-panel > .log{
-        position:absolute;
-        left:18px;
-        right:18px;
-        bottom:18px;
-        z-index:2;
-        margin-top:0;
-    }
     .collect-cta{
         width:100%;
         min-height:58px;
+        margin-top:auto;
+        margin-bottom:10px;
         font-size:20px;
         letter-spacing:0;
         box-shadow:0 14px 30px rgba(153,91,26,.24);
+    }
+    .right-panel .plate-actions{
+        position:absolute;
+        right:30px;
+        bottom:92px;
+        z-index:4;
+        margin-top:0;
+        width:auto;
+        display:block;
+    }
+    .organize-plate-btn{
+        width:38px;
+        min-height:38px;
+        height:38px;
+        padding:0;
+        border-radius:50%;
+        font-size:20px;
+        line-height:1;
     }
     .plate{
         position:absolute;
         left:18px;
         right:18px;
-        bottom:86px;
-        min-height:360px;
-        height:360px;
-        align-content:flex-end;
-        justify-content:center;
-        align-items:flex-end;
+        bottom:64px;
+        min-height:0;
+        height:auto;
+        aspect-ratio:1 / 1;
+        border-radius:999px;
+        display:block;
         overflow:hidden;
         box-sizing:border-box;
-        padding:28px 22px 62px;
+        padding:0;
         margin-top:0;
     }
     .plate-gem{
         min-width:34px;
         width:34px;
         height:34px;
+        position:absolute;
+        left:calc(var(--plate-x, 50) * 1%);
+        top:calc(var(--plate-y, 50) * 1%);
         border-radius:50%;
         padding:0;
         display:flex;
@@ -1248,20 +1505,19 @@
         clip-path:polygon(12% 8%, 88% 8%, 92% 88%, 10% 92%);
     }
     @keyframes gemDrop{
-        0%{ transform:translate(var(--from-x, -120px), -250px) rotate(calc(-210deg + var(--drop-rot, 0deg))) scale(.72); opacity:0; }
-        46%{ transform:translate(18px, 12px) rotate(calc(42deg + var(--drop-rot, 0deg))) scale(1.08); opacity:1; }
-        63%{ transform:translate(-10px, -22px) rotate(calc(-22deg + var(--rest-rot, 0deg))) scale(.96); }
-        78%{ transform:translate(7px, 6px) rotate(calc(12deg + var(--rest-rot, 0deg))) scale(1.02); }
-        100%{ transform:translate(0, 0) rotate(var(--rest-rot, 0deg)) scale(1); opacity:1; }
+        0%{ transform:translate(calc(-50% + var(--from-x, -120px)), -250px) rotate(calc(-210deg + var(--drop-rot, 0deg))) scale(.72); opacity:0; }
+        46%{ transform:translate(calc(-50% + 18px), calc(-50% + 12px)) rotate(calc(42deg + var(--drop-rot, 0deg))) scale(1.08); opacity:1; }
+        63%{ transform:translate(calc(-50% - 10px), calc(-50% - 22px)) rotate(calc(-22deg + var(--rest-rot, 0deg))) scale(.96); }
+        78%{ transform:translate(calc(-50% + 7px), calc(-50% + 6px)) rotate(calc(12deg + var(--rest-rot, 0deg))) scale(1.02); }
+        100%{ transform:translate(-50%, -50%) rotate(var(--rest-rot, 0deg)) scale(1); opacity:1; }
     }
     @media (max-width:1100px){
         .workbench{ grid-template-columns:1fr; grid-template-rows:auto auto auto; }
         .center-panel{ min-height:620px; }
+        .entry-drag-cue{ display:none; }
         .core-hud,.core-controls{ position:relative; left:auto; right:auto; top:auto; width:auto; }
         .reward-dock{ margin-top:18px; }
-        .right-panel > #reward-pill{ margin-top:18px; }
         .right-panel{ padding-bottom:0; }
-        .right-panel > .log,
         .right-panel > .plate{
             position:relative;
             left:auto;
@@ -1269,26 +1525,45 @@
             bottom:auto;
             width:auto;
         }
+        .right-panel .plate-actions{
+            position:absolute;
+            right:26px;
+            bottom:20px;
+        }
         .core-hint{ top:24%; width:min(330px, 76%); }
     }
 </style>
 </head>
 <body>
+<div id="main-log" class="log top-log"></div>
 <section id="screen-main" class="screen active">
     <div class="topbar">
         <div class="title">
-            <span class="pill">v23 纯净入口</span>
             <h1>宝石素体鉴定台</h1>
             <p>选择宝石素体进入镜片区，按切除、修补、定型、清洁的状态链完成验收。</p>
         </div>
         <div class="top-actions">
+            <button class="btn ghost play-exit-btn" id="exit-play-btn">退出玩法</button>
             <select id="data-pack-select" class="data-pack-select" aria-label="演示数据包"></select>
             <button class="btn primary gm-btn" id="finish-fast-btn">GM完成当前素体</button>
             <button class="btn ghost" id="reset-demo-btn">重置演示数据</button>
         </div>
     </div>
 
-    <div class="entry-drag-cue">←拖拽开始→</div>
+    <div class="entry-drag-cue" aria-hidden="true">
+        <svg class="drag-link-arrow drag-link-arrow-bag" viewBox="0 0 132 54" focusable="false">
+            <rect class="drag-arrow-pad" x="3" y="6" width="122" height="42" rx="21"></rect>
+            <path class="drag-arrow-shadow" d="M18 27 H82 M72 13 L104 27 L72 41"></path>
+            <path class="drag-arrow-line" d="M18 27 H82 M72 13 L104 27 L72 41"></path>
+            <path class="drag-arrow-glint" d="M19 22 H78 M76 17 L96 27"></path>
+        </svg>
+        <svg class="drag-link-arrow drag-link-arrow-list" viewBox="0 0 132 54" focusable="false">
+            <rect class="drag-arrow-pad" x="3" y="6" width="122" height="42" rx="21"></rect>
+            <path class="drag-arrow-shadow" d="M18 27 H82 M72 13 L104 27 L72 41"></path>
+            <path class="drag-arrow-line" d="M18 27 H82 M72 13 L104 27 L72 41"></path>
+            <path class="drag-arrow-glint" d="M19 22 H78 M76 17 L96 27"></path>
+        </svg>
+    </div>
 
     <div class="workbench">
         <aside class="panel bag-panel">
@@ -1299,10 +1574,8 @@
                     <div class="bag-label">整袋处理</div>
                 </div>
             </div>
-            <p class="inventory-note">拖到中间镜片位置后，会按袋内数量连续处理素体。</p>
             <div class="known-section">
                 <h3>素体选择</h3>
-                <p class="inventory-note">选择一种素体拖入镜片位置，或使用排序快速找到目标。</p>
                 <div class="sort-row" aria-label="宝石排序">
                     <button class="sort-btn active" type="button" data-sort="quantity">按拾取数量</button>
                     <button class="sort-btn" type="button" data-sort="rarity">按星级</button>
@@ -1326,15 +1599,14 @@
                     <div id="focus-ring" class="focus-ring"></div>
                     <div id="lens-scroll-cue" class="lens-scroll-cue" aria-label="向下滚轮切换镜头"></div>
                     <div class="core-hud">
-                        <div class="step-box">
-                            <h3 id="play-title">鉴定玩法</h3>
-                            <div class="status-line"><span>类型</span><b id="status-gem">-</b></div>
-                            <div class="status-line"><span>本次出石</span><b id="status-batch">-</b></div>
-                            <div class="status-line"><span>自动观察面</span><b id="status-face">Face 1</b></div>
-                            <div class="status-line"><span>当前步骤</span><b id="status-step">-</b></div>
+                        <div class="step-box notebook-card">
+                            <div class="notebook-title" id="archive-title">档案：-</div>
+                            <div class="notebook-line"><span class="notebook-label">类型：</span><span id="archive-type">-</span></div>
+                            <div class="notebook-line"><span class="notebook-label">出处：</span><span id="archive-origin">-</span></div>
+                            <div class="notebook-line"><span class="notebook-label">当前步骤：</span></div>
+                            <div class="notebook-steps" id="archive-steps"></div>
                             <div class="progress"><div id="step-progress"></div></div>
                         </div>
-                        <button class="btn ghost" id="exit-play-btn">退出玩法</button>
                     </div>
                     <p class="core-hint">滚轮切 Lens，右键切工具，点击处理点完成交互。</p>
                     <div class="core-controls">
@@ -1358,7 +1630,7 @@
         </main>
 
         <aside class="panel right-panel">
-            <h2>盘子与奖励</h2>
+            <h2>工具与宝石</h2>
             <div id="current-tool-card" class="current-tool-card">
                 <div id="current-tool-icon" class="current-tool-icon">-</div>
                 <div class="current-tool-text">
@@ -1366,10 +1638,11 @@
                     <span id="current-tool-note">进入玩法后显示当前步骤工具</span>
                 </div>
             </div>
-            <span id="reward-pill" class="pill">待收集奖励：0</span>
             <button class="btn primary collect-cta" id="collect-btn">收集奖励</button>
+            <div class="plate-actions">
+                <button class="btn ghost organize-plate-btn" id="organize-plate-btn" title="整理盘子" aria-label="整理盘子">♻</button>
+            </div>
             <div id="plate" class="plate"></div>
-            <div id="main-log" class="log"></div>
         </aside>
     </div>
 </section>
@@ -1419,12 +1692,12 @@ const GEM_BLUEPRINTS = [
     { id:"sunstone", name:"砂金石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #f1b07c 0%, #9a4f2d 100%)", assetBase:"assets/gems/sunstone", tasks:[{type:"repair", title:"细小缺角", lens:2, face:1, pos:{x:40,y:60}}, {type:"clean", title:"金砂唤亮", lens:0, face:2, pos:{x:50,y:52}}] },
     { id:"catseye", name:"猫眼石", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #d8f1a8 0%, #7ea042 100%)", assetBase:"assets/gems/catseye", tasks:[{type:"repair", title:"猫眼边缘损伤", lens:2, face:1, pos:{x:56,y:40}}, {type:"clean", title:"瞳线净化", lens:1, face:2, pos:{x:50,y:50}}] },
     { id:"jadeite", name:"翡翠", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b8f0c6 0%, #3d9b63 100%)", assetBase:"assets/gems/jadeite", tasks:[{type:"repair", title:"边缘细裂", lens:1, face:1, pos:{x:56,y:62}}, {type:"clean", title:"翠面净化", lens:2, face:0, pos:{x:50,y:50}}] },
-    { id:"obsidian", name:"黑曜石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6f6b83 0%, #15131f 100%)", assetBase:"assets/gems/obsidian", tasks:[{type:"cut", title:"石皮切除", lens:0, face:0, pos:{x:58,y:38}}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:2, face:1, pos:{x:50,y:50}}, {type:"clean", title:"黑镜净化", lens:1, face:0, pos:{x:52,y:50}}] },
+    { id:"obsidian", name:"黑曜石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6f6b83 0%, #15131f 100%)", assetBase:"assets/gems/obsidian", tasks:[{type:"cut", title:"石皮切除", lens:0, face:0, pos:{x:58,y:38}, cutHitsRequired:2}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:2, face:1, pos:{x:50,y:50}}, {type:"clean", title:"黑镜净化", lens:1, face:0, pos:{x:52,y:50}}] },
     { id:"fluorite", name:"萤石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #bca7e8 0%, #4f5a7e 100%)", assetBase:"assets/gems/fluorite", tasks:[{type:"cut", title:"杂层切除", lens:1, face:1, pos:{x:62,y:52}}, {type:"shape", title:"圆形成球", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"clean", title:"荧光净化", lens:0, face:0, pos:{x:52,y:50}}] },
-    { id:"malachite", name:"孔雀石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6ec07f 0%, #1d5a38 100%)", assetBase:"assets/gems/malachite", tasks:[{type:"cut", title:"矿皮切除", lens:0, face:0, pos:{x:62,y:40}}, {type:"repair", title:"孔雀纹裂", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"正方定型", targetShape:"square", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"石面净化", lens:0, face:0, pos:{x:52,y:50}}] },
-    { id:"turquoise", name:"绿松石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #86dfd0 0%, #2a8f89 100%)", assetBase:"assets/gems/turquoise", tasks:[{type:"cut", title:"泥皮切除", lens:0, face:0, pos:{x:62,y:40}}, {type:"repair", title:"脉络裂隙", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"松石净化", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"malachite", name:"孔雀石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6ec07f 0%, #1d5a38 100%)", assetBase:"assets/gems/malachite", tasks:[{type:"cut", title:"矿皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"孔雀纹裂", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"正方定型", targetShape:"square", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"石面净化", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"turquoise", name:"绿松石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #86dfd0 0%, #2a8f89 100%)", assetBase:"assets/gems/turquoise", tasks:[{type:"cut", title:"泥皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"脉络裂隙", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"松石净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"hetian", name:"和田玉", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #edf0d5 0%, #a9b484 100%)", assetBase:"assets/gems/hetian", tasks:[{type:"cut", title:"杂质筋切除", lens:1, face:1, pos:{x:40,y:52}}, {type:"shape", title:"圆润定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:50}}, {type:"clean", title:"玉面净化", lens:0, face:0, pos:{x:52,y:52}}] },
-    { id:"shoushan", name:"寿山石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #f0d2a7 0%, #b5794b 100%)", assetBase:"assets/gems/shoushan", tasks:[{type:"cut", title:"残皮切除", lens:0, face:2, pos:{x:54,y:60}}, {type:"shape", title:"方章定型", targetShape:"square", lens:2, face:1, pos:{x:50,y:48}}, {type:"clean", title:"石面净化", lens:1, face:0, pos:{x:50,y:50}}] }
+    { id:"shoushan", name:"寿山石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #f0d2a7 0%, #b5794b 100%)", assetBase:"assets/gems/shoushan", tasks:[{type:"cut", title:"残皮切除", lens:0, face:2, pos:{x:54,y:60}, cutHitsRequired:2}, {type:"shape", title:"方章定型", targetShape:"square", lens:2, face:1, pos:{x:50,y:48}}, {type:"clean", title:"石面净化", lens:1, face:0, pos:{x:50,y:50}}] }
 ];
 const GEM_VISUALS = {
     pearl:{ rawClip:"circle(48% at 50% 50%)", cutClip:"circle(45% at 50% 50%)", cutScale:.92, texture:"radial-gradient(circle at 34% 28%, rgba(255,255,255,.78), transparent 22%)" },
@@ -1473,6 +1746,7 @@ const state = {
     knownTypes:new Set(DEMO_DATA_PACKS.fullCoverage.known),
     playedTypes:new Set(),
     plate:{},
+    plateItems:[],
     rewards:[],
     pendingBatch:false,
     active:null,
@@ -1494,6 +1768,7 @@ function normalizedBag(bag){
     return result;
 }
 function bagTotal(){ return Object.values(state.bag).reduce((sum,n)=>sum+n,0); }
+function plateTotal(){ return Object.values(state.plate).reduce((sum,n)=>sum+n,0); }
 function countInBag(id){ return state.bag[id] || 0; }
 function isUnseen(id){ return !state.playedTypes.has(id) && countInBag(id) > 0; }
 function sortedBagIds(){
@@ -1563,7 +1838,7 @@ function setupSortControls(){
 }
 function renderMain(){
     document.getElementById("bag-count").textContent = `${bagTotal()}素体`;
-    document.getElementById("reward-pill").textContent = `待收集奖励：${state.rewards.length}`;
+    document.getElementById("collect-btn").textContent = `收集奖励 × ${plateTotal()}`;
     const packSelect = document.getElementById("data-pack-select");
     if(packSelect) packSelect.value = state.dataPackKey;
     renderKnownList();
@@ -1590,10 +1865,11 @@ function renderKnownList(){
     });
     sortedListGems().forEach(gem=>{
         const known = true;
+        const available = countInBag(gem.id) > 0;
         const dotImage = stoneDotImageValue(gem);
         const card = document.createElement("div");
-        card.className = `stone-card ${known ? "" : "locked"}`;
-        card.draggable = known;
+        card.className = `stone-card ${known ? "" : "locked"} ${available ? "" : "empty"}`;
+        card.draggable = known && available;
         card.innerHTML = `
             <div class="stone-dot ${dotImage ? "with-image" : ""}" style="background:${gem.color}; ${dotImage ? `background-image:${dotImage}` : ""}"></div>
             <div>
@@ -1603,9 +1879,9 @@ function renderKnownList(){
                 </div>
                 <div class="stone-meta">${gem.sub}</div>
             </div>
-            <span class="pill">${known ? "可拖拽" : "未识别"}</span>
+            <span class="pill">${known ? "拖拽→" : "未识别"}</span>
         `;
-        if(known){
+        if(known && available){
             card.addEventListener("dragstart", e=>{
                 state.dragPayload = { type:"known", id:gem.id };
                 e.dataTransfer.setData("text/plain", JSON.stringify(state.dragPayload));
@@ -1621,35 +1897,117 @@ function stoneDotImageValue(gem){
 function renderPlate(){
     const plate = document.getElementById("plate");
     plate.innerHTML = "";
-    const ids = Object.keys(state.plate).filter(id=>state.plate[id]>0);
-    if(!ids.length){
+    const items = plateItemsForRender();
+    if(!items.length){
         plate.innerHTML = `<div class="empty-state">盘子里还没有成石</div>`;
         return;
     }
-    let index = 0;
-    ids.forEach(id=>{
+    items.forEach((plateItem, index)=>{
+        const id = plateItem.id;
         const gem = gemById(id);
-        const amount = state.plate[id];
         const shape = rewardShapeForGem(gem);
         const image = plateGemImageValue(gem, shape);
-        for(let i = 0; i < amount; i++){
-            const item = document.createElement("div");
-            item.className = `plate-gem plate-gem-shape-${shape} ${image ? "with-image" : ""}`;
-            item.title = `${gem.name} ${i + 1}/${amount}`;
-            if(image){
-                item.style.backgroundImage = image;
-            } else {
-                item.style.background = gem.color;
-            }
-            item.style.setProperty("--delay", `${Math.min(index, 24) * 55}ms`);
-            item.style.setProperty("--from-x", `${index % 2 === 0 ? -140 : 140}px`);
-            item.style.setProperty("--drop-rot", `${Math.random() * 220 - 110}deg`);
-            item.style.setProperty("--rest-rot", `${Math.random() * 26 - 13}deg`);
-            item.textContent = image ? "" : gem.name.slice(0, 1);
-            plate.appendChild(item);
-            index += 1;
+        const item = document.createElement("div");
+        item.className = `plate-gem plate-gem-shape-${shape} ${image ? "with-image" : ""}`;
+        item.title = `${gem.name} ${index + 1}`;
+        if(image){
+            item.style.backgroundImage = image;
+        } else {
+            item.style.background = gem.color;
         }
+        item.style.setProperty("--delay", `${Math.min(index, 24) * 55}ms`);
+        item.style.setProperty("--from-x", `${index % 2 === 0 ? -140 : 140}px`);
+        item.style.setProperty("--drop-rot", `${plateItem.dropRot ?? (Math.random() * 220 - 110)}deg`);
+        item.style.setProperty("--rest-rot", `${plateItem.restRot ?? (Math.random() * 26 - 13)}deg`);
+        item.style.setProperty("--plate-x", plateItem.x ?? 50);
+        item.style.setProperty("--plate-y", plateItem.y ?? 50);
+        item.textContent = image ? "" : gem.name.slice(0, 1);
+        plate.appendChild(item);
     });
+}
+function plateItemsForRender(){
+    if(state.plateItems?.length) return state.plateItems;
+    const items = [];
+    Object.keys(state.plate).forEach(id=>{
+        for(let i = 0; i < state.plate[id]; i++) items.push(createPlateItem(id, items));
+    });
+    state.plateItems = items;
+    return items;
+}
+function createPlateItem(id, existingItems = state.plateItems || []){
+    const pos = randomPlatePosition(existingItems);
+    return {
+        id,
+        x:pos.x,
+        y:pos.y,
+        dropRot:Math.random() * 220 - 110,
+        restRot:Math.random() * 26 - 13
+    };
+}
+function randomPlatePosition(existingItems = []){
+    const attempts = existingItems.length > 34 ? 12 : 42;
+    let best = null;
+    let bestScore = -Infinity;
+    for(let i = 0; i < attempts; i++){
+        const radius = Math.sqrt(Math.random()) * 40;
+        const angle = Math.random() * Math.PI * 2;
+        const point = {
+            x:50 + Math.cos(angle) * radius,
+            y:50 + Math.sin(angle) * radius
+        };
+        const nearest = existingItems.length
+            ? Math.min(...existingItems.map(item=>Math.hypot(point.x - (item.x ?? 50), point.y - (item.y ?? 50))))
+            : 40;
+        const edgeComfort = 40 - Math.hypot(point.x - 50, point.y - 50);
+        const score = nearest + edgeComfort * .08;
+        if(score > bestScore){
+            best = point;
+            bestScore = score;
+        }
+    }
+    return best || { x:50, y:50 };
+}
+function circularPlatePositions(count){
+    if(count <= 1) return [{ x:50, y:50 }];
+    const positions = [];
+    let rings = 1;
+    while(1 + rings * 6 + Math.max(0, rings - 1) * 6 < count && rings < 5) rings += 1;
+    const rowGap = 82 / Math.max(4, rings * 2 + 2);
+    for(let row = -rings; row <= rings; row++){
+        const y = 50 + row * rowGap;
+        const xSpan = Math.sqrt(Math.max(0, 40 * 40 - (y - 50) * (y - 50)));
+        const cells = Math.max(1, Math.floor((xSpan * 2) / rowGap));
+        for(let col = 0; col < cells; col++){
+            const x = cells === 1 ? 50 : 50 - xSpan + (xSpan * 2) * (col / (cells - 1));
+            positions.push({ x, y });
+        }
+    }
+    positions.sort((a,b)=>a.y - b.y || a.x - b.x);
+    return positions.slice(0, count);
+}
+function addPlateItems(id, amount){
+    if(!state.plateItems) state.plateItems = [];
+    for(let i = 0; i < amount; i++){
+        const insertAt = Math.floor(Math.random() * (state.plateItems.length + 1));
+        state.plateItems.splice(insertAt, 0, createPlateItem(id, state.plateItems));
+    }
+}
+function organizePlate(){
+    if(!state.plateItems?.length){
+        toast("盘子里还没有成石");
+        return;
+    }
+    state.plateItems.sort((a,b)=>{
+        const orderA = GEM_BLUEPRINTS.findIndex(g=>g.id === a.id);
+        const orderB = GEM_BLUEPRINTS.findIndex(g=>g.id === b.id);
+        return orderA - orderB;
+    });
+    circularPlatePositions(state.plateItems.length).forEach((pos, index)=>{
+        state.plateItems[index].x = pos.x;
+        state.plateItems[index].y = pos.y;
+    });
+    addLog("盘子里的成石已整理排序。");
+    renderPlate();
 }
 function rewardShapeForGem(gem){
     const shapeTask = gem.tasks.find(task=>task.type === "shape");
@@ -1673,6 +2031,7 @@ function releaseTypeToPlate(id, reason){
     if(amount <= 0) return 0;
     state.bag[id] = 0;
     state.plate[id] = (state.plate[id] || 0) + amount;
+    addPlateItems(id, amount);
     const gem = gemById(id);
     state.rewards.push({ id, amount, shards:gem.rewardShards * amount, reason });
     state.knownTypes.add(id);
@@ -1736,6 +2095,8 @@ function buildCoreTasks(gem){
         id:`${gem.id}_${index}`,
         done:false,
         clicks:0,
+        cutHits:0,
+        cutHitsRequired: task.type === "cut" ? (task.cutHitsRequired || 1) : 1,
         dragDistance:0,
         shapeTarget: task.targetShape || SHAPE_TARGETS[(GEM_BLUEPRINTS.findIndex(g=>g.id === gem.id) + index) % SHAPE_TARGETS.length],
         cutAngle: task.cutAngle ?? [-32, -18, 22, 34][(GEM_BLUEPRINTS.findIndex(g=>g.id === gem.id) + index) % 4]
@@ -1764,6 +2125,7 @@ function startCorePlay(id, meta){
     document.getElementById("lens-stage").classList.remove("idle");
     showScreen("screen-main");
     renderPlay();
+    playGemAnimation("gem-enter", 680);
 }
 function currentStep(){
     if(!state.active) return null;
@@ -1771,8 +2133,9 @@ function currentStep(){
 }
 function stepStatusText(step){
     const base = `${TOOL_LABELS[step.type]} · ${step.title}`;
-    if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / 420 * 100))}%`;
+    if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / 630 * 100))}%`;
     if(step.type === "repair") return `${base} · 点击 ${step.clicks || 0}/3`;
+    if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `${base} · 切除 ${step.cutHits || 0}/${step.cutHitsRequired}`;
     if(step.type === "cut") return `${base} · 顺着长条角度拖拽`;
     if(step.type === "shape") return `${base} · 描边${SHAPE_LABELS[step.shapeTarget]}`;
     return base;
@@ -1781,6 +2144,7 @@ function stepHintText(step){
     if(!step) return "滚轮切 Lens，右键切工具，点击处理点完成交互。";
     if(step.type === "clean") return "清洁：按住范围圈，在瑕疵上来回拖拽擦除。";
     if(step.type === "repair") return "修补：连续点击水滴形瑕疵 3 次。";
+    if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：这颗需要切 ${step.cutHitsRequired} 次，按住长条并顺着角度拖拽。`;
     if(step.type === "cut") return "切除：按住长条瑕疵，沿相近角度拖拽切除。";
     if(step.type === "shape") return `定型：按住形状特效，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`;
     return "完成当前宝石。";
@@ -1837,15 +2201,49 @@ function applyGemVisualVars(gem3d, gem){
     gem3d.classList.add(`gem-${gem.id}`);
 }
 function renderCurrentTool(){
+    const card = document.getElementById("current-tool-card");
     const icon = document.getElementById("current-tool-icon");
     const name = document.getElementById("current-tool-name");
     const note = document.getElementById("current-tool-note");
     if(!icon || !name || !note) return;
     const step = currentStep();
-    const type = step?.type || state.activeTool;
-    icon.textContent = TOOL_ICONS[type] || "-";
-    name.textContent = step ? TOOL_LABELS[type] : "等待工具";
-    note.textContent = step ? TOOL_NOTES[type] : "进入玩法后显示当前步骤工具";
+    const type = step?.type || state.activeTool || "clean";
+    if(card && card.dataset.toolType && card.dataset.toolType !== type){
+        const order = ["cut","repair","shape","clean"];
+        const prevIndex = order.indexOf(card.dataset.toolType);
+        const nextIndex = order.indexOf(type);
+        const dir = prevIndex >= 0 && nextIndex >= 0 && ((nextIndex - prevIndex + order.length) % order.length) > order.length / 2 ? "roll-left" : "";
+        card.classList.remove("tool-switching", "roll-left");
+        void card.offsetWidth;
+        if(dir) card.classList.add(dir);
+        card.classList.add("tool-switching");
+        clearTimeout(renderCurrentTool.swapTimer);
+        renderCurrentTool.swapTimer = setTimeout(()=>card.classList.remove("tool-switching", "roll-left"), 440);
+    }
+    if(card) card.dataset.toolType = type;
+    icon.innerHTML = toolWheelMarkup(type);
+    name.textContent = step ? TOOL_LABELS[type] : "工具箱";
+    note.textContent = step ? shortToolNote(step) : "待机";
+}
+function toolWheelMarkup(type){
+    const order = ["cut","repair","shape","clean"];
+    const index = Math.max(0, order.indexOf(type));
+    const prev = order[(index - 1 + order.length) % order.length];
+    const next = order[(index + 1) % order.length];
+    return `
+        <div class="tool-wheel">
+            <span class="tool-wheel-item">${TOOL_ICONS[prev] || "-"}</span>
+            <span class="tool-wheel-item active">${TOOL_ICONS[type] || "-"}</span>
+            <span class="tool-wheel-item">${TOOL_ICONS[next] || "-"}</span>
+        </div>
+    `;
+}
+function shortToolNote(step){
+    if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `${step.cutHits || 0}/${step.cutHitsRequired}`;
+    if(step.type === "repair") return `${step.clicks || 0}/3`;
+    if(step.type === "clean") return `${Math.min(100, Math.round((step.dragDistance || 0) / 630 * 100))}%`;
+    if(step.type === "shape") return SHAPE_MARKS[step.shapeTarget] || "描边";
+    return step.title || "";
 }
 function renderPlay(){
     const active = state.active;
@@ -1864,11 +2262,7 @@ function renderPlay(){
     gem3d.style.setProperty("--crack-main-opacity", Math.max(0, 1 - repairProgress * .34));
     gem3d.style.setProperty("--crack-branch-opacity", Math.max(0, .72 - repairProgress * .26));
     gem3d.style.setProperty("--gem-stage-image", stageImageValue(gem, visual));
-    document.getElementById("play-title").textContent = `${gem.name} · 核心玩法`;
-    document.getElementById("status-gem").textContent = `${"★".repeat(gem.rarity)} ${gem.name} / ${gem.version}`;
-    document.getElementById("status-batch").textContent = `同类型 ${active.batchAmount} 颗`;
-    document.getElementById("status-step").textContent = step ? stepStatusText(step) : "完成";
-    document.getElementById("status-face").textContent = step ? `${FACES[step.face]}（自动）` : "完成";
+    renderArchiveNotebook(active, gem);
     document.querySelector(".core-hint").textContent = stepHintText(step);
     document.getElementById("step-progress").style.width = `${(active.stepIndex / active.tasks.length) * 100}%`;
     document.getElementById("gem-core").style.setProperty("--gem-color", gem.color);
@@ -1877,6 +2271,21 @@ function renderPlay(){
     renderToolButtons();
     renderCurrentTool();
     renderHotspot();
+}
+function renderArchiveNotebook(active, gem){
+    const title = document.getElementById("archive-title");
+    const type = document.getElementById("archive-type");
+    const origin = document.getElementById("archive-origin");
+    const steps = document.getElementById("archive-steps");
+    if(!title || !type || !origin || !steps) return;
+    title.textContent = `档案：${gem.name}`;
+    type.textContent = `${"★".repeat(gem.rarity)} ${gem.kind}`;
+    origin.textContent = gem.version.split("·")[0] || "-";
+    steps.innerHTML = active.tasks.map((task, index)=>{
+        const activeClass = index === active.stepIndex ? " active" : "";
+        const doneMark = task.done ? "✓ " : "";
+        return `<div class="notebook-step${activeClass}">${doneMark}${TOOL_LABELS[task.type]}：${task.title}</div>`;
+    }).join("");
 }
 function renderLensButtons(){
     const grid = document.getElementById("lens-grid");
@@ -2000,7 +2409,8 @@ function completeCurrentStep(step){
         if(step.type === "clean"){
             renderPlay();
             triggerCollectionFlash();
-            setTimeout(()=>completeActiveGem(), 520);
+            playGemAnimation("gem-collect-exit", 900);
+            setTimeout(()=>completeActiveGem(), 860);
         } else {
             completeActiveGem();
         }
@@ -2008,7 +2418,29 @@ function completeCurrentStep(step){
         const next = currentStep();
         state.activeTool = next.type;
         renderPlay();
+        playGemAnimation("gem-step-swap", 380);
     }
+}
+function completeCutSwipe(step){
+    const required = step.cutHitsRequired || 1;
+    step.cutHits = (step.cutHits || 0) + 1;
+    if(step.cutHits >= required){
+        completeCurrentStep(step);
+        return;
+    }
+    spawnCompletionFragments("cut");
+    step.cutAngle += step.cutAngle >= 0 ? -48 : 48;
+    toast(`切除进度 ${step.cutHits}/${required}`);
+    renderPlay();
+    playGemAnimation("gem-step-swap", 320);
+}
+function playGemAnimation(className, duration=420){
+    const gem3d = document.getElementById("gem3d");
+    if(!gem3d) return;
+    gem3d.classList.remove(className);
+    void gem3d.offsetWidth;
+    gem3d.classList.add(className);
+    setTimeout(()=>gem3d.classList.remove(className), duration);
 }
 function triggerCollectionFlash(){
     document.querySelectorAll(".collection-flash").forEach(el=>el.remove());
@@ -2078,7 +2510,7 @@ function updateDefectDrag(e){
     if(step.type === "clean"){
         step.dragDistance = Math.max(step.dragDistance || 0, drag.distance);
         renderPlay();
-        if(step.dragDistance >= 420){
+        if(step.dragDistance >= 630){
             state.suppressNextClick = true;
             state.defectDrag = null;
             completeCurrentStep(step);
@@ -2126,7 +2558,7 @@ function finishDefectDrag(e){
         const dy = e.clientY - drag.startY;
         const angle = Math.atan2(dy, dx) * 180 / Math.PI;
         const diff = angleDiff(angle, step.cutAngle || 0);
-        if(drag.distance >= 80 && diff <= 24) completeCurrentStep(step);
+        if(drag.distance >= 80 && diff <= 24) completeCutSwipe(step);
         else toast("切除角度不对，要顺着长条方向拖拽。");
         return;
     }
@@ -2221,6 +2653,7 @@ function collectRewards(){
     addLog(`收集 ${state.rewards.length} 组奖励。`);
     state.rewards = [];
     state.plate = {};
+    state.plateItems = [];
     document.body.classList.remove("playing");
     document.getElementById("lens-stage").classList.add("idle");
     closeRewardModal();
@@ -2249,6 +2682,7 @@ function resetDemo(){
     state.knownTypes = new Set(pack.known);
     state.playedTypes = new Set();
     state.plate = {};
+    state.plateItems = [];
     state.rewards = [];
     state.active = null;
     state.pendingBatch = false;
@@ -2337,6 +2771,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
         if(e.key === "Escape") closeRewardModal();
     });
     document.getElementById("collect-btn").addEventListener("click", openRewardModal);
+    document.getElementById("organize-plate-btn").addEventListener("click", organizePlate);
     document.getElementById("data-pack-select").addEventListener("change", e=>applyDataPack(e.target.value));
     document.getElementById("reset-demo-btn").addEventListener("click", resetDemo);
     addLog("主 UI 已就绪：拖拽素体袋到镜片位置或批量入口。");
