@@ -578,3 +578,55 @@ Q/E 只在这三个工具中循环：
 - 先继续稳定 v23 的交互闭环和 UI 布局。
 - 等任务顺序、热区、奖励收纳、连续游玩都稳定后，再进入 sprite 素材替换。
 - sprite 试点建议优先做黑曜石和珍珠，覆盖原石与成石两条路径。
+
+---
+
+## 2026-05-22 v26RealAsset 资产拆分准备
+
+当前主线已经从 v23/v24 过渡到 `v25 素体列表与收纳仪式版`，下一步不是继续改游戏逻辑，而是准备 `v26RealAsset`：把当前 HTML/CSS UI 分区命名，逐区绘制真实 UI asset，最后复制 v25 拼接成 `宝石鉴定html_v26RealAsset版.html`。
+
+### 当前参考资产
+
+- 当前可玩主文件：`htmlDemo简单互动玩法/宝石鉴定html_v25素体列表与收纳仪式版.html`
+- 竖条工具 sprite：`htmlDemo简单互动玩法/assets/tools_v25/`
+- UI 概念图：
+  - `htmlDemo简单互动玩法/assets/ui_concepts_v25/concept-a.png`
+  - `htmlDemo简单互动玩法/assets/ui_concepts_v25/concept-b.png`
+  - `htmlDemo简单互动玩法/assets/ui_concepts_v25/concept-c.png`
+
+### v26RealAsset UI 区域命名与资产层级表
+
+| 区域 ID | 区域中文名 | 当前对应 | 建议 UI Asset 层数 | 建议资产文件名 |
+| --- | --- | --- | ---: | --- |
+| `ui_left_inventory` | 左侧素体选择栏 | 素体列表、排序按钮、库存卡片 | 5 | `left_panel_frame.png`, `left_sort_tabs.png`, `left_scroll_track.png`, `stone_card_frame.png`, `stone_card_badge.png` |
+| `ui_center_stage` | 中心背景长方形层 | 中央玩法背景，不含镜片 | 3 | `center_stage_bg.png`, `center_stage_inner_glow.png`, `center_stage_corner_trim.png` |
+| `ui_lens_frame` | 第一人称圆形镜片 | 超大圆形镜片、Lens 滤镜、翻转 | 5 | `lens_outer_ring.png`, `lens_inner_glass.png`, `lens_glare_overlay.png`, `lens_color_filter_a.png`, `lens_flip_shine.png` |
+| `ui_center_notebook` | 中心信息层笔记本 | 档案、类型、出处、当前步骤 | 4 | `notebook_page.png`, `notebook_binding.png`, `notebook_step_marker.png`, `notebook_progress_bar.png` |
+| `ui_lens_controls` | 手动镜头按钮 | Lens A/B/C 控制 | 3 | `lens_button_panel.png`, `lens_button_idle.png`, `lens_button_active.png` |
+| `ui_hint_layer` | 操作提示 UI 层 | 滚轮、右键、操作说明 | 4 | `hint_toast_bg.png`, `mouse_wheel_icon.png`, `mouse_right_icon.png`, `gesture_arrow_down.png` |
+| `ui_defect_fx` | 瑕疵/交互层 | 擦、切、滴、描边形状、笔迹 | 6 | `defect_clean_swirl.png`, `defect_cut_strip.png`, `defect_repair_drop.png`, `defect_shape_circle.png`, `defect_shape_triangle.png`, `defect_shape_square.png` |
+| `ui_tool_box` | 右侧工具展示盒 | 当前工具长竖展示、左右半露工具 | 5 | `tool_box_frame.png`, `tool_slot_active.png`, `tool_slot_side.png`, `tool_slot_glow.png`, `tool_switch_mask.png` |
+| `ui_tool_sprites` | 工具 sprite | 切刀、修补喷液、定型笔、清洁刷 | 4 | `tool_cut.png`, `tool_repair.png`, `tool_shape.png`, `tool_clean.png` |
+| `ui_collect_button` | 收集奖励按钮 | 内嵌右键提示、收集奖励 CTA | 3 | `collect_button_idle.png`, `collect_button_ready.png`, `collect_button_right_icon_slot.png` |
+| `ui_reward_plate` | 右下奖励盘 | 盘子、整理按钮、盘内宝石 | 4 | `reward_plate_base.png`, `reward_plate_rim.png`, `reward_plate_gem_shadow.png`, `reward_plate_sort_icon.png` |
+| `ui_reward_modal` | 收集奖励弹窗 | 深棕弹窗、横向宝石列表、烟花 | 5 | `reward_modal_backdrop_fx.png`, `reward_modal_frame.png`, `reward_item_slot.png`, `reward_quantity_badge.png`, `reward_firework_particle.png` |
+| `ui_motion_fx` | 共用动效素材 | 完成闪光、碎片、拖拽粒子 | 6 | `fx_step_zoom_glint.png`, `fx_cut_fragment.png`, `fx_shape_fragment.png`, `fx_clean_flash.png`, `fx_drag_particle.png`, `fx_reward_spark.png` |
+
+### 用户选择方式
+
+请让用户按区域回复喜欢的概念图部分，例如：
+
+- `镜片用 A`
+- `左栏用 B`
+- `右侧工具盒用 C`
+- `奖励盘用 C`
+- `整体明度偏 B，但边框厚度用 A`
+
+收到选择后，再逐区绘制 asset。不要直接把概念图整张切进 HTML；概念图只作为风格参考，真实落地应按上表逐层出图并命名。
+
+### v26RealAsset 拼接原则
+
+- v25 保持可玩稳定版本，不直接大改。
+- v26 从 v25 复制新文件：`宝石鉴定html_v26RealAsset版.html`。
+- v26 只替换 UI asset 和局部 CSS，不改核心玩法状态机。
+- 图片 asset 建议放在：`htmlDemo简单互动玩法/assets/ui_v26/`，按区域子目录归档。

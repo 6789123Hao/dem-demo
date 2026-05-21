@@ -60,3 +60,37 @@
 验证：
 
 - 通过内置 Node REPL 对 HTML 内 `<script>` 做语法检查。
+
+## 2026-05-22 00:18 +08:00 - Codex 1 号
+
+当前目标：进入 `v26RealAsset` 前的 UI Asset 命名与分层设计阶段。先不直接拼 v26，先让用户选择 3 张概念图里的局部方向，再逐区绘制真实 UI asset。
+
+参考概念图：
+
+- `assets/ui_concepts_v25/concept-a.png`：深绿金色工坊、厚金属镜框、右侧工具盒最完整。
+- `assets/ui_concepts_v25/concept-b.png`：明亮奶油金绿、轻玻璃感、中心玩法读得最清楚。
+- `assets/ui_concepts_v25/concept-c.png`：黑玉漆金、暗色高级感、右侧盘子和整体质感最强。
+
+### v26RealAsset UI 区域命名与资产层级表
+
+| 区域 ID | 区域中文名 | DOM/功能对应 | UI Asset 层级 | 建议资产文件名 | 参考概念图可选点 | 备注 |
+| --- | --- | --- | ---: | --- | --- | --- |
+| `ui_left_inventory` | 左侧素体选择栏 | `.bag-panel` / `.known-section` / `.stone-list` | 5 | `left_panel_frame.png`, `left_sort_tabs.png`, `left_scroll_track.png`, `stone_card_frame.png`, `stone_card_badge.png` | A 的深绿列表边框；B 的浅色可读性；C 的暗色列表质感 | 列表仍由 HTML 排版，asset 做底框/卡片/滚动条。 |
+| `ui_center_stage` | 中心背景长方形层 | `.center-panel` / `.lens-stage` 背景 | 3 | `center_stage_bg.png`, `center_stage_inner_glow.png`, `center_stage_corner_trim.png` | B 的干净中心绿光；C 的暗色工作台 | 不承载镜片颜色变化，只做底盘/背景。 |
+| `ui_lens_frame` | 第一人称圆形镜片 | `.lens-viewport` | 5 | `lens_outer_ring.png`, `lens_inner_glass.png`, `lens_glare_overlay.png`, `lens_color_filter_a.png`, `lens_flip_shine.png` | A 的厚金属镜框；B 的清晰玻璃；C 的真实反光 | 镜片需要超出画面上下边缘，翻转时可替换/叠加滤镜。 |
+| `ui_center_notebook` | 中心信息层笔记本 | `.core-hud .notebook-card` | 4 | `notebook_page.png`, `notebook_binding.png`, `notebook_step_marker.png`, `notebook_progress_bar.png` | B 的浅色笔记本最清楚；C 的纸张高级 | 文字仍 HTML，asset 做纸张、装订、当前步骤标记。 |
+| `ui_lens_controls` | 手动镜头按钮 | `.core-controls .lens-grid` | 3 | `lens_button_panel.png`, `lens_button_idle.png`, `lens_button_active.png` | B 的发光按钮；C 的暗色按钮 | 保持当前 Lens A/B/C 功能。 |
+| `ui_hint_layer` | 操作提示 UI 层 | `.core-hint`, `.lens-scroll-cue`, `.right-click-cue` | 4 | `hint_toast_bg.png`, `mouse_wheel_icon.png`, `mouse_right_icon.png`, `gesture_arrow_down.png` | B 的清晰提示；A/C 的金绿边框 | 最高层 UI，不能被镜片/瑕疵遮住。 |
+| `ui_defect_fx` | 瑕疵/交互层 | `.hotspot-*`, `.focus-ring`, `.shape-trace-layer` | 6 | `defect_clean_swirl.png`, `defect_cut_strip.png`, `defect_repair_drop.png`, `defect_shape_circle.png`, `defect_shape_triangle.png`, `defect_shape_square.png` | 继续沿用现玩法，需要更精致局部 asset | 笔迹是运行时 SVG，后续可加笔刷贴图。 |
+| `ui_tool_box` | 右侧工具展示盒 | `.current-tool-card`, `.tool-wheel-item` | 5 | `tool_box_frame.png`, `tool_slot_active.png`, `tool_slot_side.png`, `tool_slot_glow.png`, `tool_switch_mask.png` | A 的工具盒结构；C 的暗色高级边框 | 当前已接入 `assets/tools_v25/tool-*.png`。 |
+| `ui_tool_sprites` | 工具 sprite | `TOOL_SPRITES` | 4 | `tool_cut.png`, `tool_repair.png`, `tool_shape.png`, `tool_clean.png` | 使用竖条工具 sheet 继续挑选 | 可从 `assets/tools_v25` 中重命名/精选。 |
+| `ui_collect_button` | 收集奖励按钮 | `.collect-cta` | 3 | `collect_button_idle.png`, `collect_button_ready.png`, `collect_button_right_icon_slot.png` | A/C 的厚金色按钮；B 的明亮 CTA | 右键 UI 必须内嵌按钮，没奖励不显示。 |
+| `ui_reward_plate` | 右下奖励盘 | `.plate`, `.plate-gem` | 4 | `reward_plate_base.png`, `reward_plate_rim.png`, `reward_plate_gem_shadow.png`, `reward_plate_sort_icon.png` | C 的盘子最好；A 的金边也可参考 | 盘子位置固定右下，不随内容上下动。 |
+| `ui_reward_modal` | 收集奖励弹窗 | `.reward-modal`, `.reward-dialog`, `.reward-list` | 5 | `reward_modal_backdrop_fx.png`, `reward_modal_frame.png`, `reward_item_slot.png`, `reward_quantity_badge.png`, `reward_firework_particle.png` | C 的深棕弹窗底；A 的金边；B 的清晰列表 | 弹窗只保留“领取”，点击外侧也是领取。 |
+| `ui_motion_fx` | 共用动效素材 | 完成闪光、碎片、拖拽粒子 | 6 | `fx_step_zoom_glint.png`, `fx_cut_fragment.png`, `fx_shape_fragment.png`, `fx_clean_flash.png`, `fx_drag_particle.png`, `fx_reward_spark.png` | A/C 的金色火花；B 的清爽绿光 | 用于替换/增强 CSS 粒子。 |
+
+下一步协作方式：
+
+- 用户回复喜欢哪张概念图的哪些部分，例如：`镜片用 A，左栏用 B，右栏工具盒用 C，奖励盘用 C`。
+- Codex 再按表逐区绘制 asset，先出关键区：`ui_lens_frame`、`ui_tool_box`、`ui_left_inventory`、`ui_reward_plate`。
+- 完成 asset 后复制 v25 为 `宝石鉴定html_v26RealAsset版.html`，只在 v26 中拼接真实 UI asset，v25 保持当前可玩版本。
