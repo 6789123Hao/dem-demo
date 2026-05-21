@@ -1259,7 +1259,7 @@
         animation:gemEnter .66s cubic-bezier(.16,.88,.24,1.08) both;
     }
     .gem3d.gem-step-swap{
-        animation:gemStepSwap .36s ease both;
+        animation:gemStepSwap .52s cubic-bezier(.18,.78,.22,1) both;
     }
     .gem3d.gem-collect-exit{
         animation:gemCollectExit 1.12s cubic-bezier(.16,.78,.18,1) forwards;
@@ -1273,10 +1273,11 @@
         100%{ opacity:1; transform:translate(-50%, -50%) rotate(0deg) scale(1); filter:blur(0) drop-shadow(0 26px 24px rgba(52,35,21,.22)); }
     }
     @keyframes gemStepSwap{
-        0%,100%{ transform:translate(-50%, -50%) scale(1); filter:drop-shadow(0 26px 24px rgba(52,35,21,.22)); }
-        18%{ transform:translate(calc(-50% - 5px), calc(-50% + 2px)) rotate(-2deg) scale(1.035); }
-        36%{ transform:translate(calc(-50% + 5px), calc(-50% - 2px)) rotate(2deg) scale(1.045); filter:brightness(1.14) drop-shadow(0 30px 28px rgba(52,35,21,.25)); }
-        56%{ transform:translate(calc(-50% - 3px), calc(-50% - 1px)) rotate(-1deg) scale(1.02); }
+        0%{ transform:translate(-50%, -50%) scale(1); filter:drop-shadow(0 26px 24px rgba(52,35,21,.22)); }
+        18%{ transform:translate(calc(-50% - 5px), calc(-50% + 2px)) rotate(-2deg) scale(1.06); }
+        42%{ transform:translate(calc(-50% + 5px), calc(-50% - 5px)) rotate(2deg) scale(1.16); filter:brightness(1.18) drop-shadow(0 34px 30px rgba(52,35,21,.28)); }
+        70%{ transform:translate(calc(-50% - 2px), calc(-50% - 3px)) rotate(-1deg) scale(1.1); }
+        100%{ transform:translate(-50%, -50%) scale(1.04); filter:brightness(1.08) drop-shadow(0 30px 28px rgba(52,35,21,.24)); }
     }
     @keyframes gemCollectExit{
         0%{ opacity:1; transform:translate(-50%, -50%) scale(1); filter:brightness(1.08) drop-shadow(0 0 22px rgba(255,244,178,.42)); }
@@ -1341,7 +1342,16 @@
         --gem-scale:1.26;
     }
     .gem3d.has-stage-image.visual-raw .gem-core{ --gem-scale:1.36; }
+    .gem3d.has-stage-image.visual-cut .gem-core,
+    .gem3d.has-stage-image.visual-cracked .gem-core,
+    .gem3d.has-stage-image.visual-repaired .gem-core{
+        --gem-scale:1.42;
+    }
+    .gem3d.has-stage-image.visual-shaped .gem-core{
+        --gem-scale:1.34;
+    }
     .gem3d.has-stage-image.visual-cleaned .gem-core{
+        --gem-scale:1.38;
         filter:drop-shadow(0 0 24px rgba(255,245,190,.48)) !important;
     }
     .gem3d.has-stage-image .gem-core::before{ display:none; }
@@ -2656,7 +2666,7 @@ function completeCurrentStep(step){
         const next = currentStep();
         state.activeTool = next.type;
         renderPlay();
-        playGemAnimation("gem-step-swap", 380);
+        playGemAnimation("gem-step-swap", 560);
     }
 }
 function completeCutSwipe(step){
@@ -2670,7 +2680,7 @@ function completeCutSwipe(step){
     step.cutAngle += step.cutAngle >= 0 ? -48 : 48;
     toast(`切除进度 ${step.cutHits}/${required}`);
     renderPlay();
-    playGemAnimation("gem-step-swap", 320);
+    playGemAnimation("gem-step-swap", 540);
 }
 function playGemAnimation(className, duration=420){
     const gem3d = document.getElementById("gem3d");
