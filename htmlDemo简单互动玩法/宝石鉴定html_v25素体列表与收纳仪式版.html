@@ -1227,7 +1227,7 @@
     }
     @keyframes lensFlip{
         0%{ transform:translate(-50%, -50%) rotateY(0deg) scale(1); filter:saturate(1); }
-        45%{ transform:translate(-50%, -50%) rotateY(82deg) scale(.985); filter:saturate(.72) brightness(1.12); }
+        45%{ transform:translate(-50%, -50%) rotateY(calc(var(--lens-flip-dir, 1) * 82deg)) scale(.985); filter:saturate(.72) brightness(1.12); }
         100%{ transform:translate(-50%, -50%) rotateY(0deg) scale(1); filter:saturate(1); }
     }
     .batch-pipe{
@@ -2351,15 +2351,16 @@ function currentStep(){
     if(!state.active) return null;
     return state.active.tasks[state.active.stepIndex] || null;
 }
-function setLensIndex(nextIndex, shouldFlip=true){
+function setLensIndex(nextIndex, shouldFlip=true, flipDir=1){
     const next = (nextIndex + LENSES.length) % LENSES.length;
     const changed = state.lensIndex !== next;
     state.lensIndex = next;
-    if(changed && shouldFlip) playLensFlip();
+    if(changed && shouldFlip) playLensFlip(flipDir);
 }
-function playLensFlip(){
+function playLensFlip(direction=1){
     const stage = document.getElementById("lens-stage");
     if(!stage) return;
+    stage.style.setProperty("--lens-flip-dir", direction >= 0 ? 1 : -1);
     stage.classList.remove("lens-flip");
     void stage.offsetWidth;
     stage.classList.add("lens-flip");
@@ -2530,7 +2531,8 @@ function renderLensButtons(){
         btn.className = `lens-btn ${state.lensIndex === index ? "active" : ""}`;
         btn.textContent = lens.label;
         btn.addEventListener("click", ()=>{
-            setLensIndex(index);
+            const direction = index >= state.lensIndex ? 1 : -1;
+            setLensIndex(index, true, direction);
             renderPlay();
             toast(`切换到 ${lens.label}`);
         });
@@ -2555,7 +2557,7 @@ function renderToolButtons(){
 function cycleLensByWheel(deltaY){
     if(!state.active) return;
     const dir = deltaY >= 0 ? 1 : -1;
-    setLensIndex(state.lensIndex + dir);
+    setLensIndex(state.lensIndex + dir, true, dir);
     renderPlay();
     toast(`切换到 ${LENSES[state.lensIndex].label}`);
 }
