@@ -1133,16 +1133,29 @@
         border-radius:8px;
         border:1px solid rgba(63,84,92,.22);
         background:
-            radial-gradient(circle at 50% 42%, rgba(255,255,255,.86), rgba(204,238,244,.5) 42%, rgba(180,223,232,.42) 100%),
-            linear-gradient(180deg, #effcff, #d9f1f3);
+            linear-gradient(180deg, rgba(234,250,253,.92), rgba(196,233,239,.82)),
+            repeating-linear-gradient(90deg, rgba(255,255,255,.08) 0 1px, transparent 1px 42px);
         overflow:hidden;
+        isolation:isolate;
+    }
+    .lens-stage::before{
+        content:"";
+        position:absolute;
+        inset:0;
+        z-index:0;
+        pointer-events:none;
+        background:
+            radial-gradient(circle at 50% 45%, rgba(255,255,255,.38), transparent 44%),
+            linear-gradient(90deg, rgba(255,255,255,.18), transparent 28%, transparent 72%, rgba(80,130,142,.08));
     }
     .lens-stage.idle{
         border:2px dashed rgba(86,52,31,.34);
     }
     .lens-stage.over{
         border-color:#b9792d;
-        background:#fff4dc;
+        background:
+            linear-gradient(180deg, rgba(255,246,224,.94), rgba(239,222,192,.86)),
+            repeating-linear-gradient(90deg, rgba(255,255,255,.1) 0 1px, transparent 1px 42px);
         transform:translateY(-2px);
     }
     .lens-stage.idle .idle-copy{ display:block; }
@@ -1158,6 +1171,65 @@
         pointer-events:none;
     }
     .idle-copy h2{ margin:0 0 8px; color:var(--ink); }
+    .lens-viewport{
+        position:absolute;
+        left:50%;
+        top:52%;
+        width:min(116%, 1180px);
+        height:auto;
+        aspect-ratio:1 / 1;
+        border-radius:50%;
+        transform:translate(-50%, -50%) rotateY(0deg);
+        transform-style:preserve-3d;
+        z-index:4;
+        pointer-events:none;
+        background:
+            radial-gradient(circle at 37% 27%, rgba(255,255,255,.7), transparent 14%),
+            radial-gradient(circle at 52% 48%, rgba(255,255,255,.18), transparent 50%),
+            radial-gradient(circle at 50% 50%, transparent 0 61%, rgba(255,255,255,.28) 62%, rgba(41,55,129,.12) 69%, transparent 70%),
+            var(--lens-filter, rgba(127,223,255,.22));
+        border:8px solid rgba(47,67,196,.82);
+        box-shadow:
+            inset 0 0 90px rgba(255,255,255,.46),
+            inset 0 0 0 18px rgba(255,255,255,.1),
+            inset 0 0 0 28px rgba(47,67,196,.08),
+            0 0 0 2px rgba(255,255,255,.5),
+            0 0 0 11px rgba(33,43,142,.18),
+            0 32px 72px rgba(34,58,118,.16);
+        mix-blend-mode:multiply;
+    }
+    .lens-viewport::before,
+    .lens-viewport::after{
+        content:"";
+        position:absolute;
+        border-radius:50%;
+        pointer-events:none;
+    }
+    .lens-viewport::before{
+        inset:20px;
+        border:1px solid rgba(255,255,255,.54);
+        box-shadow:
+            inset 0 0 0 10px rgba(255,255,255,.08),
+            inset 0 0 42px rgba(20,42,96,.1);
+        background:
+            linear-gradient(128deg, transparent 0 42%, rgba(255,255,255,.16) 43% 45%, transparent 46%),
+            radial-gradient(circle at 35% 28%, rgba(255,255,255,.2), transparent 34%);
+    }
+    .lens-viewport::after{
+        inset:11%;
+        border-left:2px solid rgba(255,255,255,.36);
+        border-top:1px solid rgba(255,255,255,.28);
+        transform:rotate(-18deg);
+        opacity:.45;
+    }
+    .lens-stage.lens-flip .lens-viewport{
+        animation:lensFlip .48s cubic-bezier(.2,.82,.24,1) both;
+    }
+    @keyframes lensFlip{
+        0%{ transform:translate(-50%, -50%) rotateY(0deg) scale(1); filter:saturate(1); }
+        45%{ transform:translate(-50%, -50%) rotateY(82deg) scale(.985); filter:saturate(.72) brightness(1.12); }
+        100%{ transform:translate(-50%, -50%) rotateY(0deg) scale(1); filter:saturate(1); }
+    }
     .batch-pipe{
         display:none;
         border:2px dashed rgba(86,52,31,.34);
@@ -1181,6 +1253,7 @@
         transform:translate(-50%, -50%);
         transform-style:flat;
         transition:filter .2s ease, transform .28s ease;
+        z-index:3;
     }
     .gem3d.gem-enter{
         animation:gemEnter .66s cubic-bezier(.16,.88,.24,1.08) both;
@@ -1415,7 +1488,7 @@
         height:360px;
         transform:translate(-50%, -50%);
         pointer-events:none;
-        z-index:10;
+        z-index:2;
         animation:ceremonyLayerFade 1.12s ease-out forwards;
     }
     .gem-ceremony-halo,
@@ -1513,7 +1586,7 @@
         top:18px;
         width:220px;
         display:none;
-        z-index:5;
+        z-index:8;
     }
     .play-exit-btn{
         display:none;
@@ -1525,14 +1598,14 @@
         top:18px;
         width:210px;
         display:none;
-        z-index:5;
+        z-index:8;
     }
     .core-hint{
         position:absolute;
         left:50%;
         top:22%;
         transform:translateX(-50%);
-        z-index:6;
+        z-index:12;
         display:none;
         width:min(360px, 68%);
         margin:0;
@@ -1554,6 +1627,9 @@
         gap:10px;
     }
     body.playing .core-hint{ display:block; }
+    .hotspot{ z-index:6; }
+    .focus-ring{ z-index:5; }
+    .lens-scroll-cue{ z-index:12; }
     .right-panel{
         position:relative;
         display:flex;
@@ -1736,6 +1812,7 @@
                         <div id="gem-core" class="gem-core"></div>
                         <div class="gem-surface"></div>
                     </div>
+                    <div id="lens-viewport" class="lens-viewport" aria-hidden="true"></div>
                     <button id="hotspot" class="hotspot" aria-label="当前处理点"></button>
                     <div id="focus-ring" class="focus-ring"></div>
                     <div id="lens-scroll-cue" class="lens-scroll-cue" aria-label="向下滚轮切换镜头"></div>
@@ -2274,6 +2351,21 @@ function currentStep(){
     if(!state.active) return null;
     return state.active.tasks[state.active.stepIndex] || null;
 }
+function setLensIndex(nextIndex, shouldFlip=true){
+    const next = (nextIndex + LENSES.length) % LENSES.length;
+    const changed = state.lensIndex !== next;
+    state.lensIndex = next;
+    if(changed && shouldFlip) playLensFlip();
+}
+function playLensFlip(){
+    const stage = document.getElementById("lens-stage");
+    if(!stage) return;
+    stage.classList.remove("lens-flip");
+    void stage.offsetWidth;
+    stage.classList.add("lens-flip");
+    clearTimeout(playLensFlip.timer);
+    playLensFlip.timer = setTimeout(()=>stage.classList.remove("lens-flip"), 520);
+}
 function stepStatusText(step){
     const base = `${TOOL_LABELS[step.type]} · ${step.title}`;
     if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / 630 * 100))}%`;
@@ -2438,7 +2530,7 @@ function renderLensButtons(){
         btn.className = `lens-btn ${state.lensIndex === index ? "active" : ""}`;
         btn.textContent = lens.label;
         btn.addEventListener("click", ()=>{
-            state.lensIndex = index;
+            setLensIndex(index);
             renderPlay();
             toast(`切换到 ${lens.label}`);
         });
@@ -2463,7 +2555,7 @@ function renderToolButtons(){
 function cycleLensByWheel(deltaY){
     if(!state.active) return;
     const dir = deltaY >= 0 ? 1 : -1;
-    state.lensIndex = (state.lensIndex + dir + LENSES.length) % LENSES.length;
+    setLensIndex(state.lensIndex + dir);
     renderPlay();
     toast(`切换到 ${LENSES[state.lensIndex].label}`);
 }
