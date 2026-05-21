@@ -1068,12 +1068,16 @@
         overflow-y:hidden;
         padding:8px 4px 12px;
         scrollbar-width:thin;
+        cursor:grab;
+        user-select:none;
+        overscroll-behavior:contain;
     }
+    .reward-list.dragging{ cursor:grabbing; }
     .reward-item{
         position:relative;
         flex:0 0 106px;
         width:106px;
-        height:106px;
+        height:132px;
         border:1px solid rgba(255,232,191,.22);
         border-radius:8px;
         background:
@@ -1083,16 +1087,34 @@
     }
     .reward-gem-image{
         position:absolute;
-        inset:8px;
+        left:8px;
+        right:8px;
+        top:8px;
+        height:86px;
         background-size:contain;
         background-repeat:no-repeat;
         background-position:center;
         filter:drop-shadow(0 10px 12px rgba(0,0,0,.28));
     }
+    .reward-name{
+        position:absolute;
+        left:6px;
+        right:6px;
+        bottom:7px;
+        color:#fff4df;
+        font-size:13px;
+        font-weight:900;
+        text-align:center;
+        line-height:1.1;
+        text-shadow:0 2px 7px rgba(0,0,0,.46);
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+    }
     .reward-amount{
         position:absolute;
         right:6px;
-        bottom:6px;
+        bottom:31px;
         min-width:34px;
         border-radius:999px;
         padding:4px 7px;
@@ -3028,7 +3050,7 @@ function renderRewards(){
         const item = document.createElement("div");
         item.className = "reward-item";
         item.setAttribute("aria-label", `${gem.name} ×${amount}`);
-        item.innerHTML = `<div class="reward-gem-image"></div><b class="reward-amount">×${amount}</b>`;
+        item.innerHTML = `<div class="reward-gem-image"></div><b class="reward-amount">×${amount}</b><span class="reward-name">${gem.name}</span>`;
         const imageEl = item.querySelector(".reward-gem-image");
         if(image) imageEl.style.backgroundImage = image;
         else imageEl.style.background = gem.color;
@@ -3070,6 +3092,38 @@ function handleRewardRightClick(e){
     e.preventDefault();
     if(modalOpen) collectRewards();
     else openRewardModal();
+}
+function setupRewardListScroll(){
+    const list = document.getElementById("reward-list");
+    if(!list) return;
+    let dragging = false;
+    let startX = 0;
+    let startScroll = 0;
+    list.addEventListener("wheel", e=>{
+        if(Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+        e.preventDefault();
+        list.scrollLeft += e.deltaY;
+    }, { passive:false });
+    list.addEventListener("pointerdown", e=>{
+        if(e.button !== 0) return;
+        dragging = true;
+        startX = e.clientX;
+        startScroll = list.scrollLeft;
+        list.classList.add("dragging");
+        list.setPointerCapture(e.pointerId);
+    });
+    list.addEventListener("pointermove", e=>{
+        if(!dragging) return;
+        list.scrollLeft = startScroll - (e.clientX - startX);
+    });
+    const stopDrag = e=>{
+        if(!dragging) return;
+        dragging = false;
+        list.classList.remove("dragging");
+        if(list.hasPointerCapture(e.pointerId)) list.releasePointerCapture(e.pointerId);
+    };
+    list.addEventListener("pointerup", stopDrag);
+    list.addEventListener("pointercancel", stopDrag);
 }
 function exitPlay(){
     if(state.active){
@@ -3158,6 +3212,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
     setupCoreMouseControls();
     setupLogPanel();
     setupSortControls();
+    setupRewardListScroll();
     const hotspot = document.getElementById("hotspot");
     hotspot.addEventListener("click", handleHotspotClick);
     hotspot.addEventListener("pointerdown", startDefectDrag);
