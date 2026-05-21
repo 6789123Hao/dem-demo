@@ -2724,7 +2724,7 @@ function renderHotspot(){
 function defectStagePosition(step){
     const scale = step.type === "shape" ? 0.42 : 0.48;
     const yLift = step.type === "repair" ? 8 : step.type === "clean" ? 3 : step.type === "shape" ? 4 : 0;
-    const repairOffset = step.type === "repair" ? [0, -2.8, 2.8][Math.min(step.clicks || 0, 2)] : 0;
+    const repairOffset = step.type === "repair" ? [0, -1.1, 1.1][Math.min(step.clicks || 0, 2)] : 0;
     return {
         x:50 + (step.pos.x - 50) * scale + repairOffset,
         y:50 + (step.pos.y - 50) * scale - yLift
