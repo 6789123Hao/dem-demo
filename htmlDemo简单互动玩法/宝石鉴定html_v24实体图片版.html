@@ -576,8 +576,8 @@
         white-space:pre;
     }
     .hotspot-shape{
-        width:180px;
-        height:180px;
+        width:360px;
+        height:360px;
         position:absolute;
         background:transparent;
         border-color:transparent;
@@ -588,9 +588,23 @@
     }
     .hotspot-shape-circle{
         border-radius:50%;
+        border:0;
+        background:transparent;
+        box-shadow:none;
+    }
+    .hotspot-shape-circle::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:180px;
+        height:180px;
+        transform:translate(-50%, -50%);
+        border-radius:50%;
         border:4px solid rgba(255,255,255,.86);
         background:rgba(210,155,69,.1);
         box-shadow:0 0 0 12px rgba(210,155,69,.1);
+        pointer-events:none;
     }
     .hotspot-shape-triangle{
         border-color:transparent;
@@ -616,10 +630,23 @@
     }
     .hotspot-shape-square{
         border-radius:12px;
+        background:transparent;
+        outline:0;
+        clip-path:none;
+    }
+    .hotspot-shape-square::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:180px;
+        height:180px;
+        transform:translate(-50%, -50%);
+        border-radius:12px;
         background:rgba(210,155,69,.08);
         outline:3px solid rgba(255,248,226,.82);
         outline-offset:-22px;
-        clip-path:none;
+        pointer-events:none;
     }
     .shape-label{
         position:relative;
@@ -2587,9 +2614,9 @@ function traceMatchesShape(points, shape){
     const width = maxX - minX;
     const height = maxY - minY;
     const aspect = width / Math.max(1, height);
-    if(width < 42 || height < 42) return false;
+    if(width < 24 || height < 24) return false;
     if(shape === "circle") return distance >= 220 && aspect > .62 && aspect < 1.55;
-    if(shape === "triangle") return distance >= 170 && width > 56 && height > 48;
+    if(shape === "triangle") return distance >= 170 && width > 28 && height > 24;
     return distance >= 210 && aspect > .72 && aspect < 1.35;
 }
 function completeActiveGem(){
