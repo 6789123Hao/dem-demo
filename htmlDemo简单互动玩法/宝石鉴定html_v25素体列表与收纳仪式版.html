@@ -1016,22 +1016,92 @@
         z-index:20;
     }
     .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
-    .reward-list{
+    .reward-claim-row{
         display:grid;
+        grid-template-columns:58px 1fr;
         gap:10px;
-        margin-top:12px;
-        max-height:min(46vh, 420px);
-        overflow:auto;
-        padding-right:4px;
+        align-items:center;
+    }
+    .right-click-cue{
+        position:relative;
+        width:50px;
+        height:58px;
+        border:4px solid rgba(255,248,226,.95);
+        border-radius:22px;
+        background:rgba(44,36,27,.34);
+        box-shadow:0 10px 22px rgba(44,36,27,.18), inset 0 0 14px rgba(255,255,255,.12);
+        opacity:.52;
+        pointer-events:none;
+    }
+    .right-click-cue::before{
+        content:"";
+        position:absolute;
+        right:8px;
+        top:7px;
+        width:14px;
+        height:20px;
+        border-radius:9px 9px 5px 5px;
+        background:rgba(255,248,226,.95);
+        animation:rightClickPulse 1.05s ease-in-out infinite;
+    }
+    .right-click-cue::after{
+        content:"右";
+        position:absolute;
+        left:50%;
+        bottom:5px;
+        transform:translateX(-50%);
+        color:#fff8e2;
+        font-size:12px;
+        font-weight:900;
+    }
+    .right-panel.has-rewards .right-click-cue{ opacity:1; }
+    @keyframes rightClickPulse{
+        0%,100%{ opacity:.95; transform:translateY(0); }
+        50%{ opacity:.44; transform:translateY(5px); }
+    }
+    .reward-list{
+        display:flex;
+        gap:14px;
+        margin-top:16px;
+        max-width:100%;
+        overflow-x:auto;
+        overflow-y:hidden;
+        padding:8px 4px 12px;
+        scrollbar-width:thin;
     }
     .reward-item{
-        display:flex;
-        justify-content:space-between;
-        gap:12px;
-        padding:10px;
-        border:1px solid rgba(86,52,31,.18);
+        position:relative;
+        flex:0 0 106px;
+        width:106px;
+        height:106px;
+        border:1px solid rgba(255,232,191,.22);
         border-radius:8px;
-        background:rgba(255,255,255,.62);
+        background:
+            radial-gradient(circle at 38% 28%, rgba(255,245,210,.24), transparent 42%),
+            rgba(255,248,226,.07);
+        box-shadow:inset 0 0 0 2px rgba(255,255,255,.04), 0 14px 26px rgba(0,0,0,.22);
+    }
+    .reward-gem-image{
+        position:absolute;
+        inset:8px;
+        background-size:contain;
+        background-repeat:no-repeat;
+        background-position:center;
+        filter:drop-shadow(0 10px 12px rgba(0,0,0,.28));
+    }
+    .reward-amount{
+        position:absolute;
+        right:6px;
+        bottom:6px;
+        min-width:34px;
+        border-radius:999px;
+        padding:4px 7px;
+        background:#ffe8bf;
+        color:#2b1c0f;
+        font-weight:1000;
+        font-size:16px;
+        text-align:center;
+        box-shadow:0 5px 12px rgba(0,0,0,.28);
     }
     .reward-modal{
         position:fixed;
@@ -1040,29 +1110,64 @@
         display:none;
         place-items:center;
         padding:24px;
-        background:rgba(44,36,27,.36);
+        background:
+            radial-gradient(circle at 20% 28%, rgba(255,216,104,.26), transparent 18%),
+            radial-gradient(circle at 74% 22%, rgba(124,199,165,.2), transparent 16%),
+            rgba(44,36,27,.52);
         backdrop-filter:blur(4px);
+        overflow:hidden;
     }
     .reward-modal.show{ display:grid; }
+    .reward-modal.show::before,
+    .reward-modal.show::after{
+        content:"";
+        position:absolute;
+        inset:-20%;
+        pointer-events:none;
+        background:
+            radial-gradient(circle at 18% 32%, rgba(255,232,139,.95) 0 2px, transparent 3px),
+            radial-gradient(circle at 22% 35%, rgba(255,255,255,.86) 0 2px, transparent 3px),
+            radial-gradient(circle at 72% 26%, rgba(127,223,255,.86) 0 2px, transparent 3px),
+            radial-gradient(circle at 76% 29%, rgba(255,232,139,.86) 0 2px, transparent 3px),
+            radial-gradient(circle at 46% 74%, rgba(255,255,255,.76) 0 2px, transparent 3px);
+        animation:rewardFireworks 1.5s ease-out infinite;
+        opacity:.72;
+    }
+    .reward-modal.show::after{
+        transform:rotate(22deg);
+        animation-delay:.44s;
+        opacity:.5;
+    }
+    @keyframes rewardFireworks{
+        0%{ transform:scale(.74); opacity:0; filter:blur(0); }
+        28%{ opacity:.82; }
+        100%{ transform:scale(1.18); opacity:0; filter:blur(1px); }
+    }
     .reward-dialog{
-        width:min(560px, 94vw);
+        position:relative;
+        z-index:1;
+        width:min(680px, 94vw);
         max-height:88vh;
-        border:1px solid var(--line);
+        border:1px solid rgba(255,232,191,.24);
         border-radius:8px;
-        background:#fffaf1;
+        background:linear-gradient(180deg, #6d4a32, #3f2a1d);
         box-shadow:0 28px 80px rgba(30,20,12,.34);
         padding:20px;
         display:flex;
         flex-direction:column;
+        color:#fff5df;
     }
-    .reward-dialog h2{ margin:0 0 8px; }
-    .reward-dialog p{ margin:0 0 14px; color:var(--muted); }
+    .reward-dialog h2{ margin:0; }
     .reward-actions{
         display:flex;
         justify-content:flex-end;
         gap:10px;
         flex:0 0 auto;
         margin-top:16px;
+    }
+    .reward-actions .btn.primary{
+        background:linear-gradient(180deg, #f3c36d, #d99d3c);
+        border-color:#f1c072;
     }
     .panel-head{
         display:flex;
@@ -1869,7 +1974,10 @@
                     <span id="current-tool-note">进入玩法后显示当前步骤工具</span>
                 </div>
             </div>
-            <button class="btn primary collect-cta" id="collect-btn">收集奖励</button>
+            <div class="reward-claim-row">
+                <div class="right-click-cue" aria-hidden="true"></div>
+                <button class="btn primary collect-cta" id="collect-btn">收集奖励</button>
+            </div>
             <div class="plate-actions">
                 <button class="btn ghost organize-plate-btn" id="organize-plate-btn" title="整理盘子" aria-label="整理盘子">♻</button>
             </div>
@@ -1880,13 +1988,10 @@
 
 <div id="reward-modal" class="reward-modal" role="dialog" aria-modal="true" aria-labelledby="reward-modal-title">
     <div class="reward-dialog">
-        <span class="pill">结算奖励</span>
         <h2 id="reward-modal-title">收集奖励</h2>
-        <p>以下是当前盘子里累计的全部奖励，确认后会清空待收集列表。</p>
         <div id="reward-list" class="reward-list"></div>
         <div class="reward-actions">
-            <button class="btn ghost" id="reward-close-btn">关闭</button>
-            <button class="btn primary" id="reward-back-btn">收集奖励</button>
+            <button class="btn primary" id="reward-back-btn">领取</button>
         </div>
     </div>
 </div>
@@ -2072,6 +2177,7 @@ function setupSortControls(){
 function renderMain(){
     document.getElementById("bag-count").textContent = `${bagTotal()}素体`;
     document.getElementById("collect-btn").textContent = `收集奖励 × ${plateTotal()}`;
+    document.querySelector(".right-panel")?.classList.toggle("has-rewards", plateTotal() > 0);
     const packSelect = document.getElementById("data-pack-select");
     if(packSelect) packSelect.value = state.dataPackKey;
     renderKnownList();
@@ -2910,15 +3016,30 @@ function renderRewards(){
         list.innerHTML = `<div class="empty-state">没有待收集奖励</div>`;
         return;
     }
+    const merged = new Map();
     state.rewards.forEach(reward=>{
-        const gem = gemById(reward.id);
+        const prev = merged.get(reward.id) || 0;
+        merged.set(reward.id, prev + reward.amount);
+    });
+    merged.forEach((amount, id)=>{
+        const gem = gemById(id);
+        const shape = rewardShapeForGem(gem);
+        const image = plateGemImageValue(gem, shape);
         const item = document.createElement("div");
         item.className = "reward-item";
-        item.innerHTML = `<span>${gem.name} 成石 ×${reward.amount}<br><small>${reward.reason}</small></span><b>碎精 ×${reward.shards}</b>`;
+        item.setAttribute("aria-label", `${gem.name} ×${amount}`);
+        item.innerHTML = `<div class="reward-gem-image"></div><b class="reward-amount">×${amount}</b>`;
+        const imageEl = item.querySelector(".reward-gem-image");
+        if(image) imageEl.style.backgroundImage = image;
+        else imageEl.style.background = gem.color;
         list.appendChild(item);
     });
 }
 function openRewardModal(){
+    if(!state.rewards.length){
+        toast("没有待收集奖励");
+        return;
+    }
     renderRewards();
     document.getElementById("reward-modal").classList.add("show");
 }
@@ -2940,6 +3061,15 @@ function collectRewards(){
     closeRewardModal();
     renderMain();
     showScreen("screen-main");
+}
+function handleRewardRightClick(e){
+    if(e.target.closest("select,input,textarea")) return;
+    const modal = document.getElementById("reward-modal");
+    const modalOpen = modal.classList.contains("show");
+    if(!modalOpen && !state.rewards.length) return;
+    e.preventDefault();
+    if(modalOpen) collectRewards();
+    else openRewardModal();
 }
 function exitPlay(){
     if(state.active){
@@ -3019,9 +3149,9 @@ function setupCoreMouseControls(){
         cycleLensByWheel(e.deltaY);
     }, { passive:false });
     playScreen.addEventListener("contextmenu", e=>{
-        if(!state.active) return;
-        e.preventDefault();
+        if(state.active) e.preventDefault();
     });
+    document.addEventListener("contextmenu", handleRewardRightClick);
 }
 document.addEventListener("DOMContentLoaded", ()=>{
     setupDragDrop();
@@ -3045,12 +3175,11 @@ document.addEventListener("DOMContentLoaded", ()=>{
         }
     });
     document.getElementById("reward-back-btn").addEventListener("click", collectRewards);
-    document.getElementById("reward-close-btn").addEventListener("click", closeRewardModal);
     document.getElementById("reward-modal").addEventListener("click", e=>{
-        if(e.target.id === "reward-modal") closeRewardModal();
+        if(e.target.id === "reward-modal") collectRewards();
     });
     document.addEventListener("keydown", e=>{
-        if(e.key === "Escape") closeRewardModal();
+        if(e.key === "Escape" && document.getElementById("reward-modal").classList.contains("show")) collectRewards();
     });
     document.getElementById("collect-btn").addEventListener("click", openRewardModal);
     document.getElementById("organize-plate-btn").addEventListener("click", organizePlate);
