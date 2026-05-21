@@ -1677,7 +1677,6 @@
 </style>
 </head>
 <body>
-<div id="main-log" class="log top-log"></div>
 <section id="screen-main" class="screen active">
     <div class="topbar">
         <div class="title">
@@ -1950,12 +1949,14 @@ function toast(text){
 }
 function addLog(text){
     const log = document.getElementById("main-log");
+    if(!log) return;
     const line = document.createElement("div");
     line.textContent = text;
     log.prepend(line);
 }
 function setupLogPanel(){
     const log = document.getElementById("main-log");
+    if(!log) return;
     log.addEventListener("click", e=>{
         e.stopPropagation();
         log.classList.toggle("expanded");
@@ -2861,7 +2862,8 @@ function resetDemo(){
     document.body.classList.remove("playing");
     document.getElementById("reward-modal").classList.remove("show");
     document.getElementById("lens-stage").classList.add("idle");
-    document.getElementById("main-log").innerHTML = "";
+    const mainLog = document.getElementById("main-log");
+    if(mainLog) mainLog.innerHTML = "";
     clearHotspot();
     addLog(`已切换/重置为「${pack.label}」：${pack.note}`);
     renderMain();
