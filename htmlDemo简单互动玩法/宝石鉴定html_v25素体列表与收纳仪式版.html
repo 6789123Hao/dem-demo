@@ -903,7 +903,8 @@
         align-items:center;
         gap:14px;
         justify-content:center;
-        min-height:184px;
+        flex:1 1 auto;
+        min-height:260px;
         padding:14px 12px;
         border:1px solid rgba(86,52,31,.18);
         border-radius:8px;
@@ -937,8 +938,9 @@
     .current-tool-icon{
         position:relative;
         z-index:2;
-        width:166px;
-        height:154px;
+        width:176px;
+        height:min(100%, 318px);
+        min-height:236px;
         border-radius:18px;
         display:flex;
         align-items:center;
@@ -955,14 +957,14 @@
         flex-direction:row;
         align-items:center;
         justify-content:center;
-        gap:10px;
-        width:238px;
+        gap:8px;
+        width:246px;
         transition:transform .34s ease;
     }
     .tool-wheel-item{
         flex:0 0 auto;
-        width:72px;
-        height:118px;
+        width:64px;
+        height:190px;
         border-radius:18px;
         display:grid;
         place-items:center;
@@ -973,10 +975,21 @@
     }
     .tool-wheel-item.active{
         width:84px;
-        height:144px;
+        height:258px;
         opacity:1;
         transform:scale(1);
         background:rgba(255,232,191,.2);
+    }
+    .tool-sprite{
+        width:100%;
+        height:100%;
+        object-fit:contain;
+        pointer-events:none;
+        filter:drop-shadow(0 10px 12px rgba(0,0,0,.34));
+    }
+    .tool-wheel-item:not(.active) .tool-sprite{
+        opacity:.68;
+        transform:scale(.9);
     }
     .current-tool-text{
         position:relative;
@@ -1808,7 +1821,7 @@
         position:relative;
         width:100%;
         min-height:58px;
-        margin-top:auto;
+        margin-top:0;
         margin-bottom:10px;
         font-size:20px;
         letter-spacing:0;
@@ -2050,6 +2063,12 @@ const TOOL_LABELS = {
     shape:"定型"
 };
 const TOOL_ICONS = { cut:"切", repair:"滴", shape:"型", clean:"净" };
+const TOOL_SPRITES = {
+    cut:"assets/tools_v25/tool-1.png",
+    repair:"assets/tools_v25/tool-5.png",
+    shape:"assets/tools_v25/tool-10.png",
+    clean:"assets/tools_v25/tool-3.png"
+};
 const TOOL_NOTES = {
     cut:"沿灰色石皮拖拽切开",
     repair:"三次滴入修复液",
@@ -2631,11 +2650,19 @@ function toolWheelMarkup(type){
     const next = order[(index + 1) % order.length];
     return `
         <div class="tool-wheel">
-            <span class="tool-wheel-item">${TOOL_ICONS[prev] || "-"}</span>
-            <span class="tool-wheel-item active">${TOOL_ICONS[type] || "-"}</span>
-            <span class="tool-wheel-item">${TOOL_ICONS[next] || "-"}</span>
+            ${toolWheelItemMarkup(prev, false)}
+            ${toolWheelItemMarkup(type, true)}
+            ${toolWheelItemMarkup(next, false)}
         </div>
     `;
+}
+function toolWheelItemMarkup(type, active){
+    const sprite = TOOL_SPRITES[type];
+    const label = TOOL_LABELS[type] || type;
+    const content = sprite
+        ? `<img class="tool-sprite" src="${sprite}" alt="${label}">`
+        : (TOOL_ICONS[type] || "-");
+    return `<span class="tool-wheel-item ${active ? "active" : ""}">${content}</span>`;
 }
 function shortToolNote(step){
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `${step.cutHits || 0}/${step.cutHitsRequired}`;
