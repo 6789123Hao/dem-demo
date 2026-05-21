@@ -1,0 +1,41 @@
+{
+  "version": "v26RealAsset",
+  "created": "2026-05-22",
+  "selection": {
+    "lens": "A",
+    "left_inventory": "A",
+    "tool_box": "C",
+    "reward_plate": "C",
+    "brightness": "A",
+    "palette": "A",
+    "tool_model": "C",
+    "notebook": "C",
+    "lens_controls": "C"
+  },
+  "assets": [
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_center_notebook/notebook_page_C.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_collect_button/collect_button_ready_C.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_hint_layer/mouse_right_icon_A.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_hint_layer/mouse_wheel_icon_A.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_left_inventory/left_panel_frame_A.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_left_inventory/left_scroll_track_A.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_left_inventory/stone_card_badge_A.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_left_inventory/stone_card_frame_A.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_lens_controls/lens_button_active_C.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_lens_controls/lens_button_idle_C.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_lens_controls/lens_button_panel_C.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_lens_frame/lens_inner_glass_A.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_lens_frame/lens_outer_ring_A.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_motion_fx/fx_cut_fragment_C.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_motion_fx/fx_reward_spark_C.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_motion_fx/fx_step_zoom_glint_A.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_reward_modal/reward_modal_frame_C.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_reward_plate/reward_plate_base_C.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_box/tool_box_frame_C.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_box/tool_slot_active_C.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_clean_C.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_cut_C.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_repair_C.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_shape_C.png"
+  ]
+}

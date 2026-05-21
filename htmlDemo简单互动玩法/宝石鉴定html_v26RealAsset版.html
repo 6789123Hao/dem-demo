@@ -1,0 +1,3531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>宝石鉴定 v25 - 素体列表与收纳仪式版</title>
+<style>
+    :root{
+        --bg:#f4eee3;
+        --ink:#2c241b;
+        --muted:#786b5c;
+        --line:#cab89f;
+        --wood:#8d5d36;
+        --wood-dark:#56341f;
+        --gold:#d29b45;
+        --green:#dceedd;
+        --blue:#e8edf6;
+        --danger:#f3d7d1;
+        --shadow:0 18px 48px rgba(68,43,25,.18);
+    }
+    *{ box-sizing:border-box; }
+    body{
+        margin:0;
+        min-height:100dvh;
+        overflow-x:hidden;
+        font-family:"Microsoft YaHei", system-ui, sans-serif;
+        color:var(--ink);
+        background:
+            radial-gradient(circle at 18% 12%, rgba(210,155,69,.18), transparent 34%),
+            linear-gradient(135deg, #fff9ef 0%, var(--bg) 58%, #eadcc9 100%);
+    }
+    button{ font:inherit; }
+    .screen{ display:none; min-height:100dvh; padding:24px; }
+    .screen.active{ display:block; }
+    #screen-main{ position:relative; }
+    .topbar{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:18px;
+        margin-bottom:18px;
+    }
+    .top-actions{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        flex-wrap:wrap;
+        justify-content:flex-end;
+    }
+    .title h1{ margin:0 0 6px; font-size:30px; letter-spacing:0; }
+    .title p{ margin:0; color:var(--muted); }
+    .btn{
+        border:1px solid rgba(86,52,31,.22);
+        background:#fff9ee;
+        color:var(--ink);
+        border-radius:8px;
+        padding:10px 14px;
+        cursor:pointer;
+        box-shadow:0 6px 16px rgba(68,43,25,.08);
+    }
+    .btn.primary{ background:linear-gradient(180deg, #f3c36d, #d99d3c); border-color:#af742c; color:#2b1c0f; font-weight:700; }
+    .btn.ghost{ background:rgba(255,255,255,.55); }
+    .btn:disabled{ opacity:.45; cursor:not-allowed; }
+    .data-pack-select{
+        min-height:42px;
+        min-width:180px;
+        border:1px solid rgba(86,52,31,.22);
+        border-radius:8px;
+        background:#fff9ee;
+        color:var(--ink);
+        padding:0 12px;
+        box-shadow:0 6px 16px rgba(68,43,25,.08);
+    }
+    .gm-btn{
+        display:none;
+        border-style:dashed;
+    }
+    body.playing .gm-btn{ display:inline-flex; }
+    .entry-drag-cue{
+        position:absolute;
+        left:348px;
+        top:205px;
+        width:132px;
+        height:430px;
+        z-index:8;
+        pointer-events:none;
+    }
+    body.playing .entry-drag-cue{ display:none; }
+    .drag-link-arrow{
+        position:absolute;
+        left:0;
+        width:132px;
+        height:54px;
+        overflow:visible;
+        filter:drop-shadow(0 9px 14px rgba(83,50,28,.14));
+        opacity:0;
+        animation:dragArrowPulse 2.1s ease-in-out infinite;
+    }
+    .drag-link-arrow-bag{
+        top:0;
+    }
+    .drag-link-arrow-list{
+        top:314px;
+        animation-delay:.72s;
+    }
+    .drag-arrow-pad{
+        fill:rgba(255,252,244,.22);
+        stroke:rgba(255,248,226,.58);
+        stroke-width:2;
+    }
+    .drag-arrow-shadow{
+        fill:none;
+        stroke:rgba(78,48,28,.18);
+        stroke-width:16;
+        stroke-linecap:round;
+        stroke-linejoin:round;
+    }
+    .drag-arrow-line{
+        fill:none;
+        stroke:rgba(255,248,226,.98);
+        stroke-width:10;
+        stroke-linecap:round;
+        stroke-linejoin:round;
+    }
+    .drag-arrow-glint{
+        fill:none;
+        stroke:rgba(255,255,255,.72);
+        stroke-width:3;
+        stroke-linecap:round;
+        stroke-linejoin:round;
+    }
+    @keyframes dragArrowPulse{
+        0%,100%{ opacity:0; transform:translateX(-10px) scale(.96); }
+        34%,68%{ opacity:1; transform:translateX(0) scale(1); }
+    }
+    .pill{
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        border:1px solid rgba(86,52,31,.18);
+        background:rgba(255,255,255,.58);
+        border-radius:999px;
+        padding:6px 10px;
+        color:var(--muted);
+        font-size:13px;
+    }
+    .main-grid{
+        display:grid;
+        grid-template-columns:280px 1fr 320px;
+        gap:18px;
+        align-items:stretch;
+    }
+    .panel{
+        background:rgba(255,252,246,.86);
+        border:1px solid var(--line);
+        border-radius:8px;
+        box-shadow:var(--shadow);
+        padding:16px;
+    }
+    .panel h2,.panel h3{ margin:0 0 12px; font-size:18px; }
+    .bag{
+        position:relative;
+        width:min(330px, 88%);
+        aspect-ratio:1 / .92;
+        margin:26px auto 20px;
+        border:3px solid var(--wood-dark);
+        border-radius:36px 36px 18px 18px;
+        background:
+            radial-gradient(circle at 50% 18%, rgba(255,255,255,.26), transparent 34%),
+            linear-gradient(135deg, #b9854b, #6e4226);
+        cursor:grab;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:#fff8e8;
+        text-align:center;
+        box-shadow:0 20px 36px rgba(83,50,28,.26);
+        user-select:none;
+    }
+    .bag:active{ cursor:grabbing; }
+    .bag::before{
+        content:"";
+        position:absolute;
+        inset:18px 28px auto;
+        height:24px;
+        border-radius:999px;
+        background:#382114;
+        box-shadow:inset 0 3px 0 rgba(255,255,255,.12);
+    }
+    .bag-count{ font-size:48px; font-weight:800; line-height:1; }
+    .bag-label{ margin-top:8px; font-size:15px; color:#ffe8bf; }
+    .drop-row{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:16px;
+        margin-top:18px;
+    }
+    .drop-zone{
+        min-height:174px;
+        border:2px dashed rgba(86,52,31,.35);
+        border-radius:8px;
+        background:rgba(255,255,255,.42);
+        padding:16px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        text-align:center;
+        transition:.16s ease;
+    }
+    .drop-zone.over{ border-color:#b9792d; background:#fff4dc; transform:translateY(-2px); }
+    .lens-icon{
+        width:86px;
+        height:86px;
+        border:8px solid #5a4633;
+        border-radius:50%;
+        background:radial-gradient(circle at 35% 30%, #ffffff, #a7ddff 58%, #5588ab 100%);
+        margin-bottom:10px;
+    }
+    .batch-icon{
+        width:92px;
+        height:70px;
+        border:3px solid #5a4633;
+        border-radius:8px;
+        background:linear-gradient(135deg, #e8edf6, #fdfbf5);
+        margin-bottom:10px;
+        position:relative;
+    }
+    .batch-icon::after{
+        content:"";
+        position:absolute;
+        width:46px;
+        height:20px;
+        border-radius:50%;
+        background:#d29b45;
+        left:22px;
+        bottom:14px;
+        box-shadow:18px -6px 0 #87c7b6, -14px -4px 0 #b66a5c;
+    }
+    .stone-list{
+        display:grid;
+        gap:8px;
+        max-height:none;
+        overflow:auto;
+        padding-right:4px;
+        flex:1;
+        min-height:0;
+        align-content:start;
+    }
+    .stone-card{
+        border:1px solid rgba(86,52,31,.18);
+        background:#fffaf1;
+        border-radius:8px;
+        padding:10px;
+        display:grid;
+        grid-template-columns:34px 1fr auto;
+        gap:10px;
+        align-items:center;
+        cursor:grab;
+    }
+    .stone-card.locked{ opacity:.48; cursor:not-allowed; }
+    .stone-card.empty .pill{
+        opacity:.42;
+        filter:grayscale(1);
+    }
+    .stone-dot{
+        width:34px;
+        height:34px;
+        border-radius:50%;
+        border:2px solid rgba(35,25,16,.22);
+        background-size:contain !important;
+        background-repeat:no-repeat !important;
+        background-position:center !important;
+        box-shadow:0 5px 10px rgba(54,36,20,.14);
+    }
+    .stone-dot.with-image{
+        border-color:transparent;
+        filter:drop-shadow(0 5px 7px rgba(54,36,20,.18));
+    }
+    .stone-name{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:6px;
+        font-weight:700;
+    }
+    .stone-title{
+        display:flex;
+        align-items:center;
+        gap:6px;
+        min-width:0;
+    }
+    .stone-title > span:first-child{
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+    }
+    .stone-rarity{
+        color:#b8761d;
+        font-size:12px;
+        font-weight:900;
+        letter-spacing:0;
+        white-space:nowrap;
+    }
+    .stone-count{
+        padding:2px 7px;
+        border-radius:999px;
+        background:rgba(169,108,39,.12);
+        color:#7c4d1d;
+        font-size:12px;
+        font-weight:900;
+        white-space:nowrap;
+    }
+    .stone-meta{ font-size:12px; color:var(--muted); margin-top:2px; }
+    .star-rank{ color:#c48a2f; font-weight:900; letter-spacing:1px; }
+    .inventory-note{ color:var(--muted); font-size:13px; line-height:1.7; margin:0 0 12px; }
+    .sort-row{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:8px;
+        margin:0 0 10px;
+    }
+    .sort-btn{
+        border:1px solid rgba(86,52,31,.18);
+        border-radius:8px;
+        background:#fffaf1;
+        color:var(--ink);
+        min-height:34px;
+        cursor:pointer;
+        font-weight:700;
+    }
+    .sort-btn.active{
+        border-color:#a96c27;
+        background:#ffe8bf;
+        box-shadow:inset 0 0 0 1px rgba(169,108,39,.18);
+    }
+    .plate{
+        min-height:180px;
+        border:2px solid rgba(86,52,31,.22);
+        border-radius:50%;
+        background:radial-gradient(circle, #fffdf6 0%, #e2d7c8 70%, #bca98f 100%);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex-wrap:wrap;
+        gap:8px;
+        padding:22px;
+        margin-top:10px;
+    }
+    .plate-actions{
+        display:grid;
+        grid-template-columns:1fr;
+        gap:8px;
+        margin-top:8px;
+    }
+    .organize-plate-btn{
+        min-height:34px;
+        font-size:13px;
+    }
+    .plate-gem{
+        min-width:74px;
+        border:1px solid rgba(86,52,31,.2);
+        background:rgba(255,255,255,.72);
+        border-radius:8px;
+        padding:7px 9px;
+        font-size:13px;
+        text-align:center;
+    }
+    .log{
+        margin-top:8px;
+        min-height:0;
+        max-height:58px;
+        overflow:hidden;
+        padding:10px;
+        border-radius:8px;
+        border:1px solid rgba(86,52,31,.16);
+        background:rgba(255,255,255,.44);
+        color:var(--muted);
+        font-size:13px;
+        line-height:1.55;
+        cursor:pointer;
+        transition:max-height .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+    .log > div{
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+    }
+    .log > div:nth-child(n+3){ display:none; }
+    .log.expanded{
+        max-height:210px;
+        overflow:auto;
+        background:rgba(255,255,255,.82);
+        box-shadow:0 14px 28px rgba(68,43,25,.12);
+    }
+    .log.expanded > div{
+        white-space:normal;
+    }
+    .log.expanded > div:nth-child(n+3){ display:block; }
+    .log:empty::before{
+        content:"...";
+        color:rgba(86,52,31,.38);
+    }
+    .top-log{
+        position:relative;
+        z-index:30;
+        max-width:980px;
+        min-height:38px;
+        max-height:38px;
+        margin:10px auto 0;
+        border-radius:10px;
+        background:rgba(255,252,246,.86);
+        box-shadow:0 8px 22px rgba(68,43,25,.08);
+    }
+    .top-log.expanded{
+        max-height:180px;
+    }
+    .play-grid{
+        display:grid;
+        grid-template-columns:1fr 300px;
+        gap:18px;
+        min-height:calc(100vh - 116px);
+    }
+    .playfield{
+        position:relative;
+        overflow:hidden;
+        border:1px solid var(--line);
+        border-radius:8px;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,.72), rgba(237,225,207,.88)),
+            repeating-linear-gradient(90deg, transparent, transparent 28px, rgba(95,64,36,.04) 29px);
+        box-shadow:var(--shadow);
+    }
+    .lens-stage{
+        position:absolute;
+        inset:38px 44px 72px;
+        border:12px solid #5b4633;
+        border-radius:50%;
+        background:radial-gradient(circle at center, rgba(255,255,255,.72), rgba(125,196,226,.2) 62%, rgba(45,65,74,.12));
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        overflow:hidden;
+    }
+    .lens-stage::before{
+        content:"";
+        position:absolute;
+        inset:0;
+        background:var(--lens-filter, rgba(127,223,255,.28));
+        mix-blend-mode:multiply;
+        pointer-events:none;
+    }
+    .gem3d{
+        width:230px;
+        height:230px;
+        position:relative;
+        transform:translate(-50%, -50%);
+        transform-style:flat;
+        transition:transform .52s ease, filter .2s ease;
+        filter:drop-shadow(0 26px 24px rgba(52,35,21,.22));
+    }
+    .gem-core{
+        position:absolute;
+        inset:18px;
+        clip-path:polygon(50% 0, 88% 18%, 100% 56%, 66% 100%, 28% 94%, 0 55%, 12% 18%);
+        background:var(--gem-color);
+        border:2px solid rgba(255,255,255,.42);
+    }
+    .gem-core::before{
+        content:"";
+        position:absolute;
+        inset:0;
+        background:
+            linear-gradient(40deg, transparent 0 28%, rgba(255,255,255,.38) 29% 31%, transparent 32%),
+            linear-gradient(120deg, transparent 0 44%, rgba(0,0,0,.18) 45% 48%, transparent 49%),
+            radial-gradient(circle at 35% 28%, rgba(255,255,255,.55), transparent 24%);
+    }
+    .hotspot{
+        position:absolute;
+        width:42px;
+        height:42px;
+        border-radius:50%;
+        border:3px solid rgba(255,255,255,.92);
+        background:rgba(210,155,69,.82);
+        box-shadow:0 0 0 8px rgba(210,155,69,.18), 0 10px 24px rgba(0,0,0,.2);
+        transform:translate(-50%, -50%);
+        cursor:pointer;
+        z-index:4;
+        display:grid;
+        place-items:center;
+        color:#fffaf1;
+        font-size:12px;
+        font-weight:800;
+        line-height:1;
+        touch-action:none;
+    }
+    .hotspot.done{ opacity:0; pointer-events:none; }
+    .hotspot-clean{
+        width:330px;
+        height:330px;
+        border-color:transparent;
+        background:transparent;
+        box-shadow:none;
+        color:transparent;
+    }
+    .hotspot-clean::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:252px;
+        height:252px;
+        transform:translate(-50%, -50%);
+        border-radius:50%;
+        border:0;
+        display:grid;
+        place-items:center;
+        content:"🌀";
+        font-size:118px;
+        line-height:1;
+        opacity:.58;
+        background:
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 252 252'%3E%3Cpath d='M126 126 C142 112 164 120 166 140 C169 169 133 185 105 169 C66 146 77 88 128 74 C191 57 239 115 220 178' fill='none' stroke='rgba(255,250,235,0.72)' stroke-width='10' stroke-linecap='round'/%3E%3Cpath d='M126 126 C142 112 164 120 166 140 C169 169 133 185 105 169 C66 146 77 88 128 74 C191 57 239 115 220 178' fill='none' stroke='rgba(72,64,58,0.18)' stroke-width='18' stroke-linecap='round'/%3E%3C/svg%3E") center / 82% 82% no-repeat,
+            radial-gradient(circle at 50% 50%, rgba(95,88,80,.26) 0 48%, rgba(95,88,80,.18) 60%, transparent 72%);
+        box-shadow:0 0 0 24px rgba(95,88,80,.12), inset 0 0 70px rgba(42,36,31,.24), 0 14px 28px rgba(34,28,23,.14);
+        overflow:hidden;
+    }
+    .hotspot-clean::after{
+        content:"←擦→";
+        position:absolute;
+        left:50%;
+        top:50%;
+        transform:translate(-50%, -50%);
+        color:#fffaf1;
+        font-size:15px;
+        font-weight:800;
+    }
+    .hotspot-repair{
+        width:58px;
+        height:70px;
+        border-radius:58% 58% 62% 8%;
+        background:
+            radial-gradient(circle at 27% 34%, rgba(255,255,255,.62) 0 3px, transparent 4px),
+            radial-gradient(circle at 47% 24%, rgba(255,255,255,.74) 0 3px, transparent 4px),
+            radial-gradient(circle at 68% 38%, rgba(255,255,255,.56) 0 3px, transparent 4px),
+            rgba(80,150,210,.76);
+        transform:translate(-50%, -50%) rotate(-45deg) scale(var(--repair-scale, 1));
+        transform-origin:center;
+        box-shadow:0 0 0 8px rgba(80,150,210,.18), inset 10px 8px 16px rgba(255,255,255,.26);
+        font-size:16px;
+        transition:transform .16s ease, opacity .16s ease;
+    }
+    .hotspot-cut{
+        width:320px;
+        height:92px;
+        border-radius:999px;
+        border-color:transparent;
+        background:transparent;
+        transform:translate(-50%, -50%) rotate(var(--cut-angle, -22deg));
+        box-shadow:none;
+        color:transparent;
+        white-space:pre;
+    }
+    .hotspot-cut::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:210px;
+        height:34px;
+        border-radius:999px;
+        transform:translate(-50%, -50%);
+        background:rgba(105,108,104,.82);
+        border:3px solid rgba(255,255,255,.86);
+        box-shadow:0 0 0 8px rgba(92,94,90,.16), inset 0 4px 8px rgba(255,255,255,.2);
+    }
+    .hotspot-cut::after{
+        content:"  滑→→→       ";
+        position:absolute;
+        left:50%;
+        top:50%;
+        transform:translate(-50%, -50%);
+        color:#fffaf1;
+        font-size:13px;
+        font-weight:800;
+        white-space:pre;
+    }
+    .hotspot-shape{
+        width:360px;
+        height:360px;
+        position:absolute;
+        background:transparent;
+        border-color:transparent;
+        border-width:0;
+        box-shadow:none;
+        color:#fff7e2;
+        font-size:22px;
+    }
+    .hotspot-shape-circle{
+        border-radius:50%;
+        border:0;
+        background:transparent;
+        box-shadow:none;
+    }
+    .hotspot-shape-circle::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:180px;
+        height:180px;
+        transform:translate(-50%, -50%);
+        border-radius:50%;
+        border:4px solid rgba(255,255,255,.86);
+        background:rgba(210,155,69,.1);
+        box-shadow:0 0 0 12px rgba(210,155,69,.1);
+        pointer-events:none;
+    }
+    .hotspot-shape-triangle{
+        border-color:transparent;
+        background:transparent;
+        box-shadow:none;
+        clip-path:none;
+        color:transparent;
+    }
+    .hotspot-shape-triangle::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:174px;
+        height:158px;
+        transform:translate(-50%, -48%);
+        background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 174 158'%3E%3Cpath d='M87 8 L166 148 L8 148 Z' fill='rgba(210,155,69,0.10)' stroke='rgba(255,248,226,0.96)' stroke-width='6' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M87 22 L152 140 L22 140' fill='none' stroke='rgba(255,255,255,0.32)' stroke-width='2' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+        clip-path:none;
+        filter:drop-shadow(0 0 10px rgba(210,155,69,.28)) drop-shadow(0 3px 8px rgba(0,0,0,.18));
+    }
+    .hotspot-shape-triangle::after{
+        display:none;
+    }
+    .hotspot-shape-square{
+        border-radius:12px;
+        background:transparent;
+        outline:0;
+        clip-path:none;
+    }
+    .hotspot-shape-square::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:180px;
+        height:180px;
+        transform:translate(-50%, -50%);
+        border-radius:12px;
+        background:rgba(210,155,69,.08);
+        outline:3px solid rgba(255,248,226,.82);
+        outline-offset:-22px;
+        pointer-events:none;
+    }
+    .shape-label{
+        position:relative;
+        z-index:2;
+        color:#fff7e2;
+        font-size:15px;
+        font-weight:900;
+        text-shadow:0 2px 8px rgba(70,44,22,.46);
+        pointer-events:none;
+    }
+    .hotspot-shape-triangle .shape-label{ transform:translateY(42px); }
+    .focus-ring{
+        position:absolute;
+        width:82px;
+        height:82px;
+        border:2px solid rgba(255,255,255,.7);
+        border-radius:50%;
+        transform:translate(-50%, -50%);
+        pointer-events:none;
+        animation:pulse 1s infinite;
+    }
+    .focus-ring-clean{ display:none !important; }
+    .focus-ring-repair{ width:86px; height:86px; }
+    .focus-ring-cut{
+        width:238px;
+        height:58px;
+        border-radius:999px;
+        transform:translate(-50%, -50%) rotate(var(--cut-angle, -22deg));
+        animation:none;
+        opacity:.82;
+    }
+    .focus-ring-shape{ width:214px; height:214px; animation:none; opacity:.78; }
+    .focus-ring-shape-triangle,
+    .focus-ring-shape-square{ display:none !important; }
+    .lens-scroll-cue{
+        position:absolute;
+        left:50%;
+        top:56%;
+        width:74px;
+        height:94px;
+        transform:translate(-50%, -50%);
+        z-index:5;
+        display:none;
+        pointer-events:none;
+        border:5px solid rgba(255,248,226,.95);
+        border-radius:36px;
+        background:rgba(44,36,27,.34);
+        box-shadow:0 12px 30px rgba(44,36,27,.22), inset 0 0 18px rgba(255,255,255,.12);
+    }
+    .lens-scroll-cue::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:15px;
+        width:9px;
+        height:22px;
+        transform:translateX(-50%);
+        border-radius:999px;
+        background:rgba(255,248,226,.95);
+        animation:wheelNudge 1s ease-in-out infinite;
+    }
+    .lens-scroll-cue::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        bottom:-31px;
+        width:22px;
+        height:22px;
+        transform:translateX(-50%) rotate(45deg);
+        border-right:5px solid rgba(255,248,226,.95);
+        border-bottom:5px solid rgba(255,248,226,.95);
+        animation:wheelArrowDown 1s ease-in-out infinite;
+    }
+    @keyframes wheelNudge{
+        0%, 100%{ transform:translate(-50%, 0); opacity:.95; }
+        55%{ transform:translate(-50%, 16px); opacity:.45; }
+    }
+    @keyframes wheelArrowDown{
+        0%, 100%{ transform:translate(-50%, -2px) rotate(45deg); opacity:.9; }
+        55%{ transform:translate(-50%, 8px) rotate(45deg); opacity:.42; }
+    }
+    .drag-particle{
+        position:fixed;
+        left:0;
+        top:0;
+        width:10px;
+        height:10px;
+        border-radius:50%;
+        pointer-events:none;
+        z-index:999;
+        background:rgba(255,245,210,.86);
+        box-shadow:0 0 10px rgba(255,245,210,.38);
+        transform:translate(-50%, -50%);
+        animation:dragParticleDrop .48s ease-out forwards;
+    }
+    .drag-particle-clean{ background:rgba(134,124,108,.72); box-shadow:0 0 8px rgba(80,72,64,.26); }
+    .drag-particle-cut{ width:12px; height:7px; border-radius:3px; background:rgba(108,112,110,.78); }
+    .drag-particle-shape{ background:rgba(230,178,74,.82); box-shadow:0 0 12px rgba(230,178,74,.34); }
+    .finish-fragment{
+        position:fixed;
+        left:0;
+        top:0;
+        width:13px;
+        height:9px;
+        border-radius:3px;
+        pointer-events:none;
+        z-index:999;
+        background:rgba(116,112,102,.82);
+        box-shadow:0 3px 8px rgba(44,36,27,.18);
+        transform:translate(-50%, -50%) rotate(var(--frag-rot, 0deg));
+        animation:finishFragmentFall .9s ease-in forwards;
+    }
+    .finish-fragment-shape{ background:rgba(226,174,75,.88); }
+    .shape-trace-layer{
+        position:absolute;
+        inset:0;
+        z-index:7;
+        pointer-events:none;
+        overflow:visible;
+    }
+    .shape-trace-line{
+        fill:none;
+        stroke:rgba(255,248,226,.96);
+        stroke-width:7;
+        stroke-linecap:round;
+        stroke-linejoin:round;
+        filter:drop-shadow(0 2px 8px rgba(83,52,24,.34)) drop-shadow(0 0 12px rgba(255,226,136,.3));
+    }
+    .shape-trace-layer.fading{
+        animation:shapeTraceFade .48s ease-out forwards;
+    }
+    @keyframes shapeTraceFade{
+        0%{ opacity:1; transform:scale(1); }
+        100%{ opacity:0; transform:scale(1.04); }
+    }
+    @keyframes finishFragmentFall{
+        0%{ opacity:0; transform:translate(-50%, -50%) rotate(var(--frag-rot, 0deg)) scale(.7); }
+        18%{ opacity:1; }
+        100%{ opacity:0; transform:translate(calc(-50% + var(--frag-dx, 0px)), calc(-50% + var(--frag-dy, 92px))) rotate(calc(var(--frag-rot, 0deg) + 120deg)) scale(.35); }
+    }
+    @keyframes dragParticleDrop{
+        0%{ opacity:.95; transform:translate(-50%, -50%) scale(1); }
+        100%{ opacity:0; transform:translate(calc(-50% + var(--particle-dx, 0px)), calc(-50% + 22px)) scale(.35); }
+    }
+    @keyframes pulse{
+        0%{ transform:translate(-50%, -50%) scale(.86); opacity:.8; }
+        100%{ transform:translate(-50%, -50%) scale(1.22); opacity:0; }
+    }
+    .side-panel{
+        display:flex;
+        flex-direction:column;
+        gap:12px;
+    }
+    .step-box{
+        background:rgba(255,252,246,.9);
+        border:1px solid var(--line);
+        border-radius:8px;
+        padding:14px;
+    }
+    .step-box h3{ margin:0 0 8px; }
+    .status-line{
+        display:grid;
+        grid-template-columns:94px 1fr;
+        gap:8px;
+        margin:8px 0;
+        color:var(--muted);
+    }
+    .status-line b{ color:var(--ink); }
+    .notebook-card{
+        position:relative;
+        width:220px;
+        padding:16px 14px 14px 22px;
+        border:1px solid rgba(86,52,31,.22);
+        border-left:8px solid rgba(126,84,47,.42);
+        border-radius:6px 12px 12px 6px;
+        background:
+            linear-gradient(90deg, rgba(126,84,47,.16) 0 1px, transparent 1px 100%) 18px 0 / 100% 100% no-repeat,
+            repeating-linear-gradient(180deg, transparent 0 25px, rgba(86,52,31,.08) 26px 27px),
+            rgba(255,252,246,.94);
+        box-shadow:0 14px 28px rgba(68,43,25,.12);
+        transform:rotate(-.35deg);
+    }
+    .notebook-title{
+        margin:0 0 10px;
+        font-size:18px;
+        font-weight:900;
+        color:#3d2b1d;
+    }
+    .notebook-line{
+        display:block;
+        margin:6px 0;
+        color:#493729;
+        line-height:1.35;
+        font-size:13px;
+    }
+    .notebook-label{
+        font-weight:900;
+        color:#7a4d24;
+    }
+    .notebook-steps{
+        display:grid;
+        gap:4px;
+        margin-top:6px;
+    }
+    .notebook-step{
+        position:relative;
+        padding-left:18px;
+        min-height:18px;
+        color:#6f6254;
+        font-size:12px;
+        line-height:1.3;
+    }
+    .notebook-step.active{
+        color:#2f2419;
+        font-weight:900;
+    }
+    .notebook-step.active::before{
+        content:"›";
+        position:absolute;
+        left:2px;
+        top:-1px;
+        color:#c4862e;
+        font-size:20px;
+        line-height:1;
+    }
+    .tool-grid,.lens-grid{ display:grid; grid-template-columns:1fr; gap:8px; }
+    .tool-btn,.lens-btn{
+        border:1px solid rgba(86,52,31,.2);
+        border-radius:8px;
+        background:#fffaf1;
+        padding:10px;
+        cursor:pointer;
+        text-align:left;
+    }
+    .tool-btn.active,.lens-btn.active{
+        border-color:#a96c27;
+        background:#ffe8bf;
+        font-weight:800;
+    }
+    .tool-panel{ display:none; }
+    .current-tool-card{
+        position:relative;
+        display:flex;
+        align-items:center;
+        gap:14px;
+        justify-content:center;
+        flex:1 1 auto;
+        min-height:260px;
+        padding:14px 12px;
+        border:1px solid rgba(86,52,31,.18);
+        border-radius:8px;
+        background:linear-gradient(180deg, rgba(255,252,246,.94), rgba(239,219,188,.82));
+        box-shadow:0 10px 24px rgba(68,43,25,.1);
+        overflow:hidden;
+    }
+    .current-tool-card::before{
+        content:"";
+        position:absolute;
+        left:8px;
+        right:8px;
+        top:8px;
+        height:calc(100% - 16px);
+        border-radius:7px;
+        background:linear-gradient(180deg, #8a5f3c, #4c3423);
+        display:grid;
+        place-items:center;
+        color:#ffe8bf;
+        font-weight:900;
+        letter-spacing:0;
+        box-shadow:inset 0 -5px 10px rgba(0,0,0,.16), 0 10px 18px rgba(72,44,25,.18);
+        transform:translateY(0);
+        transition:transform .44s cubic-bezier(.18,.82,.32,1), opacity .28s ease;
+        z-index:3;
+    }
+    body.playing .current-tool-card::before{
+        transform:translateY(calc(-100% - 14px));
+        opacity:.18;
+    }
+    .current-tool-icon{
+        position:relative;
+        z-index:2;
+        width:176px;
+        height:min(100%, 318px);
+        min-height:236px;
+        border-radius:18px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        overflow:hidden;
+        font-size:34px;
+        font-weight:900;
+        color:#fff8e8;
+        background:linear-gradient(180deg, #6d4a32, #3f2a1d);
+        box-shadow:inset 0 0 0 3px rgba(255,255,255,.18), 0 10px 16px rgba(68,43,25,.16);
+    }
+    .tool-wheel{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        width:246px;
+        transition:transform .34s ease;
+    }
+    .tool-wheel-item{
+        flex:0 0 auto;
+        width:64px;
+        height:190px;
+        border-radius:18px;
+        display:grid;
+        place-items:center;
+        background:rgba(255,248,226,.13);
+        box-shadow:inset 0 0 0 2px rgba(255,255,255,.14);
+        opacity:.5;
+        transform:scale(.82);
+    }
+    .tool-wheel-item.active{
+        width:84px;
+        height:258px;
+        opacity:1;
+        transform:scale(1);
+        background:rgba(255,232,191,.2);
+    }
+    .tool-sprite{
+        width:100%;
+        height:100%;
+        object-fit:contain;
+        pointer-events:none;
+        filter:drop-shadow(0 10px 12px rgba(0,0,0,.34));
+    }
+    .tool-wheel-item:not(.active) .tool-sprite{
+        opacity:.68;
+        transform:scale(.9);
+    }
+    .current-tool-text{
+        position:relative;
+        z-index:2;
+        min-width:96px;
+    }
+    .current-tool-text strong{ display:block; font-size:18px; }
+    .current-tool-text span{ display:block; color:var(--muted); font-size:12px; margin-top:4px; }
+    .current-tool-card.tool-switching .current-tool-text{
+        animation:toolTextFade .28s ease both;
+    }
+    .current-tool-card.tool-switching .tool-wheel{
+        animation:toolWheelRoll .42s cubic-bezier(.18,.82,.32,1) both;
+    }
+    .current-tool-card.tool-switching.roll-left .tool-wheel{
+        animation-name:toolWheelRollLeft;
+    }
+    @keyframes toolTextFade{
+        0%{ opacity:.15; transform:translateY(4px); }
+        48%{ opacity:0; transform:translateY(-3px); }
+        100%{ opacity:1; transform:translateX(0); }
+    }
+    @keyframes toolWheelRoll{
+        0%{ transform:translateX(58px); }
+        54%{ transform:translateX(-14px); }
+        100%{ transform:translateX(0); }
+    }
+    @keyframes toolWheelRollLeft{
+        0%{ transform:translateX(-58px); }
+        54%{ transform:translateX(14px); }
+        100%{ transform:translateX(0); }
+    }
+    .progress{
+        height:10px;
+        border-radius:999px;
+        background:rgba(86,52,31,.12);
+        overflow:hidden;
+        margin-top:10px;
+    }
+    .progress > div{
+        height:100%;
+        width:0;
+        background:linear-gradient(90deg, #d99d3c, #7cc7a5);
+        transition:width .2s ease;
+    }
+    .toast{
+        position:fixed;
+        left:50%;
+        bottom:24px;
+        transform:translateX(-50%) translateY(18px);
+        opacity:0;
+        pointer-events:none;
+        background:#3a2a1c;
+        color:#fff5df;
+        border-radius:8px;
+        padding:10px 14px;
+        box-shadow:0 16px 36px rgba(0,0,0,.24);
+        transition:.18s ease;
+        z-index:20;
+    }
+    .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+    .right-click-cue{
+        position:absolute;
+        left:10px;
+        top:50%;
+        width:38px;
+        height:44px;
+        transform:translateY(-50%);
+        border:4px solid rgba(255,248,226,.95);
+        border-radius:18px;
+        background:rgba(44,36,27,.34);
+        box-shadow:0 10px 22px rgba(44,36,27,.18), inset 0 0 14px rgba(255,255,255,.12);
+        display:none;
+        pointer-events:none;
+    }
+    .right-click-cue::before{
+        content:"";
+        position:absolute;
+        right:6px;
+        top:6px;
+        width:11px;
+        height:16px;
+        border-radius:9px 9px 5px 5px;
+        background:rgba(255,248,226,.95);
+        animation:rightClickPulse 1.05s ease-in-out infinite;
+    }
+    .right-click-cue::after{
+        content:"右";
+        position:absolute;
+        left:50%;
+        bottom:5px;
+        transform:translateX(-50%);
+        color:#fff8e2;
+        font-size:12px;
+        font-weight:900;
+    }
+    .right-panel.has-rewards .collect-cta{ padding-left:58px; }
+    .right-panel.has-rewards .right-click-cue{ display:block; }
+    @keyframes rightClickPulse{
+        0%,100%{ opacity:.95; transform:translateY(0); }
+        50%{ opacity:.44; transform:translateY(5px); }
+    }
+    .reward-list{
+        display:flex;
+        gap:14px;
+        margin-top:16px;
+        max-width:100%;
+        overflow-x:auto;
+        overflow-y:hidden;
+        padding:8px 4px 12px;
+        scrollbar-width:thin;
+        cursor:grab;
+        user-select:none;
+        overscroll-behavior:contain;
+    }
+    .reward-list.dragging{ cursor:grabbing; }
+    .reward-item{
+        position:relative;
+        flex:0 0 106px;
+        width:106px;
+        height:132px;
+        border:1px solid rgba(255,232,191,.22);
+        border-radius:8px;
+        background:
+            radial-gradient(circle at 38% 28%, rgba(255,245,210,.24), transparent 42%),
+            rgba(255,248,226,.07);
+        box-shadow:inset 0 0 0 2px rgba(255,255,255,.04), 0 14px 26px rgba(0,0,0,.22);
+    }
+    .reward-gem-image{
+        position:absolute;
+        left:8px;
+        right:8px;
+        top:8px;
+        height:86px;
+        background-size:contain;
+        background-repeat:no-repeat;
+        background-position:center;
+        filter:drop-shadow(0 10px 12px rgba(0,0,0,.28));
+    }
+    .reward-name{
+        position:absolute;
+        left:6px;
+        right:6px;
+        bottom:7px;
+        color:#fff4df;
+        font-size:13px;
+        font-weight:900;
+        text-align:center;
+        line-height:1.1;
+        text-shadow:0 2px 7px rgba(0,0,0,.46);
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+    }
+    .reward-amount{
+        position:absolute;
+        right:6px;
+        bottom:31px;
+        min-width:34px;
+        border-radius:999px;
+        padding:4px 7px;
+        background:#ffe8bf;
+        color:#2b1c0f;
+        font-weight:1000;
+        font-size:16px;
+        text-align:center;
+        box-shadow:0 5px 12px rgba(0,0,0,.28);
+    }
+    .reward-modal{
+        position:fixed;
+        inset:0;
+        z-index:18;
+        display:none;
+        place-items:center;
+        padding:24px;
+        background:
+            radial-gradient(circle at 20% 28%, rgba(255,216,104,.26), transparent 18%),
+            radial-gradient(circle at 74% 22%, rgba(124,199,165,.2), transparent 16%),
+            rgba(44,36,27,.52);
+        backdrop-filter:blur(4px);
+        overflow:hidden;
+    }
+    .reward-modal.show{ display:grid; }
+    .reward-modal.show::before,
+    .reward-modal.show::after{
+        content:"";
+        position:absolute;
+        inset:-20%;
+        pointer-events:none;
+        background:
+            radial-gradient(circle at 18% 32%, rgba(255,232,139,.95) 0 2px, transparent 3px),
+            radial-gradient(circle at 22% 35%, rgba(255,255,255,.86) 0 2px, transparent 3px),
+            radial-gradient(circle at 72% 26%, rgba(127,223,255,.86) 0 2px, transparent 3px),
+            radial-gradient(circle at 76% 29%, rgba(255,232,139,.86) 0 2px, transparent 3px),
+            radial-gradient(circle at 46% 74%, rgba(255,255,255,.76) 0 2px, transparent 3px);
+        animation:rewardFireworks 1.5s ease-out infinite;
+        opacity:.72;
+    }
+    .reward-modal.show::after{
+        transform:rotate(22deg);
+        animation-delay:.44s;
+        opacity:.5;
+    }
+    @keyframes rewardFireworks{
+        0%{ transform:scale(.74); opacity:0; filter:blur(0); }
+        28%{ opacity:.82; }
+        100%{ transform:scale(1.18); opacity:0; filter:blur(1px); }
+    }
+    .reward-dialog{
+        position:relative;
+        z-index:1;
+        width:min(680px, 94vw);
+        max-height:88vh;
+        border:1px solid rgba(255,232,191,.24);
+        border-radius:8px;
+        background:linear-gradient(180deg, #6d4a32, #3f2a1d);
+        box-shadow:0 28px 80px rgba(30,20,12,.34);
+        padding:20px;
+        display:flex;
+        flex-direction:column;
+        color:#fff5df;
+    }
+    .reward-dialog h2{ margin:0; }
+    .reward-actions{
+        display:flex;
+        justify-content:flex-end;
+        gap:10px;
+        flex:0 0 auto;
+        margin-top:16px;
+    }
+    .reward-actions .btn.primary{
+        background:linear-gradient(180deg, #f3c36d, #d99d3c);
+        border-color:#f1c072;
+    }
+    .panel-head{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+        margin-bottom:12px;
+    }
+    .panel-head h2{ margin:0; }
+    .empty-state{ color:var(--muted); text-align:center; }
+    @media (max-width:1100px){
+        .main-grid{ grid-template-columns:1fr; }
+        .play-grid{ grid-template-columns:1fr; }
+        .side-panel{ order:-1; }
+    }
+    .workbench{
+        display:grid;
+        grid-template-columns:360px minmax(500px, 1fr) 340px;
+        grid-template-rows:minmax(560px, calc(100vh - 150px));
+        gap:16px;
+        align-items:stretch;
+    }
+    .bag-panel{
+        display:flex;
+        flex-direction:column;
+        gap:12px;
+        min-height:0;
+    }
+    .bag-panel > h2,
+    .bag-panel > #bag,
+    .bag-panel > .inventory-note{
+        display:none !important;
+    }
+    .bag-panel .bag{
+        width:min(144px, 58%);
+        margin:0 auto 6px;
+    }
+    .bag-panel .bag-count{ font-size:30px; }
+    .bag-panel .bag-label{ font-size:12px; }
+    .known-section{
+        min-height:0;
+        display:flex;
+        flex-direction:column;
+        gap:10px;
+        flex:1;
+        height:100%;
+    }
+    .known-section h3{ margin:0; font-size:16px; }
+    .center-panel{
+        position:relative;
+        overflow:visible;
+        min-height:560px;
+        padding:0;
+        background:linear-gradient(180deg, rgba(255,255,255,.8), rgba(229,245,248,.84));
+    }
+    .center-stage{
+        position:absolute;
+        inset:0;
+        display:grid;
+        grid-template-rows:1fr;
+        gap:12px;
+        padding:18px;
+    }
+    .lens-stage{
+        position:relative;
+        inset:auto;
+        width:100%;
+        min-height:0;
+        border-radius:8px;
+        border:1px solid rgba(63,84,92,.22);
+        background:
+            linear-gradient(180deg, rgba(234,250,253,.92), rgba(196,233,239,.82)),
+            repeating-linear-gradient(90deg, rgba(255,255,255,.08) 0 1px, transparent 1px 42px);
+        overflow:hidden;
+        isolation:isolate;
+    }
+    .lens-stage::before{
+        content:"";
+        position:absolute;
+        inset:0;
+        z-index:0;
+        pointer-events:none;
+        background:
+            radial-gradient(circle at 50% 45%, rgba(255,255,255,.38), transparent 44%),
+            linear-gradient(90deg, rgba(255,255,255,.18), transparent 28%, transparent 72%, rgba(80,130,142,.08));
+    }
+    .lens-stage.idle{
+        border:2px dashed rgba(86,52,31,.34);
+    }
+    .lens-stage.over{
+        border-color:#b9792d;
+        background:
+            linear-gradient(180deg, rgba(255,246,224,.94), rgba(239,222,192,.86)),
+            repeating-linear-gradient(90deg, rgba(255,255,255,.1) 0 1px, transparent 1px 42px);
+        transform:translateY(-2px);
+    }
+    .lens-stage.idle .idle-copy{ display:block; }
+    .idle-copy{
+        position:absolute;
+        inset:0;
+        display:none;
+        place-content:center;
+        text-align:center;
+        color:var(--muted);
+        padding:28px;
+        z-index:3;
+        pointer-events:none;
+    }
+    .idle-copy h2{ margin:0 0 8px; color:var(--ink); }
+    .lens-viewport{
+        position:absolute;
+        left:50%;
+        top:52%;
+        width:min(116%, 1180px);
+        height:auto;
+        aspect-ratio:1 / 1;
+        border-radius:50%;
+        transform:translate(-50%, -50%) rotateX(0deg);
+        transform-style:preserve-3d;
+        z-index:4;
+        pointer-events:none;
+        background:
+            radial-gradient(circle at 37% 27%, rgba(255,255,255,.7), transparent 14%),
+            radial-gradient(circle at 52% 48%, rgba(255,255,255,.18), transparent 50%),
+            radial-gradient(circle at 50% 50%, transparent 0 61%, rgba(255,255,255,.28) 62%, rgba(41,55,129,.12) 69%, transparent 70%),
+            var(--lens-filter, rgba(127,223,255,.22));
+        border:8px solid rgba(47,67,196,.82);
+        box-shadow:
+            inset 0 0 90px rgba(255,255,255,.46),
+            inset 0 0 0 18px rgba(255,255,255,.1),
+            inset 0 0 0 28px rgba(47,67,196,.08),
+            0 0 0 2px rgba(255,255,255,.5),
+            0 0 0 11px rgba(33,43,142,.18),
+            0 32px 72px rgba(34,58,118,.16);
+        mix-blend-mode:multiply;
+    }
+    .lens-viewport::before,
+    .lens-viewport::after{
+        content:"";
+        position:absolute;
+        border-radius:50%;
+        pointer-events:none;
+    }
+    .lens-viewport::before{
+        inset:20px;
+        border:1px solid rgba(255,255,255,.54);
+        box-shadow:
+            inset 0 0 0 10px rgba(255,255,255,.08),
+            inset 0 0 42px rgba(20,42,96,.1);
+        background:
+            linear-gradient(128deg, transparent 0 42%, rgba(255,255,255,.16) 43% 45%, transparent 46%),
+            radial-gradient(circle at 35% 28%, rgba(255,255,255,.2), transparent 34%);
+    }
+    .lens-viewport::after{
+        inset:11%;
+        border-left:2px solid rgba(255,255,255,.36);
+        border-top:1px solid rgba(255,255,255,.28);
+        transform:rotate(-18deg);
+        opacity:.45;
+    }
+    .lens-stage.lens-flip .lens-viewport{
+        animation:lensFlip .48s cubic-bezier(.2,.82,.24,1) both;
+    }
+    @keyframes lensFlip{
+        0%{ transform:translate(-50%, -50%) rotateX(0deg) scale(1); filter:saturate(1); }
+        45%{ transform:translate(-50%, -50%) rotateX(calc(var(--lens-flip-dir, 1) * 82deg)) scale(.985); filter:saturate(.72) brightness(1.12); }
+        100%{ transform:translate(-50%, -50%) rotateX(0deg) scale(1); filter:saturate(1); }
+    }
+    .batch-pipe{
+        display:none;
+        border:2px dashed rgba(86,52,31,.34);
+        border-radius:999px;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,.72), rgba(220,229,234,.72)),
+            repeating-linear-gradient(90deg, rgba(86,52,31,.12), rgba(86,52,31,.12) 2px, transparent 2px, transparent 22px);
+        align-items:center;
+        align-items:center;
+        justify-content:center;
+        text-align:center;
+        transition:.16s ease;
+    }
+    .batch-pipe.over{ border-color:#b9792d; background:#fff4dc; transform:translateY(-2px); }
+    .gem3d{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:220px;
+        height:220px;
+        transform:translate(-50%, -50%);
+        transform-style:flat;
+        transition:filter .2s ease, transform .28s ease;
+        z-index:3;
+    }
+    .gem3d.gem-enter{
+        animation:gemEnter .66s cubic-bezier(.16,.88,.24,1.08) both;
+    }
+    .gem3d.gem-step-swap{
+        animation:gemStepSwap .52s cubic-bezier(.18,.78,.22,1) both;
+    }
+    .gem3d.gem-collect-exit{
+        animation:gemCollectExit 1.12s cubic-bezier(.16,.78,.18,1) forwards;
+        z-index:12;
+    }
+    .gem3d.step-shape{ transform:translate(-50%, -50%) scale(1.28); }
+    .gem3d.visual-shaped:not(.step-shape){ transform:translate(-50%, -50%) scale(.9); }
+    @keyframes gemEnter{
+        0%{ opacity:0; transform:translate(-76%, -62%) rotate(-18deg) scale(.62); filter:blur(4px) drop-shadow(0 18px 18px rgba(52,35,21,.12)); }
+        64%{ opacity:1; transform:translate(-48%, -50%) rotate(4deg) scale(1.08); filter:blur(0) drop-shadow(0 26px 24px rgba(52,35,21,.22)); }
+        100%{ opacity:1; transform:translate(-50%, -50%) rotate(0deg) scale(1); filter:blur(0) drop-shadow(0 26px 24px rgba(52,35,21,.22)); }
+    }
+    @keyframes gemStepSwap{
+        0%{ transform:translate(-50%, -50%) scale(1); filter:drop-shadow(0 26px 24px rgba(52,35,21,.22)); }
+        18%{ transform:translate(calc(-50% - 5px), calc(-50% + 2px)) rotate(-2deg) scale(1.06); }
+        42%{ transform:translate(calc(-50% + 5px), calc(-50% - 5px)) rotate(2deg) scale(1.16); filter:brightness(1.18) drop-shadow(0 34px 30px rgba(52,35,21,.28)); }
+        70%{ transform:translate(calc(-50% - 2px), calc(-50% - 3px)) rotate(-1deg) scale(1.1); }
+        100%{ transform:translate(-50%, -50%) scale(1.04); filter:brightness(1.08) drop-shadow(0 30px 28px rgba(52,35,21,.24)); }
+    }
+    @keyframes gemCollectExit{
+        0%{ opacity:1; transform:translate(-50%, -50%) scale(1); filter:brightness(1.08) drop-shadow(0 0 22px rgba(255,244,178,.42)); }
+        22%{ opacity:1; transform:translate(-50%, -50%) scale(1.58); filter:brightness(1.52) saturate(1.16) drop-shadow(0 0 46px rgba(255,244,178,.82)); }
+        48%{ opacity:1; transform:translate(-50%, -50%) scale(1.46); filter:brightness(1.36) saturate(1.08) drop-shadow(0 0 38px rgba(255,244,178,.7)); }
+        100%{ opacity:0; transform:translate(132%, -50%) rotate(18deg) scale(.68); filter:brightness(1.2) drop-shadow(0 0 18px rgba(255,244,178,.38)); }
+    }
+    .gem-core{
+        inset:14px;
+        border-radius:22px;
+        clip-path:polygon(42% 0, 82% 10%, 100% 44%, 88% 82%, 48% 100%, 14% 88%, 0 48%, 16% 12%);
+        box-shadow:inset -18px -24px 38px rgba(0,0,0,.18), inset 14px 16px 24px rgba(255,255,255,.32);
+        background-image:var(--gem-stage-image), var(--gem-texture), var(--gem-color);
+        background-size:cover, cover, cover;
+        background-position:center;
+        transform:scale(var(--gem-scale, 1));
+        transition:clip-path .35s ease, border-radius .35s ease, filter .24s ease, background-image .2s ease, transform .35s ease;
+    }
+    .gem3d.visual-raw .gem-core{
+        clip-path:var(--raw-clip, polygon(45% 0, 77% 7%, 100% 36%, 92% 76%, 54% 100%, 18% 88%, 0 54%, 14% 16%));
+        filter:saturate(.68) brightness(.78);
+    }
+    .gem3d.visual-cut .gem-core,
+    .gem3d.gem-kind-rough.visual-cracked .gem-core,
+    .gem3d.gem-kind-rough.visual-repaired .gem-core{
+        clip-path:var(--cut-clip, polygon(50% 4%, 82% 18%, 96% 50%, 80% 82%, 50% 96%, 18% 82%, 4% 50%, 18% 18%));
+        --gem-scale:var(--cut-scale, .86);
+    }
+    .gem3d.gem-kind-finished.visual-cracked .gem-core,
+    .gem3d.gem-kind-finished.visual-repaired .gem-core{
+        clip-path:var(--cut-clip, polygon(50% 4%, 82% 18%, 96% 50%, 80% 82%, 50% 96%, 18% 82%, 4% 50%, 18% 18%));
+        --gem-scale:.96;
+    }
+    .gem3d.visual-shaped.shape-circle .gem-core,
+    .gem3d.visual-cleaned.shape-circle .gem-core{
+        border-radius:50%;
+        clip-path:circle(48% at 50% 50%);
+    }
+    .gem3d.visual-shaped.shape-triangle .gem-core,
+    .gem3d.visual-cleaned.shape-triangle .gem-core{
+        border-radius:18px;
+        clip-path:polygon(50% 2%, 96% 94%, 4% 94%);
+    }
+    .gem3d.visual-shaped.shape-square .gem-core,
+    .gem3d.visual-cleaned.shape-square .gem-core{
+        border-radius:10px;
+        clip-path:polygon(14% 8%, 86% 8%, 92% 86%, 12% 92%);
+    }
+    .gem3d.visual-cleaned .gem-core{
+        filter:saturate(1.28) brightness(1.18);
+        box-shadow:inset -12px -16px 30px rgba(0,0,0,.12), inset 20px 18px 34px rgba(255,255,255,.42), 0 0 34px rgba(255,245,190,.55);
+    }
+    .gem3d.has-stage-image .gem-core{
+        border-radius:0 !important;
+        clip-path:none !important;
+        box-shadow:none !important;
+        background-image:var(--gem-stage-image) !important;
+        background-size:contain !important;
+        background-repeat:no-repeat !important;
+        background-position:center !important;
+        filter:none !important;
+        --gem-scale:1.26;
+    }
+    .gem3d.has-stage-image.visual-raw .gem-core{ --gem-scale:1.36; }
+    .gem3d.has-stage-image.visual-cut .gem-core,
+    .gem3d.has-stage-image.visual-cracked .gem-core{
+        --gem-scale:1.62;
+    }
+    .gem3d.has-stage-image.visual-repaired .gem-core{
+        --gem-scale:1.74;
+    }
+    .gem3d.has-stage-image.visual-shaped .gem-core{
+        --gem-scale:1.86;
+    }
+    .gem3d.has-stage-image.visual-cleaned .gem-core{
+        --gem-scale:1.96;
+        filter:drop-shadow(0 0 24px rgba(255,245,190,.48)) !important;
+    }
+    .gem3d.has-stage-image .gem-core::before{ display:none; }
+    .gem-core::before{
+        background:
+            radial-gradient(circle at 34% 28%, rgba(255,255,255,.68), transparent 22%),
+            linear-gradient(36deg, transparent 0 28%, rgba(255,255,255,.28) 29% 31%, transparent 32%),
+            linear-gradient(126deg, transparent 0 48%, rgba(0,0,0,.12) 49% 52%, transparent 53%);
+    }
+    .gem-surface,
+    .gem-surface::before,
+    .gem-surface::after{
+        content:"";
+        position:absolute;
+        inset:14px;
+        border-radius:50%;
+        clip-path:polygon(50% 0, 84% 12%, 100% 50%, 82% 86%, 50% 100%, 16% 88%, 0 50%, 16% 14%);
+        pointer-events:none;
+        opacity:0;
+        transition:opacity .2s ease;
+        z-index:2;
+    }
+    .gem3d.visual-shaped.shape-circle .gem-surface,
+    .gem3d.visual-shaped.shape-circle .gem-surface::before,
+    .gem3d.visual-shaped.shape-circle .gem-surface::after,
+    .gem3d.visual-cleaned.shape-circle .gem-surface,
+    .gem3d.visual-cleaned.shape-circle .gem-surface::before,
+    .gem3d.visual-cleaned.shape-circle .gem-surface::after{
+        clip-path:circle(48% at 50% 50%);
+    }
+    .gem3d.visual-shaped.shape-triangle .gem-surface,
+    .gem3d.visual-shaped.shape-triangle .gem-surface::before,
+    .gem3d.visual-shaped.shape-triangle .gem-surface::after,
+    .gem3d.visual-cleaned.shape-triangle .gem-surface,
+    .gem3d.visual-cleaned.shape-triangle .gem-surface::before,
+    .gem3d.visual-cleaned.shape-triangle .gem-surface::after{
+        clip-path:polygon(50% 2%, 96% 94%, 4% 94%);
+    }
+    .gem3d.visual-shaped.shape-square .gem-surface,
+    .gem3d.visual-shaped.shape-square .gem-surface::before,
+    .gem3d.visual-shaped.shape-square .gem-surface::after,
+    .gem3d.visual-cleaned.shape-square .gem-surface,
+    .gem3d.visual-cleaned.shape-square .gem-surface::before,
+    .gem3d.visual-cleaned.shape-square .gem-surface::after{
+        clip-path:polygon(14% 8%, 86% 8%, 92% 86%, 12% 92%);
+    }
+    .gem3d.visual-raw .gem-surface{
+        opacity:1;
+        background:var(--raw-surface, linear-gradient(132deg, rgba(112,108,96,.6) 0 28%, transparent 29%)),
+            radial-gradient(circle at 20% 30%, rgba(86,84,76,.4) 0 18%, transparent 19%),
+            radial-gradient(circle at 78% 64%, rgba(70,72,68,.36) 0 20%, transparent 21%);
+        mix-blend-mode:multiply;
+    }
+    .gem3d.visual-cut .gem-surface{
+        opacity:1;
+        background:
+            linear-gradient(124deg, transparent 0 52%, rgba(255,255,255,.28) 53% 55%, transparent 56%),
+            radial-gradient(circle at 48% 54%, rgba(44,36,27,.16) 0 26%, transparent 27%);
+        mix-blend-mode:multiply;
+    }
+    .gem3d.visual-cracked .gem-surface,
+    .gem3d.step-repair .gem-surface{
+        opacity:1;
+        overflow:hidden;
+        background:radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(80,150,210,.18) 0 18px, transparent 34px);
+    }
+    .gem3d.visual-cracked .gem-surface::before,
+    .gem3d.step-repair .gem-surface::before{
+        opacity:var(--crack-main-opacity, 1);
+        inset:40px 54px 48px 54px;
+        border-radius:0;
+        background:
+            linear-gradient(128deg, transparent 0 47%, rgba(45,28,25,.82) 48% 49%, transparent 50%),
+            linear-gradient(82deg, transparent 0 39%, rgba(45,28,25,.58) 40% 41%, transparent 42%),
+            linear-gradient(42deg, transparent 0 62%, rgba(45,28,25,.52) 63% 64%, transparent 65%);
+        clip-path:polygon(18% 4%, 62% 0, 78% 26%, 62% 46%, 86% 88%, 42% 100%, 22% 70%, 36% 42%);
+    }
+    .gem3d.visual-cracked .gem-surface::after,
+    .gem3d.step-repair .gem-surface::after{
+        opacity:var(--crack-branch-opacity, .72);
+        inset:62px 82px 68px 70px;
+        border-radius:0;
+        background:
+            linear-gradient(28deg, transparent 0 46%, rgba(45,28,25,.58) 47% 49%, transparent 50%),
+            linear-gradient(142deg, transparent 0 48%, rgba(255,236,214,.42) 49% 50%, transparent 51%);
+        clip-path:polygon(6% 26%, 58% 0, 100% 48%, 74% 100%, 38% 70%);
+    }
+    .gem3d.step-clean .gem-surface{
+        opacity:1;
+        background:
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(83,78,72,.28) 0 30px, transparent 58px),
+            radial-gradient(circle at 24% 32%, rgba(83,78,72,.22) 0 4px, transparent 5px),
+            radial-gradient(circle at 62% 28%, rgba(83,78,72,.2) 0 6px, transparent 7px),
+            radial-gradient(circle at 52% 68%, rgba(83,78,72,.2) 0 5px, transparent 6px),
+            radial-gradient(circle at 74% 58%, rgba(83,78,72,.18) 0 4px, transparent 5px),
+            linear-gradient(145deg, rgba(120,112,102,.16), rgba(255,255,255,0) 60%);
+        mix-blend-mode:multiply;
+    }
+    .gem3d.step-cut .gem-surface{
+        opacity:1;
+        background:
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(88,90,86,.5) 0 22px, transparent 42px),
+            linear-gradient(132deg, rgba(86,88,86,.64) 0 18%, transparent 19%),
+            linear-gradient(22deg, transparent 0 58%, rgba(114,116,112,.68) 59% 76%, transparent 77%),
+            radial-gradient(circle at 36% 70%, rgba(73,76,75,.54) 0 18%, transparent 19%);
+        mix-blend-mode:multiply;
+    }
+    .gem3d.step-cut .gem-surface::before{
+        opacity:1;
+        inset:26px 30px 88px 112px;
+        border-radius:8px;
+        background:rgba(96,98,94,.72);
+        transform:rotate(-18deg);
+        clip-path:polygon(10% 0, 100% 16%, 82% 100%, 0 76%);
+    }
+    .gem3d.step-shape .gem-surface{
+        opacity:1;
+        background:
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(92,86,78,.52), transparent 38%),
+            linear-gradient(135deg, rgba(112,102,92,.42), rgba(255,255,255,0) 64%);
+        mix-blend-mode:multiply;
+    }
+    .collection-flash{
+        position:fixed;
+        inset:0;
+        z-index:1000;
+        pointer-events:none;
+        background:
+            radial-gradient(circle at center, rgba(255,255,255,.82), rgba(255,238,171,.46) 34%, transparent 68%),
+            rgba(255,255,255,.08);
+        mix-blend-mode:screen;
+        animation:collectionFlash .9s ease-out forwards;
+    }
+    @keyframes collectionFlash{
+        0%{ opacity:0; transform:scale(.92); }
+        26%{ opacity:.86; transform:scale(1); }
+        100%{ opacity:0; transform:scale(1.18); }
+    }
+    .gem-ceremony-layer{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:360px;
+        height:360px;
+        transform:translate(-50%, -50%);
+        pointer-events:none;
+        z-index:2;
+        animation:ceremonyLayerFade 1.12s ease-out forwards;
+    }
+    .gem-ceremony-halo,
+    .gem-ceremony-ring{
+        position:absolute;
+        inset:0;
+        border-radius:50%;
+    }
+    .gem-ceremony-halo{
+        background:
+            radial-gradient(circle, rgba(255,255,255,.76) 0 18%, rgba(255,229,130,.42) 32%, rgba(104,209,214,.16) 54%, transparent 72%),
+            conic-gradient(from 18deg, transparent 0 10deg, rgba(255,255,255,.6) 14deg 20deg, transparent 26deg 48deg, rgba(255,224,128,.38) 54deg 62deg, transparent 68deg 100deg);
+        filter:blur(.2px);
+        animation:ceremonyHaloSpin 1.12s ease-out forwards;
+    }
+    .gem-ceremony-ring{
+        inset:42px;
+        border:2px solid rgba(255,255,255,.9);
+        box-shadow:
+            0 0 18px rgba(255,246,196,.78),
+            inset 0 0 22px rgba(255,246,196,.42);
+        animation:ceremonyRingPulse 1.02s ease-out forwards;
+    }
+    .gem-ceremony-spark{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:7px;
+        height:28px;
+        border-radius:999px;
+        background:linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,.98), rgba(255,220,110,.28));
+        transform:rotate(var(--spark-rot)) translateY(-118px) scale(.5);
+        transform-origin:center 0;
+        opacity:0;
+        animation:ceremonySpark .78s ease-out forwards;
+        animation-delay:var(--spark-delay);
+        box-shadow:0 0 12px rgba(255,246,196,.72);
+    }
+    .gem-ceremony-glint{
+        position:absolute;
+        left:var(--glint-x);
+        top:var(--glint-y);
+        width:20px;
+        height:20px;
+        transform:translate(-50%, -50%) rotate(45deg) scale(.2);
+        opacity:0;
+        animation:ceremonyGlint .84s ease-out forwards;
+        animation-delay:var(--glint-delay);
+    }
+    .gem-ceremony-glint::before,
+    .gem-ceremony-glint::after{
+        content:"";
+        position:absolute;
+        inset:9px 0;
+        border-radius:999px;
+        background:rgba(255,255,255,.96);
+        box-shadow:0 0 10px rgba(255,246,196,.7);
+    }
+    .gem-ceremony-glint::after{
+        inset:0 9px;
+    }
+    @keyframes ceremonyLayerFade{
+        0%{ opacity:0; transform:translate(-50%, -50%) scale(.72); }
+        18%{ opacity:1; transform:translate(-50%, -50%) scale(1); }
+        100%{ opacity:0; transform:translate(-50%, -50%) scale(1.22); }
+    }
+    @keyframes ceremonyHaloSpin{
+        0%{ transform:rotate(-18deg) scale(.62); opacity:0; }
+        32%{ opacity:1; }
+        100%{ transform:rotate(58deg) scale(1.18); opacity:0; }
+    }
+    @keyframes ceremonyRingPulse{
+        0%{ transform:scale(.62); opacity:0; }
+        28%{ transform:scale(1); opacity:1; }
+        100%{ transform:scale(1.72); opacity:0; }
+    }
+    @keyframes ceremonySpark{
+        0%{ opacity:0; transform:rotate(var(--spark-rot)) translateY(-76px) scale(.4); }
+        22%{ opacity:1; }
+        100%{ opacity:0; transform:rotate(var(--spark-rot)) translateY(-168px) scale(1.06); }
+    }
+    @keyframes ceremonyGlint{
+        0%{ opacity:0; transform:translate(-50%, -50%) rotate(45deg) scale(.2); }
+        28%{ opacity:1; transform:translate(-50%, -50%) rotate(45deg) scale(1); }
+        100%{ opacity:0; transform:translate(-50%, -50%) rotate(45deg) scale(.55); }
+    }
+    body:not(.playing) .gem3d,
+    body:not(.playing) .hotspot,
+    body:not(.playing) .focus-ring{
+        display:none;
+    }
+    .core-hud{
+        position:absolute;
+        left:18px;
+        top:18px;
+        width:220px;
+        display:none;
+        z-index:8;
+    }
+    .play-exit-btn{
+        display:none;
+    }
+    body.playing .play-exit-btn{ display:inline-flex; }
+    .core-controls{
+        position:absolute;
+        right:18px;
+        top:18px;
+        width:210px;
+        display:none;
+        z-index:8;
+    }
+    .core-hint{
+        position:absolute;
+        left:50%;
+        top:22%;
+        transform:translateX(-50%);
+        z-index:12;
+        display:none;
+        width:min(360px, 68%);
+        margin:0;
+        padding:10px 14px;
+        border:1px solid rgba(86,52,31,.16);
+        border-radius:8px;
+        background:rgba(255,252,246,.72);
+        color:#5f5143;
+        text-align:center;
+        font-size:13px;
+        line-height:1.5;
+        box-shadow:0 10px 24px rgba(68,43,25,.12);
+        backdrop-filter:blur(4px);
+        pointer-events:none;
+    }
+    body.playing .core-hud,
+    body.playing .core-controls{
+        display:grid;
+        gap:10px;
+    }
+    body.playing .core-hint{ display:block; }
+    .hotspot{ z-index:6; }
+    .focus-ring{ z-index:5; }
+    .lens-scroll-cue{ z-index:12; }
+    .right-panel{
+        position:relative;
+        display:flex;
+        flex-direction:column;
+        justify-content:flex-start;
+        gap:12px;
+        min-height:0;
+        padding-bottom:382px;
+    }
+    .reward-dock{
+        margin-top:72px;
+        display:grid;
+        gap:12px;
+    }
+    .collect-cta{
+        position:relative;
+        width:100%;
+        min-height:58px;
+        margin-top:0;
+        margin-bottom:10px;
+        font-size:20px;
+        letter-spacing:0;
+        box-shadow:0 14px 30px rgba(153,91,26,.24);
+    }
+    .right-panel .plate-actions{
+        position:absolute;
+        right:30px;
+        bottom:92px;
+        z-index:4;
+        margin-top:0;
+        width:auto;
+        display:block;
+    }
+    .organize-plate-btn{
+        width:38px;
+        min-height:38px;
+        height:38px;
+        padding:0;
+        border-radius:50%;
+        font-size:20px;
+        line-height:1;
+    }
+    .plate{
+        position:absolute;
+        left:18px;
+        right:18px;
+        bottom:64px;
+        min-height:0;
+        height:auto;
+        aspect-ratio:1 / 1;
+        border-radius:999px;
+        display:block;
+        overflow:hidden;
+        box-sizing:border-box;
+        padding:0;
+        margin-top:0;
+    }
+    .plate-gem{
+        min-width:34px;
+        width:34px;
+        height:34px;
+        position:absolute;
+        left:calc(var(--plate-x, 50) * 1%);
+        top:calc(var(--plate-y, 50) * 1%);
+        border-radius:50%;
+        padding:0;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:11px;
+        color:#2b1c0f;
+        box-shadow:0 8px 14px rgba(58,37,21,.16);
+        transform-origin:center bottom;
+        animation:gemDrop .72s cubic-bezier(.18,.82,.32,1.12) both;
+        animation-delay:var(--delay, 0ms);
+        background-size:contain !important;
+        background-repeat:no-repeat !important;
+        background-position:center !important;
+    }
+    .plate-gem.with-image{
+        color:transparent;
+        box-shadow:none;
+        filter:drop-shadow(0 8px 10px rgba(58,37,21,.18));
+    }
+    .plate-gem-shape-circle{ border-radius:50%; }
+    .plate-gem-shape-triangle{
+        border-radius:0;
+        clip-path:polygon(50% 0, 96% 92%, 4% 92%);
+    }
+    .plate-gem-shape-square{
+        border-radius:6px;
+        clip-path:polygon(12% 8%, 88% 8%, 92% 88%, 10% 92%);
+    }
+    @keyframes gemDrop{
+        0%{ transform:translate(calc(-50% + var(--from-x, -120px)), -250px) rotate(calc(-210deg + var(--drop-rot, 0deg))) scale(.72); opacity:0; }
+        46%{ transform:translate(calc(-50% + 18px), calc(-50% + 12px)) rotate(calc(42deg + var(--drop-rot, 0deg))) scale(1.08); opacity:1; }
+        63%{ transform:translate(calc(-50% - 10px), calc(-50% - 22px)) rotate(calc(-22deg + var(--rest-rot, 0deg))) scale(.96); }
+        78%{ transform:translate(calc(-50% + 7px), calc(-50% + 6px)) rotate(calc(12deg + var(--rest-rot, 0deg))) scale(1.02); }
+        100%{ transform:translate(-50%, -50%) rotate(var(--rest-rot, 0deg)) scale(1); opacity:1; }
+    }
+    @media (max-width:1100px){
+        .workbench{ grid-template-columns:1fr; grid-template-rows:auto auto auto; }
+        .center-panel{ min-height:620px; }
+        .entry-drag-cue{ display:none; }
+        .core-hud,.core-controls{ position:relative; left:auto; right:auto; top:auto; width:auto; }
+        .reward-dock{ margin-top:18px; }
+        .right-panel{ padding-bottom:0; }
+        .right-panel > .plate{
+            position:relative;
+            left:auto;
+            right:auto;
+            bottom:auto;
+            width:auto;
+        }
+        .right-panel .plate-actions{
+            position:absolute;
+            right:26px;
+            bottom:20px;
+        }
+        .core-hint{ top:24%; width:min(330px, 76%); }
+    }
+    body.v26-real-asset{
+        --v26-left-panel:url("assets/ui_v26/ui_left_inventory/left_panel_frame_A.png");
+        --v26-stone-card:url("assets/ui_v26/ui_left_inventory/stone_card_frame_A.png");
+        --v26-stone-badge:url("assets/ui_v26/ui_left_inventory/stone_card_badge_A.png");
+        --v26-lens-ring:url("assets/ui_v26/ui_lens_frame/lens_outer_ring_A.png");
+        --v26-lens-glass:url("assets/ui_v26/ui_lens_frame/lens_inner_glass_A.png");
+        --v26-tool-box:url("assets/ui_v26/ui_tool_box/tool_box_frame_C.png");
+        --v26-tool-slot:url("assets/ui_v26/ui_tool_box/tool_slot_active_C.png");
+        --v26-reward-plate:url("assets/ui_v26/ui_reward_plate/reward_plate_base_C.png");
+        --v26-notebook:url("assets/ui_v26/ui_center_notebook/notebook_page_C.png");
+        --v26-lens-controls:url("assets/ui_v26/ui_lens_controls/lens_button_panel_C.png");
+        --v26-lens-btn:url("assets/ui_v26/ui_lens_controls/lens_button_idle_C.png");
+        --v26-lens-btn-active:url("assets/ui_v26/ui_lens_controls/lens_button_active_C.png");
+        --v26-collect:url("assets/ui_v26/ui_collect_button/collect_button_ready_C.png");
+        --v26-reward-modal:url("assets/ui_v26/ui_reward_modal/reward_modal_frame_C.png");
+        --v26-mouse-wheel:url("assets/ui_v26/ui_hint_layer/mouse_wheel_icon_A.png");
+        --v26-mouse-right:url("assets/ui_v26/ui_hint_layer/mouse_right_icon_A.png");
+    }
+    body.v26-real-asset .bag-panel{
+        padding:30px 24px 34px;
+        border-color:transparent;
+        background:
+            linear-gradient(rgba(255,250,235,.5), rgba(255,250,235,.5)),
+            var(--v26-left-panel) center / 100% 100% no-repeat;
+        box-shadow:none;
+    }
+    body.v26-real-asset .known-section h3{
+        min-height:48px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border-radius:16px;
+        color:#fff3ce;
+        background:linear-gradient(180deg, rgba(28,92,60,.94), rgba(20,67,48,.94));
+        border:1px solid rgba(239,198,96,.72);
+        box-shadow:inset 0 0 18px rgba(255,244,180,.12);
+    }
+    body.v26-real-asset .sort-btn{
+        border-color:rgba(196,145,62,.42);
+        background:rgba(255,248,229,.74);
+        box-shadow:inset 0 0 0 1px rgba(255,255,255,.4);
+    }
+    body.v26-real-asset .sort-btn.active{
+        color:#fff4cc;
+        background:linear-gradient(180deg, #2d7651, #1d503b);
+        box-shadow:0 8px 18px rgba(33,89,58,.18), inset 0 0 0 1px rgba(255,235,166,.38);
+    }
+    body.v26-real-asset .stone-card{
+        border-color:transparent;
+        background:
+            linear-gradient(rgba(255,252,241,.72), rgba(255,252,241,.72)),
+            var(--v26-stone-card) center / 100% 100% no-repeat;
+        box-shadow:0 8px 18px rgba(69,48,30,.08);
+    }
+    body.v26-real-asset .stone-count{
+        background:var(--v26-stone-badge) center / 100% 100% no-repeat;
+        color:#6b4219;
+    }
+    body.v26-real-asset .center-panel{
+        background:
+            radial-gradient(circle at 50% 45%, rgba(161,241,218,.34), transparent 46%),
+            linear-gradient(180deg, rgba(247,242,221,.92), rgba(196,232,216,.76));
+        border-color:rgba(188,142,61,.34);
+    }
+    body.v26-real-asset .lens-stage{
+        background:
+            radial-gradient(circle at 50% 45%, rgba(196,255,232,.46), transparent 39%),
+            linear-gradient(180deg, rgba(220,249,241,.94), rgba(169,227,220,.9));
+    }
+    body.v26-real-asset .lens-viewport{
+        width:min(124%, 1320px);
+        top:51%;
+        border:0;
+        background:
+            var(--v26-lens-ring) center / 100% 100% no-repeat,
+            var(--v26-lens-glass) center / 72% 72% no-repeat,
+            radial-gradient(circle at 50% 50%, transparent 0 57%, rgba(80,68,35,.05) 58% 70%, transparent 71%),
+            var(--lens-filter, rgba(127,223,255,.18));
+        box-shadow:
+            inset 0 0 90px rgba(255,255,255,.25),
+            0 34px 84px rgba(33,58,52,.16);
+        mix-blend-mode:normal;
+    }
+    body.v26-real-asset .lens-viewport::before,
+    body.v26-real-asset .lens-viewport::after{
+        display:none;
+    }
+    body.v26-real-asset .notebook-card{
+        width:236px;
+        min-height:168px;
+        border:0;
+        border-left:0;
+        background:
+            linear-gradient(rgba(255,250,226,.68), rgba(255,250,226,.68)),
+            var(--v26-notebook) center / 100% 100% no-repeat;
+        box-shadow:none;
+    }
+    body.v26-real-asset .core-controls .step-box{
+        border-color:transparent;
+        background:
+            linear-gradient(rgba(54,43,30,.62), rgba(54,43,30,.62)),
+            var(--v26-lens-controls) center / 100% 100% no-repeat;
+        color:#fff4d3;
+        box-shadow:none;
+    }
+    body.v26-real-asset .lens-btn{
+        border-color:transparent;
+        background:
+            linear-gradient(rgba(255,246,221,.36), rgba(255,246,221,.36)),
+            var(--v26-lens-btn) center / 100% 100% no-repeat;
+        color:#fff6db;
+    }
+    body.v26-real-asset .lens-btn.active{
+        color:#3b2818;
+        background:
+            linear-gradient(rgba(255,229,153,.54), rgba(255,229,153,.54)),
+            var(--v26-lens-btn-active) center / 100% 100% no-repeat;
+    }
+    body.v26-real-asset .right-panel{
+        padding:26px 22px 382px;
+        border-color:rgba(164,118,55,.36);
+        background:linear-gradient(180deg, rgba(255,248,230,.94), rgba(230,217,190,.88));
+    }
+    body.v26-real-asset .current-tool-card{
+        border-color:transparent;
+        background:
+            linear-gradient(rgba(45,34,25,.08), rgba(45,34,25,.08)),
+            var(--v26-tool-box) center / 100% 100% no-repeat;
+        box-shadow:none;
+    }
+    body.v26-real-asset .current-tool-card::before{
+        background:transparent;
+        box-shadow:none;
+    }
+    body.v26-real-asset .current-tool-icon{
+        background:
+            var(--v26-tool-slot) center / 100% 100% no-repeat,
+            linear-gradient(180deg, #634830, #2c3f36);
+        box-shadow:none;
+    }
+    body.v26-real-asset .tool-wheel-item.active{
+        background:rgba(255,225,154,.08);
+    }
+    body.v26-real-asset .current-tool-text{
+        display:none;
+    }
+    body.v26-real-asset .current-tool-text strong{
+        font-size:18px;
+        line-height:1.2;
+    }
+    body.v26-real-asset .current-tool-text span{
+        color:rgba(255,242,205,.72);
+    }
+    body.v26-real-asset .collect-cta{
+        border-color:transparent;
+        background:
+            linear-gradient(rgba(255,225,139,.15), rgba(255,225,139,.15)),
+            var(--v26-collect) center / 100% 100% no-repeat;
+        box-shadow:none;
+    }
+    body.v26-real-asset .right-click-cue,
+    body.v26-real-asset .lens-scroll-cue{
+        background:none;
+        border:0;
+        box-shadow:none;
+    }
+    body.v26-real-asset .right-click-cue::before,
+    body.v26-real-asset .right-click-cue::after,
+    body.v26-real-asset .lens-scroll-cue::before,
+    body.v26-real-asset .lens-scroll-cue::after{
+        display:none;
+    }
+    body.v26-real-asset .right-click-cue{
+        background:var(--v26-mouse-right) center / contain no-repeat;
+    }
+    body.v26-real-asset .lens-scroll-cue{
+        width:54px;
+        height:62px;
+        background:var(--v26-mouse-wheel) center / contain no-repeat;
+    }
+    body.v26-real-asset .plate{
+        border:0;
+        background:var(--v26-reward-plate) center / 100% 100% no-repeat;
+        filter:drop-shadow(0 22px 28px rgba(72,44,25,.2));
+    }
+    body.v26-real-asset .plate .empty-state{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:70%;
+        transform:translate(-50%, -50%);
+        color:rgba(63,45,28,.58);
+    }
+    body.v26-real-asset .reward-dialog{
+        border:0;
+        background:
+            linear-gradient(rgba(71,49,34,.64), rgba(71,49,34,.64)),
+            var(--v26-reward-modal) center / 100% 100% no-repeat;
+        box-shadow:none;
+        padding:34px 44px 30px;
+    }
+</style>
+</head>
+<body class="v26-real-asset">
+<section id="screen-main" class="screen active">
+    <div class="topbar">
+        <div class="title">
+            <h1>宝石素体鉴定台</h1>
+            <p>选择宝石素体进入镜片区，按切除、修补、定型、清洁的状态链完成验收。</p>
+        </div>
+        <div class="top-actions">
+            <button class="btn ghost play-exit-btn" id="exit-play-btn">退出玩法</button>
+            <select id="data-pack-select" class="data-pack-select" aria-label="演示数据包"></select>
+            <button class="btn primary gm-btn" id="finish-fast-btn">GM完成当前素体</button>
+            <button class="btn ghost" id="reset-demo-btn">重置演示数据</button>
+        </div>
+    </div>
+
+    <div class="entry-drag-cue" aria-hidden="true">
+        <svg class="drag-link-arrow drag-link-arrow-bag" viewBox="0 0 132 54" focusable="false">
+            <rect class="drag-arrow-pad" x="3" y="6" width="122" height="42" rx="21"></rect>
+            <path class="drag-arrow-shadow" d="M18 27 H82 M72 13 L104 27 L72 41"></path>
+            <path class="drag-arrow-line" d="M18 27 H82 M72 13 L104 27 L72 41"></path>
+            <path class="drag-arrow-glint" d="M19 22 H78 M76 17 L96 27"></path>
+        </svg>
+        <svg class="drag-link-arrow drag-link-arrow-list" viewBox="0 0 132 54" focusable="false">
+            <rect class="drag-arrow-pad" x="3" y="6" width="122" height="42" rx="21"></rect>
+            <path class="drag-arrow-shadow" d="M18 27 H82 M72 13 L104 27 L72 41"></path>
+            <path class="drag-arrow-line" d="M18 27 H82 M72 13 L104 27 L72 41"></path>
+            <path class="drag-arrow-glint" d="M19 22 H78 M76 17 L96 27"></path>
+        </svg>
+    </div>
+
+    <div class="workbench">
+        <aside class="panel bag-panel">
+            <h2>素体袋</h2>
+            <div id="bag" class="bag" draggable="true" aria-label="素体袋">
+                <div>
+                    <div id="bag-count" class="bag-count">0素体</div>
+                    <div class="bag-label">整袋处理</div>
+                </div>
+            </div>
+            <div class="known-section">
+                <h3>素体选择</h3>
+                <div class="sort-row" aria-label="宝石排序">
+                    <button class="sort-btn active" type="button" data-sort="quantity">按拾取数量</button>
+                    <button class="sort-btn" type="button" data-sort="rarity">按星级</button>
+                </div>
+                <div id="known-list" class="stone-list"></div>
+            </div>
+        </aside>
+
+        <main class="panel center-panel">
+            <div class="center-stage">
+                <div id="lens-stage" class="lens-stage idle">
+                    <div class="idle-copy">
+                        <h2>镜片位置 / 核心玩法区域</h2>
+                        <p>拖入素体袋或已知素体后，玩法会在这里直接展开。</p>
+                    </div>
+                    <div id="gem3d" class="gem3d">
+                        <div id="gem-core" class="gem-core"></div>
+                        <div class="gem-surface"></div>
+                    </div>
+                    <div id="lens-viewport" class="lens-viewport" aria-hidden="true"></div>
+                    <button id="hotspot" class="hotspot" aria-label="当前处理点"></button>
+                    <div id="focus-ring" class="focus-ring"></div>
+                    <div id="lens-scroll-cue" class="lens-scroll-cue" aria-label="向下滚轮切换镜头"></div>
+                    <svg id="shape-trace-layer" class="shape-trace-layer" aria-hidden="true"></svg>
+                    <div class="core-hud">
+                        <div class="step-box notebook-card">
+                            <div class="notebook-title" id="archive-title">档案：-</div>
+                            <div class="notebook-line"><span class="notebook-label">类型：</span><span id="archive-type">-</span></div>
+                            <div class="notebook-line"><span class="notebook-label">出处：</span><span id="archive-origin">-</span></div>
+                            <div class="notebook-line"><span class="notebook-label">当前步骤：</span></div>
+                            <div class="notebook-steps" id="archive-steps"></div>
+                            <div class="progress"><div id="step-progress"></div></div>
+                        </div>
+                    </div>
+                    <p class="core-hint">滚轮切 Lens，右键切工具，点击处理点完成交互。</p>
+                    <div class="core-controls">
+                        <div class="step-box">
+                            <h3>手动镜头</h3>
+                            <div id="lens-grid" class="lens-grid"></div>
+                        </div>
+                        <div class="step-box tool-panel">
+                            <h3>手选工具</h3>
+                            <div id="tool-grid" class="tool-grid"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="batch-drop" class="batch-pipe">
+                    <div>
+                        <h3>批量入口管道</h3>
+                        <p>拖入素体袋，先处理已鉴定类型，再逐个处理初见类型。</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <aside class="panel right-panel">
+            <h2>工具与宝石</h2>
+            <div id="current-tool-card" class="current-tool-card">
+                <div id="current-tool-icon" class="current-tool-icon">-</div>
+                <div class="current-tool-text">
+                    <strong id="current-tool-name">等待工具</strong>
+                    <span id="current-tool-note">进入玩法后显示当前步骤工具</span>
+                </div>
+            </div>
+            <button class="btn primary collect-cta" id="collect-btn">
+                <div class="right-click-cue" aria-hidden="true"></div>
+                <span id="collect-btn-label">收集奖励</span>
+            </button>
+            <div class="plate-actions">
+                <button class="btn ghost organize-plate-btn" id="organize-plate-btn" title="整理盘子" aria-label="整理盘子">♻</button>
+            </div>
+            <div id="plate" class="plate"></div>
+        </aside>
+    </div>
+</section>
+
+<div id="reward-modal" class="reward-modal" role="dialog" aria-modal="true" aria-labelledby="reward-modal-title">
+    <div class="reward-dialog">
+        <h2 id="reward-modal-title">收集奖励</h2>
+        <div id="reward-list" class="reward-list"></div>
+        <div class="reward-actions">
+            <button class="btn primary" id="reward-back-btn">领取</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const TOOL_LABELS = {
+    clean:"清洁",
+    repair:"修补",
+    cut:"切除",
+    shape:"定型"
+};
+const TOOL_ICONS = { cut:"切", repair:"滴", shape:"型", clean:"净" };
+const TOOL_SPRITES = {
+    cut:"assets/ui_v26/ui_tool_sprites/tool_cut_C.png",
+    repair:"assets/ui_v26/ui_tool_sprites/tool_repair_C.png",
+    shape:"assets/ui_v26/ui_tool_sprites/tool_shape_C.png",
+    clean:"assets/ui_v26/ui_tool_sprites/tool_clean_C.png"
+};
+const TOOL_NOTES = {
+    cut:"沿灰色石皮拖拽切开",
+    repair:"三次滴入修复液",
+    shape:"描摹目标轮廓定型",
+    clean:"擦净后闪光收纳"
+};
+const LENSES = [
+    { key:"A", label:"Lens A", filter:"rgba(127,223,255,.28)" },
+    { key:"B", label:"Lens B", filter:"rgba(214,156,255,.28)" },
+    { key:"C", label:"Lens C", filter:"rgba(151,232,163,.28)" }
+];
+const FACES = ["Face 1","Face 2","Face 3"];
+const SHAPE_TARGETS = ["circle", "triangle", "square"];
+const SHAPE_LABELS = { circle:"圆形", triangle:"三角形", square:"正方形" };
+const SHAPE_MARKS = { circle:"○", triangle:"△", square:"□" };
+const GEM_BLUEPRINTS = [
+    { id:"pearl", name:"珍珠", rarity:3, version:"西西亚·三星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #fff9ef 0%, #d9d3dd 100%)", assetBase:"assets/gems/pearl", tasks:[{type:"repair", title:"珠层细裂", lens:2, face:1, pos:{x:54,y:46}}, {type:"clean", title:"柔光净化", lens:0, face:1, pos:{x:50,y:54}}] },
+    { id:"agate", name:"玛瑙", rarity:3, version:"长安·三星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", assetBase:"assets/gems/agate", tasks:[{type:"repair", title:"下缘细裂", lens:2, face:2, pos:{x:46,y:64}}, {type:"clean", title:"通透净化", lens:1, face:1, pos:{x:50,y:52}}] },
+    { id:"garnet", name:"石榴石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b85a52 0%, #6d1f23 100%)", assetBase:"assets/gems/garnet", tasks:[{type:"repair", title:"边缘缺口", lens:1, face:2, pos:{x:58,y:42}}, {type:"clean", title:"血色提亮", lens:2, face:0, pos:{x:50,y:50}}] },
+    { id:"sunstone", name:"砂金石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #f1b07c 0%, #9a4f2d 100%)", assetBase:"assets/gems/sunstone", tasks:[{type:"repair", title:"细小缺角", lens:2, face:1, pos:{x:40,y:60}}, {type:"clean", title:"金砂唤亮", lens:0, face:2, pos:{x:50,y:52}}] },
+    { id:"catseye", name:"猫眼石", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #d8f1a8 0%, #7ea042 100%)", assetBase:"assets/gems/catseye", tasks:[{type:"repair", title:"猫眼边缘损伤", lens:2, face:1, pos:{x:56,y:40}}, {type:"clean", title:"瞳线净化", lens:1, face:2, pos:{x:50,y:50}}] },
+    { id:"jadeite", name:"翡翠", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b8f0c6 0%, #3d9b63 100%)", assetBase:"assets/gems/jadeite", tasks:[{type:"repair", title:"边缘细裂", lens:1, face:1, pos:{x:56,y:62}}, {type:"clean", title:"翠面净化", lens:2, face:0, pos:{x:50,y:50}}] },
+    { id:"obsidian", name:"黑曜石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6f6b83 0%, #15131f 100%)", assetBase:"assets/gems/obsidian", tasks:[{type:"cut", title:"石皮切除", lens:0, face:0, pos:{x:58,y:38}, cutHitsRequired:2}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:2, face:1, pos:{x:50,y:50}}, {type:"clean", title:"黑镜净化", lens:1, face:0, pos:{x:52,y:50}}] },
+    { id:"fluorite", name:"萤石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #bca7e8 0%, #4f5a7e 100%)", assetBase:"assets/gems/fluorite", tasks:[{type:"cut", title:"杂层切除", lens:1, face:1, pos:{x:62,y:52}}, {type:"shape", title:"圆形成球", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"clean", title:"荧光净化", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"malachite", name:"孔雀石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6ec07f 0%, #1d5a38 100%)", assetBase:"assets/gems/malachite", tasks:[{type:"cut", title:"矿皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"孔雀纹裂", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"正方定型", targetShape:"square", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"石面净化", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"turquoise", name:"绿松石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #86dfd0 0%, #2a8f89 100%)", assetBase:"assets/gems/turquoise", tasks:[{type:"cut", title:"泥皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"脉络裂隙", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"松石净化", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"hetian", name:"和田玉", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #edf0d5 0%, #a9b484 100%)", assetBase:"assets/gems/hetian", tasks:[{type:"cut", title:"杂质筋切除", lens:1, face:1, pos:{x:40,y:52}}, {type:"shape", title:"圆润定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:50}}, {type:"clean", title:"玉面净化", lens:0, face:0, pos:{x:52,y:52}}] },
+    { id:"shoushan", name:"寿山石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #f0d2a7 0%, #b5794b 100%)", assetBase:"assets/gems/shoushan", tasks:[{type:"cut", title:"残皮切除", lens:0, face:2, pos:{x:54,y:60}, cutHitsRequired:2}, {type:"shape", title:"方章定型", targetShape:"square", lens:2, face:1, pos:{x:50,y:48}}, {type:"clean", title:"石面净化", lens:1, face:0, pos:{x:50,y:50}}] }
+];
+const GEM_VISUALS = {
+    pearl:{ rawClip:"circle(48% at 50% 50%)", cutClip:"circle(45% at 50% 50%)", cutScale:.92, texture:"radial-gradient(circle at 34% 28%, rgba(255,255,255,.78), transparent 22%)" },
+    agate:{ rawClip:"polygon(50% 0, 88% 18%, 96% 60%, 68% 98%, 28% 92%, 4% 54%, 18% 12%)", cutClip:"polygon(50% 5%, 84% 20%, 92% 58%, 66% 92%, 30% 88%, 8% 52%, 20% 18%)", cutScale:.9, texture:"repeating-linear-gradient(28deg, rgba(255,238,214,.2) 0 8px, rgba(128,54,43,.16) 8px 16px)" },
+    garnet:{ rawClip:"polygon(48% 0, 86% 16%, 98% 52%, 76% 90%, 38% 100%, 6% 70%, 12% 20%)", cutClip:"polygon(50% 4%, 84% 18%, 94% 54%, 72% 90%, 36% 94%, 10% 66%, 18% 18%)", cutScale:.88, texture:"linear-gradient(145deg, rgba(255,255,255,.18), transparent 42%)" },
+    sunstone:{ rawClip:"polygon(36% 0, 78% 8%, 100% 44%, 90% 80%, 48% 100%, 10% 84%, 0 42%, 16% 12%)", cutClip:"polygon(40% 4%, 78% 12%, 94% 44%, 84% 78%, 48% 94%, 14% 80%, 8% 44%, 20% 16%)", cutScale:.86, texture:"radial-gradient(circle at 62% 36%, rgba(255,222,120,.28) 0 18%, transparent 19%)" },
+    catseye:{ rawClip:"polygon(50% 2%, 88% 24%, 92% 68%, 58% 96%, 22% 86%, 4% 48%, 20% 12%)", cutClip:"polygon(50% 10%, 84% 28%, 86% 66%, 56% 88%, 24% 82%, 12% 50%, 24% 20%)", cutScale:.88, texture:"linear-gradient(96deg, transparent 0 46%, rgba(255,255,220,.42) 47% 52%, transparent 53%)" },
+    jadeite:{ rawClip:"polygon(46% 0, 82% 14%, 100% 48%, 82% 88%, 44% 100%, 8% 78%, 0 36%, 18% 8%)", cutClip:"polygon(48% 6%, 80% 18%, 92% 48%, 78% 84%, 44% 92%, 14% 72%, 8% 38%, 22% 14%)", cutScale:.87, texture:"radial-gradient(circle at 42% 44%, rgba(255,255,255,.24), transparent 28%)" },
+    obsidian:{ rawClip:"polygon(50% 0, 92% 22%, 100% 66%, 68% 100%, 18% 86%, 0 42%, 22% 8%)", cutClip:"polygon(50% 6%, 86% 22%, 92% 62%, 66% 92%, 24% 82%, 8% 44%, 24% 16%)", cutScale:.82, texture:"linear-gradient(132deg, rgba(255,255,255,.16), transparent 32%, rgba(0,0,0,.24) 70%)" },
+    fluorite:{ rawClip:"polygon(42% 0, 82% 8%, 100% 42%, 88% 82%, 52% 100%, 14% 86%, 0 48%, 16% 10%)", cutClip:"polygon(44% 6%, 80% 12%, 92% 42%, 82% 78%, 52% 92%, 20% 82%, 8% 48%, 20% 16%)", cutScale:.84, texture:"linear-gradient(38deg, rgba(255,255,255,.22), transparent 36%, rgba(138,106,210,.16) 62%)" },
+    malachite:{ rawClip:"polygon(40% 0, 78% 6%, 100% 38%, 86% 82%, 48% 100%, 8% 82%, 0 44%, 18% 10%)", cutClip:"polygon(42% 6%, 78% 12%, 92% 40%, 80% 78%, 48% 92%, 16% 78%, 8% 44%, 22% 16%)", cutScale:.84, texture:"repeating-radial-gradient(circle at 50% 52%, rgba(255,255,255,.12) 0 8px, rgba(17,76,45,.18) 9px 18px)" },
+    turquoise:{ rawClip:"polygon(44% 0, 86% 12%, 98% 50%, 76% 94%, 30% 96%, 0 58%, 16% 16%)", cutClip:"polygon(46% 8%, 82% 18%, 90% 50%, 72% 86%, 34% 88%, 10% 56%, 22% 20%)", cutScale:.84, texture:"linear-gradient(62deg, transparent 0 42%, rgba(35,80,76,.28) 43% 46%, transparent 47%)" },
+    hetian:{ rawClip:"polygon(50% 0, 84% 16%, 98% 52%, 76% 92%, 34% 100%, 2% 66%, 12% 20%)", cutClip:"polygon(50% 8%, 80% 20%, 90% 52%, 70% 86%, 36% 92%, 12% 64%, 20% 24%)", cutScale:.86, texture:"radial-gradient(circle at 48% 40%, rgba(255,255,255,.28), transparent 34%)" },
+    shoushan:{ rawClip:"polygon(36% 0, 78% 10%, 100% 48%, 84% 90%, 42% 100%, 6% 74%, 0 32%, 18% 8%)", cutClip:"polygon(38% 8%, 76% 18%, 92% 48%, 78% 84%, 42% 92%, 14% 70%, 10% 34%, 22% 16%)", cutScale:.84, texture:"linear-gradient(128deg, rgba(255,255,255,.2), transparent 38%, rgba(128,73,38,.16) 72%)" }
+};
+
+const DEMO_DATA_PACKS = {
+    fullCoverage:{
+        label:"全量流程验收",
+        note:"每一种素体都有可玩数量，用于完整跑通 12 种宝石。",
+        known:["pearl","agate","garnet","sunstone","catseye","jadeite","obsidian","fluorite","malachite","turquoise","hetian","shoushan"],
+        bag:{ pearl:2, agate:6, garnet:1, sunstone:5, catseye:3, jadeite:8, obsidian:4, fluorite:7, malachite:2, turquoise:9, hetian:1, shoushan:6 }
+    },
+    firstDiscovery:{
+        label:"首次识别验收",
+        note:"只预先识别珍珠，其余类型需要通过核心玩法逐步解锁。",
+        known:["pearl"],
+        bag:{ pearl:1, agate:3, garnet:1, sunstone:2, catseye:1, jadeite:4, obsidian:2, fluorite:1, malachite:3, turquoise:2, hetian:1, shoushan:4 }
+    },
+    batchKnown:{
+        label:"批量已知验收",
+        note:"多种已知素体数量较多，用于验证批量入口和盘子累计。",
+        known:["pearl","garnet","sunstone","obsidian","fluorite","agate","catseye","jadeite"],
+        bag:{ pearl:7, agate:2, garnet:5, sunstone:9, catseye:1, jadeite:6, obsidian:3, fluorite:8, malachite:1, turquoise:4, hetian:2, shoushan:1 }
+    },
+    rewardStress:{
+        label:"长奖励列表压测",
+        note:"每种素体多份，用于检查奖励弹窗长列表滚动和收集。",
+        known:["pearl","garnet","sunstone","obsidian","fluorite","malachite","agate","catseye","jadeite","turquoise","hetian","shoushan"],
+        bag:{ pearl:10, agate:4, garnet:8, sunstone:3, catseye:12, jadeite:5, obsidian:9, fluorite:2, malachite:11, turquoise:6, hetian:7, shoushan:1 }
+    }
+};
+const initialBag = DEMO_DATA_PACKS.fullCoverage.bag;
+const state = {
+    bag:{ ...initialBag },
+    knownTypes:new Set(DEMO_DATA_PACKS.fullCoverage.known),
+    playedTypes:new Set(),
+    plate:{},
+    plateItems:[],
+    rewards:[],
+    pendingBatch:false,
+    active:null,
+    lensIndex:0,
+    activeTool:"clean",
+    dataPackKey:"fullCoverage",
+    listSortKey:"quantity",
+    raritySortDir:-1,
+    dragPayload:null,
+    defectDrag:null,
+    suppressNextClick:false
+};
+
+function gemById(id){ return GEM_BLUEPRINTS.find(g => g.id === id); }
+function currentDataPack(){ return DEMO_DATA_PACKS[state.dataPackKey] || DEMO_DATA_PACKS.fullCoverage; }
+function normalizedBag(bag){
+    const result = {};
+    GEM_BLUEPRINTS.forEach(gem=>{ result[gem.id] = bag[gem.id] || 0; });
+    return result;
+}
+function bagTotal(){ return Object.values(state.bag).reduce((sum,n)=>sum+n,0); }
+function plateTotal(){ return Object.values(state.plate).reduce((sum,n)=>sum+n,0); }
+function countInBag(id){ return state.bag[id] || 0; }
+function isUnseen(id){ return !state.playedTypes.has(id) && countInBag(id) > 0; }
+function sortedBagIds(){
+    return GEM_BLUEPRINTS
+        .map(g=>g.id)
+        .filter(id=>countInBag(id)>0)
+        .sort((a,b)=>{
+            const ua = isUnseen(a) ? 0 : 1;
+            const ub = isUnseen(b) ? 0 : 1;
+            if(ua !== ub) return ua - ub;
+            return GEM_BLUEPRINTS.findIndex(g=>g.id===a) - GEM_BLUEPRINTS.findIndex(g=>g.id===b);
+        });
+}
+function sortedListGems(){
+    return [...GEM_BLUEPRINTS].sort((a,b)=>{
+        if(state.listSortKey === "rarity"){
+            if(b.rarity !== a.rarity) return state.raritySortDir * (a.rarity - b.rarity);
+            if(countInBag(b.id) !== countInBag(a.id)) return countInBag(b.id) - countInBag(a.id);
+        } else {
+            if(countInBag(b.id) !== countInBag(a.id)) return countInBag(b.id) - countInBag(a.id);
+            if(b.rarity !== a.rarity) return b.rarity - a.rarity;
+        }
+        return GEM_BLUEPRINTS.findIndex(g=>g.id===a.id) - GEM_BLUEPRINTS.findIndex(g=>g.id===b.id);
+    });
+}
+function showScreen(id){
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+let toastTimer = null;
+function toast(text){
+    const el = document.getElementById("toast");
+    el.textContent = text;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>el.classList.remove("show"), 1500);
+}
+function addLog(text){
+    const log = document.getElementById("main-log");
+    if(!log) return;
+    const line = document.createElement("div");
+    line.textContent = text;
+    log.prepend(line);
+}
+function setupLogPanel(){
+    const log = document.getElementById("main-log");
+    if(!log) return;
+    log.addEventListener("click", e=>{
+        e.stopPropagation();
+        log.classList.toggle("expanded");
+    });
+    document.addEventListener("click", e=>{
+        if(!log.contains(e.target)) log.classList.remove("expanded");
+    });
+}
+function setupSortControls(){
+    document.querySelectorAll(".sort-btn").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+            const nextSort = btn.dataset.sort || "quantity";
+            if(nextSort === "rarity" && state.listSortKey === "rarity"){
+                state.raritySortDir *= -1;
+            } else {
+                state.listSortKey = nextSort;
+                if(nextSort === "rarity") state.raritySortDir = -1;
+            }
+            renderKnownList();
+        });
+    });
+}
+function renderMain(){
+    document.getElementById("bag-count").textContent = `${bagTotal()}素体`;
+    document.getElementById("collect-btn-label").textContent = `收集奖励 × ${plateTotal()}`;
+    document.querySelector(".right-panel")?.classList.toggle("has-rewards", plateTotal() > 0);
+    const packSelect = document.getElementById("data-pack-select");
+    if(packSelect) packSelect.value = state.dataPackKey;
+    renderKnownList();
+    renderPlate();
+    renderCurrentTool();
+}
+function renderDataPackOptions(){
+    const select = document.getElementById("data-pack-select");
+    select.innerHTML = "";
+    Object.entries(DEMO_DATA_PACKS).forEach(([key, pack])=>{
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = pack.label;
+        select.appendChild(option);
+    });
+    select.value = state.dataPackKey;
+}
+function renderKnownList(){
+    const list = document.getElementById("known-list");
+    list.innerHTML = "";
+    document.querySelectorAll(".sort-btn").forEach(btn=>{
+        btn.classList.toggle("active", btn.dataset.sort === state.listSortKey);
+        if(btn.dataset.sort === "rarity") btn.textContent = `按星级 ${state.raritySortDir < 0 ? "高→低" : "低→高"}`;
+    });
+    sortedListGems().forEach(gem=>{
+        const known = true;
+        const available = countInBag(gem.id) > 0;
+        const dotImage = stoneDotImageValue(gem);
+        const card = document.createElement("div");
+        card.className = `stone-card ${known ? "" : "locked"} ${available ? "" : "empty"}`;
+        card.draggable = known && available;
+        card.innerHTML = `
+            <div class="stone-dot ${dotImage ? "with-image" : ""}" style="background:${gem.color}; ${dotImage ? `background-image:${dotImage}` : ""}"></div>
+            <div>
+                <div class="stone-name">
+                    <span class="stone-title"><span>${gem.name}</span><span class="stone-rarity">${"★".repeat(gem.rarity)}</span></span>
+                    <span class="stone-count">×${countInBag(gem.id)}</span>
+                </div>
+                <div class="stone-meta">${gem.sub}</div>
+            </div>
+            <span class="pill">${known ? "拖拽→" : "未识别"}</span>
+        `;
+        if(known && available){
+            card.addEventListener("dragstart", e=>{
+                state.dragPayload = { type:"known", id:gem.id };
+                e.dataTransfer.setData("text/plain", JSON.stringify(state.dragPayload));
+            });
+        }
+        list.appendChild(card);
+    });
+}
+function stoneDotImageValue(gem){
+    const base = V24_ENTITY_ASSETS[gem.id];
+    return base ? `url(${base}/raw.png)` : "";
+}
+function renderPlate(){
+    const plate = document.getElementById("plate");
+    plate.innerHTML = "";
+    const items = plateItemsForRender();
+    if(!items.length){
+        plate.innerHTML = `<div class="empty-state">盘子里还没有成石</div>`;
+        return;
+    }
+    items.forEach((plateItem, index)=>{
+        const id = plateItem.id;
+        const gem = gemById(id);
+        const shape = rewardShapeForGem(gem);
+        const image = plateGemImageValue(gem, shape);
+        const item = document.createElement("div");
+        item.className = `plate-gem plate-gem-shape-${shape} ${image ? "with-image" : ""}`;
+        item.title = `${gem.name} ${index + 1}`;
+        if(image){
+            item.style.backgroundImage = image;
+        } else {
+            item.style.background = gem.color;
+        }
+        item.style.setProperty("--delay", `${Math.min(index, 24) * 55}ms`);
+        item.style.setProperty("--from-x", `${index % 2 === 0 ? -140 : 140}px`);
+        item.style.setProperty("--drop-rot", `${plateItem.dropRot ?? (Math.random() * 220 - 110)}deg`);
+        item.style.setProperty("--rest-rot", `${plateItem.restRot ?? (Math.random() * 26 - 13)}deg`);
+        item.style.setProperty("--plate-x", plateItem.x ?? 50);
+        item.style.setProperty("--plate-y", plateItem.y ?? 50);
+        item.textContent = image ? "" : gem.name.slice(0, 1);
+        plate.appendChild(item);
+    });
+}
+function plateItemsForRender(){
+    if(state.plateItems?.length) return state.plateItems;
+    const items = [];
+    Object.keys(state.plate).forEach(id=>{
+        for(let i = 0; i < state.plate[id]; i++) items.push(createPlateItem(id, items));
+    });
+    state.plateItems = items;
+    return items;
+}
+function createPlateItem(id, existingItems = state.plateItems || []){
+    const pos = randomPlatePosition(existingItems);
+    return {
+        id,
+        x:pos.x,
+        y:pos.y,
+        dropRot:Math.random() * 220 - 110,
+        restRot:Math.random() * 26 - 13
+    };
+}
+function randomPlatePosition(existingItems = []){
+    const attempts = existingItems.length > 34 ? 12 : 42;
+    let best = null;
+    let bestScore = -Infinity;
+    for(let i = 0; i < attempts; i++){
+        const radius = Math.sqrt(Math.random()) * 40;
+        const angle = Math.random() * Math.PI * 2;
+        const point = {
+            x:50 + Math.cos(angle) * radius,
+            y:50 + Math.sin(angle) * radius
+        };
+        const nearest = existingItems.length
+            ? Math.min(...existingItems.map(item=>Math.hypot(point.x - (item.x ?? 50), point.y - (item.y ?? 50))))
+            : 40;
+        const edgeComfort = 40 - Math.hypot(point.x - 50, point.y - 50);
+        const score = nearest + edgeComfort * .08;
+        if(score > bestScore){
+            best = point;
+            bestScore = score;
+        }
+    }
+    return best || { x:50, y:50 };
+}
+function circularPlatePositions(count){
+    if(count <= 1) return [{ x:50, y:50 }];
+    const positions = [];
+    let rings = 1;
+    while(1 + rings * 6 + Math.max(0, rings - 1) * 6 < count && rings < 5) rings += 1;
+    const rowGap = 82 / Math.max(4, rings * 2 + 2);
+    for(let row = -rings; row <= rings; row++){
+        const y = 50 + row * rowGap;
+        const xSpan = Math.sqrt(Math.max(0, 40 * 40 - (y - 50) * (y - 50)));
+        const cells = Math.max(1, Math.floor((xSpan * 2) / rowGap));
+        for(let col = 0; col < cells; col++){
+            const x = cells === 1 ? 50 : 50 - xSpan + (xSpan * 2) * (col / (cells - 1));
+            positions.push({ x, y });
+        }
+    }
+    positions.sort((a,b)=>a.y - b.y || a.x - b.x);
+    return positions.slice(0, count);
+}
+function addPlateItems(id, amount){
+    if(!state.plateItems) state.plateItems = [];
+    for(let i = 0; i < amount; i++){
+        const insertAt = Math.floor(Math.random() * (state.plateItems.length + 1));
+        state.plateItems.splice(insertAt, 0, createPlateItem(id, state.plateItems));
+    }
+}
+function organizePlate(){
+    if(!state.plateItems?.length){
+        toast("盘子里还没有成石");
+        return;
+    }
+    state.plateItems.sort((a,b)=>{
+        const orderA = GEM_BLUEPRINTS.findIndex(g=>g.id === a.id);
+        const orderB = GEM_BLUEPRINTS.findIndex(g=>g.id === b.id);
+        return orderA - orderB;
+    });
+    circularPlatePositions(state.plateItems.length).forEach((pos, index)=>{
+        state.plateItems[index].x = pos.x;
+        state.plateItems[index].y = pos.y;
+    });
+    addLog("盘子里的成石已整理排序。");
+    renderPlate();
+}
+function rewardShapeForGem(gem){
+    const shapeTask = gem.tasks.find(task=>task.type === "shape");
+    if(shapeTask?.targetShape === "triangle") return "triangle";
+    if(shapeTask?.targetShape === "square") return "square";
+    return "circle";
+}
+function plateGemImageValue(gem, shape){
+    const base = V24_ENTITY_ASSETS[gem.id];
+    if(!base) return "";
+    const shapedName = shape === "circle" ? "cleaned_circle" : shape === "triangle" ? "cleaned_triangle" : "cleaned_square";
+    const fallback = gem.tasks.some(task=>task.type === "shape") ? shapedName : "cleaned";
+    return `url("${base}/${fallback}.png?${V24_ASSET_VERSION}")`;
+}
+function firstUnseenOrFirstBagId(){
+    const sorted = sortedBagIds();
+    return sorted[0] || null;
+}
+function releaseTypeToPlate(id, reason){
+    const amount = countInBag(id);
+    if(amount <= 0) return 0;
+    state.bag[id] = 0;
+    state.plate[id] = (state.plate[id] || 0) + amount;
+    addPlateItems(id, amount);
+    const gem = gemById(id);
+    state.rewards.push({ id, amount, shards:gem.rewardShards * amount, reason });
+    state.knownTypes.add(id);
+    return amount;
+}
+function releaseKnownTypesForBatch(){
+    let released = 0;
+    sortedBagIds().forEach(id=>{
+        if(state.knownTypes.has(id)){
+            const gem = gemById(id);
+            const amount = releaseTypeToPlate(id, "整袋批量入口自动完成已知类型");
+            if(amount > 0){
+                state.playedTypes.add(id);
+                released += amount;
+                addLog(`${gem.name} 已知类型自动完成，同类型 ${amount} 颗出石到盘子。`);
+            }
+        }
+    });
+    if(released) addLog(`批量入口依次自动完成 ${released} 颗已知素体。`);
+    return released;
+}
+function startManualFromBag(){
+    if(state.active){ toast("当前素体处理中"); return; }
+    const id = firstUnseenOrFirstBagId();
+    if(!id){ toast("素体袋为空"); return; }
+    addLog(`倒出一颗 ${gemById(id).name} 素体，袋子回到原处。`);
+    startCorePlay(id, { source:"bag-one", continueBatch:false });
+}
+function startBatchFromBag(){
+    if(state.active) abandonActiveGem("切换为整袋处理。");
+    if(!bagTotal()){ toast("素体袋为空"); return; }
+    addLog("倒出很多素体，进入批量处理管道。");
+    releaseKnownTypesForBatch();
+    renderMain();
+    const nextId = firstUnseenOrFirstBagId();
+    if(nextId){
+        state.pendingBatch = true;
+        startCorePlay(nextId, { source:"batch", continueBatch:true });
+    } else {
+        finishRound("袋子已清空，批量处理完成。");
+    }
+}
+function startKnownStone(id){
+    if(state.active) abandonActiveGem(`切换到 ${gemById(id).name}。`);
+    if(countInBag(id) <= 0){ toast("袋内没有这种素体"); return; }
+    addLog(`从背包面板取出 ${gemById(id).name}，放入镜片位置。`);
+    startCorePlay(id, { source:"known", continueBatch:false });
+}
+function completeKnownStoneInBatch(id){
+    if(state.active){ toast("当前素体处理中"); return; }
+    if(countInBag(id) <= 0){ toast("袋内没有这种素体"); return; }
+    const gem = gemById(id);
+    state.playedTypes.add(id);
+    const amount = releaseTypeToPlate(id, "已知类型拖入批量入口自动完成");
+    addLog(`${gem.name} 已知类型自动完成，同类型 ${amount} 颗出石到盘子。`);
+    renderMain();
+}
+function buildCoreTasks(gem){
+    return gem.tasks.map((task, index)=>({
+        ...task,
+        id:`${gem.id}_${index}`,
+        done:false,
+        clicks:0,
+        cutHits:0,
+        cutHitsRequired: task.type === "cut" ? (task.cutHitsRequired || 1) : 1,
+        dragDistance:0,
+        shapeTarget: task.targetShape || SHAPE_TARGETS[(GEM_BLUEPRINTS.findIndex(g=>g.id === gem.id) + index) % SHAPE_TARGETS.length],
+        cutAngle: task.cutAngle ?? [-32, -18, 22, 34][(GEM_BLUEPRINTS.findIndex(g=>g.id === gem.id) + index) % 4]
+    }));
+}
+function abandonActiveGem(message){
+    if(!state.active) return;
+    const gem = gemById(state.active.gemId);
+    clearHotspot();
+    state.active = null;
+    state.pendingBatch = false;
+    addLog(`${gem.name} 未完成，已退出当前处理。${message}`);
+}
+function startCorePlay(id, meta){
+    const gem = gemById(id);
+    state.active = {
+        gemId:id,
+        meta,
+        tasks:buildCoreTasks(gem),
+        stepIndex:0,
+        batchAmount:countInBag(id)
+    };
+    state.lensIndex = 0;
+    state.activeTool = state.active.tasks[0]?.type || "clean";
+    document.body.classList.add("playing");
+    document.getElementById("lens-stage").classList.remove("idle");
+    showScreen("screen-main");
+    renderPlay();
+    playGemAnimation("gem-enter", 680);
+}
+function currentStep(){
+    if(!state.active) return null;
+    return state.active.tasks[state.active.stepIndex] || null;
+}
+function setLensIndex(nextIndex, shouldFlip=true, flipDir=1){
+    const next = (nextIndex + LENSES.length) % LENSES.length;
+    const changed = state.lensIndex !== next;
+    state.lensIndex = next;
+    if(changed && shouldFlip) playLensFlip(flipDir);
+}
+function playLensFlip(direction=1){
+    const stage = document.getElementById("lens-stage");
+    if(!stage) return;
+    stage.style.setProperty("--lens-flip-dir", direction >= 0 ? 1 : -1);
+    stage.classList.remove("lens-flip");
+    void stage.offsetWidth;
+    stage.classList.add("lens-flip");
+    clearTimeout(playLensFlip.timer);
+    playLensFlip.timer = setTimeout(()=>stage.classList.remove("lens-flip"), 520);
+}
+function stepStatusText(step){
+    const base = `${TOOL_LABELS[step.type]} · ${step.title}`;
+    if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / 630 * 100))}%`;
+    if(step.type === "repair") return `${base} · 点击 ${step.clicks || 0}/3`;
+    if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `${base} · 切除 ${step.cutHits || 0}/${step.cutHitsRequired}`;
+    if(step.type === "cut") return `${base} · 顺着长条角度拖拽`;
+    if(step.type === "shape") return `${base} · 描边${SHAPE_LABELS[step.shapeTarget]}`;
+    return base;
+}
+function stepHintText(step){
+    if(!step) return "滚轮切 Lens，右键切工具，点击处理点完成交互。";
+    if(step.type === "clean") return "清洁：按住范围圈，在瑕疵上来回拖拽擦除。";
+    if(step.type === "repair") return "修补：连续点击水滴形瑕疵 3 次。";
+    if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：这颗需要切 ${step.cutHitsRequired} 次，按住长条并顺着角度拖拽。`;
+    if(step.type === "cut") return "切除：按住长条瑕疵，沿相近角度拖拽切除。";
+    if(step.type === "shape") return `定型：按住形状特效，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`;
+    return "完成当前宝石。";
+}
+function visualStateForActive(active, step){
+    const tasks = active.tasks;
+    const hasCut = tasks.some(task=>task.type === "cut");
+    const hasRepair = tasks.some(task=>task.type === "repair");
+    const cutDone = tasks.some(task=>task.type === "cut" && task.done);
+    const repairDone = tasks.some(task=>task.type === "repair" && task.done);
+    const shapeTask = tasks.find(task=>task.type === "shape");
+    const shapeDone = shapeTask && shapeTask.done;
+    const cleanDone = tasks.some(task=>task.type === "clean" && task.done);
+    let stage = hasCut && !cutDone ? "raw" : "cut";
+    if(!hasCut) stage = hasRepair && !repairDone ? "cracked" : "repaired";
+    if(hasCut && cutDone) stage = hasRepair && !repairDone ? "cracked" : hasRepair ? "repaired" : "cut";
+    if(shapeDone) stage = "shaped";
+    if(cleanDone) stage = "cleaned";
+    if(step && step.type === "clean" && !cleanDone) stage = shapeDone ? "shaped" : stage;
+    return {
+        stage,
+        shape: shapeDone ? shapeTask.shapeTarget : null
+    };
+}
+const V24_ASSET_VERSION = "v24-39a6c26-12gems";
+function stageImageValue(gem, visual){
+    if(!gem.assetBase) return "none";
+    const suffix = visual.stage === "shaped" || visual.stage === "cleaned"
+        ? `${visual.stage}_${visual.shape || "cut"}`
+        : visual.stage;
+    return `url("${gem.assetBase}/${suffix}.png?${V24_ASSET_VERSION}")`;
+}
+const V24_ENTITY_ASSETS = {
+    pearl:"assets/gems_v24/pearl",
+    agate:"assets/gems_v24/agate",
+    obsidian:"assets/gems_v24/obsidian",
+    fluorite:"assets/gems_v24/fluorite",
+    garnet:"assets/gems_v24/garnet",
+    sunstone:"assets/gems_v24/sunstone",
+    catseye:"assets/gems_v24/catseye",
+    jadeite:"assets/gems_v24/jadeite",
+    malachite:"assets/gems_v24/malachite",
+    turquoise:"assets/gems_v24/turquoise",
+    hetian:"assets/gems_v24/hetian",
+    shoushan:"assets/gems_v24/shoushan"
+};
+function applyGemVisualVars(gem3d, gem){
+    const visual = GEM_VISUALS[gem.id] || {};
+    gem3d.style.setProperty("--raw-clip", visual.rawClip || "polygon(45% 0, 77% 7%, 100% 36%, 92% 76%, 54% 100%, 18% 88%, 0 54%, 14% 16%)");
+    gem3d.style.setProperty("--cut-clip", visual.cutClip || "polygon(50% 4%, 82% 18%, 96% 50%, 80% 82%, 50% 96%, 18% 82%, 4% 50%, 18% 18%)");
+    gem3d.style.setProperty("--cut-scale", visual.cutScale || .86);
+    gem3d.style.setProperty("--gem-texture", visual.texture || "linear-gradient(145deg, rgba(255,255,255,.18), transparent 44%)");
+    if(V24_ENTITY_ASSETS[gem.id]) gem.assetBase = V24_ENTITY_ASSETS[gem.id];
+    gem3d.classList.add(`gem-${gem.id}`);
+}
+function renderCurrentTool(){
+    const card = document.getElementById("current-tool-card");
+    const icon = document.getElementById("current-tool-icon");
+    const name = document.getElementById("current-tool-name");
+    const note = document.getElementById("current-tool-note");
+    if(!icon || !name || !note) return;
+    const step = currentStep();
+    const type = step?.type || state.activeTool || "clean";
+    if(card && card.dataset.toolType && card.dataset.toolType !== type){
+        const order = ["cut","repair","shape","clean"];
+        const prevIndex = order.indexOf(card.dataset.toolType);
+        const nextIndex = order.indexOf(type);
+        const dir = prevIndex >= 0 && nextIndex >= 0 && ((nextIndex - prevIndex + order.length) % order.length) > order.length / 2 ? "roll-left" : "";
+        card.classList.remove("tool-switching", "roll-left");
+        void card.offsetWidth;
+        if(dir) card.classList.add(dir);
+        card.classList.add("tool-switching");
+        clearTimeout(renderCurrentTool.swapTimer);
+        renderCurrentTool.swapTimer = setTimeout(()=>card.classList.remove("tool-switching", "roll-left"), 440);
+    }
+    if(card) card.dataset.toolType = type;
+    icon.innerHTML = toolWheelMarkup(type);
+    name.textContent = step ? TOOL_LABELS[type] : "工具箱";
+    note.textContent = step ? shortToolNote(step) : "待机";
+}
+function toolWheelMarkup(type){
+    const order = ["cut","repair","shape","clean"];
+    const index = Math.max(0, order.indexOf(type));
+    const prev = order[(index - 1 + order.length) % order.length];
+    const next = order[(index + 1) % order.length];
+    return `
+        <div class="tool-wheel">
+            ${toolWheelItemMarkup(prev, false)}
+            ${toolWheelItemMarkup(type, true)}
+            ${toolWheelItemMarkup(next, false)}
+        </div>
+    `;
+}
+function toolWheelItemMarkup(type, active){
+    const sprite = TOOL_SPRITES[type];
+    const label = TOOL_LABELS[type] || type;
+    const content = sprite
+        ? `<img class="tool-sprite" src="${sprite}" alt="${label}">`
+        : (TOOL_ICONS[type] || "-");
+    return `<span class="tool-wheel-item ${active ? "active" : ""}">${content}</span>`;
+}
+function shortToolNote(step){
+    if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `${step.cutHits || 0}/${step.cutHitsRequired}`;
+    if(step.type === "repair") return `${step.clicks || 0}/3`;
+    if(step.type === "clean") return `${Math.min(100, Math.round((step.dragDistance || 0) / 630 * 100))}%`;
+    if(step.type === "shape") return SHAPE_MARKS[step.shapeTarget] || "描边";
+    return step.title || "";
+}
+function renderPlay(){
+    const active = state.active;
+    if(!active) return;
+    const gem = gemById(active.gemId);
+    const step = currentStep();
+    const gem3d = document.getElementById("gem3d");
+    const visual = visualStateForActive(active, step);
+    const stepClass = step ? `step-${step.type}` : "";
+    const kindClass = gem.kind === "原石" ? "gem-kind-rough" : "gem-kind-finished";
+    gem3d.className = `gem3d ${kindClass} ${stepClass} visual-${visual.stage} ${visual.shape ? `shape-${visual.shape}` : ""} ${V24_ENTITY_ASSETS[gem.id] ? "has-stage-image" : ""}`.trim();
+    applyGemVisualVars(gem3d, gem);
+    gem3d.style.setProperty("--defect-x", step ? `${step.pos.x}%` : "50%");
+    gem3d.style.setProperty("--defect-y", step ? `${step.pos.y}%` : "50%");
+    const repairProgress = step?.type === "repair" ? Math.min(step.clicks || 0, 3) : 0;
+    gem3d.style.setProperty("--crack-main-opacity", Math.max(0, 1 - repairProgress * .34));
+    gem3d.style.setProperty("--crack-branch-opacity", Math.max(0, .72 - repairProgress * .26));
+    gem3d.style.setProperty("--gem-stage-image", stageImageValue(gem, visual));
+    renderArchiveNotebook(active, gem);
+    document.querySelector(".core-hint").textContent = stepHintText(step);
+    document.getElementById("step-progress").style.width = `${(active.stepIndex / active.tasks.length) * 100}%`;
+    document.getElementById("gem-core").style.setProperty("--gem-color", gem.color);
+    document.getElementById("lens-stage").style.setProperty("--lens-filter", LENSES[state.lensIndex].filter);
+    renderLensButtons();
+    renderToolButtons();
+    renderCurrentTool();
+    renderHotspot();
+}
+function renderArchiveNotebook(active, gem){
+    const title = document.getElementById("archive-title");
+    const type = document.getElementById("archive-type");
+    const origin = document.getElementById("archive-origin");
+    const steps = document.getElementById("archive-steps");
+    if(!title || !type || !origin || !steps) return;
+    title.textContent = `档案：${gem.name}`;
+    type.textContent = `${"★".repeat(gem.rarity)} ${gem.kind}`;
+    origin.textContent = gem.version.split("·")[0] || "-";
+    steps.innerHTML = active.tasks.map((task, index)=>{
+        const activeClass = index === active.stepIndex ? " active" : "";
+        const doneMark = task.done ? "✓ " : "";
+        return `<div class="notebook-step${activeClass}">${doneMark}${TOOL_LABELS[task.type]}：${task.title}</div>`;
+    }).join("");
+}
+function renderLensButtons(){
+    const grid = document.getElementById("lens-grid");
+    grid.innerHTML = "";
+    LENSES.forEach((lens, index)=>{
+        const btn = document.createElement("button");
+        btn.className = `lens-btn ${state.lensIndex === index ? "active" : ""}`;
+        btn.textContent = lens.label;
+        btn.addEventListener("click", ()=>{
+            const direction = index >= state.lensIndex ? 1 : -1;
+            setLensIndex(index, true, direction);
+            renderPlay();
+            toast(`切换到 ${lens.label}`);
+        });
+        grid.appendChild(btn);
+    });
+}
+function renderToolButtons(){
+    const grid = document.getElementById("tool-grid");
+    grid.innerHTML = "";
+    ["cut","repair","shape","clean"].forEach(type=>{
+        const btn = document.createElement("button");
+        btn.className = `tool-btn ${state.activeTool === type ? "active" : ""}`;
+        btn.textContent = TOOL_LABELS[type];
+        btn.addEventListener("click", ()=>{
+            state.activeTool = type;
+            renderPlay();
+            toast(`切换到${TOOL_LABELS[type]}工具`);
+        });
+        grid.appendChild(btn);
+    });
+}
+function cycleLensByWheel(deltaY){
+    if(!state.active) return;
+    const dir = deltaY >= 0 ? 1 : -1;
+    setLensIndex(state.lensIndex + dir, true, dir);
+    renderPlay();
+    toast(`切换到 ${LENSES[state.lensIndex].label}`);
+}
+function cycleToolByRightClick(){
+    if(!state.active) return;
+    const order = ["cut","repair","shape","clean"];
+    const current = order.indexOf(state.activeTool);
+    const next = order[(current + 1 + order.length) % order.length];
+    state.activeTool = next;
+    renderPlay();
+    toast(`切换到${TOOL_LABELS[next]}工具`);
+}
+function renderHotspot(){
+    const step = currentStep();
+    const spot = document.getElementById("hotspot");
+    const ring = document.getElementById("focus-ring");
+    const scrollCue = document.getElementById("lens-scroll-cue");
+    const visibleOnLens = step && state.lensIndex === step.lens;
+    if(!visibleOnLens){
+        spot.style.display = "none";
+        ring.style.display = "none";
+        if(scrollCue) scrollCue.style.display = step ? "block" : "none";
+        return;
+    }
+    if(scrollCue) scrollCue.style.display = "none";
+    spot.style.display = "grid";
+    ring.style.display = "block";
+    spot.className = `hotspot hotspot-${step.type} ${step.type === "shape" ? `hotspot-shape-${step.shapeTarget}` : ""}`;
+    ring.className = `focus-ring focus-ring-${step.type} ${step.type === "shape" ? `focus-ring-shape-${step.shapeTarget}` : ""}`;
+    spot.style.setProperty("--cut-angle", `${step.cutAngle || -22}deg`);
+    ring.style.setProperty("--cut-angle", `${step.cutAngle || -22}deg`);
+    spot.style.setProperty("--repair-scale", step.type === "repair" ? Math.max(.58, 1 - (step.clicks || 0) * .18) : 1);
+    if(step.type === "shape"){
+        spot.innerHTML = `<span class="shape-label">${hotspotLabel(step)}</span>`;
+    } else {
+        spot.textContent = hotspotLabel(step);
+    }
+    spot.setAttribute("aria-label", `${TOOL_LABELS[step.type]}瑕疵：${step.title}`);
+    const pos = defectStagePosition(step);
+    spot.style.left = `${pos.x}%`;
+    spot.style.top = `${pos.y}%`;
+    ring.style.left = `${pos.x}%`;
+    ring.style.top = `${pos.y}%`;
+}
+function defectStagePosition(step){
+    const scale = step.type === "shape" ? 0.42 : 0.48;
+    const yLift = step.type === "repair" ? 8 : step.type === "clean" ? 3 : step.type === "shape" ? 4 : 0;
+    const repairOffset = step.type === "repair" ? [0, -1.1, 1.1][Math.min(step.clicks || 0, 2)] : 0;
+    return {
+        x:50 + (step.pos.x - 50) * scale + repairOffset,
+        y:50 + (step.pos.y - 50) * scale - yLift
+    };
+}
+function hotspotLabel(step){
+    if(step.type === "clean") return "←擦→";
+    if(step.type === "repair") return "滴";
+    if(step.type === "cut") return "  滑→→→       ";
+    if(step.type === "shape") return "描边";
+    return "";
+}
+function clearHotspot(){
+    const spot = document.getElementById("hotspot");
+    const ring = document.getElementById("focus-ring");
+    const scrollCue = document.getElementById("lens-scroll-cue");
+    if(spot) spot.style.display = "none";
+    if(ring) ring.style.display = "none";
+    if(scrollCue) scrollCue.style.display = "none";
+}
+function canUseCurrentStep(step){
+    if(!step) return;
+    if(state.lensIndex !== step.lens){
+        toast(`镜头不对，需要 ${LENSES[step.lens].label}`);
+        return false;
+    }
+    if(state.activeTool !== step.type){
+        toast(`工具不对，需要${TOOL_LABELS[step.type]}`);
+        return false;
+    }
+    return true;
+}
+function completeCurrentStep(step){
+    if(step.type === "cut" || step.type === "shape") spawnCompletionFragments(step.type);
+    step.done = true;
+    state.active.stepIndex += 1;
+    toast(`完成 ${TOOL_LABELS[step.type]}`);
+    if(state.active.stepIndex >= state.active.tasks.length){
+        if(step.type === "clean"){
+            renderPlay();
+            triggerCollectionFlash();
+            playCompletionCeremony();
+            playGemAnimation("gem-collect-exit", 1160);
+            setTimeout(()=>completeActiveGem(), 1120);
+        } else {
+            completeActiveGem();
+        }
+    } else {
+        const next = currentStep();
+        state.activeTool = next.type;
+        renderPlay();
+        playGemAnimation("gem-step-swap", 560);
+    }
+}
+function completeCutSwipe(step){
+    const required = step.cutHitsRequired || 1;
+    step.cutHits = (step.cutHits || 0) + 1;
+    if(step.cutHits >= required){
+        completeCurrentStep(step);
+        return;
+    }
+    spawnCompletionFragments("cut");
+    step.cutAngle += step.cutAngle >= 0 ? -48 : 48;
+    toast(`切除进度 ${step.cutHits}/${required}`);
+    renderPlay();
+    playGemAnimation("gem-step-swap", 540);
+}
+function playGemAnimation(className, duration=420){
+    const gem3d = document.getElementById("gem3d");
+    if(!gem3d) return;
+    gem3d.classList.remove(className);
+    void gem3d.offsetWidth;
+    gem3d.classList.add(className);
+    setTimeout(()=>gem3d.classList.remove(className), duration);
+}
+function triggerCollectionFlash(){
+    document.querySelectorAll(".collection-flash").forEach(el=>el.remove());
+    const flash = document.createElement("div");
+    flash.className = "collection-flash";
+    document.body.appendChild(flash);
+    setTimeout(()=>flash.remove(), 920);
+}
+function playCompletionCeremony(){
+    const stage = document.getElementById("lens-stage");
+    if(!stage) return;
+    stage.querySelectorAll(".gem-ceremony-layer").forEach(el=>el.remove());
+    const layer = document.createElement("div");
+    layer.className = "gem-ceremony-layer";
+    layer.innerHTML = `<div class="gem-ceremony-halo"></div><div class="gem-ceremony-ring"></div>`;
+    for(let i=0;i<14;i++){
+        const spark = document.createElement("i");
+        spark.className = "gem-ceremony-spark";
+        spark.style.setProperty("--spark-rot", `${i * 25.7}deg`);
+        spark.style.setProperty("--spark-delay", `${(i % 5) * 0.035}s`);
+        layer.appendChild(spark);
+    }
+    const glints = [
+        [24,34,.05],[70,28,.11],[82,54,.17],[28,68,.22],
+        [54,20,.27],[64,76,.32],[40,82,.38],[18,52,.44]
+    ];
+    glints.forEach(([x,y,delay])=>{
+        const glint = document.createElement("i");
+        glint.className = "gem-ceremony-glint";
+        glint.style.setProperty("--glint-x", `${x}%`);
+        glint.style.setProperty("--glint-y", `${y}%`);
+        glint.style.setProperty("--glint-delay", `${delay}s`);
+        layer.appendChild(glint);
+    });
+    stage.appendChild(layer);
+    setTimeout(()=>layer.remove(), 1200);
+}
+function tryCoreInteraction(){
+    const step = currentStep();
+    if(!canUseCurrentStep(step)) return;
+    completeCurrentStep(step);
+}
+function handleHotspotClick(){
+    if(state.suppressNextClick){
+        state.suppressNextClick = false;
+        return;
+    }
+    const step = currentStep();
+    if(!canUseCurrentStep(step)) return;
+    if(step.type === "repair"){
+        step.clicks = (step.clicks || 0) + 1;
+        if(step.clicks >= 3) completeCurrentStep(step);
+        else {
+            toast(`修补进度 ${step.clicks}/3`);
+            renderPlay();
+        }
+        return;
+    }
+    if(step.type === "clean") toast("按住瑕疵范围来回拖拽擦拭。");
+    if(step.type === "cut") toast("按住长条，沿相近角度拖拽切除。");
+    if(step.type === "shape") toast(`按住形状，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`);
+}
+function startDefectDrag(e){
+    const step = currentStep();
+    if(!step || !["clean","cut","shape"].includes(step.type)) return;
+    if(!canUseCurrentStep(step)) return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    const shapeTrace = step.type === "shape" ? beginShapeTrace(e.clientX, e.clientY) : null;
+    state.defectDrag = {
+        type:step.type,
+        pointerId:e.pointerId,
+        startX:e.clientX,
+        startY:e.clientY,
+        lastX:e.clientX,
+        lastY:e.clientY,
+        distance:0,
+        lastParticleDistance:0,
+        points:[{ x:e.clientX, y:e.clientY }],
+        shapeTrace
+    };
+    spawnDragParticle(e.clientX, e.clientY, step.type);
+}
+function updateDefectDrag(e){
+    const drag = state.defectDrag;
+    const step = currentStep();
+    if(!drag || !step || drag.pointerId !== e.pointerId) return;
+    const dx = e.clientX - drag.lastX;
+    const dy = e.clientY - drag.lastY;
+    drag.distance += Math.hypot(dx, dy);
+    drag.lastX = e.clientX;
+    drag.lastY = e.clientY;
+    drag.points.push({ x:e.clientX, y:e.clientY });
+    if(step.type === "shape") updateShapeTrace(drag.shapeTrace, e.clientX, e.clientY);
+    if(drag.distance - drag.lastParticleDistance >= 18){
+        spawnDragParticle(e.clientX, e.clientY, step.type);
+        drag.lastParticleDistance = drag.distance;
+    }
+    if(step.type === "clean"){
+        step.dragDistance = Math.max(step.dragDistance || 0, drag.distance);
+        renderPlay();
+        if(step.dragDistance >= 630){
+            state.suppressNextClick = true;
+            state.defectDrag = null;
+            completeCurrentStep(step);
+        }
+    }
+}
+function spawnDragParticle(x, y, type){
+    const particle = document.createElement("span");
+    particle.className = `drag-particle drag-particle-${type}`;
+    particle.style.left = `${x}px`;
+    particle.style.top = `${y}px`;
+    particle.style.setProperty("--particle-dx", `${(Math.random() - .5) * 22}px`);
+    document.body.appendChild(particle);
+    setTimeout(()=>particle.remove(), 520);
+}
+function spawnCompletionFragments(type){
+    const spot = document.getElementById("hotspot");
+    const rect = spot?.getBoundingClientRect();
+    const originX = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+    const originY = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
+    const count = type === "cut" ? 28 : 14;
+    for(let i = 0; i < count; i++){
+        const side = i % 2 === 0 ? -1 : 1;
+        const cutDx = side * (74 + Math.random() * 190);
+        const cutDy = 94 + Math.random() * 150;
+        const fragment = document.createElement("span");
+        fragment.className = `finish-fragment finish-fragment-${type}`;
+        fragment.style.left = `${originX + (Math.random() - .5) * 96}px`;
+        fragment.style.top = `${originY + (Math.random() - .5) * 42}px`;
+        fragment.style.setProperty("--frag-dx", `${type === "cut" ? cutDx : (Math.random() - .5) * 120}px`);
+        fragment.style.setProperty("--frag-dy", `${type === "cut" ? cutDy : 70 + Math.random() * 90}px`);
+        fragment.style.setProperty("--frag-rot", `${Math.random() * 220 - 110}deg`);
+        document.body.appendChild(fragment);
+        setTimeout(()=>fragment.remove(), 980);
+    }
+}
+function finishDefectDrag(e){
+    const drag = state.defectDrag;
+    const step = currentStep();
+    if(!drag || !step || drag.pointerId !== e.pointerId) return;
+    state.defectDrag = null;
+    state.suppressNextClick = true;
+    if(step.type === "shape") fadeShapeTrace(drag.shapeTrace);
+    if(step.type === "cut"){
+        const dx = e.clientX - drag.startX;
+        const dy = e.clientY - drag.startY;
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        const diff = angleDiff(angle, step.cutAngle || 0);
+        if(drag.distance >= 80 && diff <= 24) completeCutSwipe(step);
+        else toast("切除角度不对，要顺着长条方向拖拽。");
+        return;
+    }
+    if(step.type === "shape"){
+        if(traceMatchesShape(drag.points, step.shapeTarget)){
+            completeCurrentStep(step);
+        } else {
+            toast(`描边不完整，再顺着${SHAPE_LABELS[step.shapeTarget]}轮廓拖一遍。`);
+        }
+    }
+}
+function beginShapeTrace(x, y){
+    const layer = document.getElementById("shape-trace-layer");
+    const stage = document.getElementById("lens-stage");
+    if(!layer || !stage) return null;
+    layer.classList.remove("fading");
+    layer.innerHTML = "";
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+    line.classList.add("shape-trace-line");
+    layer.appendChild(line);
+    const trace = { layer, line, points:[] };
+    updateShapeTrace(trace, x, y);
+    return trace;
+}
+function updateShapeTrace(trace, x, y){
+    if(!trace?.line) return;
+    const rect = trace.layer.getBoundingClientRect();
+    trace.points.push(`${(x - rect.left).toFixed(1)},${(y - rect.top).toFixed(1)}`);
+    trace.line.setAttribute("points", trace.points.join(" "));
+}
+function fadeShapeTrace(trace){
+    const layer = trace?.layer || document.getElementById("shape-trace-layer");
+    if(!layer || !layer.childElementCount) return;
+    layer.classList.add("fading");
+    setTimeout(()=>{
+        layer.innerHTML = "";
+        layer.classList.remove("fading");
+    }, 520);
+}
+function angleDiff(a, b){
+    let diff = Math.abs((((a - b) % 180) + 180) % 180);
+    return diff > 90 ? 180 - diff : diff;
+}
+function traceMatchesShape(points, shape){
+    if(points.length < 4) return false;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity, distance = 0;
+    points.forEach((point, index)=>{
+        minX = Math.min(minX, point.x);
+        minY = Math.min(minY, point.y);
+        maxX = Math.max(maxX, point.x);
+        maxY = Math.max(maxY, point.y);
+        if(index > 0) distance += Math.hypot(point.x - points[index - 1].x, point.y - points[index - 1].y);
+    });
+    const width = maxX - minX;
+    const height = maxY - minY;
+    const aspect = width / Math.max(1, height);
+    if(width < 24 || height < 24) return false;
+    if(shape === "circle") return distance >= 220 && aspect > .62 && aspect < 1.55;
+    if(shape === "triangle") return distance >= 170 && width > 28 && height > 24;
+    return distance >= 210 && aspect > .72 && aspect < 1.35;
+}
+function completeActiveGem(){
+    const active = state.active;
+    const gem = gemById(active.gemId);
+    clearHotspot();
+    state.playedTypes.add(active.gemId);
+    state.knownTypes.add(active.gemId);
+    const amount = releaseTypeToPlate(active.gemId, "核心玩法完成后同类型出石");
+    addLog(`${gem.name} 鉴定完成，同类型 ${amount} 颗一起出石到盘子。`);
+    state.active = null;
+    renderMain();
+    if(active.meta.continueBatch){
+        const nextId = firstUnseenOrFirstBagId();
+        if(nextId){
+            setTimeout(()=>startCorePlay(nextId, { source:"batch", continueBatch:true }), 450);
+            return;
+        }
+        state.pendingBatch = false;
+        finishRound("整袋素体处理完成。");
+        return;
+    }
+    finishRound("完成一次核心玩法。");
+}
+function finishRound(message){
+    document.body.classList.remove("playing");
+    document.getElementById("lens-stage").classList.add("idle");
+    clearHotspot();
+    addLog(message);
+    renderMain();
+    showScreen("screen-main");
+}
+function renderRewards(){
+    const list = document.getElementById("reward-list");
+    list.innerHTML = "";
+    if(!state.rewards.length){
+        list.innerHTML = `<div class="empty-state">没有待收集奖励</div>`;
+        return;
+    }
+    const merged = new Map();
+    state.rewards.forEach(reward=>{
+        const prev = merged.get(reward.id) || 0;
+        merged.set(reward.id, prev + reward.amount);
+    });
+    merged.forEach((amount, id)=>{
+        const gem = gemById(id);
+        const shape = rewardShapeForGem(gem);
+        const image = plateGemImageValue(gem, shape);
+        const item = document.createElement("div");
+        item.className = "reward-item";
+        item.setAttribute("aria-label", `${gem.name} ×${amount}`);
+        item.innerHTML = `<div class="reward-gem-image"></div><b class="reward-amount">×${amount}</b><span class="reward-name">${gem.name}</span>`;
+        const imageEl = item.querySelector(".reward-gem-image");
+        if(image) imageEl.style.backgroundImage = image;
+        else imageEl.style.background = gem.color;
+        list.appendChild(item);
+    });
+}
+function openRewardModal(){
+    if(!state.rewards.length){
+        toast("没有待收集奖励");
+        return;
+    }
+    renderRewards();
+    document.getElementById("reward-modal").classList.add("show");
+}
+function closeRewardModal(){
+    document.getElementById("reward-modal").classList.remove("show");
+}
+function collectRewards(){
+    if(!state.rewards.length){
+        toast("没有待收集奖励");
+        closeRewardModal();
+        return;
+    }
+    addLog(`收集 ${state.rewards.length} 组奖励。`);
+    state.rewards = [];
+    state.plate = {};
+    state.plateItems = [];
+    document.body.classList.remove("playing");
+    document.getElementById("lens-stage").classList.add("idle");
+    closeRewardModal();
+    renderMain();
+    showScreen("screen-main");
+}
+function handleRewardRightClick(e){
+    if(e.target.closest("select,input,textarea")) return;
+    const modal = document.getElementById("reward-modal");
+    const modalOpen = modal.classList.contains("show");
+    if(!modalOpen && !state.rewards.length) return;
+    e.preventDefault();
+    if(modalOpen) collectRewards();
+    else openRewardModal();
+}
+function setupRewardListScroll(){
+    const list = document.getElementById("reward-list");
+    if(!list) return;
+    let dragging = false;
+    let startX = 0;
+    let startScroll = 0;
+    list.addEventListener("wheel", e=>{
+        if(Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+        e.preventDefault();
+        list.scrollLeft += e.deltaY;
+    }, { passive:false });
+    list.addEventListener("pointerdown", e=>{
+        if(e.button !== 0) return;
+        dragging = true;
+        startX = e.clientX;
+        startScroll = list.scrollLeft;
+        list.classList.add("dragging");
+        list.setPointerCapture(e.pointerId);
+    });
+    list.addEventListener("pointermove", e=>{
+        if(!dragging) return;
+        list.scrollLeft = startScroll - (e.clientX - startX);
+    });
+    const stopDrag = e=>{
+        if(!dragging) return;
+        dragging = false;
+        list.classList.remove("dragging");
+        if(list.hasPointerCapture(e.pointerId)) list.releasePointerCapture(e.pointerId);
+    };
+    list.addEventListener("pointerup", stopDrag);
+    list.addEventListener("pointercancel", stopDrag);
+}
+function exitPlay(){
+    if(state.active){
+        addLog(`${gemById(state.active.gemId).name} 玩法退出，未完成的同类型素体留在袋中。`);
+    }
+    state.active = null;
+    state.pendingBatch = false;
+    document.body.classList.remove("playing");
+    document.getElementById("lens-stage").classList.add("idle");
+    clearHotspot();
+    renderMain();
+    showScreen("screen-main");
+}
+function applyDataPack(key){
+    state.dataPackKey = DEMO_DATA_PACKS[key] ? key : "fullCoverage";
+    resetDemo();
+}
+function resetDemo(){
+    const pack = currentDataPack();
+    state.bag = normalizedBag(pack.bag);
+    state.knownTypes = new Set(pack.known);
+    state.playedTypes = new Set();
+    state.plate = {};
+    state.plateItems = [];
+    state.rewards = [];
+    state.active = null;
+    state.pendingBatch = false;
+    document.body.classList.remove("playing");
+    document.getElementById("reward-modal").classList.remove("show");
+    document.getElementById("lens-stage").classList.add("idle");
+    const mainLog = document.getElementById("main-log");
+    if(mainLog) mainLog.innerHTML = "";
+    clearHotspot();
+    addLog(`已切换/重置为「${pack.label}」：${pack.note}`);
+    renderMain();
+    showScreen("screen-main");
+}
+function setupDragDrop(){
+    const bag = document.getElementById("bag");
+    bag.addEventListener("dragstart", e=>{
+        state.dragPayload = { type:"bag" };
+        e.dataTransfer.setData("text/plain", JSON.stringify(state.dragPayload));
+    });
+    const bindDrop = (el, onDrop)=>{
+        el.addEventListener("dragover", e=>{
+            e.preventDefault();
+            el.classList.add("over");
+        });
+        el.addEventListener("dragleave", ()=>el.classList.remove("over"));
+        el.addEventListener("drop", e=>{
+            e.preventDefault();
+            el.classList.remove("over");
+            let payload = state.dragPayload;
+            try{
+                payload = JSON.parse(e.dataTransfer.getData("text/plain")) || payload;
+            }catch(err){}
+            onDrop(payload);
+            state.dragPayload = null;
+        });
+    };
+    bindDrop(document.getElementById("lens-stage"), payload=>{
+        if(!payload) return;
+        if(payload.type === "bag") startBatchFromBag();
+        if(payload.type === "known") startKnownStone(payload.id);
+    });
+    bindDrop(document.getElementById("batch-drop"), payload=>{
+        if(payload && payload.type === "bag") startBatchFromBag();
+        else if(payload && payload.type === "known") completeKnownStoneInBatch(payload.id);
+        else toast("批量入口只接受素体袋或已知素体");
+    });
+}
+function setupCoreMouseControls(){
+    const playScreen = document.getElementById("screen-main");
+    playScreen.addEventListener("wheel", e=>{
+        if(!state.active) return;
+        e.preventDefault();
+        cycleLensByWheel(e.deltaY);
+    }, { passive:false });
+    playScreen.addEventListener("contextmenu", e=>{
+        if(state.active) e.preventDefault();
+    });
+    document.addEventListener("contextmenu", handleRewardRightClick);
+}
+document.addEventListener("DOMContentLoaded", ()=>{
+    setupDragDrop();
+    setupCoreMouseControls();
+    setupLogPanel();
+    setupSortControls();
+    setupRewardListScroll();
+    const hotspot = document.getElementById("hotspot");
+    hotspot.addEventListener("click", handleHotspotClick);
+    hotspot.addEventListener("pointerdown", startDefectDrag);
+    hotspot.addEventListener("pointermove", updateDefectDrag);
+    hotspot.addEventListener("pointerup", finishDefectDrag);
+    hotspot.addEventListener("pointercancel", finishDefectDrag);
+    document.getElementById("exit-play-btn").addEventListener("click", exitPlay);
+    document.getElementById("finish-fast-btn").addEventListener("click", ()=>{
+        if(!state.active) return;
+        while(state.active && currentStep()){
+            const step = currentStep();
+            state.lensIndex = step.lens;
+            state.activeTool = step.type;
+            tryCoreInteraction();
+        }
+    });
+    document.getElementById("reward-back-btn").addEventListener("click", collectRewards);
+    document.getElementById("reward-modal").addEventListener("click", e=>{
+        if(e.target.id === "reward-modal") collectRewards();
+    });
+    document.addEventListener("keydown", e=>{
+        if(e.key === "Escape" && document.getElementById("reward-modal").classList.contains("show")) collectRewards();
+    });
+    document.getElementById("collect-btn").addEventListener("click", openRewardModal);
+    document.getElementById("organize-plate-btn").addEventListener("click", organizePlate);
+    document.getElementById("data-pack-select").addEventListener("change", e=>applyDataPack(e.target.value));
+    document.getElementById("reset-demo-btn").addEventListener("click", resetDemo);
+    addLog("主 UI 已就绪：拖拽素体袋到镜片位置或批量入口。");
+    renderDataPackOptions();
+    renderMain();
+});
+</script>
+</body>
+</html>

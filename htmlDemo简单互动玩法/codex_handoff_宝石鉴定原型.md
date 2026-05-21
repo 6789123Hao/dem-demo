@@ -654,3 +654,31 @@ Q/E 只在这三个工具中循环：
 - `ui_center_notebook`：C 的纸张/笔记本高级感。
 - `ui_lens_controls`：C 的右上角镜片说明按钮组。
 - 全局：明度和色彩按 A，不整体压得像 C 那么暗。
+# 2026-05-22 01:42 +08:00 Codex 1 号交接补充
+
+当前主推方向进入 `v26RealAsset`，鉴定版继续暂缓。
+
+最新主文件：
+
+- `宝石鉴定html_v26RealAsset版.html`
+
+稳定可回退文件：
+
+- `宝石鉴定html_v25素体列表与收纳仪式版.html`
+
+本轮已经完成：
+
+- 按用户指定的概念图组合落地首版真实 UI asset：镜片/左栏/明度/色彩用 A，右侧工具盒/奖励盘/工具模型/笔记本/右上镜片说明用 C。
+- 新增 `assets/ui_v26/`，包含区域化 asset、`asset-manifest.json`、`ui_v26_asset_contact_sheet.png`、`v26_playtest_screenshot.png`。
+- v26 HTML 只在复制出的新文件里接入 `body.v26-real-asset` 皮肤层，v25 未改。
+- v26 工具 sprite 改用 `assets/ui_v26/ui_tool_sprites/` 中的四张挂载版竖条工具。
+
+验证记录：
+
+- v26 内联脚本已通过 Node `--check`。
+- Chrome headless 已渲染本地 v26 页面，并生成首屏截图。
+
+后续建议：
+
+- 继续逐区精修真实 asset，优先顺序建议为：`ui_lens_frame`、`ui_tool_box`、`ui_left_inventory`、`ui_reward_plate`。
+- 目前 v26 是“首版拼装皮肤”，核心玩法逻辑沿用 v25；如果要继续打磨，不要直接改 v25。

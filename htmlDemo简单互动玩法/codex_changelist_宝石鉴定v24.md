@@ -117,3 +117,30 @@
 - 中心超大镜片和左侧素体列表优先参考 A 的厚金属金绿工坊感。
 - 右侧工具盒、工具模型、奖励盘、笔记本、右上角 Lens 说明参考 C 的黑玉漆金高级感。
 - 下一步开始逐区绘制真实 UI asset，先建议产出 `ui_lens_frame`、`ui_left_inventory`、`ui_tool_box`、`ui_reward_plate` 四组。
+## 2026-05-22 01:42 +08:00 - Codex 1 号
+
+本轮已落地 `v26RealAsset` 首版真实 UI asset 拼装。
+
+新增主文件：
+
+- `宝石鉴定html_v26RealAsset版.html`
+
+新增 asset 目录：
+
+- `assets/ui_v26/`
+- `assets/ui_v26/asset-manifest.json`
+- `assets/ui_v26/ui_v26_asset_contact_sheet.png`
+- `assets/ui_v26/v26_playtest_screenshot.png`
+
+本轮主要改动：
+
+- 按用户选择执行 A/C 拼装：镜片 A、左栏 A、整体明度 A、色彩 A；右侧工具盒 C、奖励盘 C、工具模型 C、笔记本 C、右上角镜片说明 C。
+- 用 sprite-pipeline 思路处理工具资源：从已确认的竖条工具 sprite 中抽取当前玩法四件工具，重新裁切/挂载成 `ui_tool_sprites/tool_cut_C.png`、`tool_repair_C.png`、`tool_shape_C.png`、`tool_clean_C.png`。
+- 生成并接入首批 v26 UI asset：左栏框、列表卡、数量徽章、超大镜片框、镜片玻璃层、工具盒、工具槽、奖励盘、笔记本、Lens 控制面板、收集按钮、奖励弹窗、鼠标滚轮/右键提示、动效小素材。
+- 新版 HTML 仅复制自 v25 并加 `body.v26-real-asset` 皮肤层；v25 保持稳定不动。
+- v26 工具区域隐藏说明文本，让当前竖条工具 sprite 成为视觉主体，避免文字压在工具盒上。
+
+验证：
+
+- 已抽取 v26 HTML 内联 `<script>` 并通过 Node `--check` 语法检查。
+- 已用本机 Chrome headless 打开本地 `file:///` 页面并生成首屏截图 `assets/ui_v26/v26_playtest_screenshot.png`，确认首屏 asset 能渲染。
