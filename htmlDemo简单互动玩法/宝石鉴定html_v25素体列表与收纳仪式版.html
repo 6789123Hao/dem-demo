@@ -770,6 +770,28 @@
         animation:finishFragmentFall .9s ease-in forwards;
     }
     .finish-fragment-shape{ background:rgba(226,174,75,.88); }
+    .shape-trace-layer{
+        position:absolute;
+        inset:0;
+        z-index:7;
+        pointer-events:none;
+        overflow:visible;
+    }
+    .shape-trace-line{
+        fill:none;
+        stroke:rgba(255,248,226,.96);
+        stroke-width:7;
+        stroke-linecap:round;
+        stroke-linejoin:round;
+        filter:drop-shadow(0 2px 8px rgba(83,52,24,.34)) drop-shadow(0 0 12px rgba(255,226,136,.3));
+    }
+    .shape-trace-layer.fading{
+        animation:shapeTraceFade .48s ease-out forwards;
+    }
+    @keyframes shapeTraceFade{
+        0%{ opacity:1; transform:scale(1); }
+        100%{ opacity:0; transform:scale(1.04); }
+    }
     @keyframes finishFragmentFall{
         0%{ opacity:0; transform:translate(-50%, -50%) rotate(var(--frag-rot, 0deg)) scale(.7); }
         18%{ opacity:1; }
@@ -1956,6 +1978,7 @@
                     <button id="hotspot" class="hotspot" aria-label="当前处理点"></button>
                     <div id="focus-ring" class="focus-ring"></div>
                     <div id="lens-scroll-cue" class="lens-scroll-cue" aria-label="向下滚轮切换镜头"></div>
+                    <svg id="shape-trace-layer" class="shape-trace-layer" aria-hidden="true"></svg>
                     <div class="core-hud">
                         <div class="step-box notebook-card">
                             <div class="notebook-title" id="archive-title">档案：-</div>
@@ -2889,6 +2912,7 @@ function startDefectDrag(e){
     if(!canUseCurrentStep(step)) return;
     e.preventDefault();
     e.currentTarget.setPointerCapture?.(e.pointerId);
+    const shapeTrace = step.type === "shape" ? beginShapeTrace(e.clientX, e.clientY) : null;
     state.defectDrag = {
         type:step.type,
         pointerId:e.pointerId,
@@ -2898,7 +2922,8 @@ function startDefectDrag(e){
         lastY:e.clientY,
         distance:0,
         lastParticleDistance:0,
-        points:[{ x:e.clientX, y:e.clientY }]
+        points:[{ x:e.clientX, y:e.clientY }],
+        shapeTrace
     };
     spawnDragParticle(e.clientX, e.clientY, step.type);
 }
@@ -2912,6 +2937,7 @@ function updateDefectDrag(e){
     drag.lastX = e.clientX;
     drag.lastY = e.clientY;
     drag.points.push({ x:e.clientX, y:e.clientY });
+    if(step.type === "shape") updateShapeTrace(drag.shapeTrace, e.clientX, e.clientY);
     if(drag.distance - drag.lastParticleDistance >= 18){
         spawnDragParticle(e.clientX, e.clientY, step.type);
         drag.lastParticleDistance = drag.distance;
@@ -2962,6 +2988,7 @@ function finishDefectDrag(e){
     if(!drag || !step || drag.pointerId !== e.pointerId) return;
     state.defectDrag = null;
     state.suppressNextClick = true;
+    if(step.type === "shape") fadeShapeTrace(drag.shapeTrace);
     if(step.type === "cut"){
         const dx = e.clientX - drag.startX;
         const dy = e.clientY - drag.startY;
@@ -2978,6 +3005,34 @@ function finishDefectDrag(e){
             toast(`描边不完整，再顺着${SHAPE_LABELS[step.shapeTarget]}轮廓拖一遍。`);
         }
     }
+}
+function beginShapeTrace(x, y){
+    const layer = document.getElementById("shape-trace-layer");
+    const stage = document.getElementById("lens-stage");
+    if(!layer || !stage) return null;
+    layer.classList.remove("fading");
+    layer.innerHTML = "";
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+    line.classList.add("shape-trace-line");
+    layer.appendChild(line);
+    const trace = { layer, line, points:[] };
+    updateShapeTrace(trace, x, y);
+    return trace;
+}
+function updateShapeTrace(trace, x, y){
+    if(!trace?.line) return;
+    const rect = trace.layer.getBoundingClientRect();
+    trace.points.push(`${(x - rect.left).toFixed(1)},${(y - rect.top).toFixed(1)}`);
+    trace.line.setAttribute("points", trace.points.join(" "));
+}
+function fadeShapeTrace(trace){
+    const layer = trace?.layer || document.getElementById("shape-trace-layer");
+    if(!layer || !layer.childElementCount) return;
+    layer.classList.add("fading");
+    setTimeout(()=>{
+        layer.innerHTML = "";
+        layer.classList.remove("fading");
+    }, 520);
 }
 function angleDiff(a, b){
     let diff = Math.abs((((a - b) % 180) + 180) % 180);
