@@ -544,7 +544,7 @@
             radial-gradient(circle at 47% 24%, rgba(255,255,255,.74) 0 3px, transparent 4px),
             radial-gradient(circle at 68% 38%, rgba(255,255,255,.56) 0 3px, transparent 4px),
             rgba(80,150,210,.76);
-        transform:translate(-50%, -50%) rotate(-45deg) scale(var(--repair-scale, 1));
+        transform:translate(-50%, -50%) scale(var(--repair-scale, 1));
         transform-origin:center;
         box-shadow:0 0 0 8px rgba(80,150,210,.18), inset 10px 8px 16px rgba(255,255,255,.26);
         font-size:16px;
@@ -2202,11 +2202,14 @@
             radial-gradient(circle at 50% 50%, rgba(95,88,80,.26) 0 48%, rgba(95,88,80,.18) 60%, transparent 72%);
     }
     body.v26-real-asset .hotspot-repair{
-        width:72px;
-        height:96px;
+        width:118px;
+        height:150px;
+        border:0;
         border-radius:0;
         background:var(--v26-defect-repair) center / contain no-repeat;
         box-shadow:none;
+        color:transparent;
+        font-size:0;
     }
     body.v26-real-asset .hotspot-cut::before{
         width:264px;
