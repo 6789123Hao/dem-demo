@@ -1926,6 +1926,11 @@
         .core-hint{ top:24%; width:min(330px, 76%); }
     }
     body.v26-real-asset{
+        --bg:#153f34;
+        --ink:#2b2419;
+        --muted:#6e614e;
+        --line:#c89b47;
+        --shadow:0 22px 58px rgba(15,42,32,.28);
         --v26-left-panel:url("assets/ui_v26/ui_left_inventory/left_panel_frame_A.png");
         --v26-stone-card:url("assets/ui_v26/ui_left_inventory/stone_card_frame_A.png");
         --v26-stone-badge:url("assets/ui_v26/ui_left_inventory/stone_card_badge_A.png");
@@ -1955,6 +1960,43 @@
         --v26-reward-slot:url("assets/ui_v26/ui_reward_modal/reward_item_slot_C.png");
         --v26-reward-badge:url("assets/ui_v26/ui_reward_modal/reward_quantity_badge_C.png");
         --v26-firework:url("assets/ui_v26/ui_reward_modal/reward_firework_particle_C.png");
+        background:
+            radial-gradient(circle at 16% 12%, rgba(247,215,125,.22), transparent 30%),
+            radial-gradient(circle at 80% 18%, rgba(114,210,161,.18), transparent 28%),
+            radial-gradient(circle at 52% 58%, rgba(224,189,85,.12), transparent 42%),
+            linear-gradient(135deg, #102f29 0%, #1f5b42 42%, #c59b50 100%);
+        background-attachment:fixed;
+    }
+    body.v26-real-asset::before{
+        content:"";
+        position:fixed;
+        inset:0;
+        z-index:-1;
+        pointer-events:none;
+        background:
+            linear-gradient(90deg, rgba(255,235,159,.08) 1px, transparent 1px) 0 0 / 46px 46px,
+            linear-gradient(0deg, rgba(255,235,159,.06) 1px, transparent 1px) 0 0 / 46px 46px,
+            radial-gradient(circle at 50% 42%, rgba(220,255,227,.13), transparent 38%);
+        opacity:.72;
+    }
+    body.v26-real-asset .topbar{
+        padding:16px 18px;
+        border:1px solid rgba(239,198,96,.28);
+        border-radius:10px;
+        background:linear-gradient(180deg, rgba(18,62,46,.86), rgba(17,47,39,.76));
+        box-shadow:0 18px 42px rgba(10,35,27,.22);
+    }
+    body.v26-real-asset .title h1{
+        color:#fff1bd;
+        text-shadow:0 2px 12px rgba(0,0,0,.22);
+    }
+    body.v26-real-asset .title p{
+        color:rgba(255,244,209,.78);
+    }
+    body.v26-real-asset .data-pack-select,
+    body.v26-real-asset .btn.ghost{
+        border-color:rgba(239,198,96,.38);
+        background:rgba(255,248,224,.86);
     }
     body.v26-real-asset .bag-panel{
         padding:30px 24px 34px;
@@ -2210,8 +2252,17 @@
     }
     body.v26-real-asset .reward-item{
         border:0;
-        background:var(--v26-reward-slot) center / 116px 146px no-repeat;
+        border-radius:0;
+        background:none;
+        outline:0;
         box-shadow:none;
+    }
+    body.v26-real-asset .reward-gem-image{
+        left:10px;
+        right:10px;
+        top:4px;
+        height:96px;
+        filter:drop-shadow(0 12px 13px rgba(0,0,0,.34));
     }
     body.v26-real-asset .reward-amount{
         min-width:42px;
