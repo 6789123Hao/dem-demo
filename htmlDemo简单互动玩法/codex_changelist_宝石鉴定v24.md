@@ -166,3 +166,41 @@
 验证：
 
 - 已重新抽取 v26 HTML 内联 `<script>` 并通过 Node `--check`。
+## 2026-05-22 14:24 +08:00 - Codex 1 号
+
+本轮按“做更多的图”继续扩充 `v26RealAsset` 图片资产，并把关键资产接入 HTML。
+
+新增/更新 asset：
+
+- `ui_center_stage/center_stage_bg_A.png`
+- `ui_center_stage/center_stage_inner_glow_A.png`
+- `ui_center_stage/center_stage_bottom_base_C.png`
+- `ui_lens_frame/lens_filter_surface_A.png`
+- `ui_lens_frame/lens_filter_transmit_B.png`
+- `ui_lens_frame/lens_filter_crack_C.png`
+- `ui_hint_layer/hint_toast_bg_A.png`
+- `ui_hint_layer/gesture_arrow_down_A.png`
+- `ui_reward_modal/reward_item_slot_C.png`
+- `ui_reward_modal/reward_quantity_badge_C.png`
+- `ui_reward_modal/reward_firework_particle_C.png`
+- `ui_defect_fx/defect_clean_swirl_A.png`
+- `ui_defect_fx/defect_cut_strip_C.png`
+- `ui_defect_fx/defect_repair_drop_C.png`
+- `ui_defect_fx/defect_shape_circle_C.png`
+- `ui_defect_fx/defect_shape_triangle_C.png`
+- `ui_defect_fx/defect_shape_square_C.png`
+- `ui_motion_fx/fx_drag_particle_gold_A.png`
+- `ui_motion_fx/fx_drag_particle_green_A.png`
+- `ui_motion_fx/fx_clean_flash_ring_A.png`
+- `ui_tool_box/tool_slot_side_C.png`
+
+接入点：
+
+- 中心玩法区使用新的 `center_stage_bg_A`、`center_stage_inner_glow_A`、`center_stage_bottom_base_C`。
+- 三种镜片从纯 CSS 颜色层改为对应图片滤镜：表层镜、透光镜、裂隙镜。
+- 操作提示框改用 `hint_toast_bg_A`。
+- 清洁/切除/修补/定型热点接入新瑕疵 FX 图。
+- 奖励弹窗的每个奖励格和数量徽章接入新图片。
+- 奖励烟花接入新的 firework 粒子贴图。
+- 工具盒左右侧槽接入 `tool_slot_side_C`。
+- 更新 `asset-manifest.json` 与 `ui_v26_asset_contact_sheet.png`，当前 v26 asset 总数约 45 张。

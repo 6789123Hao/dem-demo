@@ -1941,6 +1941,19 @@
         --v26-reward-modal:url("assets/ui_v26/ui_reward_modal/reward_modal_frame_C.png");
         --v26-mouse-wheel:url("assets/ui_v26/ui_hint_layer/mouse_wheel_icon_A.png");
         --v26-mouse-right:url("assets/ui_v26/ui_hint_layer/mouse_right_icon_A.png");
+        --v26-center-bg:url("assets/ui_v26/ui_center_stage/center_stage_bg_A.png");
+        --v26-center-glow:url("assets/ui_v26/ui_center_stage/center_stage_inner_glow_A.png");
+        --v26-stage-base:url("assets/ui_v26/ui_center_stage/center_stage_bottom_base_C.png");
+        --v26-hint-bg:url("assets/ui_v26/ui_hint_layer/hint_toast_bg_A.png");
+        --v26-defect-clean:url("assets/ui_v26/ui_defect_fx/defect_clean_swirl_A.png");
+        --v26-defect-cut:url("assets/ui_v26/ui_defect_fx/defect_cut_strip_C.png");
+        --v26-defect-repair:url("assets/ui_v26/ui_defect_fx/defect_repair_drop_C.png");
+        --v26-shape-circle:url("assets/ui_v26/ui_defect_fx/defect_shape_circle_C.png");
+        --v26-shape-triangle:url("assets/ui_v26/ui_defect_fx/defect_shape_triangle_C.png");
+        --v26-shape-square:url("assets/ui_v26/ui_defect_fx/defect_shape_square_C.png");
+        --v26-reward-slot:url("assets/ui_v26/ui_reward_modal/reward_item_slot_C.png");
+        --v26-reward-badge:url("assets/ui_v26/ui_reward_modal/reward_quantity_badge_C.png");
+        --v26-firework:url("assets/ui_v26/ui_reward_modal/reward_firework_particle_C.png");
     }
     body.v26-real-asset .bag-panel{
         padding:30px 24px 34px;
@@ -1990,6 +2003,9 @@
     }
     body.v26-real-asset .lens-stage{
         background:
+            var(--v26-stage-base) center bottom 4% / min(62%, 720px) auto no-repeat,
+            var(--v26-center-glow) center / 72% auto no-repeat,
+            var(--v26-center-bg) center / cover no-repeat,
             radial-gradient(circle at 50% 45%, rgba(196,255,232,.46), transparent 39%),
             linear-gradient(180deg, rgba(220,249,241,.94), rgba(169,227,220,.9));
     }
@@ -2006,6 +2022,16 @@
             inset 0 0 90px rgba(255,255,255,.25),
             0 34px 84px rgba(33,58,52,.16);
         mix-blend-mode:normal;
+    }
+    body.v26-real-asset .core-hint{
+        min-height:58px;
+        padding:15px 22px;
+        border:0;
+        background:
+            linear-gradient(rgba(255,250,235,.5), rgba(255,250,235,.5)),
+            var(--v26-hint-bg) center / 100% 100% no-repeat;
+        color:#4d3b29;
+        box-shadow:none;
     }
     body.v26-real-asset .lens-viewport::before,
     body.v26-real-asset .lens-viewport::after{
@@ -2065,6 +2091,10 @@
             linear-gradient(180deg, #634830, #2c3f36);
         box-shadow:none;
     }
+    body.v26-real-asset .tool-wheel-item:not(.active){
+        background:url("assets/ui_v26/ui_tool_box/tool_slot_side_C.png") center / 100% 100% no-repeat;
+        box-shadow:none;
+    }
     body.v26-real-asset .tool-wheel-item.active{
         background:rgba(255,225,154,.08);
     }
@@ -2122,6 +2152,63 @@
         width:70%;
         transform:translate(-50%, -50%);
         color:rgba(63,45,28,.58);
+    }
+    body.v26-real-asset .hotspot-clean::before{
+        background:
+            var(--v26-defect-clean) center / 100% 100% no-repeat,
+            radial-gradient(circle at 50% 50%, rgba(95,88,80,.26) 0 48%, rgba(95,88,80,.18) 60%, transparent 72%);
+    }
+    body.v26-real-asset .hotspot-repair{
+        width:72px;
+        height:96px;
+        border-radius:0;
+        background:var(--v26-defect-repair) center / contain no-repeat;
+        box-shadow:none;
+    }
+    body.v26-real-asset .hotspot-cut::before{
+        width:264px;
+        height:64px;
+        border:0;
+        background:var(--v26-defect-cut) center / 100% 100% no-repeat;
+        box-shadow:none;
+    }
+    body.v26-real-asset .hotspot-shape-circle::before{
+        width:220px;
+        height:220px;
+        border:0;
+        background:var(--v26-shape-circle) center / contain no-repeat;
+        box-shadow:none;
+    }
+    body.v26-real-asset .hotspot-shape-triangle::before{
+        width:232px;
+        height:232px;
+        background:var(--v26-shape-triangle) center / contain no-repeat;
+    }
+    body.v26-real-asset .hotspot-shape-square::before{
+        width:220px;
+        height:220px;
+        border-radius:0;
+        outline:0;
+        background:var(--v26-shape-square) center / contain no-repeat;
+    }
+    body.v26-real-asset .reward-modal.show::before,
+    body.v26-real-asset .reward-modal.show::after{
+        background-image:var(--v26-firework);
+        background-size:128px 128px;
+    }
+    body.v26-real-asset .reward-item{
+        border:0;
+        background:var(--v26-reward-slot) center / 100% 100% no-repeat;
+        box-shadow:none;
+    }
+    body.v26-real-asset .reward-amount{
+        min-width:42px;
+        min-height:30px;
+        display:grid;
+        place-items:center;
+        padding:0 8px;
+        background:var(--v26-reward-badge) center / 100% 100% no-repeat;
+        box-shadow:none;
     }
     body.v26-real-asset .reward-dialog{
         border:0;
@@ -2283,9 +2370,9 @@ const TOOL_NOTES = {
     clean:"擦净后闪光收纳"
 };
 const LENSES = [
-    { key:"A", label:"表层镜", filter:"rgba(127,223,255,.28)" },
-    { key:"B", label:"透光镜", filter:"rgba(214,156,255,.28)" },
-    { key:"C", label:"裂隙镜", filter:"rgba(151,232,163,.28)" }
+    { key:"A", label:"表层镜", filter:"url(\"assets/ui_v26/ui_lens_frame/lens_filter_surface_A.png\") center / cover no-repeat" },
+    { key:"B", label:"透光镜", filter:"url(\"assets/ui_v26/ui_lens_frame/lens_filter_transmit_B.png\") center / cover no-repeat" },
+    { key:"C", label:"裂隙镜", filter:"url(\"assets/ui_v26/ui_lens_frame/lens_filter_crack_C.png\") center / cover no-repeat" }
 ];
 const FACES = ["Face 1","Face 2","Face 3"];
 const SHAPE_TARGETS = ["circle", "triangle", "square"];
