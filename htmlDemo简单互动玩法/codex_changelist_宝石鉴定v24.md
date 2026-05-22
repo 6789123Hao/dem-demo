@@ -262,3 +262,13 @@
 - 按用户要求进一步简化 `reward_modal_frame_C.png`：只保留一个浅色外框和一个深色内框。
 - 删除背景图里的右下角按钮底座，按钮由按钮自己的图片负责。
 - 弹窗背景图内不再包含奖励槽、竖条、按钮区域或其他会和前景 UI 对齐冲突的元素。
+## 2026-05-22 15:38 +08:00 - Codex 1 号
+
+本轮修正修补瑕疵与镜片遮挡。
+
+改动：
+
+- 重绘 `ui_defect_fx/defect_repair_drop_C.png`，从菱形护符感改为更圆润的蓝色滴液：主体水滴、顶部小滴、高光和蓝色弧形液面。
+- `lens_inner_glass_A.png` 的中心透明度进一步降低，仅保留边缘玻璃圈和高光。
+- 三张镜片滤镜 `lens_filter_surface_A.png`、`lens_filter_transmit_B.png`、`lens_filter_crack_C.png` 的中心 alpha 降到约 3，边缘保留识别色与镜片特征，减少遮挡宝石。
+- 更新 `asset-manifest.json` 与 `ui_v26_asset_contact_sheet.png`。
