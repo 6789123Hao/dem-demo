@@ -1094,12 +1094,13 @@
     }
     .reward-list{
         display:flex;
-        gap:14px;
+        gap:12px;
+        align-items:flex-start;
         margin-top:16px;
         max-width:100%;
         overflow-x:auto;
         overflow-y:hidden;
-        padding:8px 4px 12px;
+        padding:8px 8px 14px;
         scrollbar-width:thin;
         cursor:grab;
         user-select:none;
@@ -1108,9 +1109,9 @@
     .reward-list.dragging{ cursor:grabbing; }
     .reward-item{
         position:relative;
-        flex:0 0 106px;
-        width:106px;
-        height:132px;
+        flex:0 0 116px;
+        width:116px;
+        height:146px;
         border:1px solid rgba(255,232,191,.22);
         border-radius:8px;
         background:
@@ -1120,10 +1121,10 @@
     }
     .reward-gem-image{
         position:absolute;
-        left:8px;
-        right:8px;
-        top:8px;
-        height:86px;
+        left:16px;
+        right:16px;
+        top:15px;
+        height:78px;
         background-size:contain;
         background-repeat:no-repeat;
         background-position:center;
@@ -1131,9 +1132,9 @@
     }
     .reward-name{
         position:absolute;
-        left:6px;
-        right:6px;
-        bottom:7px;
+        left:12px;
+        right:12px;
+        bottom:12px;
         color:#fff4df;
         font-size:13px;
         font-weight:900;
@@ -1146,8 +1147,8 @@
     }
     .reward-amount{
         position:absolute;
-        right:6px;
-        bottom:31px;
+        right:8px;
+        bottom:38px;
         min-width:34px;
         border-radius:999px;
         padding:4px 7px;
@@ -1185,13 +1186,13 @@
             radial-gradient(circle at 72% 26%, rgba(127,223,255,.86) 0 2px, transparent 3px),
             radial-gradient(circle at 76% 29%, rgba(255,232,139,.86) 0 2px, transparent 3px),
             radial-gradient(circle at 46% 74%, rgba(255,255,255,.76) 0 2px, transparent 3px);
-        animation:rewardFireworks 1.5s ease-out infinite;
-        opacity:.72;
+        animation:rewardFireworks 1.45s ease-out 2 both;
+        opacity:.38;
     }
     .reward-modal.show::after{
         transform:rotate(22deg);
-        animation-delay:.44s;
-        opacity:.5;
+        animation-delay:.36s;
+        opacity:.28;
     }
     @keyframes rewardFireworks{
         0%{ transform:scale(.74); opacity:0; filter:blur(0); }
@@ -2193,12 +2194,23 @@
     }
     body.v26-real-asset .reward-modal.show::before,
     body.v26-real-asset .reward-modal.show::after{
-        background-image:var(--v26-firework);
-        background-size:128px 128px;
+        inset:0;
+        background:
+            var(--v26-firework) 18% 22% / 128px 128px no-repeat,
+            var(--v26-firework) 78% 24% / 116px 116px no-repeat,
+            var(--v26-firework) 28% 76% / 110px 110px no-repeat,
+            var(--v26-firework) 70% 72% / 96px 96px no-repeat;
+        opacity:.32;
+    }
+    body.v26-real-asset .reward-modal.show::after{
+        background:
+            var(--v26-firework) 42% 18% / 94px 94px no-repeat,
+            var(--v26-firework) 58% 82% / 104px 104px no-repeat;
+        opacity:.22;
     }
     body.v26-real-asset .reward-item{
         border:0;
-        background:var(--v26-reward-slot) center / 100% 100% no-repeat;
+        background:var(--v26-reward-slot) center / 116px 146px no-repeat;
         box-shadow:none;
     }
     body.v26-real-asset .reward-amount{

@@ -204,3 +204,23 @@
 - 奖励烟花接入新的 firework 粒子贴图。
 - 工具盒左右侧槽接入 `tool_slot_side_C`。
 - 更新 `asset-manifest.json` 与 `ui_v26_asset_contact_sheet.png`，当前 v26 asset 总数约 45 张。
+## 2026-05-22 14:42 +08:00 - Codex 1 号
+
+本轮修正 `v26RealAsset` 收集奖励弹窗。
+
+主文件：
+
+- `宝石鉴定html_v26RealAsset版.html`
+
+改动：
+
+- 奖励烟花从整屏平铺无限循环改为固定少量爆点，只播放两轮后淡出。
+- v26 奖励格子统一为 116×146 的卡片基准。
+- 重绘 `ui_reward_modal/reward_item_slot_C.png`，使图片槽、名称区、数量徽章区域与 DOM 尺寸一致，不再被压缩拉伸。
+- 奖励列表卡片间距、图片位置、数量徽章位置、名称位置重新对齐。
+- 更新 `asset-manifest.json` 与 `ui_v26_asset_contact_sheet.png`。
+
+验证：
+
+- v26 内联脚本已通过 Node `new Function(...)` 语法检查。
+- `git diff --check` 通过。
