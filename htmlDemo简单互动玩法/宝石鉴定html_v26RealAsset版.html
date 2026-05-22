@@ -2012,10 +2012,11 @@
         display:none;
     }
     body.v26-real-asset .notebook-card{
-        width:236px;
+        width:252px;
         min-height:168px;
         border:0;
         border-left:0;
+        padding-left:46px;
         background:
             linear-gradient(rgba(255,250,226,.68), rgba(255,250,226,.68)),
             var(--v26-notebook) center / 100% 100% no-repeat;
@@ -2100,9 +2101,14 @@
         background:var(--v26-mouse-right) center / contain no-repeat;
     }
     body.v26-real-asset .lens-scroll-cue{
-        width:54px;
-        height:62px;
+        width:96px;
+        height:112px;
         background:var(--v26-mouse-wheel) center / contain no-repeat;
+        animation:v26WheelFloat 1.25s ease-in-out infinite;
+    }
+    @keyframes v26WheelFloat{
+        0%,100%{ transform:translate(-50%, -50%) translateY(-8px); }
+        50%{ transform:translate(-50%, -50%) translateY(8px); }
     }
     body.v26-real-asset .plate{
         border:0;
@@ -2277,9 +2283,9 @@ const TOOL_NOTES = {
     clean:"擦净后闪光收纳"
 };
 const LENSES = [
-    { key:"A", label:"Lens A", filter:"rgba(127,223,255,.28)" },
-    { key:"B", label:"Lens B", filter:"rgba(214,156,255,.28)" },
-    { key:"C", label:"Lens C", filter:"rgba(151,232,163,.28)" }
+    { key:"A", label:"表层镜", filter:"rgba(127,223,255,.28)" },
+    { key:"B", label:"透光镜", filter:"rgba(214,156,255,.28)" },
+    { key:"C", label:"裂隙镜", filter:"rgba(151,232,163,.28)" }
 ];
 const FACES = ["Face 1","Face 2","Face 3"];
 const SHAPE_TARGETS = ["circle", "triangle", "square"];
@@ -2549,10 +2555,11 @@ function createPlateItem(id, existingItems = state.plateItems || []){
 }
 function randomPlatePosition(existingItems = []){
     const attempts = existingItems.length > 34 ? 12 : 42;
+    const safeRadius = 31;
     let best = null;
     let bestScore = -Infinity;
     for(let i = 0; i < attempts; i++){
-        const radius = Math.sqrt(Math.random()) * 40;
+        const radius = Math.sqrt(Math.random()) * safeRadius;
         const angle = Math.random() * Math.PI * 2;
         const point = {
             x:50 + Math.cos(angle) * radius,
@@ -2560,8 +2567,8 @@ function randomPlatePosition(existingItems = []){
         };
         const nearest = existingItems.length
             ? Math.min(...existingItems.map(item=>Math.hypot(point.x - (item.x ?? 50), point.y - (item.y ?? 50))))
-            : 40;
-        const edgeComfort = 40 - Math.hypot(point.x - 50, point.y - 50);
+            : safeRadius;
+        const edgeComfort = safeRadius - Math.hypot(point.x - 50, point.y - 50);
         const score = nearest + edgeComfort * .08;
         if(score > bestScore){
             best = point;
@@ -2573,12 +2580,13 @@ function randomPlatePosition(existingItems = []){
 function circularPlatePositions(count){
     if(count <= 1) return [{ x:50, y:50 }];
     const positions = [];
+    const safeRadius = 31;
     let rings = 1;
     while(1 + rings * 6 + Math.max(0, rings - 1) * 6 < count && rings < 5) rings += 1;
-    const rowGap = 82 / Math.max(4, rings * 2 + 2);
+    const rowGap = (safeRadius * 2) / Math.max(4, rings * 2 + 2);
     for(let row = -rings; row <= rings; row++){
         const y = 50 + row * rowGap;
-        const xSpan = Math.sqrt(Math.max(0, 40 * 40 - (y - 50) * (y - 50)));
+        const xSpan = Math.sqrt(Math.max(0, safeRadius * safeRadius - (y - 50) * (y - 50)));
         const cells = Math.max(1, Math.floor((xSpan * 2) / rowGap));
         for(let col = 0; col < cells; col++){
             const x = cells === 1 ? 50 : 50 - xSpan + (xSpan * 2) * (col / (cells - 1));

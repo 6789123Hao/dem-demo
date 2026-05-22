@@ -682,3 +682,25 @@ Q/E 只在这三个工具中循环：
 
 - 继续逐区精修真实 asset，优先顺序建议为：`ui_lens_frame`、`ui_tool_box`、`ui_left_inventory`、`ui_reward_plate`。
 - 目前 v26 是“首版拼装皮肤”，核心玩法逻辑沿用 v25；如果要继续打磨，不要直接改 v25。
+# 2026-05-22 13:58 +08:00 Codex 1 号交接补充
+
+`v26RealAsset` 本轮继续精修 UI。
+
+用户问题答复：
+
+- 现在 HTML 中素材均为本地相对链接，没有 GitHub 图片 URL。
+- 风格已明确的区域：镜片 A、左栏 A、整体明度 A、色彩 A、工具盒 C、奖励盘 C、工具模型 C、笔记本 C、右上镜片说明 C。
+- 尚未完全定稿的风格区域：底盘表演层、瑕疵层是否未来也全量图片化。
+
+本轮修正：
+
+- 笔记本内容向右移动，配合重绘后的 `ui_center_notebook/notebook_page_C.png` 给左侧装订留空。
+- Lens 名称从 `Lens A/B/C` 改为 `表层镜 / 透光镜 / 裂隙镜`。
+- 奖励盘散落范围收紧，随机落点和整理排布都使用更小安全半径，避免宝石超出盘子范围。
+- 重绘 `ui_reward_plate/reward_plate_base_C.png`，让盘内安全区域更清楚。
+- 下滚轮提示 UI 放大，并加入上下浮动动画。
+- `ui_v26_asset_contact_sheet.png` 已更新。
+
+验证：
+
+- v26 内联脚本已重新通过 Node `--check`。

@@ -144,3 +144,25 @@
 
 - 已抽取 v26 HTML 内联 `<script>` 并通过 Node `--check` 语法检查。
 - 已用本机 Chrome headless 打开本地 `file:///` 页面并生成首屏截图 `assets/ui_v26/v26_playtest_screenshot.png`，确认首屏 asset 能渲染。
+## 2026-05-22 13:58 +08:00 - Codex 1 号
+
+本轮继续精修 `v26RealAsset` UI asset 与布局。
+
+主文件：
+
+- `宝石鉴定html_v26RealAsset版.html`
+
+改动：
+
+- 回答并确认：当前 v26 素材全部使用本地相对链接，例如 `assets/ui_v26/...`，没有使用 GitHub raw URL。
+- 风格未明确区域记录：底盘表演层、瑕疵层未来是否全量图片化还未定，本轮暂不扩展。
+- 笔记本 asset `ui_center_notebook/notebook_page_C.png` 重绘，左侧装订留白更明显；HTML 中 v26 笔记本内容整体右移。
+- Lens A/B/C 文案改为 `表层镜`、`透光镜`、`裂隙镜`。
+- 奖励盘 asset `ui_reward_plate/reward_plate_base_C.png` 重绘，内圈更收拢。
+- 奖励盘散落坐标安全半径从 40 收到 31，整理盘子的圆盘排布也同步收紧，避免宝石压出盘沿。
+- 下滚轮提示 UI 在 v26 中放大到 96×112，并增加上下浮动动画。
+- 更新 `ui_v26_asset_contact_sheet.png`。
+
+验证：
+
+- 已重新抽取 v26 HTML 内联 `<script>` 并通过 Node `--check`。
