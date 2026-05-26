@@ -322,3 +322,6 @@
 - 新增 `宝石鉴定html_v26RealAsset版_单文件版.html`。
 - 单文件版将 v26 当前使用的 UI 图、工具图、镜片图和 12 种宝石阶段图全部内嵌为 `data:image/png;base64`。
 - 单文件版不再依赖 `assets/` 文件夹，也不依赖网络图片；可直接把这一个 HTML 发给别人打开。
+- 新增 `宝石鉴定html_v26RealAsset版_联网版.html`。
+- 联网版将 v26 当前使用的图片路径改为 GitHub raw 地址，HTML 文件较小，适合只发一个 HTML 且允许联网读取仓库图片的验收方式。
+- 联网版已检查：无本地 `assets/` 引用，包含 61 个 `https://raw.githubusercontent.com/6789123Hao/dem-demo/main/...` 图片引用。
