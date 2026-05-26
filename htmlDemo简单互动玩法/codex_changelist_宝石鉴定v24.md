@@ -294,3 +294,26 @@
 
 ???
 - v26 ??????? Node REPL `new Function(...)` ?????
+# 2026-05-25 00:00 +08:00 - Codex 1 号
+本轮修正 v26 镜片滤镜颜色过淡的问题。
+
+改动：
+- 重新生成 `ui_lens_frame/lens_filter_surface_A.png`、`lens_filter_transmit_B.png`、`lens_filter_crack_C.png`。
+- 三种镜片中心 alpha 从约 `3` 提升到约 `24-34`，边缘和特征线提升到约 `70`，让滤镜颜色重新可见。
+- `lens_inner_glass_A.png` 保持中心低透明度但恢复边缘玻璃感，避免完全看不到镜片。
+- 更新 `asset-manifest.json` 与 `ui_v26_asset_contact_sheet.png`。
+
+验证：
+- 本轮只改图片素材与 manifest，未改 HTML 脚本。
+# 2026-05-25 00:15 +08:00 - Codex 1 号
+本轮调整 v26 中心宝石背景和底座层。
+
+改动：
+- 将 v26 中心玩法背景从浅米/浅青改成更接近 UI concept A 的深金绿工坊色。
+- 移除原本固定在背景里的底盘感，新增 `.gem-cushion` 宝石座垫层。
+- 座垫放入 `#gem3d` 内部，跟随宝石入场、阶段切换、收集飞出一起缩放移动。
+- 座垫按宝石阶段逐步放大，匹配 raw/cut/repaired/shaped/cleaned 的镜头靠近感。
+- 继续放大并下移座垫，让它在宝石下方形成可见的金绿椭圆托盘，而不是只露出细边。
+- 更新空闲提示和批量入口相关文案，移除过时的“拖入素体袋或已知素体”说法，并增强深色背景下的提示文字可读性。
+- 按画面反馈继续将 `.gem-cushion` 下移，托盘中心更贴近宝石下缘，避免和宝石底部对不齐。
+- `defect_repair_drop_C.png` 改为更简单的半透明水滴图，保留水滴轮廓与单条高光，减少复杂装饰。

@@ -1417,6 +1417,47 @@
         transition:filter .2s ease, transform .28s ease;
         z-index:3;
     }
+    .gem-cushion{
+        position:absolute;
+        left:50%;
+        top:88%;
+        width:116%;
+        height:44%;
+        border-radius:50%;
+        transform:translate(-50%, -50%) scale(var(--cushion-scale, 1));
+        transform-origin:center;
+        z-index:0;
+        pointer-events:none;
+        background:
+            radial-gradient(ellipse at 50% 35%, rgba(255,239,170,.88) 0 9%, rgba(221,171,69,.72) 24%, rgba(84,58,28,.36) 48%, transparent 69%),
+            radial-gradient(ellipse at 50% 56%, rgba(20,56,43,.96), rgba(7,30,25,.72) 64%, transparent 78%);
+        box-shadow:
+            0 26px 42px rgba(0,0,0,.42),
+            inset 0 0 0 5px rgba(238,190,86,.64),
+            inset 0 0 0 13px rgba(5,31,25,.52),
+            inset 0 0 26px rgba(255,232,151,.26);
+        opacity:1;
+        transition:transform .35s ease, opacity .24s ease, filter .24s ease;
+    }
+    .gem-cushion::before{
+        content:"";
+        position:absolute;
+        inset:24% 13% 18%;
+        border-radius:50%;
+        background:radial-gradient(ellipse at 50% 52%, rgba(57,129,88,.98), rgba(13,55,42,.96) 61%, rgba(5,22,18,.9));
+        box-shadow:inset 0 0 0 3px rgba(255,224,142,.44), inset 0 11px 20px rgba(255,245,192,.18);
+    }
+    .gem-cushion::after{
+        content:"";
+        position:absolute;
+        left:20%;
+        right:20%;
+        top:23%;
+        height:16%;
+        border-radius:50%;
+        background:linear-gradient(90deg, transparent, rgba(255,244,190,.55), transparent);
+        filter:blur(2px);
+    }
     .gem3d.gem-enter{
         animation:gemEnter .66s cubic-bezier(.16,.88,.24,1.08) both;
     }
@@ -1449,6 +1490,7 @@
     }
     .gem-core{
         inset:14px;
+        z-index:1;
         border-radius:22px;
         clip-path:polygon(42% 0, 82% 10%, 100% 44%, 88% 82%, 48% 100%, 14% 88%, 0 48%, 16% 12%);
         box-shadow:inset -18px -24px 38px rgba(0,0,0,.18), inset 14px 16px 24px rgba(255,255,255,.32);
@@ -1517,6 +1559,15 @@
     .gem3d.has-stage-image.visual-cleaned .gem-core{
         --gem-scale:1.96;
         filter:drop-shadow(0 0 24px rgba(255,245,190,.48)) !important;
+    }
+    .gem3d.has-stage-image.visual-raw .gem-cushion{ --cushion-scale:1.12; }
+    .gem3d.has-stage-image.visual-cut .gem-cushion,
+    .gem3d.has-stage-image.visual-cracked .gem-cushion{ --cushion-scale:1.22; }
+    .gem3d.has-stage-image.visual-repaired .gem-cushion{ --cushion-scale:1.3; }
+    .gem3d.has-stage-image.visual-shaped .gem-cushion{ --cushion-scale:1.38; }
+    .gem3d.has-stage-image.visual-cleaned .gem-cushion{
+        --cushion-scale:1.46;
+        filter:drop-shadow(0 0 20px rgba(255,220,118,.34));
     }
     .gem3d.has-stage-image .gem-core::before{ display:none; }
     .gem-core::before{
@@ -2040,17 +2091,24 @@
     }
     body.v26-real-asset .center-panel{
         background:
-            radial-gradient(circle at 50% 45%, rgba(161,241,218,.34), transparent 46%),
-            linear-gradient(180deg, rgba(247,242,221,.92), rgba(196,232,216,.76));
-        border-color:rgba(188,142,61,.34);
+            radial-gradient(circle at 50% 42%, rgba(66,166,118,.26), transparent 48%),
+            linear-gradient(180deg, rgba(18,62,48,.96), rgba(6,28,24,.98));
+        border-color:rgba(204,163,78,.42);
     }
     body.v26-real-asset .lens-stage{
         background:
-            var(--v26-stage-base) center bottom 4% / min(62%, 720px) auto no-repeat,
-            var(--v26-center-glow) center / 72% auto no-repeat,
-            var(--v26-center-bg) center / cover no-repeat,
-            radial-gradient(circle at 50% 45%, rgba(196,255,232,.46), transparent 39%),
-            linear-gradient(180deg, rgba(220,249,241,.94), rgba(169,227,220,.9));
+            radial-gradient(ellipse at 50% 64%, rgba(219,168,69,.25) 0 18%, transparent 46%),
+            radial-gradient(circle at 50% 44%, rgba(94,222,166,.28), transparent 39%),
+            linear-gradient(90deg, rgba(255,226,128,.08), transparent 24%, transparent 76%, rgba(50,145,108,.12)),
+            linear-gradient(180deg, rgba(23,77,58,.98), rgba(7,35,30,.98));
+        border-color:rgba(207,166,81,.46);
+    }
+    body.v26-real-asset .idle-copy{
+        color:rgba(255,246,210,.84);
+        text-shadow:0 2px 8px rgba(0,0,0,.36);
+    }
+    body.v26-real-asset .idle-copy h2{
+        color:#ffe8a6;
     }
     body.v26-real-asset .lens-viewport{
         width:min(124%, 1320px);
@@ -2340,9 +2398,10 @@
                 <div id="lens-stage" class="lens-stage idle">
                     <div class="idle-copy">
                         <h2>镜片位置 / 核心玩法区域</h2>
-                        <p>拖入素体袋或已知素体后，玩法会在这里直接展开。</p>
+                        <p>从左侧素体选择拖入镜片，开始单颗鉴定。</p>
                     </div>
                     <div id="gem3d" class="gem3d">
+                        <div class="gem-cushion" aria-hidden="true"></div>
                         <div id="gem-core" class="gem-core"></div>
                         <div class="gem-surface"></div>
                     </div>
@@ -2376,7 +2435,7 @@
                 <div id="batch-drop" class="batch-pipe">
                     <div>
                         <h3>批量入口管道</h3>
-                        <p>拖入素体袋，先处理已鉴定类型，再逐个处理初见类型。</p>
+                        <p>整袋处理会连续完成可处理素体。</p>
                     </div>
                 </div>
             </div>
@@ -2488,7 +2547,7 @@ const DEMO_DATA_PACKS = {
     },
     batchKnown:{
         label:"批量已知验收",
-        note:"多种已知素体数量较多，用于验证批量入口和盘子累计。",
+        note:"多种素体数量较多，用于验证批量处理和盘子累计。",
         known:["pearl","garnet","sunstone","obsidian","fluorite","agate","catseye","jadeite"],
         bag:{ pearl:7, agate:2, garnet:5, sunstone:9, catseye:1, jadeite:6, obsidian:3, fluorite:8, malachite:1, turquoise:4, hetian:2, shoushan:1 }
     },
@@ -2814,7 +2873,7 @@ function releaseKnownTypesForBatch(){
             }
         }
     });
-    if(released) addLog(`批量入口依次自动完成 ${released} 颗已知素体。`);
+    if(released) addLog(`批量入口依次自动完成 ${released} 颗可处理素体。`);
     return released;
 }
 function startManualFromBag(){
@@ -3635,7 +3694,7 @@ function setupDragDrop(){
     bindDrop(document.getElementById("batch-drop"), payload=>{
         if(payload && payload.type === "bag") startBatchFromBag();
         else if(payload && payload.type === "known") completeKnownStoneInBatch(payload.id);
-        else toast("批量入口只接受素体袋或已知素体");
+        else toast("批量入口只接受整袋处理或左侧素体");
     });
 }
 function setupCoreMouseControls(){
@@ -3683,7 +3742,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
     document.getElementById("organize-plate-btn").addEventListener("click", organizePlate);
     document.getElementById("data-pack-select").addEventListener("change", e=>applyDataPack(e.target.value));
     document.getElementById("reset-demo-btn").addEventListener("click", resetDemo);
-    addLog("主 UI 已就绪：拖拽素体袋到镜片位置或批量入口。");
+    addLog("主 UI 已就绪：从左侧拖拽素体到镜片位置。");
     renderDataPackOptions();
     renderMain();
 });
