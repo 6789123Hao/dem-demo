@@ -588,19 +588,49 @@
         font-weight:800;
     }
     .hotspot-repair{
-        width:58px;
-        height:70px;
-        border-radius:58% 58% 62% 8%;
+        width:52px;
+        height:52px;
+        border-radius:50%;
+        border:2px solid rgba(255,250,224,.96);
         background:
-            radial-gradient(circle at 27% 34%, rgba(255,255,255,.62) 0 3px, transparent 4px),
-            radial-gradient(circle at 47% 24%, rgba(255,255,255,.74) 0 3px, transparent 4px),
-            radial-gradient(circle at 68% 38%, rgba(255,255,255,.56) 0 3px, transparent 4px),
-            rgba(80,150,210,.76);
-        transform:translate(-50%, -50%) scale(var(--repair-scale, 1));
+            radial-gradient(circle, rgba(255,248,205,.16) 0 38%, transparent 39%),
+            radial-gradient(circle, rgba(41,158,148,.18), transparent 68%);
+        transform:translate(calc(-50% + var(--repair-hotspot-x, 0px)), calc(-50% + var(--repair-hotspot-y, 0px)));
         transform-origin:center;
-        box-shadow:0 0 0 8px rgba(80,150,210,.18), inset 10px 8px 16px rgba(255,255,255,.26);
-        font-size:16px;
-        transition:transform .16s ease, opacity .16s ease;
+        box-shadow:
+            0 0 0 9px rgba(47,177,151,.12),
+            0 0 22px rgba(255,222,129,.34),
+            inset 0 0 0 2px rgba(51,38,18,.18);
+        color:transparent;
+        font-size:0;
+        transition:transform .16s ease, opacity .16s ease, box-shadow .16s ease;
+    }
+    .hotspot-repair::before,
+    .hotspot-repair::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        transform:translate(-50%, -50%);
+        pointer-events:none;
+    }
+    .hotspot-repair::before{
+        width:66px;
+        height:66px;
+        border-radius:50%;
+        border:1px solid rgba(255,248,226,.48);
+        animation:repairTargetPulse 1.28s ease-in-out infinite;
+    }
+    .hotspot-repair::after{
+        width:24px;
+        height:24px;
+        border-radius:50%;
+        border:1px solid rgba(255,248,226,.74);
+        box-shadow:inset 0 0 10px rgba(57,198,176,.22);
+    }
+    @keyframes repairTargetPulse{
+        0%,100%{ opacity:.36; transform:translate(-50%, -50%) scale(.86); }
+        50%{ opacity:1; transform:translate(-50%, -50%) scale(1.08); }
     }
     .hotspot-cut{
         width:320px;
@@ -731,7 +761,7 @@
         animation:pulse 1s infinite;
     }
     .focus-ring-clean{ display:none !important; }
-    .focus-ring-repair{ width:86px; height:86px; }
+    .focus-ring-repair{ display:none !important; }
     .focus-ring-cut{
         width:238px;
         height:58px;
@@ -844,6 +874,135 @@
     @keyframes wheelRub{
         0%,100%{ opacity:.42; transform:translateX(-50%) scaleX(.74); }
         50%{ opacity:1; transform:translateX(-50%) scaleX(1.08); }
+    }
+    .repair-overlay{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:calc(var(--gem-size, 220px) * .72);
+        height:calc(var(--gem-size, 220px) * .54);
+        transform:translate(-50%, -50%);
+        z-index:5;
+        pointer-events:none;
+        display:none;
+        overflow:visible;
+        --repair-fill-remain:1;
+    }
+    .repair-overlay.visible{ display:block; }
+    .repair-crack-svg{
+        position:absolute;
+        inset:0;
+        width:100%;
+        height:100%;
+        overflow:hidden;
+        clip-path:ellipse(47% 44% at 50% 52%);
+        filter:drop-shadow(0 3px 4px rgba(18,10,6,.24));
+    }
+    .repair-crack-shadow,
+    .repair-crack-base,
+    .repair-crack-fill,
+    .repair-crack-glow,
+    .repair-crack-branch{
+        fill:none;
+        stroke-linecap:butt;
+        stroke-linejoin:miter;
+    }
+    .repair-crack-shadow{ stroke:rgba(18,10,6,.34); stroke-width:10; }
+    .repair-crack-base{ stroke:rgba(50,26,20,.82); stroke-width:5.4; }
+    .repair-crack-branch{ stroke:rgba(68,35,27,.58); stroke-width:3; }
+    .repair-crack-glow{ stroke:rgba(255,238,166,.2); stroke-width:13; opacity:.62; }
+    .repair-crack-fill{
+        stroke:url(#repairEssenceGradient);
+        stroke-width:6.5;
+        stroke-dasharray:1;
+        stroke-dashoffset:var(--repair-fill-remain, 1);
+        transition:stroke-dashoffset .36s ease, opacity .24s ease;
+        filter:drop-shadow(0 0 7px rgba(66,220,184,.46));
+    }
+    .repair-target{
+        position:absolute;
+        width:42px;
+        height:42px;
+        border-radius:50%;
+        transform:translate(-50%, -50%);
+        border:2px solid rgba(255,248,226,.62);
+        background:radial-gradient(circle, rgba(255,236,160,.2) 0 35%, rgba(45,190,162,.14) 36% 58%, transparent 59%);
+        box-shadow:0 0 0 7px rgba(45,190,162,.08), 0 0 14px rgba(255,225,122,.18);
+        opacity:.42;
+    }
+    .repair-target.done{
+        opacity:.8;
+        border-color:rgba(78,216,180,.72);
+        box-shadow:0 0 0 6px rgba(70,220,180,.1), 0 0 16px rgba(70,220,180,.32);
+    }
+    .repair-target.active{
+        opacity:1;
+        animation:repairTargetPulse 1.28s ease-in-out infinite;
+    }
+    .repair-target::before,
+    .repair-target::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        transform:translate(-50%, -50%);
+        background:rgba(255,248,226,.72);
+    }
+    .repair-target::before{ width:22px; height:1px; }
+    .repair-target::after{ width:1px; height:22px; }
+    .repair-drop{
+        position:absolute;
+        left:var(--repair-drop-left, 50%);
+        top:var(--repair-drop-top, 50%);
+        width:42px;
+        height:54px;
+        transform:translate(-50%, -50%);
+        opacity:0;
+        background:var(--v26-defect-repair) center / contain no-repeat;
+        filter:drop-shadow(0 8px 9px rgba(17,48,44,.28)) drop-shadow(0 0 12px rgba(73,218,190,.28));
+    }
+    .repair-overlay.drop-active .repair-drop{
+        animation:repairEssenceDrop .68s cubic-bezier(.16,.88,.26,1) both;
+    }
+    .repair-overlay.repair-complete .repair-crack-base,
+    .repair-overlay.repair-complete .repair-crack-shadow,
+    .repair-overlay.repair-complete .repair-crack-branch{
+        opacity:0;
+        transition:opacity .46s ease .18s;
+    }
+    .repair-overlay.repair-complete .repair-crack-fill{
+        filter:drop-shadow(0 0 16px rgba(116,255,214,.82));
+    }
+    .repair-overlay.repair-complete::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:76%;
+        height:64%;
+        border-radius:50%;
+        transform:translate(-50%, -50%);
+        background:radial-gradient(circle, rgba(255,252,210,.46), rgba(88,226,189,.14) 44%, transparent 68%);
+        mix-blend-mode:screen;
+        animation:repairSealFlash .58s ease-out both;
+    }
+    .repair-overlay.repair-reveal .repair-crack-svg{
+        animation:repairCrackReveal .42s ease-out both;
+    }
+    @keyframes repairEssenceDrop{
+        0%{ opacity:0; transform:translate(-50%, -290%) scale(.64); }
+        38%{ opacity:1; transform:translate(-50%, -112%) scale(.92); }
+        72%{ opacity:1; transform:translate(-50%, -50%) scale(1.06); }
+        100%{ opacity:0; transform:translate(-50%, -44%) scale(.72); }
+    }
+    @keyframes repairSealFlash{
+        0%{ opacity:0; transform:translate(-50%, -50%) scale(.55); }
+        34%{ opacity:1; transform:translate(-50%, -50%) scale(1.05); }
+        100%{ opacity:0; transform:translate(-50%, -50%) scale(1.35); }
+    }
+    @keyframes repairCrackReveal{
+        0%{ opacity:.35; filter:brightness(1.6) drop-shadow(0 0 22px rgba(255,228,122,.86)); }
+        100%{ opacity:1; filter:brightness(1) drop-shadow(0 3px 4px rgba(18,10,6,.24)); }
     }
     .drag-particle{
         position:fixed;
@@ -1920,7 +2079,8 @@
     }
     body:not(.playing) .gem3d,
     body:not(.playing) .hotspot,
-    body:not(.playing) .focus-ring{
+    body:not(.playing) .focus-ring,
+    body:not(.playing) .repair-overlay{
         display:none;
     }
     .core-hud{
@@ -2385,14 +2545,9 @@
             radial-gradient(circle at 50% 50%, rgba(95,88,80,.26) 0 48%, rgba(95,88,80,.18) 60%, transparent 72%);
     }
     body.v26-real-asset .hotspot-repair{
-        width:118px;
-        height:150px;
-        border:0;
-        border-radius:0;
-        background:var(--v26-defect-repair) center / contain no-repeat;
-        box-shadow:none;
-        color:transparent;
-        font-size:0;
+        background:
+            radial-gradient(circle, rgba(255,248,205,.16) 0 38%, transparent 39%),
+            radial-gradient(circle, rgba(41,158,148,.18), transparent 68%);
     }
     body.v26-real-asset .hotspot-cut::before{
         width:264px;
@@ -2719,7 +2874,7 @@
         </div>
         <div class="top-actions">
             <div class="gm-actions" aria-label="GM测试控制，不属于正式玩法">
-                <button class="btn primary gm-btn" id="finish-fast-btn">GM完成当前素体</button>
+                <button class="btn primary gm-btn" id="finish-fast-btn">GM一键鉴定当前</button>
                 <button class="btn ghost play-exit-btn" id="exit-play-btn">退出玩法</button>
                 <div class="demo-actions">
                     <select id="layout-select" class="layout-select" aria-label="窗口比例布局">
@@ -2781,6 +2936,7 @@
                         <div class="gem-surface"></div>
                     </div>
                     <div id="lens-viewport" class="lens-viewport" aria-hidden="true"></div>
+                    <div id="repair-overlay" class="repair-overlay" aria-hidden="true"></div>
                     <button id="hotspot" class="hotspot" aria-label="当前处理点"></button>
                     <div id="focus-ring" class="focus-ring"></div>
                     <div id="lens-scroll-cue" class="lens-scroll-cue" aria-label="向下滚轮切换镜头"></div>
@@ -2865,10 +3021,19 @@ const TOOL_SPRITES = {
 };
 const TOOL_NOTES = {
     cut:"沿灰色石皮拖拽切开",
-    repair:"三次滴入修复液",
+    repair:"瞄准裂缝滴入修复精华",
     shape:"描摹目标轮廓定型",
     clean:"擦净后闪光收纳"
 };
+const REPAIR_TARGETS = [
+    { x:31, y:56, dx:-30, dy:7 },
+    { x:50, y:45, dx:0, dy:-6 },
+    { x:69, y:35, dx:30, dy:-18 }
+];
+const REPAIR_CRACK_PATH = "M58 104 L72 90 L88 98 L101 72 L116 80 L130 54 L145 72 L158 60 L174 78";
+const REPAIR_BRANCH_PATH = "M101 72 L88 64 L82 50 M130 54 L138 39 L150 50 M158 60 L153 80 L138 93 M72 90 L58 84 L48 92";
+const REPAIR_FILL_PER_CLICK = .32;
+const REPAIR_COMPLETE_THRESHOLD = .8;
 const LENSES = [
     { key:"A", label:"表层镜", filter:"url(\"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_frame/lens_filter_surface_A.png\") center / cover no-repeat" },
     { key:"B", label:"透光镜", filter:"url(\"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_frame/lens_filter_transmit_B.png\") center / cover no-repeat" },
@@ -3294,6 +3459,9 @@ function buildCoreTasks(gem){
         id:`${gem.id}_${index}`,
         done:false,
         clicks:0,
+        repairFill:0,
+        repairTargetIndex:0,
+        repairCompleting:false,
         cutHits:0,
         cutHitsRequired: task.type === "cut" ? (task.cutHitsRequired || 1) : 1,
         dragDistance:0,
@@ -3357,7 +3525,7 @@ function playLensFlip(direction=1){
 function stepStatusText(step){
     const base = `${TOOL_LABELS[step.type]} · ${step.title}`;
     if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / 630 * 100))}%`;
-    if(step.type === "repair") return `${base} · 点击 ${step.clicks || 0}/3`;
+    if(step.type === "repair") return `${base} · 精华填充 ${Math.min(100, Math.round((step.repairFill || 0) * 100))}%`;
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `${base} · 切除 ${step.cutHits || 0}/${step.cutHitsRequired}`;
     if(step.type === "cut") return `${base} · 顺着长条角度拖拽`;
     if(step.type === "shape") return `${base} · 描边${SHAPE_LABELS[step.shapeTarget]}`;
@@ -3366,11 +3534,15 @@ function stepStatusText(step){
 function stepHintText(step){
     if(!step) return "滚动鼠标滚轮翻镜片，点击瑕疵完成当前操作。";
     if(step.type === "clean") return "清洁：按住范围圈，在瑕疵上来回拖拽擦除。";
-    if(step.type === "repair") return "修补：连续点击水滴形瑕疵 3 次。";
+    if(step.type === "repair") return "修补：瞄准裂缝光圈，滴入修复精华填满裂隙。";
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：这颗需要切 ${step.cutHitsRequired} 次，按住长条并顺着角度拖拽。`;
     if(step.type === "cut") return "切除：按住长条瑕疵，沿相近角度拖拽切除。";
     if(step.type === "shape") return `定型：按住形状特效，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`;
     return "完成当前宝石。";
+}
+function wrongLensHint(step){
+    if(step.type === "repair") return `裂缝还没显影：滚动镜片切到 ${LENSES[step.lens].label}，看清裂缝走向。`;
+    return `镜片不对：请滚动鼠标滚轮翻镜片，切到 ${LENSES[step.lens].label}。`;
 }
 function visualStateForActive(active, step){
     const tasks = active.tasks;
@@ -3482,7 +3654,7 @@ function toolWheelItemMarkup(type, active){
 }
 function shortToolNote(step){
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `${step.cutHits || 0}/${step.cutHitsRequired}`;
-    if(step.type === "repair") return `${step.clicks || 0}/3`;
+    if(step.type === "repair") return `${Math.min(100, Math.round((step.repairFill || 0) * 100))}%`;
     if(step.type === "clean") return `${Math.min(100, Math.round((step.dragDistance || 0) / 630 * 100))}%`;
     if(step.type === "shape") return SHAPE_MARKS[step.shapeTarget] || "描边";
     return step.title || "";
@@ -3500,13 +3672,13 @@ function renderPlay(){
     applyGemVisualVars(gem3d, gem);
     gem3d.style.setProperty("--defect-x", step ? `${step.pos.x}%` : "50%");
     gem3d.style.setProperty("--defect-y", step ? `${step.pos.y}%` : "50%");
-    const repairProgress = step?.type === "repair" ? Math.min(step.clicks || 0, 3) : 0;
-    gem3d.style.setProperty("--crack-main-opacity", Math.max(0, 1 - repairProgress * .34));
-    gem3d.style.setProperty("--crack-branch-opacity", Math.max(0, .72 - repairProgress * .26));
+    const repairProgress = step?.type === "repair" ? Math.min(step.repairFill || 0, 1) : 0;
+    gem3d.style.setProperty("--crack-main-opacity", Math.max(0, 1 - repairProgress * 1.12));
+    gem3d.style.setProperty("--crack-branch-opacity", Math.max(0, .72 - repairProgress * .82));
     gem3d.style.setProperty("--gem-stage-image", stageImageValue(gem, visual));
     renderArchiveNotebook(active, gem);
     document.querySelector(".core-hint").textContent = step && state.lensIndex !== step.lens
-        ? `镜片不对：请滚动鼠标滚轮翻镜片，切到 ${LENSES[step.lens].label}。`
+        ? wrongLensHint(step)
         : stepHintText(step);
     document.getElementById("step-progress").style.width = `${(active.stepIndex / active.tasks.length) * 100}%`;
     document.getElementById("gem-core").style.setProperty("--gem-color", gem.color);
@@ -3587,6 +3759,7 @@ function renderHotspot(){
     const scrollCue = document.getElementById("lens-scroll-cue");
     const visibleOnLens = step && state.lensIndex === step.lens;
     if(!visibleOnLens){
+        renderRepairOverlay(step, false);
         spot.style.display = "none";
         ring.style.display = "none";
         state.hotspotRevealKey = null;
@@ -3613,6 +3786,15 @@ function renderHotspot(){
     }
     spot.setAttribute("aria-label", `${TOOL_LABELS[step.type]}瑕疵：${step.title}`);
     const pos = defectStagePosition(step);
+    renderRepairOverlay(step, step.type === "repair", pos);
+    if(step.type === "repair"){
+        const target = REPAIR_TARGETS[Math.min(step.repairTargetIndex || 0, REPAIR_TARGETS.length - 1)];
+        spot.style.setProperty("--repair-hotspot-x", `${target.dx}px`);
+        spot.style.setProperty("--repair-hotspot-y", `${target.dy}px`);
+    } else {
+        spot.style.removeProperty("--repair-hotspot-x");
+        spot.style.removeProperty("--repair-hotspot-y");
+    }
     spot.style.left = `${pos.x}%`;
     spot.style.top = `${pos.y}%`;
     ring.style.left = `${pos.x}%`;
@@ -3628,18 +3810,81 @@ function renderHotspot(){
         renderHotspot.revealTimer = setTimeout(()=>spot.classList.remove("hotspot-reveal"), 340);
     }
 }
+function renderRepairOverlay(step, visible, pos){
+    const overlay = document.getElementById("repair-overlay");
+    if(!overlay) return;
+    if(!step || step.type !== "repair" || !visible){
+        overlay.className = "repair-overlay";
+        overlay.innerHTML = "";
+        return;
+    }
+    const fill = Math.min(1, step.repairFill || 0);
+    const activeIndex = Math.min(step.repairTargetIndex || 0, REPAIR_TARGETS.length - 1);
+    overlay.className = `repair-overlay visible ${fill >= REPAIR_COMPLETE_THRESHOLD ? "repair-complete" : ""}`;
+    overlay.style.left = `${pos.x}%`;
+    overlay.style.top = `${pos.y}%`;
+    overlay.style.setProperty("--repair-fill-remain", `${Math.max(0, 1 - fill)}`);
+    const activeTarget = REPAIR_TARGETS[activeIndex];
+    overlay.style.setProperty("--repair-drop-left", `${activeTarget.x}%`);
+    overlay.style.setProperty("--repair-drop-top", `${activeTarget.y}%`);
+    overlay.innerHTML = `
+        <svg class="repair-crack-svg" viewBox="0 0 220 160" focusable="false">
+            <defs>
+                <linearGradient id="repairEssenceGradient" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="rgba(255,214,116,.96)"></stop>
+                    <stop offset="55%" stop-color="rgba(76,224,186,.96)"></stop>
+                    <stop offset="100%" stop-color="rgba(255,246,185,.96)"></stop>
+                </linearGradient>
+            </defs>
+            <clipPath id="repairCrackGemClip" clipPathUnits="userSpaceOnUse">
+                <ellipse cx="110" cy="82" rx="88" ry="58"></ellipse>
+            </clipPath>
+            <g clip-path="url(#repairCrackGemClip)">
+                <path class="repair-crack-glow" d="${REPAIR_CRACK_PATH}" pathLength="1"></path>
+                <path class="repair-crack-shadow" d="${REPAIR_CRACK_PATH}" pathLength="1"></path>
+                <path class="repair-crack-base" d="${REPAIR_CRACK_PATH}" pathLength="1"></path>
+                <path class="repair-crack-branch" d="${REPAIR_BRANCH_PATH}"></path>
+                <path class="repair-crack-fill" d="${REPAIR_CRACK_PATH}" pathLength="1"></path>
+            </g>
+        </svg>
+        ${REPAIR_TARGETS.map((target, index)=>{
+            const done = fill >= REPAIR_COMPLETE_THRESHOLD || index < activeIndex;
+            const active = index === activeIndex && fill < REPAIR_COMPLETE_THRESHOLD;
+            return `<span class="repair-target ${done ? "done" : ""} ${active ? "active" : ""}" style="left:${target.x}%;top:${target.y}%"></span>`;
+        }).join("")}
+        <span class="repair-drop"></span>
+    `;
+    const revealKey = `${step.id}:repair-overlay:${state.lensIndex}`;
+    if(renderRepairOverlay.revealKey !== revealKey){
+        renderRepairOverlay.revealKey = revealKey;
+        overlay.classList.add("repair-reveal");
+        clearTimeout(renderRepairOverlay.revealTimer);
+        renderRepairOverlay.revealTimer = setTimeout(()=>overlay.classList.remove("repair-reveal"), 430);
+    }
+}
+function playRepairDrop(targetIndex){
+    const overlay = document.getElementById("repair-overlay");
+    if(!overlay) return;
+    const target = REPAIR_TARGETS[Math.min(targetIndex, REPAIR_TARGETS.length - 1)];
+    overlay.style.setProperty("--repair-drop-left", `${target.x}%`);
+    overlay.style.setProperty("--repair-drop-top", `${target.y}%`);
+    overlay.classList.remove("drop-active");
+    void overlay.offsetWidth;
+    overlay.classList.add("drop-active");
+    clearTimeout(playRepairDrop.timer);
+    playRepairDrop.timer = setTimeout(()=>overlay.classList.remove("drop-active"), 720);
+}
 function defectStagePosition(step){
     const scale = step.type === "shape" ? 0.42 : 0.48;
-    const yLift = step.type === "repair" ? 8 : step.type === "clean" ? 3 : step.type === "shape" ? 4 : 0;
-    const repairOffset = step.type === "repair" ? [0, -1.1, 1.1][Math.min(step.clicks || 0, 2)] : 0;
+    const yLift = step.type === "repair" ? 3 : step.type === "clean" ? 3 : step.type === "shape" ? 4 : 0;
     return {
-        x:50 + (step.pos.x - 50) * scale + repairOffset,
+        x:50 + (step.pos.x - 50) * scale,
         y:50 + (step.pos.y - 50) * scale - yLift
     };
 }
 function hotspotLabel(step){
     if(step.type === "clean") return "←擦→";
-    if(step.type === "repair") return "滴";
+    if(step.type === "repair") return "";
     if(step.type === "cut") return "  滑→→→       ";
     if(step.type === "shape") return "描边";
     return "";
@@ -3648,14 +3893,19 @@ function clearHotspot(){
     const spot = document.getElementById("hotspot");
     const ring = document.getElementById("focus-ring");
     const scrollCue = document.getElementById("lens-scroll-cue");
+    const repairOverlay = document.getElementById("repair-overlay");
     if(spot) spot.style.display = "none";
     if(ring) ring.style.display = "none";
     if(scrollCue) scrollCue.style.display = "none";
+    if(repairOverlay){
+        repairOverlay.className = "repair-overlay";
+        repairOverlay.innerHTML = "";
+    }
 }
 function canUseCurrentStep(step){
     if(!step) return;
     if(state.lensIndex !== step.lens){
-        toast(`????????????? ${LENSES[step.lens].label}`);
+        toast(step.type === "repair" ? `裂缝需要 ${LENSES[step.lens].label} 显影。` : `镜片不对，需要 ${LENSES[step.lens].label}`);
         return false;
     }
     if(state.activeTool !== step.type){
@@ -3764,11 +4014,22 @@ function handleHotspotClick(){
     const step = currentStep();
     if(!canUseCurrentStep(step)) return;
     if(step.type === "repair"){
+        if(step.repairCompleting) return;
+        const targetIndex = Math.min(step.repairTargetIndex || 0, REPAIR_TARGETS.length - 1);
         step.clicks = (step.clicks || 0) + 1;
-        if(step.clicks >= 3) completeCurrentStep(step);
-        else {
-            toast(`修补进度 ${step.clicks}/3`);
-            renderPlay();
+        step.repairFill = Math.min(1, (step.repairFill || 0) + REPAIR_FILL_PER_CLICK);
+        step.repairTargetIndex = Math.min(REPAIR_TARGETS.length - 1, targetIndex + 1);
+        const complete = step.repairFill >= REPAIR_COMPLETE_THRESHOLD;
+        if(complete) step.repairCompleting = true;
+        renderPlay();
+        playRepairDrop(targetIndex);
+        if(complete){
+            toast("修复精华已填满裂隙。");
+            setTimeout(()=>{
+                if(currentStep()?.id === step.id) completeCurrentStep(step);
+            }, 660);
+        } else {
+            toast(`精华填充 ${Math.round(step.repairFill * 100)}%`);
         }
         return;
     }
