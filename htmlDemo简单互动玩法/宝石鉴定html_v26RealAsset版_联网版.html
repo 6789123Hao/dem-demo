@@ -952,12 +952,12 @@
     .repair-target::after{ width:1px; height:22px; }
     .repair-tool{
         position:absolute;
-        left:var(--repair-drop-left, 50%);
+        left:var(--repair-tool-left, var(--repair-drop-left, 50%));
         top:var(--repair-tool-top, 10%);
         width:50px;
         height:104px;
-        transform:translate(-50%, -50%) rotate(180deg) scale(.88);
-        transform-origin:50% 50%;
+        transform:translate(-50%, -9%) rotate(calc(180deg + var(--repair-tool-tilt, -8deg))) scale(.88);
+        transform-origin:50% 9%;
         opacity:0;
         background:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_repair_C.png") center / contain no-repeat;
         filter:drop-shadow(0 12px 12px rgba(16,12,8,.28)) drop-shadow(0 0 10px rgba(109,244,202,.44));
@@ -1054,10 +1054,10 @@
         100%{ opacity:0; transform:translate(-50%, -44%) scale(.72); }
     }
     @keyframes repairToolPour{
-        0%{ opacity:0; transform:translate(-50%, -66%) rotate(180deg) scale(.78); }
-        20%{ opacity:1; transform:translate(-50%, -50%) rotate(180deg) scale(.9); }
-        58%{ opacity:1; transform:translate(-50%, -44%) rotate(180deg) scale(.94); }
-        100%{ opacity:0; transform:translate(-50%, -38%) rotate(180deg) scale(.84); }
+        0%{ opacity:0; transform:translate(-50%, -26%) rotate(calc(180deg + var(--repair-tool-tilt, -8deg))) scale(.78); }
+        20%{ opacity:1; transform:translate(-50%, -9%) rotate(calc(180deg + var(--repair-tool-tilt, -8deg))) scale(.9); }
+        58%{ opacity:1; transform:translate(-50%, -5%) rotate(calc(180deg + var(--repair-tool-tilt, -8deg))) scale(.94); }
+        100%{ opacity:0; transform:translate(-50%, -15%) rotate(calc(180deg + var(--repair-tool-tilt, -8deg))) scale(.84); }
     }
     @keyframes repairArrowDown{
         0%{ opacity:0; transform:translate(-50%, -70%) scale(.72); }
@@ -1202,24 +1202,24 @@
         height:162px;
         z-index:7;
         pointer-events:none;
-        transform:translate(-50%, -86%);
+        transform:translate(-50%, -16%);
         filter:drop-shadow(0 16px 16px rgba(15,11,7,.28)) drop-shadow(0 0 10px rgba(255,241,184,.44));
     }
     .clean-tool-sprite{
         position:absolute;
         inset:0;
         background:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_clean_C.png") center / contain no-repeat;
-        transform-origin:50% 82%;
+        transform-origin:50% 16%;
         animation:cleanToolSweep .32s ease-in-out infinite alternate;
     }
     .clean-tool-glow{
         position:absolute;
         left:50%;
-        bottom:3px;
+        top:16%;
         width:58px;
         height:22px;
         border-radius:50%;
-        transform:translateX(-50%);
+        transform:translate(-50%, -50%);
         background:radial-gradient(ellipse, rgba(255,249,219,.72), rgba(115,245,210,.22) 50%, transparent 72%);
         mix-blend-mode:screen;
         animation:cleanBrushGlow .32s ease-in-out infinite alternate;
@@ -1229,8 +1229,8 @@
         100%{ transform:rotate(196deg) translateX(4px); }
     }
     @keyframes cleanBrushGlow{
-        0%{ opacity:.34; transform:translateX(-50%) scaleX(.72); }
-        100%{ opacity:.86; transform:translateX(-50%) scaleX(1.08); }
+        0%{ opacity:.34; transform:translate(-50%, -50%) scaleX(.72); }
+        100%{ opacity:.86; transform:translate(-50%, -50%) scaleX(1.08); }
     }
     .finish-fragment{
         position:fixed;
@@ -4038,7 +4038,9 @@ function renderRepairOverlay(step, visible, pos){
     const activeTarget = REPAIR_TARGETS[activeIndex];
     overlay.style.setProperty("--repair-drop-left", `${activeTarget.x}%`);
     overlay.style.setProperty("--repair-drop-top", `${activeTarget.y}%`);
-    overlay.style.setProperty("--repair-tool-top", `${Math.max(-8, activeTarget.y - 42)}%`);
+    overlay.style.setProperty("--repair-tool-left", `${activeTarget.x}%`);
+    overlay.style.setProperty("--repair-tool-top", `${Math.max(-10, activeTarget.y - 20)}%`);
+    overlay.style.setProperty("--repair-tool-tilt", "-8deg");
     overlay.style.setProperty("--repair-arrow-top", `${Math.max(16, activeTarget.y - 18)}%`);
     overlay.innerHTML = `
         <svg class="repair-crack-svg" viewBox="0 0 220 160" focusable="false">
@@ -4083,7 +4085,9 @@ function playRepairDrop(targetIndex){
     const target = REPAIR_TARGETS[Math.min(targetIndex, REPAIR_TARGETS.length - 1)];
     overlay.style.setProperty("--repair-drop-left", `${target.x}%`);
     overlay.style.setProperty("--repair-drop-top", `${target.y}%`);
-    overlay.style.setProperty("--repair-tool-top", `${Math.max(-8, target.y - 42)}%`);
+    overlay.style.setProperty("--repair-tool-left", `${target.x}%`);
+    overlay.style.setProperty("--repair-tool-top", `${Math.max(-10, target.y - 20)}%`);
+    overlay.style.setProperty("--repair-tool-tilt", "-8deg");
     overlay.style.setProperty("--repair-arrow-top", `${Math.max(16, target.y - 18)}%`);
     overlay.classList.remove("drop-active");
     void overlay.offsetWidth;
@@ -4325,7 +4329,7 @@ function renderCleanToolFx(clientX, clientY){
     }
     const rect = stage.getBoundingClientRect();
     const x = Math.max(50, Math.min(rect.width - 50, clientX - rect.left));
-    const y = Math.max(96, Math.min(rect.height - 18, clientY - rect.top));
+    const y = Math.max(72, Math.min(rect.height - 18, clientY - rect.top - 8));
     fx.style.setProperty("--clean-tool-x", `${x}px`);
     fx.style.setProperty("--clean-tool-y", `${y}px`);
 }
