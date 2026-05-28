@@ -655,9 +655,10 @@
         background:rgba(105,108,104,.82);
         border:3px solid rgba(255,255,255,.86);
         box-shadow:0 0 0 8px rgba(92,94,90,.16), inset 0 4px 8px rgba(255,255,255,.2);
+        display:none;
     }
     .hotspot-cut::after{
-        content:"  滑→→→       ";
+        content:"";
         position:absolute;
         left:50%;
         top:50%;
@@ -666,6 +667,7 @@
         font-size:13px;
         font-weight:800;
         white-space:pre;
+        display:none;
     }
     .hotspot-shape{
         width:360px;
@@ -874,6 +876,128 @@
     @keyframes wheelRub{
         0%,100%{ opacity:.42; transform:translateX(-50%) scaleX(.74); }
         50%{ opacity:1; transform:translateX(-50%) scaleX(1.08); }
+    }
+    .cut-overlay{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:calc(var(--gem-size, 220px) * 1.18);
+        height:calc(var(--gem-size, 220px) * .34);
+        transform:translate(-50%, -50%) rotate(var(--cut-angle, -22deg));
+        z-index:7;
+        pointer-events:none;
+        display:none;
+        overflow:visible;
+        --cut-progress:0;
+        --cut-blade-progress:0;
+        --cut-line-start:12%;
+        --cut-line-span:76%;
+    }
+    .cut-overlay.visible{ display:block; }
+    .cut-shadow,
+    .cut-raw-line,
+    .cut-open-line,
+    .cut-spark-line{
+        position:absolute;
+        left:var(--cut-line-start);
+        top:50%;
+        height:8px;
+        width:var(--cut-line-span);
+        border-radius:999px;
+        transform:translateY(-50%);
+    }
+    .cut-shadow{
+        height:20px;
+        background:linear-gradient(90deg, transparent, rgba(26,18,12,.2), transparent);
+        filter:blur(3px);
+    }
+    .cut-raw-line{
+        background:
+            repeating-linear-gradient(90deg, rgba(71,67,59,.82) 0 12px, rgba(109,103,88,.78) 13px 22px),
+            rgba(80,76,68,.8);
+        box-shadow:inset 0 2px 4px rgba(0,0,0,.28), 0 0 0 5px rgba(70,64,54,.12);
+    }
+    .cut-open-line{
+        width:calc(var(--cut-line-span) * var(--cut-progress, 0));
+        background:linear-gradient(90deg, rgba(255,247,206,.98), rgba(234,180,75,.92), rgba(113,231,197,.84));
+        box-shadow:0 0 18px rgba(255,218,102,.38), inset 0 -2px 3px rgba(100,64,22,.24);
+        transition:width .08s linear;
+    }
+    .cut-spark-line{
+        width:calc(var(--cut-line-span) * var(--cut-progress, 0));
+        height:18px;
+        background:linear-gradient(90deg, transparent, rgba(255,249,212,.72), transparent);
+        opacity:.25;
+        filter:blur(2px);
+        transition:width .08s linear, opacity .12s ease;
+    }
+    .cut-overlay.dragging .cut-spark-line{ opacity:.82; }
+    .cut-blade{
+        position:absolute;
+        left:calc(var(--cut-line-start) + var(--cut-line-span) * var(--cut-blade-progress, 0));
+        top:50%;
+        width:76px;
+        height:58px;
+        transform:translate(-50%, -84%);
+        transform-origin:50% 86%;
+        filter:drop-shadow(0 10px 10px rgba(18,12,8,.24));
+        transition:left .08s linear, transform .16s ease;
+    }
+    .cut-overlay.dragging .cut-blade{
+        transform:translate(-50%, -88%) rotate(-4deg);
+    }
+    .cut-blade::before{
+        content:"";
+        position:absolute;
+        left:30px;
+        top:12px;
+        width:14px;
+        height:52px;
+        border-radius:999px;
+        background:linear-gradient(180deg, #ffe7a2, #7a5528 44%, #243a34);
+        box-shadow:inset 0 0 0 2px rgba(255,255,255,.2), 0 0 0 1px rgba(59,42,24,.28);
+    }
+    .cut-blade::after{
+        content:"";
+        position:absolute;
+        left:11px;
+        top:0;
+        width:54px;
+        height:28px;
+        clip-path:polygon(0 72%, 78% 0, 100% 32%, 22% 100%);
+        background:linear-gradient(135deg, rgba(255,255,255,.98), rgba(164,176,178,.96) 54%, rgba(84,92,90,.92));
+        box-shadow:inset 0 0 0 1px rgba(44,48,48,.22);
+    }
+    .cut-count-chip{
+        position:absolute;
+        left:50%;
+        bottom:-8px;
+        min-width:42px;
+        transform:translateX(-50%) rotate(calc(var(--cut-angle, -22deg) * -1));
+        padding:4px 9px;
+        border-radius:999px;
+        background:rgba(45,34,23,.82);
+        color:#fff3cd;
+        font-size:12px;
+        font-weight:900;
+        box-shadow:0 8px 14px rgba(24,16,10,.18);
+    }
+    .cut-overlay.slice-flash .cut-open-line,
+    .cut-overlay.slice-flash .cut-spark-line{
+        animation:cutSliceFlash .34s ease-out both;
+    }
+    .cut-overlay.slice-flash .cut-blade{
+        animation:cutBladeKick .34s ease-out both;
+    }
+    @keyframes cutSliceFlash{
+        0%{ opacity:.3; filter:brightness(1); }
+        38%{ opacity:1; filter:brightness(1.8) drop-shadow(0 0 18px rgba(255,235,148,.9)); }
+        100%{ opacity:.46; filter:brightness(1); }
+    }
+    @keyframes cutBladeKick{
+        0%{ transform:translate(-50%, -88%) rotate(-4deg); }
+        45%{ transform:translate(-50%, -104%) rotate(9deg); }
+        100%{ transform:translate(-50%, -86%) rotate(0deg); }
     }
     .repair-overlay{
         position:absolute;
@@ -2080,6 +2204,7 @@
     body:not(.playing) .gem3d,
     body:not(.playing) .hotspot,
     body:not(.playing) .focus-ring,
+    body:not(.playing) .cut-overlay,
     body:not(.playing) .repair-overlay{
         display:none;
     }
@@ -2936,6 +3061,7 @@
                         <div class="gem-surface"></div>
                     </div>
                     <div id="lens-viewport" class="lens-viewport" aria-hidden="true"></div>
+                    <div id="cut-overlay" class="cut-overlay" aria-hidden="true"></div>
                     <div id="repair-overlay" class="repair-overlay" aria-hidden="true"></div>
                     <button id="hotspot" class="hotspot" aria-label="当前处理点"></button>
                     <div id="focus-ring" class="focus-ring"></div>
@@ -3020,7 +3146,7 @@ const TOOL_SPRITES = {
     clean:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_clean_C.png"
 };
 const TOOL_NOTES = {
-    cut:"沿灰色石皮拖拽切开",
+    cut:"压住刀线拖拽切开石皮",
     repair:"瞄准裂缝滴入修复精华",
     shape:"描摹目标轮廓定型",
     clean:"擦净后闪光收纳"
@@ -3464,6 +3590,9 @@ function buildCoreTasks(gem){
         repairCompleting:false,
         cutHits:0,
         cutHitsRequired: task.type === "cut" ? (task.cutHitsRequired || 1) : 1,
+        cutDragProgress:0,
+        cutBladeProgress:0,
+        cutCompleting:false,
         dragDistance:0,
         shapeTarget: task.targetShape || SHAPE_TARGETS[(GEM_BLUEPRINTS.findIndex(g=>g.id === gem.id) + index) % SHAPE_TARGETS.length],
         cutAngle: task.cutAngle ?? [-32, -18, 22, 34][(GEM_BLUEPRINTS.findIndex(g=>g.id === gem.id) + index) % 4]
@@ -3535,8 +3664,8 @@ function stepHintText(step){
     if(!step) return "滚动鼠标滚轮翻镜片，点击瑕疵完成当前操作。";
     if(step.type === "clean") return "清洁：按住范围圈，在瑕疵上来回拖拽擦除。";
     if(step.type === "repair") return "修补：瞄准裂缝光圈，滴入修复精华填满裂隙。";
-    if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：这颗需要切 ${step.cutHitsRequired} 次，按住长条并顺着角度拖拽。`;
-    if(step.type === "cut") return "切除：按住长条瑕疵，沿相近角度拖拽切除。";
+    if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：压住刀线顺势拖拽，刀头走完整条切槽；这颗需要切 ${step.cutHitsRequired} 次。`;
+    if(step.type === "cut") return "切除：压住刀线顺势拖拽，让刀头走完整条切槽。";
     if(step.type === "shape") return `定型：按住形状特效，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`;
     return "完成当前宝石。";
 }
@@ -3759,6 +3888,7 @@ function renderHotspot(){
     const scrollCue = document.getElementById("lens-scroll-cue");
     const visibleOnLens = step && state.lensIndex === step.lens;
     if(!visibleOnLens){
+        renderCutOverlay(step, false);
         renderRepairOverlay(step, false);
         spot.style.display = "none";
         ring.style.display = "none";
@@ -3786,6 +3916,7 @@ function renderHotspot(){
     }
     spot.setAttribute("aria-label", `${TOOL_LABELS[step.type]}瑕疵：${step.title}`);
     const pos = defectStagePosition(step);
+    renderCutOverlay(step, step.type === "cut", pos);
     renderRepairOverlay(step, step.type === "repair", pos);
     if(step.type === "repair"){
         const target = REPAIR_TARGETS[Math.min(step.repairTargetIndex || 0, REPAIR_TARGETS.length - 1)];
@@ -3809,6 +3940,33 @@ function renderHotspot(){
         clearTimeout(renderHotspot.revealTimer);
         renderHotspot.revealTimer = setTimeout(()=>spot.classList.remove("hotspot-reveal"), 340);
     }
+}
+function renderCutOverlay(step, visible, pos){
+    const overlay = document.getElementById("cut-overlay");
+    if(!overlay) return;
+    if(!step || step.type !== "cut" || !visible){
+        overlay.className = "cut-overlay";
+        overlay.innerHTML = "";
+        return;
+    }
+    const required = step.cutHitsRequired || 1;
+    const progress = Math.max(0, Math.min(1, step.cutDragProgress || 0));
+    const bladeProgress = Math.max(0, Math.min(1, step.cutBladeProgress ?? progress));
+    const dragging = state.defectDrag?.type === "cut";
+    overlay.className = `cut-overlay visible ${dragging ? "dragging" : ""}`;
+    overlay.style.left = `${pos.x}%`;
+    overlay.style.top = `${pos.y}%`;
+    overlay.style.setProperty("--cut-angle", `${step.cutAngle || -22}deg`);
+    overlay.style.setProperty("--cut-progress", progress.toFixed(3));
+    overlay.style.setProperty("--cut-blade-progress", bladeProgress.toFixed(3));
+    overlay.innerHTML = `
+        <span class="cut-shadow"></span>
+        <span class="cut-raw-line"></span>
+        <span class="cut-open-line"></span>
+        <span class="cut-spark-line"></span>
+        <span class="cut-blade"></span>
+        <span class="cut-count-chip">${step.cutHits || 0}/${required}</span>
+    `;
 }
 function renderRepairOverlay(step, visible, pos){
     const overlay = document.getElementById("repair-overlay");
@@ -3885,7 +4043,7 @@ function defectStagePosition(step){
 function hotspotLabel(step){
     if(step.type === "clean") return "←擦→";
     if(step.type === "repair") return "";
-    if(step.type === "cut") return "  滑→→→       ";
+    if(step.type === "cut") return "";
     if(step.type === "shape") return "描边";
     return "";
 }
@@ -3893,10 +4051,15 @@ function clearHotspot(){
     const spot = document.getElementById("hotspot");
     const ring = document.getElementById("focus-ring");
     const scrollCue = document.getElementById("lens-scroll-cue");
+    const cutOverlay = document.getElementById("cut-overlay");
     const repairOverlay = document.getElementById("repair-overlay");
     if(spot) spot.style.display = "none";
     if(ring) ring.style.display = "none";
     if(scrollCue) scrollCue.style.display = "none";
+    if(cutOverlay){
+        cutOverlay.className = "cut-overlay";
+        cutOverlay.innerHTML = "";
+    }
     if(repairOverlay){
         repairOverlay.className = "repair-overlay";
         repairOverlay.innerHTML = "";
@@ -3939,17 +4102,42 @@ function completeCurrentStep(step){
     }
 }
 function completeCutSwipe(step){
+    if(step.cutCompleting) return;
+    step.cutCompleting = true;
     const required = step.cutHitsRequired || 1;
     step.cutHits = (step.cutHits || 0) + 1;
+    step.cutDragProgress = 1;
+    step.cutBladeProgress = state.defectDrag
+        ? (state.defectDrag.cutDir < 0 ? 0 : 1)
+        : ((step.cutBladeProgress || 0) < .5 ? 0 : 1);
+    renderCutOverlay(step, true, defectStagePosition(step));
+    playCutSliceFeedback(step);
     if(step.cutHits >= required){
-        completeCurrentStep(step);
+        setTimeout(()=>{
+            if(currentStep()?.id === step.id) completeCurrentStep(step);
+        }, 260);
         return;
     }
-    spawnCompletionFragments("cut");
-    step.cutAngle += step.cutAngle >= 0 ? -48 : 48;
-    toast(`切除进度 ${step.cutHits}/${required}`);
-    renderPlay();
-    playGemAnimation("gem-step-swap", 540);
+    setTimeout(()=>{
+        if(currentStep()?.id !== step.id) return;
+        spawnCompletionFragments("cut");
+        step.cutAngle += step.cutAngle >= 0 ? -48 : 48;
+        step.cutDragProgress = 0;
+        step.cutBladeProgress = .04;
+        step.cutCompleting = false;
+        toast(`切除进度 ${step.cutHits}/${required}`);
+        renderPlay();
+        playGemAnimation("gem-step-swap", 540);
+    }, 260);
+}
+function playCutSliceFeedback(step){
+    const overlay = document.getElementById("cut-overlay");
+    if(!overlay) return;
+    overlay.classList.remove("slice-flash");
+    void overlay.offsetWidth;
+    overlay.classList.add("slice-flash");
+    clearTimeout(playCutSliceFeedback.timer);
+    playCutSliceFeedback.timer = setTimeout(()=>overlay.classList.remove("slice-flash"), 360);
 }
 function playGemAnimation(className, duration=420){
     const gem3d = document.getElementById("gem3d");
@@ -4041,9 +4229,14 @@ function startDefectDrag(e){
     const step = currentStep();
     if(!step || !["clean","cut","shape"].includes(step.type)) return;
     if(!canUseCurrentStep(step)) return;
+    if(step.type === "cut" && step.cutCompleting) return;
     e.preventDefault();
     e.currentTarget.setPointerCapture?.(e.pointerId);
     const shapeTrace = step.type === "shape" ? beginShapeTrace(e.clientX, e.clientY) : null;
+    if(step.type === "cut"){
+        step.cutDragProgress = 0;
+        step.cutBladeProgress = .04;
+    }
     state.defectDrag = {
         type:step.type,
         pointerId:e.pointerId,
@@ -4053,9 +4246,11 @@ function startDefectDrag(e){
         lastY:e.clientY,
         distance:0,
         lastParticleDistance:0,
+        cutDir:1,
         points:[{ x:e.clientX, y:e.clientY }],
         shapeTrace
     };
+    if(step.type === "cut") renderCutOverlay(step, true, defectStagePosition(step));
     spawnDragParticle(e.clientX, e.clientY, step.type);
 }
 function updateDefectDrag(e){
@@ -4082,6 +4277,20 @@ function updateDefectDrag(e){
             completeCurrentStep(step);
         }
     }
+    if(step.type === "cut"){
+        updateCutGesture(step, drag, e.clientX, e.clientY);
+    }
+}
+function updateCutGesture(step, drag, x, y){
+    const angle = (step.cutAngle || 0) * Math.PI / 180;
+    const totalDx = x - drag.startX;
+    const totalDy = y - drag.startY;
+    const projected = totalDx * Math.cos(angle) + totalDy * Math.sin(angle);
+    if(Math.abs(projected) > 10) drag.cutDir = projected >= 0 ? 1 : -1;
+    const progress = Math.max(0, Math.min(1, Math.abs(projected) / 150));
+    step.cutDragProgress = progress;
+    step.cutBladeProgress = drag.cutDir >= 0 ? progress : 1 - progress;
+    renderCutOverlay(step, true, defectStagePosition(step));
 }
 function spawnDragParticle(x, y, type){
     const particle = document.createElement("span");
@@ -4125,8 +4334,14 @@ function finishDefectDrag(e){
         const dy = e.clientY - drag.startY;
         const angle = Math.atan2(dy, dx) * 180 / Math.PI;
         const diff = angleDiff(angle, step.cutAngle || 0);
+        updateCutGesture(step, drag, e.clientX, e.clientY);
         if(drag.distance >= 80 && diff <= 24) completeCutSwipe(step);
-        else toast("切除角度不对，要顺着长条方向拖拽。");
+        else {
+            step.cutDragProgress = 0;
+            step.cutBladeProgress = .04;
+            renderCutOverlay(step, true, defectStagePosition(step));
+            toast("切除角度不对，要顺着刀线拖拽。");
+        }
         return;
     }
     if(step.type === "shape"){
