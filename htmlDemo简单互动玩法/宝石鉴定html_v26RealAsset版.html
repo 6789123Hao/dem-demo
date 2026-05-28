@@ -135,11 +135,14 @@
         animation:dragArrowPulse 2.1s ease-in-out infinite;
     }
     .drag-link-arrow-bag{
-        top:0;
+        display:none;
     }
     .drag-link-arrow-list{
-        top:314px;
-        animation-delay:.72s;
+        left:-8px;
+        top:190px;
+        --arrow-base:rotate(135deg) scale(1.18);
+        --arrow-base-active:rotate(135deg) scale(1.32);
+        animation-delay:.18s;
     }
     .drag-arrow-pad{
         fill:rgba(255,252,244,.22);
@@ -168,8 +171,8 @@
         stroke-linejoin:round;
     }
     @keyframes dragArrowPulse{
-        0%,100%{ opacity:0; transform:translateX(-10px) scale(.96); }
-        34%,68%{ opacity:1; transform:translateX(0) scale(1); }
+        0%,100%{ opacity:0; transform:translateX(-10px) var(--arrow-base, scale(.96)); }
+        34%,68%{ opacity:1; transform:translateX(0) var(--arrow-base-active, scale(1)); }
     }
     .pill{
         display:inline-flex;
@@ -2562,6 +2565,9 @@
         top:auto;
         bottom:18px;
         width:230px;
+        display:none;
+    }
+    body.layout-mobile-landscape.playing .core-controls{
         display:block;
     }
     body.layout-mobile-landscape .core-controls .step-box{
@@ -2604,23 +2610,25 @@
     }
     body.layout-mobile-landscape .collect-cta{
         position:absolute;
-        right:0;
-        top:50%;
-        min-width:172px;
+        right:24px;
+        top:auto;
+        bottom:248px;
+        width:178px;
+        min-width:0;
         min-height:60px;
-        transform:translateY(-50%);
+        transform:none;
         font-size:20px;
         font-weight:900;
         pointer-events:auto;
     }
     body.layout-mobile-landscape .right-panel .plate-actions{
-        right:8px;
-        bottom:8px;
+        right:246px;
+        bottom:98px;
         pointer-events:auto;
     }
     body.layout-mobile-landscape .plate{
         position:absolute;
-        right:-2px;
+        right:0;
         bottom:0;
         width:238px;
         height:238px;
@@ -2687,6 +2695,15 @@
             width:212px;
             height:212px;
         }
+        body.layout-mobile-landscape .collect-cta{
+            right:18px;
+            bottom:220px;
+            width:168px;
+        }
+        body.layout-mobile-landscape .right-panel .plate-actions{
+            right:220px;
+            bottom:86px;
+        }
     }
     body.layout-gamepad .layout-select{
         outline:3px solid rgba(80,170,110,.45);
@@ -2708,7 +2725,7 @@
                     <select id="layout-select" class="layout-select" aria-label="窗口比例布局">
                         <option value="desktop">电脑布局</option>
                         <option value="mobileLandscape">手机横屏</option>
-                        <option value="gamepad">手柄测试</option>
+                        <option value="gamepad" hidden disabled>手柄测试</option>
                     </select>
                     <select id="data-pack-select" class="data-pack-select" aria-label="演示数据包"></select>
                     <button class="btn ghost" id="reset-demo-btn">重置演示数据</button>
@@ -2896,18 +2913,6 @@ const DEMO_DATA_PACKS = {
         note:"每一种素体都有可玩数量，用于完整跑通 12 种宝石。",
         known:["pearl","agate","garnet","sunstone","catseye","jadeite","obsidian","fluorite","malachite","turquoise","hetian","shoushan"],
         bag:{ pearl:2, agate:6, garnet:1, sunstone:5, catseye:3, jadeite:8, obsidian:4, fluorite:7, malachite:2, turquoise:9, hetian:1, shoushan:6 }
-    },
-    firstDiscovery:{
-        label:"首次识别验收",
-        note:"只预先识别珍珠，其余类型需要通过核心玩法逐步解锁。",
-        known:["pearl"],
-        bag:{ pearl:1, agate:3, garnet:1, sunstone:2, catseye:1, jadeite:4, obsidian:2, fluorite:1, malachite:3, turquoise:2, hetian:1, shoushan:4 }
-    },
-    batchKnown:{
-        label:"批量已知验收",
-        note:"多种素体数量较多，用于验证批量处理和盘子累计。",
-        known:["pearl","garnet","sunstone","obsidian","fluorite","agate","catseye","jadeite"],
-        bag:{ pearl:7, agate:2, garnet:5, sunstone:9, catseye:1, jadeite:6, obsidian:3, fluorite:8, malachite:1, turquoise:4, hetian:2, shoushan:1 }
     },
     rewardStress:{
         label:"长奖励列表压测",
