@@ -1015,13 +1015,20 @@
     .repair-overlay.drop-active .repair-down-arrow{
         animation:repairArrowDown .58s ease-out .08s both;
     }
-    .repair-overlay.repair-complete .repair-crack-base,
-    .repair-overlay.repair-complete .repair-crack-shadow,
+    .repair-overlay.repair-complete .repair-crack-shadow{
+        animation:repairCrackThinShadow .9s ease-out both;
+    }
+    .repair-overlay.repair-complete .repair-crack-base{
+        animation:repairCrackThinBase .9s ease-out both;
+    }
     .repair-overlay.repair-complete .repair-crack-branch{
-        opacity:0;
-        transition:opacity .46s ease .18s;
+        animation:repairCrackThinBranch .9s ease-out both;
+    }
+    .repair-overlay.repair-complete .repair-crack-glow{
+        animation:repairCrackThinGlow .9s ease-out both;
     }
     .repair-overlay.repair-complete .repair-crack-fill{
+        animation:repairCrackSealFill .9s ease-out both;
         filter:drop-shadow(0 0 16px rgba(116,255,214,.82));
     }
     .repair-overlay.repair-complete::after{
@@ -1056,6 +1063,31 @@
         0%{ opacity:0; transform:translate(-50%, -70%) scale(.72); }
         30%{ opacity:1; transform:translate(-50%, -44%) scale(1); }
         100%{ opacity:0; transform:translate(-50%, 10%) scale(.9); }
+    }
+    @keyframes repairCrackThinShadow{
+        0%{ stroke-width:10; opacity:1; }
+        45%{ stroke-width:5.2; opacity:.62; }
+        100%{ stroke-width:1.2; opacity:.12; }
+    }
+    @keyframes repairCrackThinBase{
+        0%{ stroke-width:5.4; opacity:1; }
+        42%{ stroke-width:3.2; opacity:.72; }
+        100%{ stroke-width:.72; opacity:.2; }
+    }
+    @keyframes repairCrackThinBranch{
+        0%{ stroke-width:3; opacity:.78; }
+        48%{ stroke-width:1.6; opacity:.42; }
+        100%{ stroke-width:.42; opacity:.08; }
+    }
+    @keyframes repairCrackThinGlow{
+        0%{ stroke-width:13; opacity:.62; }
+        36%{ stroke-width:8; opacity:.86; }
+        100%{ stroke-width:2.2; opacity:.18; }
+    }
+    @keyframes repairCrackSealFill{
+        0%{ stroke-width:6.5; opacity:1; }
+        46%{ stroke-width:4; opacity:1; }
+        100%{ stroke-width:1.1; opacity:.72; }
     }
     @keyframes repairSealFlash{
         0%{ opacity:0; transform:translate(-50%, -50%) scale(.55); }
@@ -1162,6 +1194,44 @@
     .drag-particle-clean{ background:rgba(134,124,108,.72); box-shadow:0 0 8px rgba(80,72,64,.26); }
     .drag-particle-cut{ width:12px; height:7px; border-radius:3px; background:rgba(108,112,110,.78); }
     .drag-particle-shape{ background:rgba(230,178,74,.82); box-shadow:0 0 12px rgba(230,178,74,.34); }
+    .clean-tool-fx{
+        position:absolute;
+        left:var(--clean-tool-x, 50%);
+        top:var(--clean-tool-y, 50%);
+        width:78px;
+        height:162px;
+        z-index:7;
+        pointer-events:none;
+        transform:translate(-50%, -86%);
+        filter:drop-shadow(0 16px 16px rgba(15,11,7,.28)) drop-shadow(0 0 10px rgba(255,241,184,.44));
+    }
+    .clean-tool-sprite{
+        position:absolute;
+        inset:0;
+        background:url("assets/ui_v26/ui_tool_sprites/tool_clean_C.png") center / contain no-repeat;
+        transform-origin:50% 82%;
+        animation:cleanToolSweep .32s ease-in-out infinite alternate;
+    }
+    .clean-tool-glow{
+        position:absolute;
+        left:50%;
+        bottom:3px;
+        width:58px;
+        height:22px;
+        border-radius:50%;
+        transform:translateX(-50%);
+        background:radial-gradient(ellipse, rgba(255,249,219,.72), rgba(115,245,210,.22) 50%, transparent 72%);
+        mix-blend-mode:screen;
+        animation:cleanBrushGlow .32s ease-in-out infinite alternate;
+    }
+    @keyframes cleanToolSweep{
+        0%{ transform:rotate(164deg) translateX(-4px); }
+        100%{ transform:rotate(196deg) translateX(4px); }
+    }
+    @keyframes cleanBrushGlow{
+        0%{ opacity:.34; transform:translateX(-50%) scaleX(.72); }
+        100%{ opacity:.86; transform:translateX(-50%) scaleX(1.08); }
+    }
     .finish-fragment{
         position:fixed;
         left:0;
@@ -4041,6 +4111,7 @@ function clearHotspot(){
     const ring = document.getElementById("focus-ring");
     const scrollCue = document.getElementById("lens-scroll-cue");
     const repairOverlay = document.getElementById("repair-overlay");
+    clearCleanToolFx();
     if(spot) spot.style.display = "none";
     if(ring) ring.style.display = "none";
     if(scrollCue) scrollCue.style.display = "none";
@@ -4174,7 +4245,7 @@ function handleHotspotClick(){
             toast("修复精华已填满裂隙。");
             setTimeout(()=>{
                 if(currentStep()?.id === step.id) completeCurrentStep(step);
-            }, 660);
+            }, 940);
         } else {
             toast(`精华填充 ${Math.round(step.repairFill * 100)}%`);
         }
@@ -4203,6 +4274,7 @@ function startDefectDrag(e){
         points:[{ x:e.clientX, y:e.clientY }],
         shapeTrace
     };
+    if(step.type === "clean") renderCleanToolFx(e.clientX, e.clientY);
     spawnDragParticle(e.clientX, e.clientY, step.type);
 }
 function updateDefectDrag(e){
@@ -4216,6 +4288,7 @@ function updateDefectDrag(e){
     drag.lastY = e.clientY;
     drag.points.push({ x:e.clientX, y:e.clientY });
     if(step.type === "shape") updateShapeTrace(drag.shapeTrace, e.clientX, e.clientY);
+    if(step.type === "clean") renderCleanToolFx(e.clientX, e.clientY);
     if(drag.distance - drag.lastParticleDistance >= 18){
         spawnDragParticle(e.clientX, e.clientY, step.type);
         drag.lastParticleDistance = drag.distance;
@@ -4226,6 +4299,7 @@ function updateDefectDrag(e){
         if(step.dragDistance >= 630){
             state.suppressNextClick = true;
             state.defectDrag = null;
+            clearCleanToolFx();
             completeCurrentStep(step);
         }
     }
@@ -4238,6 +4312,25 @@ function spawnDragParticle(x, y, type){
     particle.style.setProperty("--particle-dx", `${(Math.random() - .5) * 22}px`);
     document.body.appendChild(particle);
     setTimeout(()=>particle.remove(), 520);
+}
+function renderCleanToolFx(clientX, clientY){
+    const stage = document.getElementById("lens-stage");
+    if(!stage) return;
+    let fx = stage.querySelector(".clean-tool-fx");
+    if(!fx){
+        fx = document.createElement("div");
+        fx.className = "clean-tool-fx";
+        fx.innerHTML = `<span class="clean-tool-glow"></span><span class="clean-tool-sprite"></span>`;
+        stage.appendChild(fx);
+    }
+    const rect = stage.getBoundingClientRect();
+    const x = Math.max(50, Math.min(rect.width - 50, clientX - rect.left));
+    const y = Math.max(96, Math.min(rect.height - 18, clientY - rect.top));
+    fx.style.setProperty("--clean-tool-x", `${x}px`);
+    fx.style.setProperty("--clean-tool-y", `${y}px`);
+}
+function clearCleanToolFx(){
+    document.querySelectorAll(".clean-tool-fx").forEach(el=>el.remove());
 }
 function spawnCompletionFragments(type){
     const spot = document.getElementById("hotspot");
@@ -4306,6 +4399,7 @@ function finishDefectDrag(e){
     if(!drag || !step || drag.pointerId !== e.pointerId) return;
     state.defectDrag = null;
     state.suppressNextClick = true;
+    if(drag.type === "clean") clearCleanToolFx();
     if(step.type === "shape") fadeShapeTrace(drag.shapeTrace);
     if(step.type === "cut"){
         const dx = e.clientX - drag.startX;
