@@ -950,6 +950,51 @@
     }
     .repair-target::before{ width:22px; height:1px; }
     .repair-target::after{ width:1px; height:22px; }
+    .repair-tool{
+        position:absolute;
+        left:var(--repair-drop-left, 50%);
+        top:var(--repair-tool-top, 10%);
+        width:50px;
+        height:104px;
+        transform:translate(-50%, -50%) rotate(180deg) scale(.88);
+        transform-origin:50% 50%;
+        opacity:0;
+        background:url("assets/ui_v26/ui_tool_sprites/tool_repair_C.png") center / contain no-repeat;
+        filter:drop-shadow(0 12px 12px rgba(16,12,8,.28)) drop-shadow(0 0 10px rgba(109,244,202,.44));
+    }
+    .repair-down-arrow{
+        position:absolute;
+        left:var(--repair-drop-left, 50%);
+        top:var(--repair-arrow-top, 32%);
+        width:22px;
+        height:38px;
+        transform:translate(-50%, -50%);
+        opacity:0;
+        filter:drop-shadow(0 0 10px rgba(112,255,216,.74));
+    }
+    .repair-down-arrow::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:2px;
+        width:3px;
+        height:24px;
+        border-radius:999px;
+        transform:translateX(-50%);
+        background:linear-gradient(180deg, rgba(255,247,188,.92), rgba(102,248,213,.92));
+    }
+    .repair-down-arrow::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        bottom:3px;
+        width:0;
+        height:0;
+        transform:translateX(-50%);
+        border-left:7px solid transparent;
+        border-right:7px solid transparent;
+        border-top:10px solid rgba(104,250,214,.96);
+    }
     .repair-drop{
         position:absolute;
         left:var(--repair-drop-left, 50%);
@@ -963,6 +1008,12 @@
     }
     .repair-overlay.drop-active .repair-drop{
         animation:repairEssenceDrop .68s cubic-bezier(.16,.88,.26,1) both;
+    }
+    .repair-overlay.drop-active .repair-tool{
+        animation:repairToolPour .72s cubic-bezier(.16,.88,.26,1) both;
+    }
+    .repair-overlay.drop-active .repair-down-arrow{
+        animation:repairArrowDown .58s ease-out .08s both;
     }
     .repair-overlay.repair-complete .repair-crack-base,
     .repair-overlay.repair-complete .repair-crack-shadow,
@@ -995,6 +1046,17 @@
         72%{ opacity:1; transform:translate(-50%, -50%) scale(1.06); }
         100%{ opacity:0; transform:translate(-50%, -44%) scale(.72); }
     }
+    @keyframes repairToolPour{
+        0%{ opacity:0; transform:translate(-50%, -66%) rotate(180deg) scale(.78); }
+        20%{ opacity:1; transform:translate(-50%, -50%) rotate(180deg) scale(.9); }
+        58%{ opacity:1; transform:translate(-50%, -44%) rotate(180deg) scale(.94); }
+        100%{ opacity:0; transform:translate(-50%, -38%) rotate(180deg) scale(.84); }
+    }
+    @keyframes repairArrowDown{
+        0%{ opacity:0; transform:translate(-50%, -70%) scale(.72); }
+        30%{ opacity:1; transform:translate(-50%, -44%) scale(1); }
+        100%{ opacity:0; transform:translate(-50%, 10%) scale(.9); }
+    }
     @keyframes repairSealFlash{
         0%{ opacity:0; transform:translate(-50%, -50%) scale(.55); }
         34%{ opacity:1; transform:translate(-50%, -50%) scale(1.05); }
@@ -1003,6 +1065,85 @@
     @keyframes repairCrackReveal{
         0%{ opacity:.35; filter:brightness(1.6) drop-shadow(0 0 22px rgba(255,228,122,.86)); }
         100%{ opacity:1; filter:brightness(1) drop-shadow(0 3px 4px rgba(18,10,6,.24)); }
+    }
+    .cut-slash-fx{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:var(--slash-length, 240px);
+        height:176px;
+        transform:translate(-50%, -50%) rotate(var(--slash-angle, 0deg));
+        z-index:7;
+        pointer-events:none;
+        mix-blend-mode:screen;
+    }
+    .cut-slash-line,
+    .cut-slash-glow{
+        position:absolute;
+        left:0;
+        top:50%;
+        width:100%;
+        border-radius:999px;
+        transform:translateY(-50%) scaleX(.06);
+        transform-origin:50% 50%;
+    }
+    .cut-slash-glow{
+        height:28px;
+        background:linear-gradient(90deg, transparent, rgba(255,255,255,.72), rgba(139,255,217,.5), transparent);
+        filter:blur(8px);
+        opacity:0;
+        animation:cutSlashLine .5s ease-out both;
+    }
+    .cut-slash-line{
+        height:5px;
+        background:linear-gradient(90deg, transparent, rgba(255,255,255,.98) 16%, #fff 48%, rgba(118,255,218,.88) 72%, transparent);
+        box-shadow:
+            0 0 9px rgba(255,255,255,.88),
+            0 0 22px rgba(113,238,205,.52),
+            0 0 34px rgba(255,210,104,.28);
+        opacity:0;
+        animation:cutSlashLine .42s cubic-bezier(.14,.8,.26,1) .04s both;
+    }
+    .cut-slash-blade{
+        position:absolute;
+        left:0;
+        top:50%;
+        width:76px;
+        height:154px;
+        background:url("assets/ui_v26/ui_tool_sprites/tool_cut_C.png") center / contain no-repeat;
+        filter:drop-shadow(0 14px 14px rgba(18,12,6,.28)) drop-shadow(0 0 9px rgba(255,238,166,.52));
+        transform-origin:50% 72%;
+        opacity:0;
+        animation:cutBladeSlash .48s cubic-bezier(.13,.86,.18,1) both;
+    }
+    .cut-slash-fx i{
+        position:absolute;
+        left:calc(50% + var(--spark-x, 0px));
+        top:calc(50% + var(--spark-y, 0px));
+        width:7px;
+        height:7px;
+        border-radius:50%;
+        background:rgba(255,250,226,.98);
+        box-shadow:0 0 12px rgba(255,246,189,.85), 0 0 20px rgba(110,244,208,.44);
+        opacity:0;
+        animation:cutSlashSpark .42s ease-out var(--spark-delay, 0ms) both;
+    }
+    @keyframes cutSlashLine{
+        0%{ opacity:0; transform:translateY(-50%) scaleX(.04); }
+        24%{ opacity:1; transform:translateY(-50%) scaleX(.82); }
+        58%{ opacity:.96; transform:translateY(-50%) scaleX(1.02); }
+        100%{ opacity:0; transform:translateY(-50%) scaleX(1.08); }
+    }
+    @keyframes cutBladeSlash{
+        0%{ opacity:0; transform:translate(-54px, -88px) rotate(72deg) scale(.82); }
+        14%{ opacity:1; }
+        68%{ opacity:1; transform:translate(calc(var(--slash-length, 240px) - 58px), -112px) rotate(72deg) scale(.94); }
+        100%{ opacity:0; transform:translate(calc(var(--slash-length, 240px) - 38px), -118px) rotate(72deg) scale(.9); }
+    }
+    @keyframes cutSlashSpark{
+        0%{ opacity:0; transform:translate(-50%, -50%) scale(.4); }
+        32%{ opacity:1; transform:translate(-50%, -50%) scale(1.05); }
+        100%{ opacity:0; transform:translate(calc(-50% + var(--spark-dx, 0px)), calc(-50% + var(--spark-dy, -16px))) scale(.52); }
     }
     .drag-particle{
         position:fixed;
@@ -3827,6 +3968,8 @@ function renderRepairOverlay(step, visible, pos){
     const activeTarget = REPAIR_TARGETS[activeIndex];
     overlay.style.setProperty("--repair-drop-left", `${activeTarget.x}%`);
     overlay.style.setProperty("--repair-drop-top", `${activeTarget.y}%`);
+    overlay.style.setProperty("--repair-tool-top", `${Math.max(-8, activeTarget.y - 42)}%`);
+    overlay.style.setProperty("--repair-arrow-top", `${Math.max(16, activeTarget.y - 18)}%`);
     overlay.innerHTML = `
         <svg class="repair-crack-svg" viewBox="0 0 220 160" focusable="false">
             <defs>
@@ -3852,6 +3995,8 @@ function renderRepairOverlay(step, visible, pos){
             const active = index === activeIndex && fill < REPAIR_COMPLETE_THRESHOLD;
             return `<span class="repair-target ${done ? "done" : ""} ${active ? "active" : ""}" style="left:${target.x}%;top:${target.y}%"></span>`;
         }).join("")}
+        <span class="repair-tool"></span>
+        <span class="repair-down-arrow"></span>
         <span class="repair-drop"></span>
     `;
     const revealKey = `${step.id}:repair-overlay:${state.lensIndex}`;
@@ -3868,6 +4013,8 @@ function playRepairDrop(targetIndex){
     const target = REPAIR_TARGETS[Math.min(targetIndex, REPAIR_TARGETS.length - 1)];
     overlay.style.setProperty("--repair-drop-left", `${target.x}%`);
     overlay.style.setProperty("--repair-drop-top", `${target.y}%`);
+    overlay.style.setProperty("--repair-tool-top", `${Math.max(-8, target.y - 42)}%`);
+    overlay.style.setProperty("--repair-arrow-top", `${Math.max(16, target.y - 18)}%`);
     overlay.classList.remove("drop-active");
     void overlay.offsetWidth;
     overlay.classList.add("drop-active");
@@ -4113,6 +4260,46 @@ function spawnCompletionFragments(type){
         setTimeout(()=>fragment.remove(), 980);
     }
 }
+function playCutSwipeFx(step, drag, endX, endY){
+    const stage = document.getElementById("lens-stage");
+    if(!stage || !drag) return;
+    stage.querySelectorAll(".cut-slash-fx").forEach(el=>el.remove());
+    const rect = stage.getBoundingClientRect();
+    const startX = drag.startX - rect.left;
+    const startY = drag.startY - rect.top;
+    const finishX = endX - rect.left;
+    const finishY = endY - rect.top;
+    const dx = finishX - startX;
+    const dy = finishY - startY;
+    const distance = Math.max(1, Math.hypot(dx, dy));
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    const fallback = defectStagePosition(step);
+    const centerX = Number.isFinite(finishX)
+        ? (startX + finishX) / 2
+        : rect.width * fallback.x / 100;
+    const centerY = Number.isFinite(finishY)
+        ? (startY + finishY) / 2
+        : rect.height * fallback.y / 100;
+    const length = Math.max(178, Math.min(distance * 1.08, Math.min(rect.width, rect.height) * .62));
+    const fx = document.createElement("div");
+    fx.className = "cut-slash-fx";
+    fx.style.left = `${Math.max(42, Math.min(rect.width - 42, centerX))}px`;
+    fx.style.top = `${Math.max(42, Math.min(rect.height - 42, centerY))}px`;
+    fx.style.setProperty("--slash-angle", `${angle}deg`);
+    fx.style.setProperty("--slash-length", `${length}px`);
+    fx.innerHTML = `
+        <span class="cut-slash-glow"></span>
+        <span class="cut-slash-line"></span>
+        <span class="cut-slash-blade"></span>
+        ${[...Array(6)].map((_, index)=>{
+            const offset = (index - 2.5) * 24;
+            const side = index % 2 === 0 ? -1 : 1;
+            return `<i style="--spark-x:${offset}px;--spark-y:${side * (5 + index)}px;--spark-dx:${side * (12 + index * 2)}px;--spark-dy:${-18 - index * 2}px;--spark-delay:${40 + index * 28}ms"></i>`;
+        }).join("")}
+    `;
+    stage.appendChild(fx);
+    setTimeout(()=>fx.remove(), 760);
+}
 function finishDefectDrag(e){
     const drag = state.defectDrag;
     const step = currentStep();
@@ -4125,7 +4312,10 @@ function finishDefectDrag(e){
         const dy = e.clientY - drag.startY;
         const angle = Math.atan2(dy, dx) * 180 / Math.PI;
         const diff = angleDiff(angle, step.cutAngle || 0);
-        if(drag.distance >= 80 && diff <= 24) completeCutSwipe(step);
+        if(drag.distance >= 80 && diff <= 24){
+            playCutSwipeFx(step, drag, e.clientX, e.clientY);
+            completeCutSwipe(step);
+        }
         else toast("切除角度不对，要顺着长条方向拖拽。");
         return;
     }
