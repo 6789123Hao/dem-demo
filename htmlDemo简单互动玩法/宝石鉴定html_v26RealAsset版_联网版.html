@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<!-- Network build: PNG assets load from GitHub raw URLs. -->
-    <title>宝石鉴定 v25 - 素体列表与收纳仪式版</title>
+<title>宝石鉴定 v25 - 素体列表与收纳仪式版</title>
 <style>
     :root{
         --bg:#f4eee3;
@@ -48,6 +47,35 @@
         flex-wrap:wrap;
         justify-content:flex-end;
     }
+    .gm-actions{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        padding:8px;
+        border:1px dashed rgba(119,78,38,.45);
+        border-radius:10px;
+        background:rgba(71,48,30,.1);
+        position:relative;
+    }
+    .gm-actions::before{
+        content:"GM测试区｜非玩法";
+        position:absolute;
+        left:10px;
+        top:-11px;
+        padding:0 6px;
+        border-radius:999px;
+        background:#4a301f;
+        color:#ffe3a3;
+        font-size:11px;
+        font-weight:900;
+        letter-spacing:0;
+    }
+    .demo-actions{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        margin-left:auto;
+    }
     .title h1{ margin:0 0 6px; font-size:30px; letter-spacing:0; }
     .title p{ margin:0; color:var(--muted); }
     .btn{
@@ -72,11 +100,20 @@
         padding:0 12px;
         box-shadow:0 6px 16px rgba(68,43,25,.08);
     }
+    .layout-select{
+        min-height:42px;
+        min-width:136px;
+        border:1px solid rgba(86,52,31,.22);
+        border-radius:8px;
+        background:#fff9ee;
+        color:var(--ink);
+        padding:0 12px;
+        box-shadow:0 6px 16px rgba(68,43,25,.08);
+    }
     .gm-btn{
-        display:none;
+        display:inline-flex;
         border-style:dashed;
     }
-    body.playing .gm-btn{ display:inline-flex; }
     .entry-drag-cue{
         position:absolute;
         left:348px;
@@ -258,6 +295,9 @@
         gap:10px;
         align-items:center;
         cursor:grab;
+    }
+    .stone-card:not(.empty):not(.locked){
+        cursor:pointer;
     }
     .stone-card.locked{ opacity:.48; cursor:not-allowed; }
     .stone-card.empty .pill{
@@ -496,6 +536,14 @@
         touch-action:none;
     }
     .hotspot.done{ opacity:0; pointer-events:none; }
+    .hotspot.hotspot-reveal{
+        animation:defectRevealPulse .32s ease-out both;
+    }
+    @keyframes defectRevealPulse{
+        0%{ filter:brightness(1.75) drop-shadow(0 0 0 rgba(255,244,180,0)); opacity:.9; }
+        46%{ filter:brightness(1.42) drop-shadow(0 0 24px rgba(255,232,128,.82)); opacity:1; }
+        100%{ filter:brightness(1) drop-shadow(0 0 0 rgba(255,244,180,0)); opacity:1; }
+    }
     .hotspot-clean{
         width:330px;
         height:330px;
@@ -696,15 +744,15 @@
         position:absolute;
         left:50%;
         top:56%;
-        width:74px;
-        height:94px;
+        width:150px;
+        height:118px;
         transform:translate(-50%, -50%);
         z-index:5;
         display:none;
         pointer-events:none;
-        border:5px solid rgba(255,248,226,.95);
-        border-radius:36px;
-        background:rgba(44,36,27,.34);
+        border:0;
+        border-radius:18px;
+        background:rgba(44,36,27,.42);
         box-shadow:0 12px 30px rgba(44,36,27,.22), inset 0 0 18px rgba(255,255,255,.12);
     }
     .lens-scroll-cue::before{
@@ -738,6 +786,61 @@
     @keyframes wheelArrowDown{
         0%, 100%{ transform:translate(-50%, -2px) rotate(45deg); opacity:.9; }
         55%{ transform:translate(-50%, 8px) rotate(45deg); opacity:.42; }
+    }
+    .lens-scroll-text{
+        position:absolute;
+        left:50%;
+        top:-34px;
+        width:max-content;
+        max-width:260px;
+        transform:translateX(-50%);
+        padding:6px 10px;
+        border-radius:8px;
+        background:rgba(44,36,27,.72);
+        color:#fff3cd;
+        font-size:13px;
+        font-weight:900;
+        text-align:center;
+        box-shadow:0 8px 16px rgba(0,0,0,.18);
+    }
+    .lens-scroll-wheel-mark{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:34px;
+        height:54px;
+        transform:translate(-50%, -50%);
+        border:4px solid rgba(255,248,226,.95);
+        border-radius:999px;
+        background:rgba(20,16,12,.18);
+    }
+    .lens-scroll-wheel-mark::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:9px;
+        width:7px;
+        height:18px;
+        transform:translateX(-50%);
+        border-radius:999px;
+        background:#fff3cd;
+        animation:wheelNudge .9s ease-in-out infinite;
+    }
+    .lens-scroll-wheel-mark::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:33px;
+        width:58px;
+        height:4px;
+        transform:translateX(-50%);
+        border-radius:999px;
+        background:linear-gradient(90deg, transparent, rgba(255,243,205,.96), transparent);
+        animation:wheelRub .9s ease-in-out infinite;
+    }
+    @keyframes wheelRub{
+        0%,100%{ opacity:.42; transform:translateX(-50%) scaleX(.74); }
+        50%{ opacity:1; transform:translateX(-50%) scaleX(1.08); }
     }
     .drag-particle{
         position:fixed;
@@ -1293,6 +1396,9 @@
         inset:auto;
         width:100%;
         min-height:0;
+        --gem-size:220px;
+        --lens-view-scale:1;
+        --lens-flip-mid-scale:.985;
         border-radius:8px;
         border:1px solid rgba(63,84,92,.22);
         background:
@@ -1337,12 +1443,12 @@
     .lens-viewport{
         position:absolute;
         left:50%;
-        top:52%;
+        top:50%;
         width:min(116%, 1180px);
         height:auto;
         aspect-ratio:1 / 1;
         border-radius:50%;
-        transform:translate(-50%, -50%) rotateX(0deg);
+        transform:translate(-50%, -50%) rotateX(0deg) scale(var(--lens-view-scale, 1));
         transform-style:preserve-3d;
         z-index:4;
         pointer-events:none;
@@ -1389,9 +1495,9 @@
         animation:lensFlip .48s cubic-bezier(.2,.82,.24,1) both;
     }
     @keyframes lensFlip{
-        0%{ transform:translate(-50%, -50%) rotateX(0deg) scale(1); filter:saturate(1); }
-        45%{ transform:translate(-50%, -50%) rotateX(calc(var(--lens-flip-dir, 1) * 82deg)) scale(.985); filter:saturate(.72) brightness(1.12); }
-        100%{ transform:translate(-50%, -50%) rotateX(0deg) scale(1); filter:saturate(1); }
+        0%{ transform:translate(-50%, -50%) rotateX(0deg) scale(var(--lens-view-scale, 1)); filter:saturate(1); }
+        45%{ transform:translate(-50%, -50%) rotateX(calc(var(--lens-flip-dir, 1) * 82deg)) scale(var(--lens-flip-mid-scale, .985)); filter:saturate(.72) brightness(1.12); }
+        100%{ transform:translate(-50%, -50%) rotateX(0deg) scale(var(--lens-view-scale, 1)); filter:saturate(1); }
     }
     .batch-pipe{
         display:none;
@@ -1411,8 +1517,8 @@
         position:absolute;
         left:50%;
         top:50%;
-        width:220px;
-        height:220px;
+        width:var(--gem-size, 220px);
+        height:var(--gem-size, 220px);
         transform:translate(-50%, -50%);
         transform-style:flat;
         transition:filter .2s ease, transform .28s ease;
@@ -1466,7 +1572,7 @@
         animation:gemStepSwap .52s cubic-bezier(.18,.78,.22,1) both;
     }
     .gem3d.gem-collect-exit{
-        animation:gemCollectExit 1.12s cubic-bezier(.16,.78,.18,1) forwards;
+        animation:gemCollectExit 1.82s cubic-bezier(.16,.78,.18,1) forwards;
         z-index:12;
     }
     .gem3d.step-shape{ transform:translate(-50%, -50%) scale(1.28); }
@@ -1485,8 +1591,8 @@
     }
     @keyframes gemCollectExit{
         0%{ opacity:1; transform:translate(-50%, -50%) scale(1); filter:brightness(1.08) drop-shadow(0 0 22px rgba(255,244,178,.42)); }
-        22%{ opacity:1; transform:translate(-50%, -50%) scale(1.58); filter:brightness(1.52) saturate(1.16) drop-shadow(0 0 46px rgba(255,244,178,.82)); }
-        48%{ opacity:1; transform:translate(-50%, -50%) scale(1.46); filter:brightness(1.36) saturate(1.08) drop-shadow(0 0 38px rgba(255,244,178,.7)); }
+        18%{ opacity:1; transform:translate(-50%, -50%) scale(1.58); filter:brightness(1.52) saturate(1.16) drop-shadow(0 0 46px rgba(255,244,178,.82)); }
+        56%{ opacity:1; transform:translate(-50%, -50%) scale(1.48); filter:brightness(1.36) saturate(1.08) drop-shadow(0 0 38px rgba(255,244,178,.7)); }
         100%{ opacity:0; transform:translate(132%, -50%) rotate(18deg) scale(.68); filter:brightness(1.2) drop-shadow(0 0 18px rgba(255,244,178,.38)); }
     }
     .gem-core{
@@ -1538,6 +1644,7 @@
     .gem3d.has-stage-image .gem-core{
         border-radius:0 !important;
         clip-path:none !important;
+        border:0 !important;
         box-shadow:none !important;
         background-image:var(--gem-stage-image) !important;
         background-size:contain !important;
@@ -1560,6 +1667,13 @@
     .gem3d.has-stage-image.visual-cleaned .gem-core{
         --gem-scale:1.96;
         filter:drop-shadow(0 0 24px rgba(255,245,190,.48)) !important;
+    }
+    .gem3d.has-stage-image.gem-spin-complete .gem-core{
+        background-image:var(--completion-spin-image) !important;
+        filter:drop-shadow(0 0 30px rgba(255,245,190,.62)) drop-shadow(0 34px 32px rgba(30,12,10,.36)) !important;
+    }
+    .gem3d.has-stage-image.gem-spin-complete .gem-surface{
+        opacity:0;
     }
     .gem3d.has-stage-image.visual-raw .gem-cushion{ --cushion-scale:1.12; }
     .gem3d.has-stage-image.visual-cut .gem-cushion,
@@ -1815,9 +1929,8 @@
         z-index:8;
     }
     .play-exit-btn{
-        display:none;
+        display:inline-flex;
     }
-    body.playing .play-exit-btn{ display:inline-flex; }
     .core-controls{
         position:absolute;
         right:18px;
@@ -1829,7 +1942,7 @@
     .core-hint{
         position:absolute;
         left:50%;
-        top:22%;
+        top:14%;
         transform:translateX(-50%);
         z-index:12;
         display:none;
@@ -1975,7 +2088,7 @@
             right:26px;
             bottom:20px;
         }
-        .core-hint{ top:24%; width:min(330px, 76%); }
+        .core-hint{ top:14%; width:min(330px, 76%); }
     }
     body.v26-real-asset{
         --bg:#153f34;
@@ -2113,7 +2226,7 @@
     }
     body.v26-real-asset .lens-viewport{
         width:min(124%, 1320px);
-        top:51%;
+        top:50%;
         border:0;
         background:
             var(--v26-lens-ring) center / 100% 100% no-repeat,
@@ -2184,8 +2297,14 @@
         box-shadow:none;
     }
     body.v26-real-asset .current-tool-card::before{
-        background:transparent;
-        box-shadow:none;
+        content:"工具待命";
+        background:linear-gradient(180deg, #806044, #3d2a1f);
+        color:#ffe4a7;
+        box-shadow:inset 0 -7px 12px rgba(0,0,0,.2), 0 14px 24px rgba(34,22,15,.24);
+    }
+    body.v26-real-asset.playing .current-tool-card::before{
+        transform:translateY(calc(-100% - 14px));
+        opacity:.08;
     }
     body.v26-real-asset .current-tool-icon{
         background:
@@ -2233,9 +2352,11 @@
         background:var(--v26-mouse-right) center / contain no-repeat;
     }
     body.v26-real-asset .lens-scroll-cue{
-        width:96px;
-        height:112px;
-        background:var(--v26-mouse-wheel) center / contain no-repeat;
+        width:150px;
+        height:118px;
+        background:rgba(38,29,20,.5);
+        border:1px solid rgba(255,232,166,.3);
+        border-radius:18px;
         animation:v26WheelFloat 1.25s ease-in-out infinite;
     }
     @keyframes v26WheelFloat{
@@ -2343,6 +2464,233 @@
         box-shadow:none;
         padding:34px 44px 30px;
     }
+    body.layout-mobile-landscape #screen-main{
+        padding:8px;
+        min-width:960px;
+        overflow:hidden;
+    }
+    body.layout-mobile-landscape .topbar{
+        gap:8px;
+        margin-bottom:8px;
+    }
+    body.layout-mobile-landscape .title h1{ font-size:20px; }
+    body.layout-mobile-landscape .title p{ display:none; }
+    body.layout-mobile-landscape .btn,
+    body.layout-mobile-landscape .data-pack-select,
+    body.layout-mobile-landscape .layout-select{
+        min-height:48px;
+        font-size:16px;
+        font-weight:800;
+    }
+    body.layout-mobile-landscape .workbench{
+        position:relative;
+        grid-template-columns:300px minmax(650px, 1fr);
+        grid-template-rows:calc(100vh - 88px);
+        gap:8px;
+    }
+    body.layout-mobile-landscape .bag-panel{
+        grid-column:1;
+        min-height:0;
+        padding:12px;
+    }
+    body.layout-mobile-landscape .bag-panel > h2,
+    body.layout-mobile-landscape .bag-panel > #bag{ display:none; }
+    body.layout-mobile-landscape .stone-list{
+        gap:9px;
+        max-height:calc(100vh - 180px);
+    }
+    body.layout-mobile-landscape .stone-card{
+        min-height:70px;
+        grid-template-columns:50px 1fr 58px;
+        padding:12px;
+        font-size:16px;
+    }
+    body.layout-mobile-landscape .stone-dot{
+        width:48px;
+        height:48px;
+    }
+    body.layout-mobile-landscape .stone-meta{ font-size:13px; }
+    body.layout-mobile-landscape .center-panel{
+        grid-column:2;
+        min-height:0;
+        padding:0;
+    }
+    body.layout-mobile-landscape .center-stage,
+    body.layout-mobile-landscape .lens-stage{
+        min-height:0;
+        height:100%;
+    }
+    body.layout-mobile-landscape .lens-stage{
+        --gem-size:210px;
+        --lens-view-scale:.92;
+        --lens-flip-mid-scale:.906;
+    }
+    body.layout-mobile-landscape .core-hint{
+        top:18px;
+        min-width:420px;
+        font-size:17px;
+        font-weight:900;
+    }
+    body.layout-mobile-landscape .notebook-card{
+        display:block;
+        position:absolute;
+        left:16px;
+        top:16px;
+        width:232px;
+        min-height:134px;
+        padding:18px 16px 14px 44px;
+        pointer-events:none;
+        transform:scale(.92);
+        transform-origin:left top;
+        z-index:9;
+    }
+    body.layout-mobile-landscape .notebook-card .notebook-title{
+        font-size:17px;
+    }
+    body.layout-mobile-landscape .notebook-card .notebook-line,
+    body.layout-mobile-landscape .notebook-card .notebook-steps{
+        font-size:12px;
+        line-height:1.35;
+    }
+    body.layout-mobile-landscape .notebook-card .progress{
+        height:8px;
+        margin-top:5px;
+    }
+    body.layout-mobile-landscape .core-controls{
+        left:20px;
+        right:auto;
+        top:auto;
+        bottom:18px;
+        width:230px;
+        display:block;
+    }
+    body.layout-mobile-landscape .core-controls .step-box{
+        padding:14px;
+    }
+    body.layout-mobile-landscape .core-controls .step-box h3{
+        font-size:18px;
+    }
+    body.layout-mobile-landscape .lens-btn{
+        min-height:54px;
+        padding:14px;
+        font-size:17px;
+        font-weight:900;
+    }
+    body.layout-mobile-landscape .right-panel{
+        position:absolute;
+        right:0;
+        bottom:10px;
+        top:14px;
+        width:330px;
+        padding:0;
+        background:transparent;
+        border:0;
+        box-shadow:none;
+        pointer-events:none;
+    }
+    body.layout-mobile-landscape .right-panel h2{ display:none; }
+    body.layout-mobile-landscape .current-tool-card{
+        position:absolute;
+        right:0;
+        top:0;
+        width:210px;
+        min-height:240px;
+        pointer-events:auto;
+    }
+    body.layout-mobile-landscape .current-tool-icon{
+        width:138px;
+        min-height:200px;
+        height:210px;
+    }
+    body.layout-mobile-landscape .collect-cta{
+        position:absolute;
+        right:0;
+        top:50%;
+        min-width:172px;
+        min-height:60px;
+        transform:translateY(-50%);
+        font-size:20px;
+        font-weight:900;
+        pointer-events:auto;
+    }
+    body.layout-mobile-landscape .right-panel .plate-actions{
+        right:8px;
+        bottom:8px;
+        pointer-events:auto;
+    }
+    body.layout-mobile-landscape .plate{
+        position:absolute;
+        right:-2px;
+        bottom:0;
+        width:238px;
+        height:238px;
+        pointer-events:auto;
+    }
+    body.layout-mobile-landscape .plate-gem{
+        width:44px;
+        height:44px;
+    }
+    body.layout-mobile-landscape .hotspot{
+        min-width:54px;
+        min-height:54px;
+    }
+    body.layout-mobile-landscape .lens-scroll-cue{
+        transform:translate(-50%, -50%) scale(1.18);
+    }
+    @media (max-height:760px){
+        .lens-stage{
+            --gem-size:205px;
+            --lens-view-scale:.94;
+            --lens-flip-mid-scale:.925;
+        }
+        body.layout-mobile-landscape .lens-stage{
+            --gem-size:198px;
+            --lens-view-scale:.88;
+            --lens-flip-mid-scale:.867;
+        }
+    }
+    @media (max-height:680px){
+        .lens-stage{
+            --gem-size:186px;
+            --lens-view-scale:.86;
+            --lens-flip-mid-scale:.847;
+        }
+        body.layout-mobile-landscape .lens-stage{
+            --gem-size:178px;
+            --lens-view-scale:.8;
+            --lens-flip-mid-scale:.788;
+        }
+        body.layout-mobile-landscape .notebook-card{
+            transform:scale(.84);
+        }
+    }
+    @media (max-height:600px){
+        .lens-stage{
+            --gem-size:166px;
+            --lens-view-scale:.77;
+            --lens-flip-mid-scale:.758;
+        }
+        body.layout-mobile-landscape .lens-stage{
+            --gem-size:160px;
+            --lens-view-scale:.72;
+            --lens-flip-mid-scale:.709;
+        }
+        body.layout-mobile-landscape .core-hint{
+            top:12px;
+            min-height:50px;
+            padding:10px 18px;
+        }
+        body.layout-mobile-landscape .notebook-card{
+            transform:scale(.76);
+        }
+        body.layout-mobile-landscape .plate{
+            width:212px;
+            height:212px;
+        }
+    }
+    body.layout-gamepad .layout-select{
+        outline:3px solid rgba(80,170,110,.45);
+    }
 </style>
 </head>
 <body class="v26-real-asset">
@@ -2353,10 +2701,19 @@
             <p>选择宝石素体进入镜片区，按切除、修补、定型、清洁的状态链完成验收。</p>
         </div>
         <div class="top-actions">
-            <button class="btn ghost play-exit-btn" id="exit-play-btn">退出玩法</button>
-            <select id="data-pack-select" class="data-pack-select" aria-label="演示数据包"></select>
-            <button class="btn primary gm-btn" id="finish-fast-btn">GM完成当前素体</button>
-            <button class="btn ghost" id="reset-demo-btn">重置演示数据</button>
+            <div class="gm-actions" aria-label="GM测试控制，不属于正式玩法">
+                <button class="btn primary gm-btn" id="finish-fast-btn">GM完成当前素体</button>
+                <button class="btn ghost play-exit-btn" id="exit-play-btn">退出玩法</button>
+                <div class="demo-actions">
+                    <select id="layout-select" class="layout-select" aria-label="窗口比例布局">
+                        <option value="desktop">电脑布局</option>
+                        <option value="mobileLandscape">手机横屏</option>
+                        <option value="gamepad">手柄测试</option>
+                    </select>
+                    <select id="data-pack-select" class="data-pack-select" aria-label="演示数据包"></select>
+                    <button class="btn ghost" id="reset-demo-btn">重置演示数据</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -2421,10 +2778,10 @@
                             <div class="progress"><div id="step-progress"></div></div>
                         </div>
                     </div>
-                    <p class="core-hint">滚轮切 Lens，右键切工具，点击处理点完成交互。</p>
+                    <p class="core-hint">滚动鼠标滚轮翻镜片，点击瑕疵完成当前操作。</p>
                     <div class="core-controls">
                         <div class="step-box">
-                            <h3>手动镜头</h3>
+                            <h3>切换镜头</h3>
                             <div id="lens-grid" class="lens-grid"></div>
                         </div>
                         <div class="step-box tool-panel">
@@ -2505,18 +2862,18 @@ const SHAPE_TARGETS = ["circle", "triangle", "square"];
 const SHAPE_LABELS = { circle:"圆形", triangle:"三角形", square:"正方形" };
 const SHAPE_MARKS = { circle:"○", triangle:"△", square:"□" };
 const GEM_BLUEPRINTS = [
-    { id:"pearl", name:"珍珠", rarity:3, version:"西西亚·三星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #fff9ef 0%, #d9d3dd 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/pearl", tasks:[{type:"repair", title:"珠层细裂", lens:2, face:1, pos:{x:54,y:46}}, {type:"clean", title:"柔光净化", lens:0, face:1, pos:{x:50,y:54}}] },
-    { id:"agate", name:"玛瑙", rarity:3, version:"长安·三星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/agate", tasks:[{type:"repair", title:"下缘细裂", lens:2, face:2, pos:{x:46,y:64}}, {type:"clean", title:"通透净化", lens:1, face:1, pos:{x:50,y:52}}] },
-    { id:"garnet", name:"石榴石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b85a52 0%, #6d1f23 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/garnet", tasks:[{type:"repair", title:"边缘缺口", lens:1, face:2, pos:{x:58,y:42}}, {type:"clean", title:"血色提亮", lens:2, face:0, pos:{x:50,y:50}}] },
-    { id:"sunstone", name:"砂金石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #f1b07c 0%, #9a4f2d 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/sunstone", tasks:[{type:"repair", title:"细小缺角", lens:2, face:1, pos:{x:40,y:60}}, {type:"clean", title:"金砂唤亮", lens:0, face:2, pos:{x:50,y:52}}] },
-    { id:"catseye", name:"猫眼石", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #d8f1a8 0%, #7ea042 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/catseye", tasks:[{type:"repair", title:"猫眼边缘损伤", lens:2, face:1, pos:{x:56,y:40}}, {type:"clean", title:"瞳线净化", lens:1, face:2, pos:{x:50,y:50}}] },
-    { id:"jadeite", name:"翡翠", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b8f0c6 0%, #3d9b63 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/jadeite", tasks:[{type:"repair", title:"边缘细裂", lens:1, face:1, pos:{x:56,y:62}}, {type:"clean", title:"翠面净化", lens:2, face:0, pos:{x:50,y:50}}] },
-    { id:"obsidian", name:"黑曜石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6f6b83 0%, #15131f 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/obsidian", tasks:[{type:"cut", title:"石皮切除", lens:0, face:0, pos:{x:58,y:38}, cutHitsRequired:2}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:2, face:1, pos:{x:50,y:50}}, {type:"clean", title:"黑镜净化", lens:1, face:0, pos:{x:52,y:50}}] },
-    { id:"fluorite", name:"萤石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #bca7e8 0%, #4f5a7e 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/fluorite", tasks:[{type:"cut", title:"杂层切除", lens:1, face:1, pos:{x:62,y:52}}, {type:"shape", title:"圆形成球", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"clean", title:"荧光净化", lens:0, face:0, pos:{x:52,y:50}}] },
-    { id:"malachite", name:"孔雀石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6ec07f 0%, #1d5a38 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/malachite", tasks:[{type:"cut", title:"矿皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"孔雀纹裂", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"正方定型", targetShape:"square", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"石面净化", lens:0, face:0, pos:{x:52,y:50}}] },
-    { id:"turquoise", name:"绿松石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #86dfd0 0%, #2a8f89 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/turquoise", tasks:[{type:"cut", title:"泥皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"脉络裂隙", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"松石净化", lens:0, face:0, pos:{x:52,y:50}}] },
-    { id:"hetian", name:"和田玉", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #edf0d5 0%, #a9b484 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/hetian", tasks:[{type:"cut", title:"杂质筋切除", lens:1, face:1, pos:{x:40,y:52}}, {type:"shape", title:"圆润定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:50}}, {type:"clean", title:"玉面净化", lens:0, face:0, pos:{x:52,y:52}}] },
-    { id:"shoushan", name:"寿山石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #f0d2a7 0%, #b5794b 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/shoushan", tasks:[{type:"cut", title:"残皮切除", lens:0, face:2, pos:{x:54,y:60}, cutHitsRequired:2}, {type:"shape", title:"方章定型", targetShape:"square", lens:2, face:1, pos:{x:50,y:48}}, {type:"clean", title:"石面净化", lens:1, face:0, pos:{x:50,y:50}}] }
+    { id:"pearl", name:"珍珠", rarity:3, version:"西西亚·三星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #fff9ef 0%, #d9d3dd 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/pearl", tasks:[{type:"repair", title:"珠层细裂", lens:2, face:1, pos:{x:54,y:46}}, {type:"clean", title:"柔光净化", lens:0, face:1, pos:{x:50,y:54}}] },
+    { id:"agate", name:"玛瑙", rarity:3, version:"长安·三星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/agate", tasks:[{type:"repair", title:"下缘细裂", lens:2, face:2, pos:{x:46,y:64}}, {type:"clean", title:"通透净化", lens:1, face:1, pos:{x:50,y:52}}] },
+    { id:"garnet", name:"石榴石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b85a52 0%, #6d1f23 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/garnet", tasks:[{type:"repair", title:"边缘缺口", lens:1, face:2, pos:{x:58,y:42}}, {type:"clean", title:"血色提亮", lens:2, face:0, pos:{x:50,y:50}}] },
+    { id:"sunstone", name:"砂金石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #f1b07c 0%, #9a4f2d 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/sunstone", tasks:[{type:"repair", title:"细小缺角", lens:2, face:1, pos:{x:40,y:60}}, {type:"clean", title:"金砂唤亮", lens:0, face:2, pos:{x:50,y:52}}] },
+    { id:"catseye", name:"猫眼石", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #d8f1a8 0%, #7ea042 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/catseye", tasks:[{type:"repair", title:"猫眼边缘损伤", lens:2, face:1, pos:{x:56,y:40}}, {type:"clean", title:"瞳线净化", lens:1, face:2, pos:{x:50,y:50}}] },
+    { id:"jadeite", name:"翡翠", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b8f0c6 0%, #3d9b63 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/jadeite", tasks:[{type:"repair", title:"边缘细裂", lens:1, face:1, pos:{x:56,y:62}}, {type:"clean", title:"翠面净化", lens:2, face:0, pos:{x:50,y:50}}] },
+    { id:"obsidian", name:"黑曜石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6f6b83 0%, #15131f 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/obsidian", tasks:[{type:"cut", title:"石皮切除", lens:0, face:0, pos:{x:58,y:38}, cutHitsRequired:2}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:2, face:1, pos:{x:50,y:50}}, {type:"clean", title:"黑镜净化", lens:1, face:0, pos:{x:52,y:50}}] },
+    { id:"fluorite", name:"萤石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #bca7e8 0%, #4f5a7e 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/fluorite", tasks:[{type:"cut", title:"杂层切除", lens:1, face:1, pos:{x:62,y:52}}, {type:"shape", title:"圆形成球", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"clean", title:"荧光净化", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"malachite", name:"孔雀石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6ec07f 0%, #1d5a38 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/malachite", tasks:[{type:"cut", title:"矿皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"孔雀纹裂", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"正方定型", targetShape:"square", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"石面净化", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"turquoise", name:"绿松石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #86dfd0 0%, #2a8f89 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/turquoise", tasks:[{type:"cut", title:"泥皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"脉络裂隙", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"松石净化", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"hetian", name:"和田玉", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #edf0d5 0%, #a9b484 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/hetian", tasks:[{type:"cut", title:"杂质筋切除", lens:1, face:1, pos:{x:40,y:52}}, {type:"shape", title:"圆润定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:50}}, {type:"clean", title:"玉面净化", lens:0, face:0, pos:{x:52,y:52}}] },
+    { id:"shoushan", name:"寿山石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #f0d2a7 0%, #b5794b 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/shoushan", tasks:[{type:"cut", title:"残皮切除", lens:0, face:2, pos:{x:54,y:60}, cutHitsRequired:2}, {type:"shape", title:"方章定型", targetShape:"square", lens:2, face:1, pos:{x:50,y:48}}, {type:"clean", title:"石面净化", lens:1, face:0, pos:{x:50,y:50}}] }
 ];
 const GEM_VISUALS = {
     pearl:{ rawClip:"circle(48% at 50% 50%)", cutClip:"circle(45% at 50% 50%)", cutScale:.92, texture:"radial-gradient(circle at 34% 28%, rgba(255,255,255,.78), transparent 22%)" },
@@ -2572,15 +2929,25 @@ const state = {
     lensIndex:0,
     activeTool:"clean",
     dataPackKey:"fullCoverage",
+    layoutMode:"desktop",
     listSortKey:"quantity",
     raritySortDir:-1,
     dragPayload:null,
     defectDrag:null,
-    suppressNextClick:false
+    suppressNextClick:false,
+    lensLockedUntil:0,
+    hotspotRevealKey:null
 };
 
 function gemById(id){ return GEM_BLUEPRINTS.find(g => g.id === id); }
 function currentDataPack(){ return DEMO_DATA_PACKS[state.dataPackKey] || DEMO_DATA_PACKS.fullCoverage; }
+function applyLayoutMode(mode){
+    state.layoutMode = ["desktop","mobileLandscape","gamepad"].includes(mode) ? mode : "desktop";
+    document.body.classList.toggle("layout-mobile-landscape", state.layoutMode === "mobileLandscape");
+    document.body.classList.toggle("layout-gamepad", state.layoutMode === "gamepad");
+    const select = document.getElementById("layout-select");
+    if(select) select.value = state.layoutMode;
+}
 function normalizedBag(bag){
     const result = {};
     GEM_BLUEPRINTS.forEach(gem=>{ result[gem.id] = bag[gem.id] || 0; });
@@ -2663,6 +3030,8 @@ function renderMain(){
     document.querySelector(".right-panel")?.classList.toggle("has-rewards", plateTotal() > 0);
     const packSelect = document.getElementById("data-pack-select");
     if(packSelect) packSelect.value = state.dataPackKey;
+    const layoutSelect = document.getElementById("layout-select");
+    if(layoutSelect) layoutSelect.value = state.layoutMode;
     renderKnownList();
     renderPlate();
     renderCurrentTool();
@@ -2704,6 +3073,7 @@ function renderKnownList(){
             <span class="pill">${known ? "拖拽→" : "未识别"}</span>
         `;
         if(known && available){
+            card.addEventListener("click", ()=>startKnownStone(gem.id));
             card.addEventListener("dragstart", e=>{
                 state.dragPayload = { type:"known", id:gem.id };
                 e.dataTransfer.setData("text/plain", JSON.stringify(state.dragPayload));
@@ -2932,6 +3302,8 @@ function abandonActiveGem(message){
     clearHotspot();
     state.active = null;
     state.pendingBatch = false;
+    state.hotspotRevealKey = null;
+    state.lensLockedUntil = 0;
     addLog(`${gem.name} 未完成，已退出当前处理。${message}`);
 }
 function startCorePlay(id, meta){
@@ -2945,6 +3317,8 @@ function startCorePlay(id, meta){
     };
     state.lensIndex = 0;
     state.activeTool = state.active.tasks[0]?.type || "clean";
+    state.hotspotRevealKey = null;
+    state.lensLockedUntil = 0;
     document.body.classList.add("playing");
     document.getElementById("lens-stage").classList.remove("idle");
     showScreen("screen-main");
@@ -2956,10 +3330,14 @@ function currentStep(){
     return state.active.tasks[state.active.stepIndex] || null;
 }
 function setLensIndex(nextIndex, shouldFlip=true, flipDir=1){
+    if(Date.now() < state.lensLockedUntil){
+        return false;
+    }
     const next = (nextIndex + LENSES.length) % LENSES.length;
     const changed = state.lensIndex !== next;
     state.lensIndex = next;
     if(changed && shouldFlip) playLensFlip(flipDir);
+    return true;
 }
 function playLensFlip(direction=1){
     const stage = document.getElementById("lens-stage");
@@ -2981,7 +3359,7 @@ function stepStatusText(step){
     return base;
 }
 function stepHintText(step){
-    if(!step) return "滚轮切 Lens，右键切工具，点击处理点完成交互。";
+    if(!step) return "滚动鼠标滚轮翻镜片，点击瑕疵完成当前操作。";
     if(step.type === "clean") return "清洁：按住范围圈，在瑕疵上来回拖拽擦除。";
     if(step.type === "repair") return "修补：连续点击水滴形瑕疵 3 次。";
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：这颗需要切 ${step.cutHitsRequired} 次，按住长条并顺着角度拖拽。`;
@@ -3031,6 +3409,16 @@ const V24_ENTITY_ASSETS = {
     hetian:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/hetian",
     shoushan:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/shoushan"
 };
+const COMPLETION_SPIN_ASSETS = {
+    garnet:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/garnet/garnet_spin.gif",
+    fluorite:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/fluorite/fluorite_spin.gif",
+    turquoise:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/turquoise/turquoise_spin.gif"
+};
+function completionSpinImageValue(gem, fresh=false){
+    const path = COMPLETION_SPIN_ASSETS[gem.id];
+    const version = fresh ? `${V24_ASSET_VERSION}-${Date.now()}` : V24_ASSET_VERSION;
+    return path ? `url("${path}?${version}")` : "none";
+}
 function applyGemVisualVars(gem3d, gem){
     const visual = GEM_VISUALS[gem.id] || {};
     gem3d.style.setProperty("--raw-clip", visual.rawClip || "polygon(45% 0, 77% 7%, 100% 36%, 92% 76%, 54% 100%, 18% 88%, 0 54%, 14% 16%)");
@@ -3038,6 +3426,7 @@ function applyGemVisualVars(gem3d, gem){
     gem3d.style.setProperty("--cut-scale", visual.cutScale || .86);
     gem3d.style.setProperty("--gem-texture", visual.texture || "linear-gradient(145deg, rgba(255,255,255,.18), transparent 44%)");
     if(V24_ENTITY_ASSETS[gem.id]) gem.assetBase = V24_ENTITY_ASSETS[gem.id];
+    gem3d.style.setProperty("--completion-spin-image", completionSpinImageValue(gem));
     gem3d.classList.add(`gem-${gem.id}`);
 }
 function renderCurrentTool(){
@@ -3111,7 +3500,9 @@ function renderPlay(){
     gem3d.style.setProperty("--crack-branch-opacity", Math.max(0, .72 - repairProgress * .26));
     gem3d.style.setProperty("--gem-stage-image", stageImageValue(gem, visual));
     renderArchiveNotebook(active, gem);
-    document.querySelector(".core-hint").textContent = stepHintText(step);
+    document.querySelector(".core-hint").textContent = step && state.lensIndex !== step.lens
+        ? `镜片不对：请滚动鼠标滚轮翻镜片，切到 ${LENSES[step.lens].label}。`
+        : stepHintText(step);
     document.getElementById("step-progress").style.width = `${(active.stepIndex / active.tasks.length) * 100}%`;
     document.getElementById("gem-core").style.setProperty("--gem-color", gem.color);
     document.getElementById("lens-stage").style.setProperty("--lens-filter", LENSES[state.lensIndex].filter);
@@ -3141,12 +3532,13 @@ function renderLensButtons(){
     LENSES.forEach((lens, index)=>{
         const btn = document.createElement("button");
         btn.className = `lens-btn ${state.lensIndex === index ? "active" : ""}`;
-        btn.textContent = lens.label;
+        btn.textContent = `${currentStep()?.lens === index ? "◆ " : ""}${lens.label}`;
         btn.addEventListener("click", ()=>{
             const direction = index >= state.lensIndex ? 1 : -1;
-            setLensIndex(index, true, direction);
-            renderPlay();
-            toast(`切换到 ${lens.label}`);
+            if(setLensIndex(index, true, direction)){
+                renderPlay();
+                toast(`切换到 ${lens.label}`);
+            }
         });
         grid.appendChild(btn);
     });
@@ -3169,9 +3561,10 @@ function renderToolButtons(){
 function cycleLensByWheel(deltaY){
     if(!state.active) return;
     const dir = deltaY >= 0 ? 1 : -1;
-    setLensIndex(state.lensIndex + dir, true, dir);
-    renderPlay();
-    toast(`切换到 ${LENSES[state.lensIndex].label}`);
+    if(setLensIndex(state.lensIndex + dir, true, dir)){
+        renderPlay();
+        toast(`切换到 ${LENSES[state.lensIndex].label}`);
+    }
 }
 function cycleToolByRightClick(){
     if(!state.active) return;
@@ -3191,7 +3584,13 @@ function renderHotspot(){
     if(!visibleOnLens){
         spot.style.display = "none";
         ring.style.display = "none";
-        if(scrollCue) scrollCue.style.display = step ? "block" : "none";
+        state.hotspotRevealKey = null;
+        if(scrollCue){
+            scrollCue.style.display = step ? "block" : "none";
+            if(step){
+                scrollCue.innerHTML = `<span class="lens-scroll-text">滚动滚轮翻镜片</span><span class="lens-scroll-wheel-mark"></span>`;
+            }
+        }
         return;
     }
     if(scrollCue) scrollCue.style.display = "none";
@@ -3213,6 +3612,16 @@ function renderHotspot(){
     spot.style.top = `${pos.y}%`;
     ring.style.left = `${pos.x}%`;
     ring.style.top = `${pos.y}%`;
+    const revealKey = `${step.id}:${step.lens}:${step.type}`;
+    if(state.hotspotRevealKey !== revealKey){
+        state.hotspotRevealKey = revealKey;
+        state.lensLockedUntil = Date.now() + 300;
+        spot.classList.remove("hotspot-reveal");
+        void spot.offsetWidth;
+        spot.classList.add("hotspot-reveal");
+        clearTimeout(renderHotspot.revealTimer);
+        renderHotspot.revealTimer = setTimeout(()=>spot.classList.remove("hotspot-reveal"), 340);
+    }
 }
 function defectStagePosition(step){
     const scale = step.type === "shape" ? 0.42 : 0.48;
@@ -3241,7 +3650,7 @@ function clearHotspot(){
 function canUseCurrentStep(step){
     if(!step) return;
     if(state.lensIndex !== step.lens){
-        toast(`镜头不对，需要 ${LENSES[step.lens].label}`);
+        toast(`????????????? ${LENSES[step.lens].label}`);
         return false;
     }
     if(state.activeTool !== step.type){
@@ -3257,11 +3666,13 @@ function completeCurrentStep(step){
     toast(`完成 ${TOOL_LABELS[step.type]}`);
     if(state.active.stepIndex >= state.active.tasks.length){
         if(step.type === "clean"){
+            const gem = gemById(state.active.gemId);
             renderPlay();
             triggerCollectionFlash();
             playCompletionCeremony();
-            playGemAnimation("gem-collect-exit", 1160);
-            setTimeout(()=>completeActiveGem(), 1120);
+            playCompletionSpinIfAvailable(gem, 1880);
+            playGemAnimation("gem-collect-exit", 1880);
+            setTimeout(()=>completeActiveGem(), 1840);
         } else {
             completeActiveGem();
         }
@@ -3292,6 +3703,12 @@ function playGemAnimation(className, duration=420){
     void gem3d.offsetWidth;
     gem3d.classList.add(className);
     setTimeout(()=>gem3d.classList.remove(className), duration);
+}
+function playCompletionSpinIfAvailable(gem, duration=1120){
+    if(!COMPLETION_SPIN_ASSETS[gem.id]) return;
+    const gem3d = document.getElementById("gem3d");
+    gem3d?.style.setProperty("--completion-spin-image", completionSpinImageValue(gem, true));
+    playGemAnimation("gem-spin-complete", duration);
 }
 function triggerCollectionFlash(){
     document.querySelectorAll(".collection-flash").forEach(el=>el.remove());
@@ -3513,6 +3930,8 @@ function completeActiveGem(){
     const amount = releaseTypeToPlate(active.gemId, "核心玩法完成后同类型出石");
     addLog(`${gem.name} 鉴定完成，同类型 ${amount} 颗一起出石到盘子。`);
     state.active = null;
+    state.hotspotRevealKey = null;
+    state.lensLockedUntil = 0;
     renderMain();
     if(active.meta.continueBatch){
         const nextId = firstUnseenOrFirstBagId();
@@ -3634,6 +4053,8 @@ function exitPlay(){
     }
     state.active = null;
     state.pendingBatch = false;
+    state.hotspotRevealKey = null;
+    state.lensLockedUntil = 0;
     document.body.classList.remove("playing");
     document.getElementById("lens-stage").classList.add("idle");
     clearHotspot();
@@ -3654,6 +4075,8 @@ function resetDemo(){
     state.rewards = [];
     state.active = null;
     state.pendingBatch = false;
+    state.hotspotRevealKey = null;
+    state.lensLockedUntil = 0;
     document.body.classList.remove("playing");
     document.getElementById("reward-modal").classList.remove("show");
     document.getElementById("lens-stage").classList.add("idle");
@@ -3741,10 +4164,12 @@ document.addEventListener("DOMContentLoaded", ()=>{
     });
     document.getElementById("collect-btn").addEventListener("click", openRewardModal);
     document.getElementById("organize-plate-btn").addEventListener("click", organizePlate);
+    document.getElementById("layout-select").addEventListener("change", e=>applyLayoutMode(e.target.value));
     document.getElementById("data-pack-select").addEventListener("change", e=>applyDataPack(e.target.value));
     document.getElementById("reset-demo-btn").addEventListener("click", resetDemo);
     addLog("主 UI 已就绪：从左侧拖拽素体到镜片位置。");
     renderDataPackOptions();
+    applyLayoutMode(state.layoutMode);
     renderMain();
 });
 </script>
