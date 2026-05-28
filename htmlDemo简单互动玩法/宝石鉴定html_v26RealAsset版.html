@@ -1373,6 +1373,31 @@
         background:#ffe8bf;
         font-weight:800;
     }
+    .lens-btn{
+        display:flex;
+        align-items:center;
+        gap:6px;
+    }
+    .lens-target-scope{
+        position:relative;
+        flex:0 0 11px;
+        width:11px;
+        height:11px;
+        border:1.4px solid rgba(67,216,184,.94);
+        border-radius:50%;
+        box-shadow:0 0 6px rgba(67,216,184,.34), inset 0 0 0 2px rgba(255,246,204,.16);
+    }
+    .lens-target-scope::before,
+    .lens-target-scope::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        background:rgba(255,235,150,.9);
+        transform:translate(-50%, -50%);
+    }
+    .lens-target-scope::before{ width:15px; height:1px; }
+    .lens-target-scope::after{ width:1px; height:15px; }
     .tool-panel{ display:none; }
     .current-tool-card{
         position:relative;
@@ -3920,7 +3945,15 @@ function renderLensButtons(){
     LENSES.forEach((lens, index)=>{
         const btn = document.createElement("button");
         btn.className = `lens-btn ${state.lensIndex === index ? "active" : ""}`;
-        btn.textContent = `${currentStep()?.lens === index ? "◆ " : ""}${lens.label}`;
+        const label = document.createElement("span");
+        label.textContent = lens.label;
+        if(currentStep()?.lens === index){
+            const scope = document.createElement("span");
+            scope.className = "lens-target-scope";
+            scope.setAttribute("aria-hidden", "true");
+            btn.appendChild(scope);
+        }
+        btn.appendChild(label);
         btn.addEventListener("click", ()=>{
             const direction = index >= state.lensIndex ? 1 : -1;
             if(setLensIndex(index, true, direction)){
