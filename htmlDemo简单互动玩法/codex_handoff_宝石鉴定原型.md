@@ -130,3 +130,9 @@
 
 - 流程数据包下拉移除“首次识别验收”和“批量已知验收”。
 - 当前只保留“全量流程验收”和“长奖励列表压测”。
+
+## 2026-05-28 00:55 补充
+
+- 根目录新增 `play.html`，作为 GitHub Pages 外发试玩入口。
+- `play.html` 会跳转到 `htmlDemo简单互动玩法/宝石鉴定html_v26RealAsset版_联网版.html`。
+- 开启 GitHub Pages 后，优先给测试者 `https://6789123hao.github.io/dem-demo/play.html`，避免中文长路径误传。
