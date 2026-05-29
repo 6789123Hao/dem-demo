@@ -1232,6 +1232,43 @@
         0%{ opacity:.34; transform:translate(-50%, -50%) scaleX(.72); }
         100%{ opacity:.86; transform:translate(-50%, -50%) scaleX(1.08); }
     }
+    .shape-tool-fx{
+        position:absolute;
+        left:var(--shape-tool-x, 50%);
+        top:var(--shape-tool-y, 50%);
+        width:0;
+        height:0;
+        z-index:8;
+        pointer-events:none;
+        filter:drop-shadow(0 16px 16px rgba(15,11,7,.28)) drop-shadow(0 0 12px rgba(82,242,226,.45));
+    }
+    .shape-tool-sprite{
+        position:absolute;
+        left:calc(var(--shape-tool-tip-x, 42px) - 29px);
+        top:calc(var(--shape-tool-tip-y, -46px) - 13px);
+        width:58px;
+        height:168px;
+        transform-origin:50% 8%;
+        transform:rotate(-135deg) scale(.86);
+        background:url("assets/ui_v26/ui_tool_sprites/tool_shape_C.png") center / contain no-repeat;
+    }
+    .shape-tool-beam{
+        position:absolute;
+        left:var(--shape-tool-tip-x, 42px);
+        top:var(--shape-tool-tip-y, -46px);
+        width:66px;
+        height:3px;
+        border-radius:999px;
+        transform-origin:0 50%;
+        transform:rotate(132deg);
+        background:linear-gradient(90deg, rgba(240,255,255,.98), rgba(96,245,238,.82), rgba(96,245,238,0));
+        box-shadow:0 0 10px rgba(92,244,237,.72), 0 0 18px rgba(92,244,237,.32);
+        animation:shapeToolBeamPulse .26s ease-in-out infinite alternate;
+    }
+    @keyframes shapeToolBeamPulse{
+        0%{ opacity:.46; transform:rotate(132deg) scaleX(.74); }
+        100%{ opacity:.92; transform:rotate(132deg) scaleX(1); }
+    }
     .finish-fragment{
         position:fixed;
         left:0;
@@ -1265,9 +1302,45 @@
     .shape-trace-layer.fading{
         animation:shapeTraceFade .48s ease-out forwards;
     }
+    .shape-laser-layer{
+        position:absolute;
+        inset:0;
+        z-index:9;
+        pointer-events:none;
+        overflow:visible;
+        mix-blend-mode:screen;
+        animation:shapeLaserStrike .72s cubic-bezier(.16,.88,.24,1) forwards;
+    }
+    .shape-laser-shadow,
+    .shape-laser-line,
+    .shape-laser-core{
+        fill:none;
+        stroke-linecap:round;
+        stroke-linejoin:round;
+    }
+    .shape-laser-shadow{
+        stroke:rgba(30,92,98,.2);
+        stroke-width:18;
+        filter:blur(2px);
+    }
+    .shape-laser-line{
+        stroke:rgba(84,238,235,.72);
+        stroke-width:10;
+        filter:drop-shadow(0 0 16px rgba(78,244,239,.82)) drop-shadow(0 0 32px rgba(88,224,255,.42));
+    }
+    .shape-laser-core{
+        stroke:rgba(235,255,255,.94);
+        stroke-width:3.2;
+    }
     @keyframes shapeTraceFade{
         0%{ opacity:1; transform:scale(1); }
         100%{ opacity:0; transform:scale(1.04); }
+    }
+    @keyframes shapeLaserStrike{
+        0%{ opacity:0; transform:perspective(680px) translate3d(0, -140px, 260px) scale(2.75); filter:blur(1.8px); }
+        20%{ opacity:.96; }
+        62%{ opacity:.72; transform:perspective(680px) translate3d(0, -18px, 70px) scale(1.08); filter:blur(.2px); }
+        100%{ opacity:0; transform:perspective(680px) translate3d(0, 0, 0) scale(.42); filter:blur(1.2px); }
     }
     @keyframes finishFragmentFall{
         0%{ opacity:0; transform:translate(-50%, -50%) rotate(var(--frag-rot, 0deg)) scale(.7); }
@@ -3313,7 +3386,7 @@ const DEMO_DATA_PACKS = {
         label:"全量流程验收",
         note:"每一种素体都有可玩数量，用于完整跑通 12 种宝石。",
         known:["pearl","agate","garnet","sunstone","catseye","jadeite","obsidian","fluorite","malachite","turquoise","hetian","shoushan"],
-        bag:{ pearl:2, agate:6, garnet:1, sunstone:5, catseye:3, jadeite:8, obsidian:4, fluorite:7, malachite:2, turquoise:9, hetian:1, shoushan:6 }
+        bag:{ pearl:2, agate:6, garnet:1, sunstone:5, catseye:3, jadeite:8, obsidian:11, fluorite:10, malachite:2, turquoise:9, hetian:1, shoushan:6 }
     },
     rewardStress:{
         label:"长奖励列表压测",
@@ -4149,6 +4222,7 @@ function clearHotspot(){
     const scrollCue = document.getElementById("lens-scroll-cue");
     const repairOverlay = document.getElementById("repair-overlay");
     clearCleanToolFx();
+    clearShapeToolFx();
     if(spot) spot.style.display = "none";
     if(ring) ring.style.display = "none";
     if(scrollCue) scrollCue.style.display = "none";
@@ -4312,6 +4386,7 @@ function startDefectDrag(e){
         shapeTrace
     };
     if(step.type === "clean") renderCleanToolFx(e.clientX, e.clientY);
+    if(step.type === "shape") renderShapeToolFx(e.clientX, e.clientY);
     spawnDragParticle(e.clientX, e.clientY, step.type);
 }
 function updateDefectDrag(e){
@@ -4326,6 +4401,7 @@ function updateDefectDrag(e){
     drag.points.push({ x:e.clientX, y:e.clientY });
     if(step.type === "shape") updateShapeTrace(drag.shapeTrace, e.clientX, e.clientY);
     if(step.type === "clean") renderCleanToolFx(e.clientX, e.clientY);
+    if(step.type === "shape") renderShapeToolFx(e.clientX, e.clientY);
     if(drag.distance - drag.lastParticleDistance >= 18){
         spawnDragParticle(e.clientX, e.clientY, step.type);
         drag.lastParticleDistance = drag.distance;
@@ -4368,6 +4444,25 @@ function renderCleanToolFx(clientX, clientY){
 }
 function clearCleanToolFx(){
     document.querySelectorAll(".clean-tool-fx").forEach(el=>el.remove());
+}
+function renderShapeToolFx(clientX, clientY){
+    const stage = document.getElementById("lens-stage");
+    if(!stage) return;
+    let fx = stage.querySelector(".shape-tool-fx");
+    if(!fx){
+        fx = document.createElement("div");
+        fx.className = "shape-tool-fx";
+        fx.innerHTML = `<span class="shape-tool-beam"></span><span class="shape-tool-sprite"></span>`;
+        stage.appendChild(fx);
+    }
+    const rect = stage.getBoundingClientRect();
+    const x = Math.max(52, Math.min(rect.width - 52, clientX - rect.left));
+    const y = Math.max(52, Math.min(rect.height - 32, clientY - rect.top));
+    fx.style.setProperty("--shape-tool-x", `${x}px`);
+    fx.style.setProperty("--shape-tool-y", `${y}px`);
+}
+function clearShapeToolFx(){
+    document.querySelectorAll(".shape-tool-fx").forEach(el=>el.remove());
 }
 function spawnCompletionFragments(type){
     const spot = document.getElementById("hotspot");
@@ -4430,6 +4525,37 @@ function playCutSwipeFx(step, drag, endX, endY){
     stage.appendChild(fx);
     setTimeout(()=>fx.remove(), 760);
 }
+function playShapeLaserStrike(trace, step){
+    const stage = document.getElementById("lens-stage");
+    const points = trace?.line?.getAttribute("points");
+    if(!stage || !points) return;
+    stage.querySelectorAll(".shape-laser-layer").forEach(el=>el.remove());
+    const rect = stage.getBoundingClientRect();
+    const parsed = points.trim().split(/\s+/).map(pair=>{
+        const [x, y] = pair.split(",").map(Number);
+        return { x, y };
+    }).filter(point=>Number.isFinite(point.x) && Number.isFinite(point.y));
+    if(parsed.length < 2) return;
+    const minX = Math.min(...parsed.map(point=>point.x));
+    const maxX = Math.max(...parsed.map(point=>point.x));
+    const minY = Math.min(...parsed.map(point=>point.y));
+    const maxY = Math.max(...parsed.map(point=>point.y));
+    const fallback = defectStagePosition(step);
+    const originX = Number.isFinite(minX) ? (minX + maxX) / 2 : rect.width * fallback.x / 100;
+    const originY = Number.isFinite(minY) ? (minY + maxY) / 2 : rect.height * fallback.y / 100;
+    const layer = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    layer.classList.add("shape-laser-layer");
+    layer.setAttribute("viewBox", `0 0 ${Math.max(1, rect.width).toFixed(0)} ${Math.max(1, rect.height).toFixed(0)}`);
+    layer.style.transformOrigin = `${originX}px ${originY}px`;
+    ["shape-laser-shadow", "shape-laser-line", "shape-laser-core"].forEach(className=>{
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+        line.classList.add(className);
+        line.setAttribute("points", points);
+        layer.appendChild(line);
+    });
+    stage.appendChild(layer);
+    setTimeout(()=>layer.remove(), 780);
+}
 function finishDefectDrag(e){
     const drag = state.defectDrag;
     const step = currentStep();
@@ -4437,7 +4563,7 @@ function finishDefectDrag(e){
     state.defectDrag = null;
     state.suppressNextClick = true;
     if(drag.type === "clean") clearCleanToolFx();
-    if(step.type === "shape") fadeShapeTrace(drag.shapeTrace);
+    if(drag.type === "shape") clearShapeToolFx();
     if(step.type === "cut"){
         const dx = e.clientX - drag.startX;
         const dy = e.clientY - drag.startY;
@@ -4452,8 +4578,17 @@ function finishDefectDrag(e){
     }
     if(step.type === "shape"){
         if(traceMatchesShape(drag.points, step.shapeTarget)){
-            completeCurrentStep(step);
+            playShapeLaserStrike(drag.shapeTrace, step);
+            fadeShapeTrace(drag.shapeTrace);
+            step.shapeLaserPending = true;
+            setTimeout(()=>{
+                if(currentStep()?.id === step.id && !step.done){
+                    step.shapeLaserPending = false;
+                    completeCurrentStep(step);
+                }
+            }, 420);
         } else {
+            fadeShapeTrace(drag.shapeTrace);
             toast(`描边不完整，再顺着${SHAPE_LABELS[step.shapeTarget]}轮廓拖一遍。`);
         }
     }
