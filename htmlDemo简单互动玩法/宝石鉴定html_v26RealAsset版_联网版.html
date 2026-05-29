@@ -573,20 +573,13 @@
         transform:translate(-50%, -50%);
         border-radius:50%;
         border:0;
-        display:grid;
-        place-items:center;
-        content:"🌀";
-        font-size:118px;
-        line-height:1;
-        opacity:.58;
-        background:
-            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 252 252'%3E%3Cpath d='M126 126 C142 112 164 120 166 140 C169 169 133 185 105 169 C66 146 77 88 128 74 C191 57 239 115 220 178' fill='none' stroke='rgba(255,250,235,0.72)' stroke-width='10' stroke-linecap='round'/%3E%3Cpath d='M126 126 C142 112 164 120 166 140 C169 169 133 185 105 169 C66 146 77 88 128 74 C191 57 239 115 220 178' fill='none' stroke='rgba(72,64,58,0.18)' stroke-width='18' stroke-linecap='round'/%3E%3C/svg%3E") center / 82% 82% no-repeat,
-            radial-gradient(circle at 50% 50%, rgba(95,88,80,.26) 0 48%, rgba(95,88,80,.18) 60%, transparent 72%);
-        box-shadow:0 0 0 24px rgba(95,88,80,.12), inset 0 0 70px rgba(42,36,31,.24), 0 14px 28px rgba(34,28,23,.14);
+        opacity:0;
+        background:none;
+        box-shadow:none;
         overflow:hidden;
     }
     .hotspot-clean::after{
-        content:"←擦→";
+        content:"\2190\64E6\2192";
         position:absolute;
         left:50%;
         top:50%;
@@ -594,6 +587,8 @@
         color:#fffaf1;
         font-size:15px;
         font-weight:800;
+        letter-spacing:.08em;
+        text-shadow:0 2px 8px rgba(48,39,32,.28);
     }
     .hotspot-repair{
         width:52px;
@@ -674,6 +669,51 @@
         font-size:13px;
         font-weight:800;
         white-space:pre;
+    }
+    .hotspot-light{
+        width:388px;
+        height:388px;
+        border:0;
+        background:transparent;
+        box-shadow:none;
+        color:transparent;
+        cursor:grab;
+    }
+    .hotspot-light:active{ cursor:grabbing; }
+    .hotspot-light::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:332px;
+        height:332px;
+        transform:translate(-50%, -50%);
+        border-radius:50%;
+        background:
+            radial-gradient(circle at 50% 50%, rgba(255,252,223,.38) 0 14%, rgba(255,232,144,.18) 32%, transparent 68%),
+            conic-gradient(from 22deg, transparent 0 12%, rgba(255,246,200,.34) 16% 23%, transparent 30% 58%, rgba(98,224,218,.16) 62% 68%, transparent 76% 100%);
+        box-shadow:inset 0 0 42px rgba(255,255,255,.16), 0 0 0 18px rgba(210,155,69,.08);
+        opacity:.78;
+        animation:lightSearchSweep 2.4s ease-in-out infinite;
+        pointer-events:none;
+    }
+    .hotspot-light::after{
+        content:"寻光";
+        position:absolute;
+        left:50%;
+        top:50%;
+        transform:translate(-50%, -50%);
+        color:rgba(255,250,226,.86);
+        font-size:14px;
+        font-weight:800;
+        letter-spacing:.12em;
+        text-shadow:0 2px 10px rgba(70,46,23,.28), 0 0 14px rgba(255,232,140,.42);
+        pointer-events:none;
+    }
+    @keyframes lightSearchSweep{
+        0%{ transform:translate(-50%, -50%) rotate(-10deg) scale(.96); opacity:.52; }
+        48%{ transform:translate(-50%, -50%) rotate(16deg) scale(1.04); opacity:.84; }
+        100%{ transform:translate(-50%, -50%) rotate(-10deg) scale(.96); opacity:.52; }
     }
     .hotspot-shape{
         width:360px;
@@ -777,6 +817,18 @@
         transform:translate(-50%, -50%) rotate(var(--cut-angle, -22deg));
         animation:none;
         opacity:.82;
+    }
+    .focus-ring-light{
+        width:332px;
+        height:332px;
+        border:1px solid rgba(255,248,214,.38);
+        box-shadow:0 0 30px rgba(255,230,142,.18), inset 0 0 24px rgba(98,224,218,.08);
+        animation:lightRingPulse 1.8s ease-in-out infinite;
+        opacity:.64;
+    }
+    @keyframes lightRingPulse{
+        0%,100%{ transform:translate(-50%, -50%) scale(.97); opacity:.36; }
+        50%{ transform:translate(-50%, -50%) scale(1.02); opacity:.72; }
     }
     .focus-ring-shape{ width:214px; height:214px; animation:none; opacity:.78; }
     .focus-ring-shape-triangle,
@@ -1190,6 +1242,12 @@
     .drag-particle-clean{ background:rgba(134,124,108,.72); box-shadow:0 0 8px rgba(80,72,64,.26); }
     .drag-particle-cut{ width:12px; height:7px; border-radius:3px; background:rgba(108,112,110,.78); }
     .drag-particle-shape{ background:rgba(230,178,74,.82); box-shadow:0 0 12px rgba(230,178,74,.34); }
+    .drag-particle-light{
+        width:8px;
+        height:8px;
+        background:rgba(255,245,186,.92);
+        box-shadow:0 0 12px rgba(255,230,118,.58), 0 0 20px rgba(93,228,220,.28);
+    }
     .clean-tool-fx{
         position:absolute;
         left:var(--clean-tool-x, 50%);
@@ -1225,8 +1283,8 @@
         animation:cleanBrushGlow .32s ease-in-out infinite alternate;
     }
     @keyframes cleanToolSweep{
-        0%{ transform:rotate(168deg); }
-        100%{ transform:rotate(192deg); }
+        0%{ transform:rotate(calc(168deg + var(--clean-lean, 0deg))); }
+        100%{ transform:rotate(calc(192deg + var(--clean-lean, 0deg))); }
     }
     @keyframes cleanBrushGlow{
         0%{ opacity:.34; transform:translate(-50%, -50%) scaleX(.72); }
@@ -1268,6 +1326,111 @@
     @keyframes shapeToolBeamPulse{
         0%{ opacity:.46; transform:rotate(132deg) scaleX(.74); }
         100%{ opacity:.92; transform:rotate(132deg) scaleX(1); }
+    }
+    .light-tool-fx{
+        position:absolute;
+        inset:0;
+        z-index:8;
+        pointer-events:none;
+        --light-tool-x:50%;
+        --light-tool-y:50%;
+        --light-source-x:calc(50% + 86px);
+        --light-source-y:calc(50% - 112px);
+        --light-star-x:50%;
+        --light-star-y:50%;
+        --light-signal:0;
+        --light-star-scale:.42;
+    }
+    .light-tool-spot{
+        position:absolute;
+        left:var(--light-tool-x);
+        top:var(--light-tool-y);
+        width:164px;
+        height:164px;
+        border-radius:50%;
+        transform:translate(-50%, -50%);
+        background:radial-gradient(circle, rgba(255,255,232,.74) 0 10%, rgba(255,237,150,.34) 28%, rgba(93,228,220,.17) 48%, transparent 78%);
+        box-shadow:0 0 36px rgba(255,232,132,.3), inset 0 0 24px rgba(255,255,255,.24);
+        mix-blend-mode:screen;
+        opacity:.84;
+    }
+    .light-tool-beam{
+        position:absolute;
+        left:var(--light-source-x);
+        top:var(--light-source-y);
+        width:238px;
+        height:108px;
+        transform-origin:0 50%;
+        transform:translateY(-50%) rotate(132deg);
+        clip-path:polygon(0 45%, 100% 0, 100% 100%, 0 55%);
+        background:linear-gradient(90deg, rgba(255,255,236,.62), rgba(255,235,150,.3) 48%, rgba(93,228,220,0));
+        filter:blur(.2px);
+        opacity:.56;
+    }
+    .light-tool-lamp{
+        position:absolute;
+        left:var(--light-source-x);
+        top:var(--light-source-y);
+        width:42px;
+        height:78px;
+        transform:translate(4px, -82px) rotate(-34deg);
+        transform-origin:50% 80%;
+        border-radius:18px 18px 12px 12px;
+        background:linear-gradient(180deg, #fff2bb 0 18%, #d29b45 19% 44%, #6f4a2a 45% 100%);
+        box-shadow:0 12px 18px rgba(26,18,10,.24), 0 0 16px rgba(255,225,116,.48);
+    }
+    .light-tool-lamp::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        bottom:-8px;
+        width:32px;
+        height:14px;
+        transform:translateX(-50%);
+        border-radius:50%;
+        background:radial-gradient(circle, rgba(255,255,230,.94), rgba(255,225,118,.5) 54%, transparent 72%);
+        box-shadow:0 0 18px rgba(255,230,132,.7);
+    }
+    .light-signal-star,
+    .light-found-burst{
+        position:absolute;
+        left:var(--light-star-x);
+        top:var(--light-star-y);
+        width:56px;
+        height:56px;
+        transform:translate(-50%, -50%) scale(var(--light-star-scale));
+        pointer-events:none;
+    }
+    .light-signal-star{
+        opacity:var(--light-signal);
+        filter:drop-shadow(0 0 10px rgba(255,240,160,.8)) drop-shadow(0 0 20px rgba(93,228,220,.4));
+    }
+    .light-signal-star::before,
+    .light-signal-star::after,
+    .light-found-burst::before,
+    .light-found-burst::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        border-radius:999px;
+        background:linear-gradient(90deg, transparent, rgba(255,255,232,.98), transparent);
+        transform:translate(-50%, -50%);
+    }
+    .light-signal-star::before,
+    .light-found-burst::before{ width:52px; height:4px; }
+    .light-signal-star::after,
+    .light-found-burst::after{ width:4px; height:52px; }
+    .light-found-burst{
+        z-index:9;
+        --light-star-scale:1;
+        filter:drop-shadow(0 0 14px rgba(255,240,160,.86)) drop-shadow(0 0 26px rgba(93,228,220,.5));
+        animation:lightFoundBurst .68s cubic-bezier(.16,.88,.24,1) forwards;
+    }
+    @keyframes lightFoundBurst{
+        0%{ opacity:0; transform:translate(-50%, -50%) scale(.34) rotate(0deg); }
+        34%{ opacity:1; transform:translate(-50%, -50%) scale(1.16) rotate(24deg); }
+        100%{ opacity:0; transform:translate(-50%, -50%) scale(1.86) rotate(46deg); }
     }
     .finish-fragment{
         position:fixed;
@@ -2242,14 +2405,27 @@
     }
     .gem3d.step-clean .gem-surface{
         opacity:1;
+        overflow:hidden;
         background:
-            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(83,78,72,.28) 0 30px, transparent 58px),
-            radial-gradient(circle at 24% 32%, rgba(83,78,72,.22) 0 4px, transparent 5px),
-            radial-gradient(circle at 62% 28%, rgba(83,78,72,.2) 0 6px, transparent 7px),
-            radial-gradient(circle at 52% 68%, rgba(83,78,72,.2) 0 5px, transparent 6px),
-            radial-gradient(circle at 74% 58%, rgba(83,78,72,.18) 0 4px, transparent 5px),
-            linear-gradient(145deg, rgba(120,112,102,.16), rgba(255,255,255,0) 60%);
-        mix-blend-mode:multiply;
+            linear-gradient(90deg, transparent 0 8%, rgba(255,250,230,.72) 10% 19%, transparent 21% 30%, rgba(69,59,48,.38) 32% 47%, transparent 49% 58%, rgba(255,250,230,.64) 60% 70%, transparent 72% 100%) 50% 38% / 198px 12px no-repeat,
+            linear-gradient(90deg, transparent 0 12%, rgba(69,59,48,.42) 14% 34%, transparent 36% 48%, rgba(255,250,230,.72) 50% 62%, transparent 64% 72%, rgba(69,59,48,.34) 74% 88%, transparent 90% 100%) 50% 50% / 222px 14px no-repeat,
+            linear-gradient(90deg, transparent 0 9%, rgba(255,250,230,.6) 12% 24%, transparent 26% 40%, rgba(69,59,48,.38) 42% 58%, transparent 60% 75%, rgba(255,250,230,.52) 78% 91%, transparent 93% 100%) 50% 62% / 188px 11px no-repeat,
+            radial-gradient(ellipse at 50% 50%, rgba(215,205,186,.38) 0 34%, rgba(88,74,61,.18) 50%, transparent 72%),
+            radial-gradient(circle at var(--defect-x, 50%) var(--defect-y, 50%), rgba(232,222,202,.44) 0 18px, rgba(78,66,55,.26) 29px, transparent 62px),
+            radial-gradient(circle at 24% 32%, rgba(236,226,205,.5) 0 5px, transparent 6px),
+            radial-gradient(circle at 62% 28%, rgba(236,226,205,.44) 0 7px, transparent 8px),
+            radial-gradient(circle at 52% 68%, rgba(82,70,58,.34) 0 6px, transparent 7px),
+            radial-gradient(circle at 74% 58%, rgba(236,226,205,.4) 0 5px, transparent 6px),
+            repeating-linear-gradient(18deg, rgba(255,250,230,.16) 0 2px, transparent 2px 14px),
+            linear-gradient(145deg, rgba(66,55,45,.2), rgba(242,232,210,.2) 62%, rgba(255,255,255,0) 76%);
+        mix-blend-mode:normal;
+        filter:drop-shadow(0 1px 2px rgba(42,32,24,.22));
+        -webkit-mask-image:var(--clean-erase-mask, linear-gradient(#fff, #fff));
+        mask-image:var(--clean-erase-mask, linear-gradient(#fff, #fff));
+        -webkit-mask-size:100% 100%;
+        mask-size:100% 100%;
+        -webkit-mask-repeat:no-repeat;
+        mask-repeat:no-repeat;
     }
     .gem3d.step-cut .gem-surface{
         opacity:1;
@@ -2587,7 +2763,6 @@
         --v26-center-glow:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_center_stage/center_stage_inner_glow_A.png");
         --v26-stage-base:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_center_stage/center_stage_bottom_base_C.png");
         --v26-hint-bg:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_hint_layer/hint_toast_bg_A.png");
-        --v26-defect-clean:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_defect_fx/defect_clean_swirl_A.png");
         --v26-defect-cut:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_defect_fx/defect_cut_strip_C.png");
         --v26-shape-circle:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_defect_fx/defect_shape_circle_C.png");
         --v26-shape-triangle:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_defect_fx/defect_shape_triangle_C.png");
@@ -2847,9 +3022,7 @@
         color:rgba(63,45,28,.58);
     }
     body.v26-real-asset .hotspot-clean::before{
-        background:
-            var(--v26-defect-clean) center / 100% 100% no-repeat,
-            radial-gradient(circle at 50% 50%, rgba(95,88,80,.26) 0 48%, rgba(95,88,80,.18) 60%, transparent 72%);
+        background:none;
     }
     body.v26-real-asset .hotspot-repair{
         background:
@@ -3318,9 +3491,10 @@ const TOOL_LABELS = {
     clean:"清洁",
     repair:"修补",
     cut:"切除",
-    shape:"定型"
+    shape:"定型",
+    light:"寻光"
 };
-const TOOL_ICONS = { cut:"切", repair:"滴", shape:"型", clean:"净" };
+const TOOL_ICONS = { cut:"切", repair:"滴", shape:"型", clean:"净", light:"光" };
 const TOOL_SPRITES = {
     cut:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_cut_C.png",
     repair:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_repair_C.png",
@@ -3331,8 +3505,10 @@ const TOOL_NOTES = {
     cut:"沿灰色石皮拖拽切开",
     repair:"瞄准裂缝滴入修复精华",
     shape:"描摹目标轮廓定型",
-    clean:"擦净后闪光收纳"
+    clean:"擦净后闪光收纳",
+    light:"移动寻光灯找反光点"
 };
+const TOOL_ORDER = ["cut","repair","light","shape","clean"];
 const REPAIR_TARGETS = [
     { x:31, y:56, dx:-30, dy:7 },
     { x:50, y:45, dx:0, dy:-6 },
@@ -3342,8 +3518,21 @@ const REPAIR_CRACK_PATH = "M58 104 L72 90 L88 98 L101 72 L116 80 L130 54 L145 72
 const REPAIR_BRANCH_PATH = "M101 72 L88 64 L82 50 M130 54 L138 39 L150 50 M158 60 L153 80 L138 93 M72 90 L58 84 L48 92";
 const REPAIR_FILL_PER_CLICK = .32;
 const REPAIR_COMPLETE_THRESHOLD = .8;
+const CLEAN_DISTANCE_REQUIRED = 1260;
+const LIGHT_SEARCH_REQUIRED_MS = 600;
+const LIGHT_HIT_RADIUS = 16;
+const LIGHT_SIGNAL_RADIUS = 44;
+const LIGHT_STEP_CHANCE = .58;
+const LIGHT_TARGETS = [
+    { x:37, y:39 },
+    { x:58, y:34 },
+    { x:68, y:55 },
+    { x:45, y:66 },
+    { x:52, y:48 }
+];
+function clampNumber(value, min, max){ return Math.max(min, Math.min(max, value)); }
 const LENSES = [
-    { key:"A", label:"表层镜", filter:"url(\"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_frame/lens_filter_surface_A.png\") center / cover no-repeat" },
+    { key:"A", label:"表层镜", filter:"radial-gradient(circle at 38% 28%, rgba(255,255,255,.08), transparent 18%), radial-gradient(circle at 50% 50%, rgba(255,255,255,.035), transparent 64%)" },
     { key:"B", label:"透光镜", filter:"url(\"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_frame/lens_filter_transmit_B.png\") center / cover no-repeat" },
     { key:"C", label:"裂隙镜", filter:"url(\"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_frame/lens_filter_crack_C.png\") center / cover no-repeat" }
 ];
@@ -3385,7 +3574,7 @@ const DEMO_DATA_PACKS = {
         label:"全量流程验收",
         note:"每一种素体都有可玩数量，用于完整跑通 12 种宝石。",
         known:["pearl","agate","garnet","sunstone","catseye","jadeite","obsidian","fluorite","malachite","turquoise","hetian","shoushan"],
-        bag:{ pearl:2, agate:6, garnet:1, sunstone:5, catseye:3, jadeite:8, obsidian:11, fluorite:10, malachite:2, turquoise:9, hetian:1, shoushan:6 }
+        bag:{ pearl:2, agate:6, garnet:11, sunstone:5, catseye:3, jadeite:8, obsidian:5, fluorite:10, malachite:2, turquoise:9, hetian:1, shoushan:6 }
     },
     rewardStress:{
         label:"长奖励列表压测",
@@ -3761,8 +3950,34 @@ function completeKnownStoneInBatch(id){
     addLog(`${gem.name} 已知类型自动完成，同类型 ${amount} 颗出石到盘子。`);
     renderMain();
 }
+function shouldInsertLightTask(gem){
+    if(gem.kind !== "成品宝石") return false;
+    if(!state.playedTypes.size) return true;
+    return Math.random() < LIGHT_STEP_CHANCE;
+}
+function makeLightTaskForGem(gem){
+    const gemIndex = Math.max(0, GEM_BLUEPRINTS.findIndex(g=>g.id === gem.id));
+    const target = LIGHT_TARGETS[(gemIndex + Math.floor(Math.random() * LIGHT_TARGETS.length)) % LIGHT_TARGETS.length];
+    return {
+        type:"light",
+        title:"找到反光点",
+        lens:Math.floor(Math.random() * LENSES.length),
+        face:gemIndex % FACES.length,
+        pos:{ x:50, y:50 },
+        lightTarget:{ ...target }
+    };
+}
+function tasksWithOptionalLight(gem){
+    const tasks = gem.tasks.map(task=>({ ...task }));
+    if(!shouldInsertLightTask(gem)) return tasks;
+    const repairIndex = tasks.findIndex(task=>task.type === "repair");
+    const cleanIndex = tasks.findIndex(task=>task.type === "clean");
+    const insertAt = repairIndex >= 0 ? repairIndex : cleanIndex >= 0 ? cleanIndex : tasks.length;
+    tasks.splice(insertAt, 0, makeLightTaskForGem(gem));
+    return tasks;
+}
 function buildCoreTasks(gem){
-    return gem.tasks.map((task, index)=>({
+    return tasksWithOptionalLight(gem).map((task, index)=>({
         ...task,
         id:`${gem.id}_${index}`,
         done:false,
@@ -3770,6 +3985,9 @@ function buildCoreTasks(gem){
         repairFill:0,
         repairTargetIndex:0,
         repairCompleting:false,
+        lightHold:0,
+        lightSignal:0,
+        lightTarget:task.type === "light" ? (task.lightTarget || LIGHT_TARGETS[index % LIGHT_TARGETS.length]) : null,
         cutHits:0,
         cutHitsRequired: task.type === "cut" ? (task.cutHitsRequired || 1) : 1,
         dragDistance:0,
@@ -3832,8 +4050,9 @@ function playLensFlip(direction=1){
 }
 function stepStatusText(step){
     const base = `${TOOL_LABELS[step.type]} · ${step.title}`;
-    if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / 630 * 100))}%`;
+    if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / CLEAN_DISTANCE_REQUIRED * 100))}%`;
     if(step.type === "repair") return `${base} · 精华填充 ${Math.min(100, Math.round((step.repairFill || 0) * 100))}%`;
+    if(step.type === "light") return `${base} · 反光锁定 ${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`;
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `${base} · 切除 ${step.cutHits || 0}/${step.cutHitsRequired}`;
     if(step.type === "cut") return `${base} · 顺着长条角度拖拽`;
     if(step.type === "shape") return `${base} · 描边${SHAPE_LABELS[step.shapeTarget]}`;
@@ -3843,6 +4062,7 @@ function stepHintText(step){
     if(!step) return "滚动鼠标滚轮翻镜片，点击瑕疵完成当前操作。";
     if(step.type === "clean") return "清洁：按住范围圈，在瑕疵上来回拖拽擦除。";
     if(step.type === "repair") return "修补：瞄准裂缝光圈，滴入修复精华填满裂隙。";
+    if(step.type === "light") return "寻光：按住扫光区移动寻光灯，找到宝石表面的反光点。";
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：这颗需要切 ${step.cutHitsRequired} 次，按住长条并顺着角度拖拽。`;
     if(step.type === "cut") return "切除：按住长条瑕疵，沿相近角度拖拽切除。";
     if(step.type === "shape") return `定型：按住形状特效，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`;
@@ -3850,6 +4070,7 @@ function stepHintText(step){
 }
 function wrongLensHint(step){
     if(step.type === "repair") return `裂缝还没显影：滚动镜片切到 ${LENSES[step.lens].label}，看清裂缝走向。`;
+    if(step.type === "light") return `反光点需要 ${LENSES[step.lens].label}：切到正确镜片后再扫光。`;
     return `镜片不对：请滚动鼠标滚轮翻镜片，切到 ${LENSES[step.lens].label}。`;
 }
 function visualStateForActive(active, step){
@@ -3909,7 +4130,6 @@ const V26_UI_PRELOAD_ASSETS = [
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_left_inventory/stone_card_badge_A.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_frame/lens_outer_ring_A.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_frame/lens_inner_glass_A.png",
-    "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_frame/lens_filter_surface_A.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_frame/lens_filter_transmit_B.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_frame/lens_filter_crack_C.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_box/tool_box_frame_C.png",
@@ -3932,7 +4152,6 @@ const V26_UI_PRELOAD_ASSETS = [
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_center_stage/center_stage_bg_A.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_center_stage/center_stage_inner_glow_A.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_center_stage/center_stage_bottom_base_C.png",
-    "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_defect_fx/defect_clean_swirl_A.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_defect_fx/defect_cut_strip_C.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_defect_fx/defect_shape_circle_C.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_defect_fx/defect_shape_triangle_C.png",
@@ -4047,7 +4266,7 @@ function renderCurrentTool(){
     const step = currentStep();
     const type = step?.type || state.activeTool || "clean";
     if(card && card.dataset.toolType && card.dataset.toolType !== type){
-        const order = ["cut","repair","shape","clean"];
+        const order = TOOL_ORDER;
         const prevIndex = order.indexOf(card.dataset.toolType);
         const nextIndex = order.indexOf(type);
         const dir = prevIndex >= 0 && nextIndex >= 0 && ((nextIndex - prevIndex + order.length) % order.length) > order.length / 2 ? "roll-left" : "";
@@ -4064,7 +4283,7 @@ function renderCurrentTool(){
     note.textContent = step ? shortToolNote(step) : "待机";
 }
 function toolWheelMarkup(type){
-    const order = ["cut","repair","shape","clean"];
+    const order = TOOL_ORDER;
     const index = Math.max(0, order.indexOf(type));
     const prev = order[(index - 1 + order.length) % order.length];
     const next = order[(index + 1) % order.length];
@@ -4087,7 +4306,8 @@ function toolWheelItemMarkup(type, active){
 function shortToolNote(step){
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `${step.cutHits || 0}/${step.cutHitsRequired}`;
     if(step.type === "repair") return `${Math.min(100, Math.round((step.repairFill || 0) * 100))}%`;
-    if(step.type === "clean") return `${Math.min(100, Math.round((step.dragDistance || 0) / 630 * 100))}%`;
+    if(step.type === "clean") return `${Math.min(100, Math.round((step.dragDistance || 0) / CLEAN_DISTANCE_REQUIRED * 100))}%`;
+    if(step.type === "light") return `${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`;
     if(step.type === "shape") return SHAPE_MARKS[step.shapeTarget] || "描边";
     return step.title || "";
 }
@@ -4104,6 +4324,9 @@ function renderPlay(){
     applyGemVisualVars(gem3d, gem);
     gem3d.style.setProperty("--defect-x", step ? `${step.pos.x}%` : "50%");
     gem3d.style.setProperty("--defect-y", step ? `${step.pos.y}%` : "50%");
+    const cleanProgress = step?.type === "clean" ? Math.min((step.dragDistance || 0) / CLEAN_DISTANCE_REQUIRED, 1) : 0;
+    gem3d.style.setProperty("--clean-progress", cleanProgress.toFixed(3));
+    renderCleanEraseMask(step, gem3d, cleanProgress);
     const repairProgress = step?.type === "repair" ? Math.min(step.repairFill || 0, 1) : 0;
     gem3d.style.setProperty("--crack-main-opacity", Math.max(0, 1 - repairProgress * 1.12));
     gem3d.style.setProperty("--crack-branch-opacity", Math.max(0, .72 - repairProgress * .82));
@@ -4119,6 +4342,39 @@ function renderPlay(){
     renderToolButtons();
     renderCurrentTool();
     renderHotspot();
+}
+function cleanErasePath(points){
+    if(!points || !points.length) return "";
+    if(points.length === 1){
+        const point = points[0];
+        return `M ${point.x.toFixed(2)} ${point.y.toFixed(2)} L ${(point.x + .01).toFixed(2)} ${point.y.toFixed(2)}`;
+    }
+    return points.map((point, index)=>`${index ? "L" : "M"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(" ");
+}
+function cleanEraseMaskValue(points, progress=0){
+    const erasePath = cleanErasePath(points);
+    if(!erasePath) return "linear-gradient(#fff, #fff)";
+    const wipeWidth = Math.round(13 + Math.min(progress, 1) * 7);
+    const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <defs>
+                <mask id="cleanMask" maskUnits="userSpaceOnUse">
+                    <rect x="0" y="0" width="100" height="100" fill="white"/>
+                    <path d="${erasePath}" fill="none" stroke="black" stroke-width="${wipeWidth}" stroke-linecap="round" stroke-linejoin="round"/>
+                </mask>
+            </defs>
+            <rect x="0" y="0" width="100" height="100" fill="white" mask="url(#cleanMask)"/>
+        </svg>
+    `.trim();
+    return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+function renderCleanEraseMask(step, gem3d, progress=0){
+    if(!gem3d) return;
+    if(!step || step.type !== "clean"){
+        gem3d.style.removeProperty("--clean-erase-mask");
+        return;
+    }
+    gem3d.style.setProperty("--clean-erase-mask", cleanEraseMaskValue(step.cleanErasePoints || [], progress));
 }
 function renderArchiveNotebook(active, gem){
     const title = document.getElementById("archive-title");
@@ -4163,7 +4419,7 @@ function renderLensButtons(){
 function renderToolButtons(){
     const grid = document.getElementById("tool-grid");
     grid.innerHTML = "";
-    ["cut","repair","shape","clean"].forEach(type=>{
+    TOOL_ORDER.forEach(type=>{
         const btn = document.createElement("button");
         btn.className = `tool-btn ${state.activeTool === type ? "active" : ""}`;
         btn.textContent = TOOL_LABELS[type];
@@ -4185,7 +4441,7 @@ function cycleLensByWheel(deltaY){
 }
 function cycleToolByRightClick(){
     if(!state.active) return;
-    const order = ["cut","repair","shape","clean"];
+    const order = TOOL_ORDER;
     const current = order.indexOf(state.activeTool);
     const next = order[(current + 1 + order.length) % order.length];
     state.activeTool = next;
@@ -4322,7 +4578,7 @@ function playRepairDrop(targetIndex){
     playRepairDrop.timer = setTimeout(()=>overlay.classList.remove("drop-active"), 720);
 }
 function defectStagePosition(step){
-    const scale = step.type === "shape" ? 0.42 : 0.48;
+    const scale = step.type === "shape" ? 0.42 : step.type === "light" ? 0.36 : 0.48;
     const yLift = step.type === "repair" ? 3 : step.type === "clean" ? 3 : step.type === "shape" ? 4 : 0;
     return {
         x:50 + (step.pos.x - 50) * scale,
@@ -4333,6 +4589,7 @@ function hotspotLabel(step){
     if(step.type === "clean") return "←擦→";
     if(step.type === "repair") return "";
     if(step.type === "cut") return "  滑→→→       ";
+    if(step.type === "light") return "寻光";
     if(step.type === "shape") return "描边";
     return "";
 }
@@ -4343,6 +4600,7 @@ function clearHotspot(){
     const repairOverlay = document.getElementById("repair-overlay");
     clearCleanToolFx();
     clearShapeToolFx();
+    clearLightToolFx();
     if(spot) spot.style.display = "none";
     if(ring) ring.style.display = "none";
     if(scrollCue) scrollCue.style.display = "none";
@@ -4365,6 +4623,7 @@ function canUseCurrentStep(step){
 }
 function completeCurrentStep(step){
     if(step.type === "cut" || step.type === "shape") spawnCompletionFragments(step.type);
+    if(step.type === "light") playLightFoundFx(step);
     step.done = true;
     state.active.stepIndex += 1;
     toast(`完成 ${TOOL_LABELS[step.type]}`);
@@ -4484,15 +4743,17 @@ function handleHotspotClick(){
     }
     if(step.type === "clean") toast("按住瑕疵范围来回拖拽擦拭。");
     if(step.type === "cut") toast("按住长条，沿相近角度拖拽切除。");
+    if(step.type === "light") toast("按住扫光区移动寻光灯，靠近反光点会出现星芒。");
     if(step.type === "shape") toast(`按住形状，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`);
 }
 function startDefectDrag(e){
     const step = currentStep();
-    if(!step || !["clean","cut","shape"].includes(step.type)) return;
+    if(!step || !["clean","cut","shape","light"].includes(step.type)) return;
     if(!canUseCurrentStep(step)) return;
     e.preventDefault();
     e.currentTarget.setPointerCapture?.(e.pointerId);
     const shapeTrace = step.type === "shape" ? beginShapeTrace(e.clientX, e.clientY) : null;
+    const now = performance.now();
     state.defectDrag = {
         type:step.type,
         pointerId:e.pointerId,
@@ -4500,36 +4761,73 @@ function startDefectDrag(e){
         startY:e.clientY,
         lastX:e.clientX,
         lastY:e.clientY,
+        lastTime:now,
+        velocityX:0,
+        cleanBrushLean:0,
+        baseDistance:step.type === "clean" ? (step.dragDistance || 0) : 0,
+        lightBaseHold:step.type === "light" ? (step.lightHold || 0) : 0,
         distance:0,
         lastParticleDistance:0,
         points:[{ x:e.clientX, y:e.clientY }],
         shapeTrace
     };
-    if(step.type === "clean") renderCleanToolFx(e.clientX, e.clientY);
+    if(step.type === "clean"){
+        addCleanErasePoint(step, e.clientX, e.clientY);
+        renderPlay();
+        renderCleanToolFx(e.clientX, e.clientY, 0);
+    }
     if(step.type === "shape") renderShapeToolFx(e.clientX, e.clientY);
+    if(step.type === "light"){
+        updateLightSearch(step, e.clientX, e.clientY, 0);
+        renderLightToolFx(e.clientX, e.clientY, step.lightSignal || 0, step);
+        renderCurrentTool();
+    }
     spawnDragParticle(e.clientX, e.clientY, step.type);
 }
 function updateDefectDrag(e){
     const drag = state.defectDrag;
     const step = currentStep();
     if(!drag || !step || drag.pointerId !== e.pointerId) return;
+    const now = performance.now();
+    const dt = Math.max(16, now - (drag.lastTime || now));
     const dx = e.clientX - drag.lastX;
     const dy = e.clientY - drag.lastY;
     drag.distance += Math.hypot(dx, dy);
     drag.lastX = e.clientX;
     drag.lastY = e.clientY;
+    drag.lastTime = now;
     drag.points.push({ x:e.clientX, y:e.clientY });
     if(step.type === "shape") updateShapeTrace(drag.shapeTrace, e.clientX, e.clientY);
-    if(step.type === "clean") renderCleanToolFx(e.clientX, e.clientY);
+    if(step.type === "clean"){
+        const velocityX = dx / dt;
+        const accelerationX = (velocityX - (drag.velocityX || 0)) / dt;
+        const leanTarget = clampNumber(velocityX * 10 + accelerationX * 180, -18, 18);
+        drag.cleanBrushLean = (drag.cleanBrushLean || 0) * .58 + leanTarget * .42;
+        drag.velocityX = velocityX;
+        addCleanErasePoint(step, e.clientX, e.clientY);
+        renderCleanToolFx(e.clientX, e.clientY, drag.cleanBrushLean);
+    }
+    if(step.type === "light"){
+        updateLightSearch(step, e.clientX, e.clientY, dt);
+        renderLightToolFx(e.clientX, e.clientY, step.lightSignal || 0, step);
+        renderCurrentTool();
+        if((step.lightHold || 0) >= LIGHT_SEARCH_REQUIRED_MS){
+            state.suppressNextClick = true;
+            state.defectDrag = null;
+            clearLightToolFx();
+            completeCurrentStep(step);
+            return;
+        }
+    }
     if(step.type === "shape") renderShapeToolFx(e.clientX, e.clientY);
     if(drag.distance - drag.lastParticleDistance >= 18){
         spawnDragParticle(e.clientX, e.clientY, step.type);
         drag.lastParticleDistance = drag.distance;
     }
     if(step.type === "clean"){
-        step.dragDistance = Math.max(step.dragDistance || 0, drag.distance);
+        step.dragDistance = Math.min(CLEAN_DISTANCE_REQUIRED, (drag.baseDistance || 0) + drag.distance);
         renderPlay();
-        if(step.dragDistance >= 630){
+        if(step.dragDistance >= CLEAN_DISTANCE_REQUIRED){
             state.suppressNextClick = true;
             state.defectDrag = null;
             clearCleanToolFx();
@@ -4546,7 +4844,51 @@ function spawnDragParticle(x, y, type){
     document.body.appendChild(particle);
     setTimeout(()=>particle.remove(), 520);
 }
-function renderCleanToolFx(clientX, clientY){
+function cleanErasePointFromPointer(clientX, clientY){
+    const gem = document.getElementById("gem3d");
+    const rect = gem?.getBoundingClientRect();
+    if(!rect || !rect.width || !rect.height) return { x:50, y:50 };
+    return {
+        x:clampNumber((clientX - rect.left) / rect.width * 100, 2, 98),
+        y:clampNumber((clientY - rect.top) / rect.height * 100, 2, 98)
+    };
+}
+function addCleanErasePoint(step, clientX, clientY){
+    if(!step || step.type !== "clean") return;
+    const point = cleanErasePointFromPointer(clientX, clientY);
+    const points = step.cleanErasePoints || (step.cleanErasePoints = []);
+    const last = points[points.length - 1];
+    if(!last || Math.hypot(point.x - last.x, point.y - last.y) >= 1.15){
+        points.push(point);
+        if(points.length > 190) points.splice(0, points.length - 190);
+    }
+}
+function gemPointToStagePoint(point){
+    const gem = document.getElementById("gem3d");
+    const stage = document.getElementById("lens-stage");
+    const gemRect = gem?.getBoundingClientRect();
+    const stageRect = stage?.getBoundingClientRect();
+    if(!gemRect || !stageRect || !gemRect.width || !gemRect.height) return { x:0, y:0 };
+    return {
+        x:gemRect.left - stageRect.left + gemRect.width * clampNumber(point.x, 0, 100) / 100,
+        y:gemRect.top - stageRect.top + gemRect.height * clampNumber(point.y, 0, 100) / 100
+    };
+}
+function updateLightSearch(step, clientX, clientY, dt){
+    if(!step || step.type !== "light") return;
+    const point = cleanErasePointFromPointer(clientX, clientY);
+    const target = step.lightTarget || { x:50, y:50 };
+    const distance = Math.hypot(point.x - target.x, point.y - target.y);
+    const signal = clampNumber(1 - distance / LIGHT_SIGNAL_RADIUS, 0, 1);
+    const previousSignal = step.lightSignal || 0;
+    step.lightSignal = Math.max(signal, previousSignal * .76);
+    if(distance <= LIGHT_HIT_RADIUS){
+        step.lightHold = Math.min(LIGHT_SEARCH_REQUIRED_MS, (step.lightHold || 0) + Math.max(0, dt));
+    } else {
+        step.lightHold = Math.max(0, (step.lightHold || 0) - Math.max(0, dt) * .28);
+    }
+}
+function renderCleanToolFx(clientX, clientY, lean=0){
     const stage = document.getElementById("lens-stage");
     if(!stage) return;
     let fx = stage.querySelector(".clean-tool-fx");
@@ -4561,6 +4903,7 @@ function renderCleanToolFx(clientX, clientY){
     const y = Math.max(-24, Math.min(rect.height - 132, clientY - rect.top - 124));
     fx.style.setProperty("--clean-tool-x", `${x}px`);
     fx.style.setProperty("--clean-tool-y", `${y}px`);
+    fx.style.setProperty("--clean-lean", `${lean.toFixed(2)}deg`);
 }
 function clearCleanToolFx(){
     document.querySelectorAll(".clean-tool-fx").forEach(el=>el.remove());
@@ -4583,6 +4926,46 @@ function renderShapeToolFx(clientX, clientY){
 }
 function clearShapeToolFx(){
     document.querySelectorAll(".shape-tool-fx").forEach(el=>el.remove());
+}
+function renderLightToolFx(clientX, clientY, signal=0, step=currentStep()){
+    const stage = document.getElementById("lens-stage");
+    if(!stage) return;
+    let fx = stage.querySelector(".light-tool-fx");
+    if(!fx){
+        fx = document.createElement("div");
+        fx.className = "light-tool-fx";
+        fx.innerHTML = `<span class="light-tool-spot"></span><span class="light-tool-beam"></span><span class="light-tool-lamp"></span><span class="light-signal-star"></span>`;
+        stage.appendChild(fx);
+    }
+    const rect = stage.getBoundingClientRect();
+    const x = Math.max(70, Math.min(rect.width - 70, clientX - rect.left));
+    const y = Math.max(88, Math.min(rect.height - 58, clientY - rect.top));
+    const sourceX = Math.min(rect.width - 30, x + 86);
+    const sourceY = Math.max(42, y - 112);
+    const target = gemPointToStagePoint(step?.lightTarget || { x:50, y:50 });
+    const visibleSignal = clampNumber(signal, 0, 1);
+    fx.style.setProperty("--light-tool-x", `${x}px`);
+    fx.style.setProperty("--light-tool-y", `${y}px`);
+    fx.style.setProperty("--light-source-x", `${sourceX}px`);
+    fx.style.setProperty("--light-source-y", `${sourceY}px`);
+    fx.style.setProperty("--light-star-x", `${target.x}px`);
+    fx.style.setProperty("--light-star-y", `${target.y}px`);
+    fx.style.setProperty("--light-signal", visibleSignal.toFixed(3));
+    fx.style.setProperty("--light-star-scale", (.42 + visibleSignal * .76).toFixed(3));
+}
+function clearLightToolFx(){
+    document.querySelectorAll(".light-tool-fx").forEach(el=>el.remove());
+}
+function playLightFoundFx(step){
+    const stage = document.getElementById("lens-stage");
+    if(!stage || !step) return;
+    const point = gemPointToStagePoint(step.lightTarget || { x:50, y:50 });
+    const burst = document.createElement("span");
+    burst.className = "light-found-burst";
+    burst.style.setProperty("--light-star-x", `${point.x}px`);
+    burst.style.setProperty("--light-star-y", `${point.y}px`);
+    stage.appendChild(burst);
+    setTimeout(()=>burst.remove(), 720);
 }
 function spawnCompletionFragments(type){
     const spot = document.getElementById("hotspot");
@@ -4690,6 +5073,7 @@ function finishDefectDrag(e){
     state.suppressNextClick = true;
     if(drag.type === "clean") clearCleanToolFx();
     if(drag.type === "shape") clearShapeToolFx();
+    if(drag.type === "light") clearLightToolFx();
     if(step.type === "cut"){
         const dx = e.clientX - drag.startX;
         const dy = e.clientY - drag.startY;
@@ -4700,6 +5084,10 @@ function finishDefectDrag(e){
             completeCutSwipe(step);
         }
         else toast("切除角度不对，要顺着长条方向拖拽。");
+        return;
+    }
+    if(step.type === "light"){
+        toast(`反光锁定 ${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`);
         return;
     }
     if(step.type === "shape"){
