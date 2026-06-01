@@ -1,9 +1,10 @@
 # 宝石鉴定 HTML 原型 - 当前交接
 
-更新时间：2026-05-29 23:55 +08:00
+更新时间：2026-06-01 12:18 +08:00
 当前主线：`v26RealAsset`
 有效仓库：`C:\tmp\dem-demo-git-20260518`
 最近已推送提交：`f4207b0 Add light search and clean dirt feedback`
+当前本地新增：寻光手电筒正式素材 `assets/ui_v26/ui_tool_sprites/tool_light_C.png` 已接入普通版和联网版；联网版已写 GitHub raw 路径，但必须推送后线上才会加载到这张新图。
 
 ## 当前文件
 
@@ -12,6 +13,8 @@
 - 当前变更流水：`htmlDemo简单互动玩法/codex_changelist_宝石鉴定v24.md`
 - 当前交接文件：`htmlDemo简单互动玩法/codex_handoff_宝石鉴定原型.md`
 - 资产目录：`htmlDemo简单互动玩法/assets/ui_v26/`、`htmlDemo简单互动玩法/assets/gems_v24/`
+- 本轮新资产：`htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_light_C.png`
+- 本轮资产元数据：`htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_light_C.meta.json`
 
 旧版 `v22-v25` 只作为历史参考，不再作为推进对象。旧 Downloads 副本不是当前工作目录。
 
@@ -21,7 +24,8 @@
 - 成品石没有切除/定型，会随机在修补前插入 `寻光`，目标顺序为 `寻光 -> 修补 -> 清洁`。
 - 原石保持切除开场，大部分有定型，部分有修补，最终都以清洁收尾。
 - `寻光` 已接入工具轮、镜片提示、笔记本、GM 一键鉴定和拖拽流程；鼠标点击点是探测圆心，手电筒和射线从右上方照入圆圈。
-- 当前待改计划：把寻光手电筒和射线相对鼠标圆心的右上偏移距离再放大一倍；不改变探测圆圈中心、命中范围或反光点逻辑。
+- 寻光手电筒已从 CSS 临时形状改成正式 `tool_light_C.png`；手电筒和射线相对鼠标圆心的右上偏移已放大一倍，探测圆圈中心、命中范围和反光点逻辑保持不变。
+- `TOOL_SPRITES.light` 已接入；工具轮“寻光”显示正式图。`.light-tool-lamp` 使用图片资产，`renderLightToolFx()` 根据鼠标圆心动态计算 `--light-angle`，让灯头和光束朝向探测圆心。
 - `修补` 已改为裂缝瞄准和精华填充：三段裂缝目标、精华滴液下落、裂缝填充到 80% 后变细消隐，不再用大水滴遮挡宝石。
 - `清洁` 使用 `.gem-surface` 污渍材质层和 `clean-erase-mask`；横向擦拭提示、灰尘、颗粒和污渍在同一层内，玩家擦过的位置会一起被擦掉。
 - `定型` 成功后会复制玩家笔画，生成青蓝激光形状，从镜头前方向宝石中心收缩投射。
@@ -40,8 +44,14 @@
 
 - 先改主开发版，再同步生成联网版。
 - 联网版必须把图片资源替换成 GitHub raw URL，检查本地 `assets/` 残留应为 `0`。
-- 最近联网版检查基准：`raw.githubusercontent.com` 引用约 101 个，本地 `assets/` 残留为 `0`。
+- 最近联网版检查基准：`raw.githubusercontent.com` 引用约 103 个，本地 `assets/` 残留为 `0`。
 - 常用同步脚本见 changelist 或历史提交；不要手工漏改资源路径。
+
+## 本轮未上传检查
+
+- 当前本地包含未提交改动：普通版、联网版、changelist、handoff、新增 `tool_light_C.png`、新增 `tool_light_C.meta.json`。
+- 已做检查：普通版/联网版 JS 语法 OK，`git diff --check` OK，联网版 GitHub raw 引用 `103`，本地 `assets/` 残留 `0`。
+- 下一账号继续前如要线上预览，先上传这些改动；否则 GitHub Pages 的联网版会请求尚不存在的 `tool_light_C.png`。
 
 ## 自动上传规则
 

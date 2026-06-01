@@ -1334,8 +1334,9 @@
         pointer-events:none;
         --light-tool-x:50%;
         --light-tool-y:50%;
-        --light-source-x:calc(50% + 86px);
-        --light-source-y:calc(50% - 112px);
+        --light-source-x:calc(50% + 172px);
+        --light-source-y:calc(50% - 224px);
+        --light-angle:132deg;
         --light-star-x:50%;
         --light-star-y:50%;
         --light-signal:0;
@@ -1361,7 +1362,7 @@
         width:238px;
         height:108px;
         transform-origin:0 50%;
-        transform:translateY(-50%) rotate(132deg);
+        transform:translateY(-50%) rotate(var(--light-angle));
         clip-path:polygon(0 45%, 100% 0, 100% 100%, 0 55%);
         background:linear-gradient(90deg, rgba(255,255,236,.62), rgba(255,235,150,.3) 48%, rgba(93,228,220,0));
         filter:blur(.2px);
@@ -1371,25 +1372,25 @@
         position:absolute;
         left:var(--light-source-x);
         top:var(--light-source-y);
-        width:42px;
-        height:78px;
-        transform:translate(4px, -82px) rotate(-34deg);
-        transform-origin:50% 80%;
-        border-radius:18px 18px 12px 12px;
-        background:linear-gradient(180deg, #fff2bb 0 18%, #d29b45 19% 44%, #6f4a2a 45% 100%);
-        box-shadow:0 12px 18px rgba(26,18,10,.24), 0 0 16px rgba(255,225,116,.48);
+        width:60px;
+        height:174px;
+        transform:translate(-50%, -8%) rotate(calc(var(--light-angle) + 90deg)) scale(.95);
+        transform-origin:50% 8%;
+        background:url("assets/ui_v26/ui_tool_sprites/tool_light_C.png") center / contain no-repeat;
+        filter:drop-shadow(0 16px 16px rgba(15,11,7,.32)) drop-shadow(0 0 14px rgba(255,225,116,.44));
     }
     .light-tool-lamp::before{
         content:"";
         position:absolute;
         left:50%;
-        bottom:-8px;
-        width:32px;
-        height:14px;
-        transform:translateX(-50%);
+        top:8%;
+        width:30px;
+        height:18px;
+        transform:translate(-50%, -50%);
         border-radius:50%;
-        background:radial-gradient(circle, rgba(255,255,230,.94), rgba(255,225,118,.5) 54%, transparent 72%);
-        box-shadow:0 0 18px rgba(255,230,132,.7);
+        background:radial-gradient(ellipse, rgba(255,255,230,.96), rgba(255,225,118,.42) 56%, transparent 74%);
+        box-shadow:0 0 18px rgba(255,230,132,.68), 0 0 26px rgba(93,228,220,.34);
+        mix-blend-mode:screen;
     }
     .light-signal-star,
     .light-found-burst{
@@ -2659,6 +2660,9 @@
         font-size:20px;
         line-height:1;
     }
+    .organize-plate-btn.rolling{
+        animation:plateDiceRoll .46s cubic-bezier(.2,.88,.22,1.18);
+    }
     .plate{
         position:absolute;
         left:18px;
@@ -2716,6 +2720,12 @@
         63%{ transform:translate(calc(-50% - 10px), calc(-50% - 22px)) rotate(calc(-22deg + var(--rest-rot, 0deg))) scale(.96); }
         78%{ transform:translate(calc(-50% + 7px), calc(-50% + 6px)) rotate(calc(12deg + var(--rest-rot, 0deg))) scale(1.02); }
         100%{ transform:translate(-50%, -50%) rotate(var(--rest-rot, 0deg)) scale(1); opacity:1; }
+    }
+    @keyframes plateDiceRoll{
+        0%{ transform:rotate(0deg) scale(1); }
+        28%{ transform:rotate(-24deg) scale(1.12); }
+        58%{ transform:rotate(28deg) scale(.96); }
+        100%{ transform:rotate(0deg) scale(1); }
     }
     @media (max-width:1100px){
         .workbench{ grid-template-columns:1fr; grid-template-rows:auto auto auto; }
@@ -3467,7 +3477,7 @@
                 <span id="collect-btn-label">收集奖励</span>
             </button>
             <div class="plate-actions">
-                <button class="btn ghost organize-plate-btn" id="organize-plate-btn" title="整理盘子" aria-label="整理盘子">♻</button>
+                <button class="btn ghost organize-plate-btn" id="organize-plate-btn" title="重新撒石头" aria-label="重新撒石头">⚂</button>
             </div>
             <div id="plate" class="plate"></div>
         </aside>
@@ -3499,7 +3509,8 @@ const TOOL_SPRITES = {
     cut:"assets/ui_v26/ui_tool_sprites/tool_cut_C.png",
     repair:"assets/ui_v26/ui_tool_sprites/tool_repair_C.png",
     shape:"assets/ui_v26/ui_tool_sprites/tool_shape_C.png",
-    clean:"assets/ui_v26/ui_tool_sprites/tool_clean_C.png"
+    clean:"assets/ui_v26/ui_tool_sprites/tool_clean_C.png",
+    light:"assets/ui_v26/ui_tool_sprites/tool_light_C.png"
 };
 const TOOL_NOTES = {
     cut:"沿灰色石皮拖拽切开",
@@ -3775,7 +3786,7 @@ function renderPlate(){
             item.style.background = gem.color;
         }
         item.style.setProperty("--delay", `${Math.min(index, 24) * 55}ms`);
-        item.style.setProperty("--from-x", `${index % 2 === 0 ? -140 : 140}px`);
+        item.style.setProperty("--from-x", `${plateItem.fromX ?? (index % 2 === 0 ? -140 : 140)}px`);
         item.style.setProperty("--drop-rot", `${plateItem.dropRot ?? (Math.random() * 220 - 110)}deg`);
         item.style.setProperty("--rest-rot", `${plateItem.restRot ?? (Math.random() * 26 - 13)}deg`);
         item.style.setProperty("--plate-x", plateItem.x ?? 50);
@@ -3799,9 +3810,13 @@ function createPlateItem(id, existingItems = state.plateItems || []){
         id,
         x:pos.x,
         y:pos.y,
+        fromX:randomPlateDropX(),
         dropRot:Math.random() * 220 - 110,
         restRot:Math.random() * 26 - 13
     };
+}
+function randomPlateDropX(){
+    return (Math.random() < .5 ? -1 : 1) * (110 + Math.random() * 110);
 }
 function randomPlatePosition(existingItems = []){
     const attempts = existingItems.length > 34 ? 12 : 42;
@@ -3853,21 +3868,35 @@ function addPlateItems(id, amount){
         state.plateItems.splice(insertAt, 0, createPlateItem(id, state.plateItems));
     }
 }
-function organizePlate(){
+const PLATE_DICE_FACES = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+function rerollPlate(){
     if(!state.plateItems?.length){
         toast("盘子里还没有成石");
         return;
     }
-    state.plateItems.sort((a,b)=>{
-        const orderA = GEM_BLUEPRINTS.findIndex(g=>g.id === a.id);
-        const orderB = GEM_BLUEPRINTS.findIndex(g=>g.id === b.id);
-        return orderA - orderB;
+    for(let i = state.plateItems.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [state.plateItems[i], state.plateItems[j]] = [state.plateItems[j], state.plateItems[i]];
+    }
+    const placed = [];
+    state.plateItems.forEach(item=>{
+        const pos = randomPlatePosition(placed);
+        item.x = pos.x;
+        item.y = pos.y;
+        item.fromX = randomPlateDropX();
+        item.dropRot = Math.random() * 260 - 130;
+        item.restRot = Math.random() * 32 - 16;
+        placed.push(item);
     });
-    circularPlatePositions(state.plateItems.length).forEach((pos, index)=>{
-        state.plateItems[index].x = pos.x;
-        state.plateItems[index].y = pos.y;
-    });
-    addLog("盘子里的成石已整理排序。");
+    const rerollButton = document.getElementById("organize-plate-btn");
+    if(rerollButton){
+        rerollButton.textContent = PLATE_DICE_FACES[Math.floor(Math.random() * PLATE_DICE_FACES.length)];
+        rerollButton.classList.remove("rolling");
+        void rerollButton.offsetWidth;
+        rerollButton.classList.add("rolling");
+        window.setTimeout(()=>rerollButton.classList.remove("rolling"), 520);
+    }
+    addLog("盘子里的成石重新随机撒开。");
     renderPlate();
 }
 function rewardShapeForGem(gem){
@@ -4940,14 +4969,16 @@ function renderLightToolFx(clientX, clientY, signal=0, step=currentStep()){
     const rect = stage.getBoundingClientRect();
     const x = Math.max(70, Math.min(rect.width - 70, clientX - rect.left));
     const y = Math.max(88, Math.min(rect.height - 58, clientY - rect.top));
-    const sourceX = Math.min(rect.width - 30, x + 86);
-    const sourceY = Math.max(42, y - 112);
+    const sourceX = Math.min(rect.width - 30, x + 172);
+    const sourceY = Math.max(42, y - 224);
     const target = gemPointToStagePoint(step?.lightTarget || { x:50, y:50 });
     const visibleSignal = clampNumber(signal, 0, 1);
+    const lightAngle = Math.atan2(y - sourceY, x - sourceX) * 180 / Math.PI;
     fx.style.setProperty("--light-tool-x", `${x}px`);
     fx.style.setProperty("--light-tool-y", `${y}px`);
     fx.style.setProperty("--light-source-x", `${sourceX}px`);
     fx.style.setProperty("--light-source-y", `${sourceY}px`);
+    fx.style.setProperty("--light-angle", `${lightAngle}deg`);
     fx.style.setProperty("--light-star-x", `${target.x}px`);
     fx.style.setProperty("--light-star-y", `${target.y}px`);
     fx.style.setProperty("--light-signal", visibleSignal.toFixed(3));
@@ -5400,7 +5431,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
         if(e.key === "Escape" && document.getElementById("reward-modal").classList.contains("show")) collectRewards();
     });
     document.getElementById("collect-btn").addEventListener("click", openRewardModal);
-    document.getElementById("organize-plate-btn").addEventListener("click", organizePlate);
+    document.getElementById("organize-plate-btn").addEventListener("click", rerollPlate);
     document.getElementById("layout-select").addEventListener("change", e=>applyLayoutMode(e.target.value));
     document.getElementById("data-pack-select").addEventListener("change", e=>applyDataPack(e.target.value));
     document.getElementById("reset-demo-btn").addEventListener("click", resetDemo);

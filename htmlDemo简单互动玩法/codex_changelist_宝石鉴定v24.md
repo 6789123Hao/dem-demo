@@ -1,8 +1,28 @@
 # 宝石鉴定 v26RealAsset - 精简 Changelist
 
-更新时间：2026-05-29 20:50 +08:00
+更新时间：2026-06-01 12:05 +08:00
 当前主线：`v26RealAsset`
 说明：旧版 v22-v25 的逐条历史已删除，只保留当前方向和后续接手需要知道的变更。
+
+## 2026-06-01 12:05 +08:00 - Codex 1 寻光手电筒正式素材接入
+
+- 使用 `$generate2dsprite` 工作流完成寻光手电筒素材：内置 `image_gen` 生成原图，脚本做抠底 QC，再按现有工具规格机械缩放到 `180x520`。
+- 新增 `assets/ui_v26/ui_tool_sprites/tool_light_C.png`，画风对齐现有绿金工具；保留 `tool_light_C.meta.json` 记录来源、裁切和缩放信息。
+- `TOOL_SPRITES.light` 已接入普通版和联网版；工具轮的“寻光”现在显示正式图。
+- `.light-tool-lamp` 已从 CSS 临时灯体改成图片资产，光源偏移从右上 `86/112` 扩大到 `172/224`，并根据鼠标圆心动态旋转灯体与光束。
+
+## 2026-06-01 00:00 +08:00 - Codex 3 寻光手电筒素材尝试暂停
+
+- 用户希望用 `$generate2dsprite` / `image_gen` 生成一张匹配现有工具画风的 `寻光灯/手电筒`，替代当前 CSS 手电筒；方向要求：灯头/光源端朝向鼠标圆心，手电筒本体在鼠标右上方且距离更远。
+- Codex 3 检查了 `generate2dsprite` 与 `gpt-image`：当前公司账号会话没有暴露内置 `image_gen`，本机 `gpt-image` CLI 后端不可用，`OPENAI_API_KEY` 也未设置，因此无法按工具规范真正生成 AI 原始图。
+- Codex 3 曾临时用现有 `tool_cut_C.png` / `tool_shape_C.png` 拼合了一个 `tool_light_C.png`，但用户反馈“太丑”；该临时 PNG 和临时脚本已删除，HTML 也退回到原 CSS 手电筒状态，不要把这次临时图当最终素材。
+- 下一位用个人账号接手时建议：用现有四张工具图作为风格参考，生成透明 PNG `assets/ui_v26/ui_tool_sprites/tool_light_C.png`，再接入 `TOOL_SPRITES.light` 与 `.light-tool-lamp`；同时把 `renderLightToolFx()` 的光源偏移改得更远，并根据鼠标圆心动态旋转灯体和光束。
+
+## 2026-05-30 00:02 +08:00 - Codex 3 奖励盘重撒按钮
+
+- 右下角奖励盘按钮从“整理排序”改为“重新撒石头”，按钮 title/aria 与图标改成骰子语义。
+- 点击后保留当前盘内宝石总数和种类，但随机洗牌、重新抽圆盘内避让位置、重新抽落盘方向和旋转角度，模拟 reroll 骰子后把石头重新撒开的感觉。
+- 按钮点击时增加短促 roll 动画；普通版改完后同步生成联网版。
 
 ## 2026-05-29 20:50 +08:00 - Codex 3 寻光鼠标圆心修正
 

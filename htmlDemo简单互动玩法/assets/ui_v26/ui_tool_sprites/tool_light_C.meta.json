@@ -1,0 +1,23 @@
+{
+  "source": "C:\\Users\\linglingshuai\\.codex\\generated_images\\019e38f0-4d36-76a1-9021-ece8193be613\\ig_0617d23fb99917d1016a1d006f289c8191b65bce0efb1a4394.png",
+  "output": "C:\\tmp\\dem-demo-git-20260518\\htmlDemo简单互动玩法\\assets\\ui_v26\\ui_tool_sprites\\tool_light_C.png",
+  "canvas": [
+    180,
+    520
+  ],
+  "source_bbox": [
+    236,
+    149,
+    527,
+    1915
+  ],
+  "scaled_body": [
+    73,
+    442
+  ],
+  "paste": [
+    53,
+    45
+  ],
+  "note": "Generated with generate2dsprite workflow: image_gen raw art, deterministic chroma-key crop and scale to match v26 tool sprites."
+}
