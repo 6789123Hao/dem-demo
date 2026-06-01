@@ -1010,6 +1010,9 @@
     }
     .repair-target::before{ width:22px; height:1px; }
     .repair-target::after{ width:1px; height:22px; }
+    .repair-overlay.targets-hidden .repair-target{
+        display:none;
+    }
     .repair-tool{
         position:absolute;
         left:var(--repair-tool-left, var(--repair-drop-left, 50%));
@@ -1639,7 +1642,7 @@
         position:absolute;
         left:44px;
         bottom:34px;
-        width:232px;
+        width:184px;
         height:172px;
         z-index:13;
         display:none;
@@ -1649,6 +1652,7 @@
         position:absolute;
         width:92px;
         height:92px;
+        box-sizing:border-box;
         border:4px solid rgba(235,255,246,.88);
         border-radius:50%;
         padding:0;
@@ -1698,7 +1702,7 @@
     .lens-orb-a{
         --orb-core:rgba(255,255,246,.92);
         --orb-edge:rgba(196,238,229,.44);
-        left:58px;
+        left:46px;
         top:0;
     }
     .lens-orb-b{
@@ -1711,8 +1715,8 @@
     .lens-orb-c{
         --orb-core:rgba(84,224,113,.85);
         --orb-edge:rgba(31,132,55,.62);
-        right:0;
-        bottom:3px;
+        left:92px;
+        bottom:0;
         border-color:rgba(93,219,96,.92);
     }
     @keyframes lensOrbRecommend{
@@ -3349,6 +3353,14 @@
     body.layout-mobile-landscape.playing .core-controls{
         display:block;
     }
+    body.layout-mobile-landscape.playing .core-controls.lens-attention .step-box:first-child{
+        animation:lensWindowBreath 1.16s ease-in-out infinite;
+        transform-origin:left bottom;
+    }
+    @keyframes lensWindowBreath{
+        0%,100%{ transform:scale(1); box-shadow:0 12px 28px rgba(68,43,25,.12); }
+        50%{ transform:scale(1.055); box-shadow:0 14px 34px rgba(221,178,79,.26), 0 0 0 3px rgba(255,218,104,.2); }
+    }
     body.layout-mobile-landscape .core-controls .step-box{
         padding:14px;
     }
@@ -3424,6 +3436,7 @@
     }
     body.layout-mobile-landscape .lens-scroll-cue{
         transform:translate(-50%, -50%) scale(1.18);
+        display:none !important;
     }
     @media (max-height:760px){
         .lens-stage{
@@ -4631,6 +4644,10 @@ function renderLensDial(){
         dial.appendChild(btn);
     });
 }
+function setLensAttention(active){
+    document.querySelector(".core-controls")?.classList.toggle("lens-attention", !!active);
+    document.getElementById("lens-dial")?.classList.toggle("lens-attention", !!active);
+}
 function renderToolButtons(){
     const grid = document.getElementById("tool-grid");
     grid.innerHTML = "";
@@ -4668,14 +4685,18 @@ function renderHotspot(){
     const spot = document.getElementById("hotspot");
     const ring = document.getElementById("focus-ring");
     const scrollCue = document.getElementById("lens-scroll-cue");
-    const visibleOnLens = step && state.lensIndex === step.lens;
+    const visibleOnLens = !!(step && state.lensIndex === step.lens);
+    const repairOverlayStep = repairTaskForOverlay(step);
+    const repairOverlayPos = repairOverlayStep ? defectStagePosition(repairOverlayStep) : null;
+    setLensAttention(!!step && !visibleOnLens);
     if(!visibleOnLens){
-        renderRepairOverlay(step, false);
+        renderRepairOverlay(repairOverlayStep, !!repairOverlayStep, false, repairOverlayPos);
         spot.style.display = "none";
         ring.style.display = "none";
         state.hotspotRevealKey = null;
         if(scrollCue){
-            scrollCue.style.display = step ? "block" : "none";
+            const mobileLensWindow = document.body.classList.contains("layout-mobile-landscape");
+            scrollCue.style.display = step && !mobileLensWindow ? "block" : "none";
             if(step){
                 scrollCue.innerHTML = `<span class="lens-scroll-text">滚动滚轮翻镜片</span><span class="lens-scroll-wheel-mark"></span>`;
             }
@@ -4697,7 +4718,9 @@ function renderHotspot(){
     }
     spot.setAttribute("aria-label", `${TOOL_LABELS[step.type]}瑕疵：${step.title}`);
     const pos = defectStagePosition(step);
-    renderRepairOverlay(step, step.type === "repair", pos);
+    const overlayStep = repairOverlayStep || (step.type === "repair" ? step : null);
+    const overlayPos = overlayStep === step ? pos : overlayStep ? defectStagePosition(overlayStep) : null;
+    renderRepairOverlay(overlayStep, !!overlayStep, step.type === "repair", overlayPos);
     if(step.type === "repair"){
         const target = REPAIR_TARGETS[Math.min(step.repairTargetIndex || 0, REPAIR_TARGETS.length - 1)];
         spot.style.setProperty("--repair-hotspot-x", `${target.dx}px`);
@@ -4721,7 +4744,19 @@ function renderHotspot(){
         renderHotspot.revealTimer = setTimeout(()=>spot.classList.remove("hotspot-reveal"), 340);
     }
 }
-function renderRepairOverlay(step, visible, pos){
+function repairTaskForOverlay(step){
+    const active = state.active;
+    if(!active) return null;
+    const repairTask = step?.type === "repair"
+        ? step
+        : active.tasks.find(task=>task.type === "repair" && !task.done);
+    if(!repairTask || repairTask.done) return null;
+    const hasCut = active.tasks.some(task=>task.type === "cut");
+    const cutDone = active.tasks.some(task=>task.type === "cut" && task.done);
+    if(hasCut && !cutDone) return null;
+    return repairTask;
+}
+function renderRepairOverlay(step, visible, targetsVisible=false, pos){
     const overlay = document.getElementById("repair-overlay");
     if(!overlay) return;
     if(!step || step.type !== "repair" || !visible){
@@ -4729,9 +4764,10 @@ function renderRepairOverlay(step, visible, pos){
         overlay.innerHTML = "";
         return;
     }
+    if(!pos) pos = defectStagePosition(step);
     const fill = Math.min(1, step.repairFill || 0);
     const activeIndex = Math.min(step.repairTargetIndex || 0, REPAIR_TARGETS.length - 1);
-    overlay.className = `repair-overlay visible ${fill >= REPAIR_COMPLETE_THRESHOLD ? "repair-complete" : ""}`;
+    overlay.className = `repair-overlay visible ${targetsVisible ? "targets-visible" : "targets-hidden"} ${fill >= REPAIR_COMPLETE_THRESHOLD ? "repair-complete" : ""}`;
     overlay.style.left = `${pos.x}%`;
     overlay.style.top = `${pos.y}%`;
     overlay.style.setProperty("--repair-fill-remain", `${Math.max(0, 1 - fill)}`);
@@ -4761,15 +4797,15 @@ function renderRepairOverlay(step, visible, pos){
                 <path class="repair-crack-fill" d="${REPAIR_CRACK_PATH}" pathLength="1"></path>
             </g>
         </svg>
-        ${REPAIR_TARGETS.map((target, index)=>{
+        ${targetsVisible ? REPAIR_TARGETS.map((target, index)=>{
             const done = fill >= REPAIR_COMPLETE_THRESHOLD || index < activeIndex;
             const active = index === activeIndex && fill < REPAIR_COMPLETE_THRESHOLD;
             return `<span class="repair-target ${done ? "done" : ""} ${active ? "active" : ""}" style="left:${target.x}%;top:${target.y}%"></span>`;
-        }).join("")}
+        }).join("") : ""}
         <span class="repair-tool"></span>
         <span class="repair-drop"></span>
     `;
-    const revealKey = `${step.id}:repair-overlay:${state.lensIndex}`;
+    const revealKey = `${step.id}:repair-overlay`;
     if(renderRepairOverlay.revealKey !== revealKey){
         renderRepairOverlay.revealKey = revealKey;
         overlay.classList.add("repair-reveal");
@@ -4816,6 +4852,7 @@ function clearHotspot(){
     clearCleanToolFx();
     clearShapeToolFx();
     clearLightToolFx();
+    setLensAttention(false);
     if(spot) spot.style.display = "none";
     if(ring) ring.style.display = "none";
     if(scrollCue) scrollCue.style.display = "none";
