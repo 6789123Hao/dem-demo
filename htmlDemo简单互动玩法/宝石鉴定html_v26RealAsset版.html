@@ -1635,6 +1635,103 @@
     }
     .lens-target-scope::before{ width:15px; height:1px; }
     .lens-target-scope::after{ width:1px; height:15px; }
+    .lens-dial{
+        position:absolute;
+        left:44px;
+        bottom:34px;
+        width:232px;
+        height:172px;
+        z-index:13;
+        display:none;
+        pointer-events:none;
+    }
+    .lens-orb{
+        position:absolute;
+        width:92px;
+        height:92px;
+        border:4px solid rgba(235,255,246,.88);
+        border-radius:50%;
+        padding:0;
+        cursor:pointer;
+        pointer-events:auto;
+        color:transparent;
+        background:
+            radial-gradient(circle at 33% 28%, rgba(255,255,255,.72), rgba(255,255,255,.1) 19%, transparent 32%),
+            radial-gradient(circle at 52% 55%, var(--orb-core), var(--orb-edge) 66%, rgba(7,42,35,.5) 100%);
+        box-shadow:
+            inset 0 0 0 2px rgba(255,255,255,.2),
+            inset 0 -18px 30px rgba(9,42,34,.26),
+            0 0 0 1px rgba(14,54,41,.2),
+            0 14px 26px rgba(6,26,22,.18);
+        transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease, opacity .18s ease;
+    }
+    .lens-orb::before,
+    .lens-orb::after{
+        content:"";
+        position:absolute;
+        inset:11px;
+        border-radius:50%;
+        border:1px solid rgba(255,255,255,.38);
+        pointer-events:none;
+    }
+    .lens-orb::after{
+        inset:25px;
+        border-color:rgba(255,255,255,.2);
+        background:radial-gradient(circle, rgba(255,255,255,.3), transparent 62%);
+    }
+    .lens-orb:hover,
+    .lens-orb:focus-visible{
+        transform:scale(1.06);
+        outline:none;
+    }
+    .lens-orb.active{
+        border-color:rgba(255,255,255,.98);
+        box-shadow:
+            inset 0 0 0 3px rgba(255,255,255,.24),
+            0 0 0 3px rgba(112,236,210,.3),
+            0 0 24px rgba(103,238,214,.44),
+            0 16px 28px rgba(6,26,22,.2);
+    }
+    .lens-orb.recommended{
+        animation:lensOrbRecommend 1.18s ease-in-out infinite;
+    }
+    .lens-orb-a{
+        --orb-core:rgba(255,255,246,.92);
+        --orb-edge:rgba(196,238,229,.44);
+        left:58px;
+        top:0;
+    }
+    .lens-orb-b{
+        --orb-core:rgba(88,173,255,.88);
+        --orb-edge:rgba(17,88,198,.58);
+        left:0;
+        bottom:0;
+        border-color:rgba(90,167,255,.96);
+    }
+    .lens-orb-c{
+        --orb-core:rgba(84,224,113,.85);
+        --orb-edge:rgba(31,132,55,.62);
+        right:0;
+        bottom:3px;
+        border-color:rgba(93,219,96,.92);
+    }
+    @keyframes lensOrbRecommend{
+        0%,100%{
+            box-shadow:
+                inset 0 0 0 2px rgba(255,255,255,.2),
+                0 0 0 1px rgba(14,54,41,.2),
+                0 12px 24px rgba(6,26,22,.16);
+            transform:scale(1);
+        }
+        50%{
+            box-shadow:
+                inset 0 0 0 2px rgba(255,255,255,.24),
+                0 0 0 7px rgba(255,210,83,.28),
+                0 0 28px rgba(255,216,96,.64),
+                0 16px 30px rgba(6,26,22,.2);
+            transform:scale(1.08);
+        }
+    }
     .tool-panel{ display:none; }
     .current-tool-card{
         position:relative;
@@ -2614,6 +2711,12 @@
         display:grid;
         gap:10px;
     }
+    body:not(.layout-mobile-landscape).playing .core-controls{
+        display:none;
+    }
+    body:not(.layout-mobile-landscape).playing .lens-dial{
+        display:block;
+    }
     body.playing .core-hint{ display:block; }
     .hotspot{ z-index:6; }
     .focus-ring{ z-index:5; }
@@ -2626,6 +2729,37 @@
         gap:12px;
         min-height:0;
         padding-bottom:382px;
+    }
+    body:not(.layout-mobile-landscape) .current-tool-card{
+        flex:0 0 auto;
+        width:258px;
+        min-height:318px;
+        align-self:center;
+        flex-direction:column;
+        gap:8px;
+        padding:12px 10px 14px;
+    }
+    body:not(.layout-mobile-landscape) .current-tool-icon{
+        width:150px;
+        height:236px;
+        min-height:218px;
+    }
+    body:not(.layout-mobile-landscape) .tool-wheel{
+        width:218px;
+        gap:4px;
+    }
+    body:not(.layout-mobile-landscape) .tool-wheel-item{
+        width:54px;
+        height:166px;
+        border-radius:15px;
+    }
+    body:not(.layout-mobile-landscape) .tool-wheel-item.active{
+        width:76px;
+        height:228px;
+    }
+    body:not(.layout-mobile-landscape) .current-tool-text{
+        min-width:0;
+        text-align:center;
     }
     .reward-dock{
         margin-top:72px;
@@ -3431,6 +3565,7 @@
                     <button id="hotspot" class="hotspot" aria-label="当前处理点"></button>
                     <div id="focus-ring" class="focus-ring"></div>
                     <div id="lens-scroll-cue" class="lens-scroll-cue" aria-label="向下滚轮切换镜头"></div>
+                    <div id="lens-dial" class="lens-dial" aria-label="镜头选择"></div>
                     <svg id="shape-trace-layer" class="shape-trace-layer" aria-hidden="true"></svg>
                     <div class="core-hud">
                         <div class="step-box notebook-card">
@@ -3551,6 +3686,31 @@ const FACES = ["Face 1","Face 2","Face 3"];
 const SHAPE_TARGETS = ["circle", "triangle", "square"];
 const SHAPE_LABELS = { circle:"圆形", triangle:"三角形", square:"正方形" };
 const SHAPE_MARKS = { circle:"○", triangle:"△", square:"□" };
+const GEM_STEP_INSTRUCTIONS = {
+    pearl:{ repair:"珍珠：瞄准珠层细裂，分段滴入修复精华，让裂缝被柔光填满。", clean:"珍珠：用清洁刷轻擦表面雾膜，擦出柔和珠光。" },
+    agate:{ repair:"玛瑙：沿下缘细裂注入精华，先补边缘再让纹带连贯。", clean:"玛瑙：来回擦开表面灰膜，让红橙纹带重新透亮。" },
+    garnet:{ repair:"石榴石：对准边缘缺口滴入精华，把缺口亮线补齐。", clean:"石榴石：擦掉深色石面上的灰尘层，让血色反光浮出来。" },
+    sunstone:{ repair:"砂金石：把细小缺角补满，保住边缘的金砂闪点。", clean:"砂金石：顺着金砂亮面擦拭，让细闪从污渍下显出来。" },
+    catseye:{ repair:"猫眼石：修补猫眼边缘损伤，别让亮线被裂口截断。", clean:"猫眼石：左右擦净瞳线附近的雾层，让猫眼光带变清楚。" },
+    jadeite:{ repair:"翡翠：沿边缘细裂注入精华，先让裂纹显影再填平。", clean:"翡翠：擦掉翠面灰膜，保留内部通透的绿色高光。" },
+    obsidian:{ cut:"黑曜石：按住石皮长条切两次，把外层暗皮削开。", shape_triangle:"黑曜石：描出三角轮廓，让激光把黑镜面切成尖角。", clean:"黑曜石：擦净黑镜面的灰痕，露出干净反射。" },
+    fluorite:{ cut:"萤石：顺着杂层方向切开，把外层混浊带剥掉。", shape_circle:"萤石：描圆定型，让激光把晶体收成圆润球面。", clean:"萤石：擦掉表面粉尘，留下清透的荧光感。" },
+    malachite:{ cut:"孔雀石：切两次削掉矿皮，露出里面的孔雀纹。", repair:"孔雀石：沿孔雀纹裂缝注入精华，让纹路重新连上。", shape_square:"孔雀石：描正方轮廓，把纹理压进方形章面。", clean:"孔雀石：擦净石面灰尘，让绿色纹带更分明。" },
+    turquoise:{ cut:"绿松石：切两次剥掉泥皮，露出蓝绿色主体。", repair:"绿松石：沿脉络裂隙滴入精华，把断开的纹理补回去。", shape_triangle:"绿松石：描三角轮廓，让激光切出利落尖角。", clean:"绿松石：擦掉泥雾和粉尘，让松石蓝绿更干净。" },
+    hetian:{ cut:"和田玉：顺着杂质筋切开，把影响通透的筋带削掉。", shape_circle:"和田玉：描圆定型，把玉面收成温润圆形。", clean:"和田玉：轻擦玉面灰膜，让油润感浮出来。" },
+    shoushan:{ cut:"寿山石：切两次去掉残皮，露出可定型的章料面。", shape_square:"寿山石：描正方轮廓，切出方章的平直边。", clean:"寿山石：擦净石面粉尘，让暖色石质更清楚。" }
+};
+function defaultGemStepInstruction(gem, task){
+    const shapeKey = task.type === "shape" ? `shape_${task.targetShape || task.shapeTarget || "circle"}` : task.type;
+    const copy = GEM_STEP_INSTRUCTIONS[gem.id]?.[shapeKey] || GEM_STEP_INSTRUCTIONS[gem.id]?.[task.type];
+    if(copy) return copy;
+    if(task.type === "light") return `${gem.name}：按住扫光区移动寻光灯，找到最亮的反光点。`;
+    if(task.type === "repair") return `${gem.name}：瞄准裂缝光圈，滴入修复精华填满裂隙。`;
+    if(task.type === "clean") return `${gem.name}：按住污渍范围来回擦拭，把脏污层擦掉。`;
+    if(task.type === "cut") return `${gem.name}：按住切除长条，顺着角度拖拽削掉外层。`;
+    if(task.type === "shape") return `${gem.name}：按住轮廓特效，拖拽描边完成定型。`;
+    return `${gem.name}：完成当前处理步骤。`;
+}
 const GEM_BLUEPRINTS = [
     { id:"pearl", name:"珍珠", rarity:3, version:"西西亚·三星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #fff9ef 0%, #d9d3dd 100%)", assetBase:"assets/gems/pearl", tasks:[{type:"repair", title:"珠层细裂", lens:2, face:1, pos:{x:54,y:46}}, {type:"clean", title:"柔光净化", lens:0, face:1, pos:{x:50,y:54}}] },
     { id:"agate", name:"玛瑙", rarity:3, version:"长安·三星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", assetBase:"assets/gems/agate", tasks:[{type:"repair", title:"下缘细裂", lens:2, face:2, pos:{x:46,y:64}}, {type:"clean", title:"通透净化", lens:1, face:1, pos:{x:50,y:52}}] },
@@ -4009,6 +4169,7 @@ function buildCoreTasks(gem){
     return tasksWithOptionalLight(gem).map((task, index)=>({
         ...task,
         id:`${gem.id}_${index}`,
+        instruction:task.instruction || defaultGemStepInstruction(gem, task),
         done:false,
         clicks:0,
         repairFill:0,
@@ -4089,6 +4250,7 @@ function stepStatusText(step){
 }
 function stepHintText(step){
     if(!step) return "滚动鼠标滚轮翻镜片，点击瑕疵完成当前操作。";
+    if(step.instruction) return step.instruction;
     if(step.type === "clean") return "清洁：按住范围圈，在瑕疵上来回拖拽擦除。";
     if(step.type === "repair") return "修补：瞄准裂缝光圈，滴入修复精华填满裂隙。";
     if(step.type === "light") return "寻光：按住扫光区移动寻光灯，找到宝石表面的反光点。";
@@ -4443,6 +4605,30 @@ function renderLensButtons(){
             }
         });
         grid.appendChild(btn);
+    });
+    renderLensDial();
+}
+function renderLensDial(){
+    const dial = document.getElementById("lens-dial");
+    if(!dial) return;
+    dial.innerHTML = "";
+    const step = currentStep();
+    LENSES.forEach((lens, index)=>{
+        const btn = document.createElement("button");
+        const active = state.lensIndex === index;
+        const recommended = step?.lens === index && !active;
+        btn.className = `lens-orb lens-orb-${lens.key.toLowerCase()} ${active ? "active" : ""} ${recommended ? "recommended" : ""}`;
+        btn.type = "button";
+        btn.title = lens.label;
+        btn.setAttribute("aria-label", `${lens.label}${recommended ? "，当前步骤需要" : ""}`);
+        btn.addEventListener("click", ()=>{
+            const direction = index >= state.lensIndex ? 1 : -1;
+            if(setLensIndex(index, true, direction)){
+                renderPlay();
+                toast(`切换到 ${lens.label}`);
+            }
+        });
+        dial.appendChild(btn);
     });
 }
 function renderToolButtons(){
