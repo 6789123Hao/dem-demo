@@ -2148,11 +2148,11 @@
         outline:none;
     }
     .lens-orb.active{
-        border-color:rgba(255,255,255,.98);
+        border-color:rgba(248,203,96,.98);
         box-shadow:
-            inset 0 0 0 3px rgba(255,255,255,.24),
-            0 0 0 3px rgba(112,236,210,.3),
-            0 0 24px rgba(103,238,214,.44),
+            inset 0 0 0 3px rgba(255,245,202,.28),
+            0 0 0 3px rgba(248,203,96,.28),
+            0 0 24px rgba(255,215,108,.46),
             0 16px 28px rgba(6,26,22,.2);
     }
     .lens-orb.recommended{
@@ -3807,9 +3807,11 @@
     }
     body.v26-real-asset .lens-btn.active{
         color:#3b2818;
+        border-color:rgba(218,163,59,.94);
         background:
             linear-gradient(rgba(255,229,153,.54), rgba(255,229,153,.54)),
             var(--v26-lens-btn-active) center / 100% 100% no-repeat;
+        box-shadow:0 0 0 2px rgba(248,203,96,.24);
     }
     body.v26-real-asset .right-panel{
         padding:26px 22px 382px;
@@ -4048,7 +4050,7 @@
     body.layout-mobile-landscape.topbar-collapsed .workbench{
         grid-template-rows:calc(100vh - 52px);
     }
-    body.layout-mobile-landscape.playing.mobile-bag-collapsed .workbench{
+    body.layout-mobile-landscape.mobile-bag-collapsed .workbench{
         grid-template-columns:118px minmax(780px, 1fr);
     }
     body.layout-mobile-landscape .bag-panel{
@@ -4058,12 +4060,12 @@
         position:relative;
         transition:padding .24s cubic-bezier(.18,.78,.22,1), transform .24s ease;
     }
-    body.layout-mobile-landscape.playing.mobile-bag-collapsed .bag-panel{
+    body.layout-mobile-landscape.mobile-bag-collapsed .bag-panel{
         padding:10px 7px;
     }
     body.layout-mobile-landscape .bag-panel > h2,
     body.layout-mobile-landscape .bag-panel > #bag{ display:none; }
-    body.layout-mobile-landscape.playing .mobile-bag-toggle{
+    body.layout-mobile-landscape .mobile-bag-toggle{
         position:absolute;
         right:-26px;
         top:50%;
@@ -4072,35 +4074,39 @@
         height:72px;
         display:grid;
         place-items:center;
-        border:2px solid rgba(255,132,42,.92);
+        border:2px solid rgba(255,231,164,.78);
         border-left:0;
         border-radius:0 24px 24px 0;
-        background:linear-gradient(180deg, rgba(255,247,215,.92), rgba(255,223,152,.78));
-        color:#f27a2a;
+        background:
+            linear-gradient(180deg, rgba(255,248,205,.96), rgba(224,176,78,.92) 52%, rgba(38,108,76,.92));
+        color:#244c37;
         font-size:28px;
         font-weight:1000;
-        box-shadow:0 12px 22px rgba(64,39,23,.18);
+        text-shadow:0 1px 0 rgba(255,247,211,.74);
+        box-shadow:
+            0 12px 22px rgba(8,35,28,.28),
+            inset 0 0 0 1px rgba(255,255,255,.28);
         transform:translateY(-50%);
         cursor:pointer;
     }
-    body.layout-mobile-landscape.playing:not(.mobile-bag-collapsed) .mobile-bag-toggle{
+    body.layout-mobile-landscape:not(.mobile-bag-collapsed) .mobile-bag-toggle{
         transform:translateY(-50%) scaleX(-1);
     }
-    body.layout-mobile-landscape.playing.mobile-bag-collapsed .known-title-row h3{
+    body.layout-mobile-landscape.mobile-bag-collapsed .known-title-row h3{
         font-size:15px;
         text-align:center;
     }
-    body.layout-mobile-landscape.playing.mobile-bag-collapsed .tutorial-help-btn{
+    body.layout-mobile-landscape.mobile-bag-collapsed .tutorial-help-btn{
         right:0;
         width:25px;
         height:25px;
         font-size:14px;
     }
-    body.layout-mobile-landscape.playing.mobile-bag-collapsed .sort-row{
+    body.layout-mobile-landscape.mobile-bag-collapsed .sort-row{
         gap:5px;
         margin-bottom:8px;
     }
-    body.layout-mobile-landscape.playing.mobile-bag-collapsed .sort-btn{
+    body.layout-mobile-landscape.mobile-bag-collapsed .sort-btn{
         min-height:30px;
         padding:0 2px;
         font-size:13px;
@@ -4111,7 +4117,7 @@
         max-height:calc(100vh - 180px);
         overflow-x:hidden;
     }
-    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-list{
+    body.layout-mobile-landscape.mobile-bag-collapsed .stone-list{
         gap:8px;
         max-height:calc(100vh - 144px);
         padding-right:2px;
@@ -4122,7 +4128,7 @@
         padding:12px;
         font-size:16px;
     }
-    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-card{
+    body.layout-mobile-landscape.mobile-bag-collapsed .stone-card{
         position:relative;
         min-height:68px;
         grid-template-columns:1fr;
@@ -4130,26 +4136,26 @@
         justify-items:center;
         padding:8px 4px;
     }
-    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-card .stone-dot{
+    body.layout-mobile-landscape.mobile-bag-collapsed .stone-card .stone-dot{
         width:50px;
         height:50px;
     }
-    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-card > div:nth-child(2){
+    body.layout-mobile-landscape.mobile-bag-collapsed .stone-card > div:nth-child(2){
         position:absolute;
         right:2px;
         top:5px;
         min-width:0;
     }
-    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-title,
-    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-rarity,
-    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-meta,
-    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-card .pill{
+    body.layout-mobile-landscape.mobile-bag-collapsed .stone-title,
+    body.layout-mobile-landscape.mobile-bag-collapsed .stone-rarity,
+    body.layout-mobile-landscape.mobile-bag-collapsed .stone-meta,
+    body.layout-mobile-landscape.mobile-bag-collapsed .stone-card .pill{
         display:none;
     }
-    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-name{
+    body.layout-mobile-landscape.mobile-bag-collapsed .stone-name{
         display:block;
     }
-    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-count{
+    body.layout-mobile-landscape.mobile-bag-collapsed .stone-count{
         display:grid;
         place-items:center;
         min-width:32px;
@@ -4182,6 +4188,23 @@
         height:48px;
     }
     body.layout-mobile-landscape .stone-meta{ font-size:13px; }
+    body.layout-mobile-landscape .entry-drag-cue{
+        display:block;
+        left:126px;
+        top:104px;
+        width:132px;
+        height:132px;
+        z-index:17;
+    }
+    body.layout-mobile-landscape.playing .entry-drag-cue{
+        display:none;
+    }
+    body.layout-mobile-landscape .drag-link-arrow-list{
+        left:0;
+        top:0;
+        --arrow-base:rotate(174deg) scale(1.08);
+        --arrow-base-active:rotate(174deg) scale(1.24);
+    }
     body.layout-mobile-landscape .center-panel{
         grid-column:2;
         min-height:0;
@@ -4384,8 +4407,114 @@
             bottom:86px;
         }
     }
+    .gamepad-guide{
+        display:none;
+        position:absolute;
+        left:18px;
+        top:92px;
+        z-index:32;
+        width:314px;
+        padding:14px 16px;
+        border:1px solid rgba(255,231,164,.62);
+        border-radius:8px;
+        background:
+            linear-gradient(180deg, rgba(255,248,214,.92), rgba(234,196,112,.84) 44%, rgba(28,92,66,.9));
+        color:#173a2d;
+        box-shadow:0 18px 36px rgba(5,28,22,.28), inset 0 0 0 1px rgba(255,255,255,.28);
+        pointer-events:none;
+    }
+    body.layout-gamepad .gamepad-guide{ display:block; }
+    .gamepad-guide h3{
+        margin:0 0 8px;
+        font-size:16px;
+        letter-spacing:0;
+    }
+    .gamepad-guide p{
+        margin:0 0 10px;
+        font-size:12px;
+        line-height:1.55;
+        color:#244c37;
+    }
+    .gamepad-map{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:6px;
+        margin:0 0 10px;
+    }
+    .gamepad-map span{
+        min-height:24px;
+        padding:4px 7px;
+        border:1px solid rgba(40,94,68,.22);
+        border-radius:6px;
+        background:rgba(255,252,232,.68);
+        font-size:12px;
+        font-weight:800;
+        color:#244c37;
+    }
+    .gamepad-map b{
+        color:#7a4a18;
+    }
+    .gamepad-status{
+        display:grid;
+        gap:4px;
+        padding-top:8px;
+        border-top:1px solid rgba(255,246,202,.42);
+        color:#f8efd0;
+        font-size:12px;
+        line-height:1.45;
+        text-shadow:0 1px 4px rgba(0,0,0,.24);
+    }
     body.layout-gamepad .layout-select{
-        outline:3px solid rgba(80,170,110,.45);
+        outline:3px solid rgba(248,203,96,.42);
+    }
+    body.layout-gamepad .entry-drag-cue{
+        display:none;
+    }
+    body.layout-gamepad .stone-card.gamepad-selected{
+        border-color:rgba(248,203,96,.9);
+        box-shadow:
+            0 0 0 3px rgba(248,203,96,.22),
+            0 12px 26px rgba(12,54,39,.18);
+        transform:translateX(4px);
+    }
+    body.layout-gamepad .stone-card.gamepad-selected .stone-dot{
+        box-shadow:0 0 0 3px rgba(255,241,174,.75), 0 8px 18px rgba(22,77,54,.18);
+    }
+    .gamepad-aim{
+        display:none;
+        position:absolute;
+        left:50%;
+        top:50%;
+        z-index:12;
+        width:78px;
+        height:78px;
+        transform:translate(-50%, -50%);
+        pointer-events:none;
+        border:2px solid rgba(255,237,158,.94);
+        border-radius:50%;
+        box-shadow:0 0 0 5px rgba(255,214,99,.15), 0 0 22px rgba(255,225,126,.34);
+    }
+    body.layout-gamepad.playing .gamepad-aim{ display:block; }
+    .gamepad-aim::before,
+    .gamepad-aim::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        background:rgba(255,244,190,.95);
+        transform:translate(-50%, -50%);
+        border-radius:999px;
+    }
+    .gamepad-aim::before{ width:28px; height:2px; }
+    .gamepad-aim::after{ width:2px; height:28px; }
+    .gamepad-aim.using{
+        border-color:rgba(94,230,184,.98);
+        box-shadow:0 0 0 6px rgba(94,230,184,.16), 0 0 30px rgba(94,230,184,.46);
+        animation:gamepadAimUse .7s ease-in-out infinite alternate;
+    }
+    @keyframes gamepadAimUse{
+        from{ transform:translate(-50%, -50%) scale(.96); }
+        to{ transform:translate(-50%, -50%) scale(1.05); }
     }
 </style>
 </head>
@@ -4405,7 +4534,7 @@
                     <select id="layout-select" class="layout-select" aria-label="窗口比例布局">
                         <option value="desktop">电脑布局</option>
                         <option value="mobileLandscape">手机横屏</option>
-                        <option value="gamepad" hidden disabled>手柄测试</option>
+                        <option value="gamepad">手柄模拟</option>
                     </select>
                     <select id="desktop-lens-mode-select" class="desktop-lens-mode-select" aria-label="电脑镜片显示方式">
                         <option value="triangle">三镜片三角式</option>
@@ -4417,6 +4546,23 @@
                     <button class="btn ghost" id="reset-demo-btn">重置演示数据</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div id="gamepad-guide" class="gamepad-guide" aria-live="polite">
+        <h3>手柄模拟键位</h3>
+        <p>目标是右手承担大部分玩法：默认有一个瞄准点，按住肩键后用右摇杆方向滑行，不要求严格对齐鼠标。</p>
+        <div class="gamepad-map" aria-hidden="true">
+            <span><b>WSAD</b> 左摇杆</span>
+            <span><b>方向键</b> 右摇杆</span>
+            <span><b>I/J/K/L</b> Y/X/A/B</span>
+            <span><b>1/2/3/4</b> 十字键</span>
+            <span><b>U/O</b> R1/R2</span>
+            <span><b>Q/E</b> L1/L2</span>
+        </div>
+        <div class="gamepad-status">
+            <span id="gamepad-focus-text">左摇杆上下选择素体，K(A) 放入镜片。</span>
+            <span id="gamepad-action-text">玩法内：方向键移动瞄准点，按住 O(R2) 使用工具，Q/E 切镜头。</span>
         </div>
     </div>
 
@@ -4476,6 +4622,7 @@
                     <button id="hotspot" class="hotspot" aria-label="当前处理点"></button>
                     <div id="focus-ring" class="focus-ring"></div>
                     <div id="lens-scroll-cue" class="lens-scroll-cue" aria-label="向下滚轮切换镜头"></div>
+                    <div id="gamepad-aim" class="gamepad-aim" aria-hidden="true"></div>
                     <div id="lens-dial" class="lens-dial" aria-label="镜头选择"></div>
                     <svg id="shape-trace-layer" class="shape-trace-layer" aria-hidden="true"></svg>
                     <div class="core-hud">
@@ -4743,7 +4890,15 @@ const state = {
     tutorialAutoOpened:false,
     lensWheelFromIndex:0,
     lensWheelRollDir:0,
-    lensWheelRollToken:0
+    lensWheelRollToken:0,
+    gamepadSelectionIndex:0,
+    gamepadAimX:50,
+    gamepadAimY:50,
+    gamepadAimStepId:null,
+    gamepadKeys:new Set(),
+    gamepadUseActive:false,
+    gamepadLastTick:0,
+    gamepadDrag:null
 };
 let responsiveLayoutTimer = 0;
 
@@ -4761,11 +4916,13 @@ function applyLayoutMode(mode, options = {}){
     if(select) select.value = state.layoutMode;
     if(state.layoutMode === "mobileLandscape"){
         setTopbarCollapsed(true);
-        setMobileBagCollapsed(!!state.active);
+        setMobileBagCollapsed(true);
     } else {
         setTopbarCollapsed(false);
         setMobileBagCollapsed(false);
     }
+    if(document.getElementById("known-list")) renderKnownList();
+    renderGamepadHud();
 }
 function setTopbarCollapsed(collapsed){
     state.topbarCollapsed = !!collapsed;
@@ -4938,6 +5095,7 @@ function renderMain(){
     renderKnownList();
     renderPlate();
     renderCurrentTool();
+    renderGamepadHud();
 }
 function renderDataPackOptions(){
     const select = document.getElementById("data-pack-select");
@@ -4954,7 +5112,6 @@ function renderKnownList(){
     const list = document.getElementById("known-list");
     list.innerHTML = "";
     const compactSortLabels = document.body.classList.contains("layout-mobile-landscape")
-        && document.body.classList.contains("playing")
         && document.body.classList.contains("mobile-bag-collapsed");
     document.querySelectorAll(".sort-btn").forEach(btn=>{
         btn.classList.toggle("active", btn.dataset.sort === state.listSortKey);
@@ -4966,12 +5123,16 @@ function renderKnownList(){
             btn.textContent = "按拾取数量";
         }
     });
-    sortedListGems().forEach(gem=>{
+    const gems = sortedListGems();
+    state.gamepadSelectionIndex = clampNumber(state.gamepadSelectionIndex || 0, 0, Math.max(0, gems.length - 1));
+    gems.forEach((gem, index)=>{
         const known = true;
         const available = countInBag(gem.id) > 0;
         const dotImage = stoneDotImageValue(gem);
         const card = document.createElement("div");
-        card.className = `stone-card ${known ? "" : "locked"} ${available ? "" : "empty"}`;
+        const selected = state.layoutMode === "gamepad" && index === state.gamepadSelectionIndex;
+        card.className = `stone-card ${known ? "" : "locked"} ${available ? "" : "empty"} ${selected ? "gamepad-selected" : ""}`;
+        card.dataset.gemId = gem.id;
         card.draggable = known && available;
         card.innerHTML = `
             <div class="stone-dot ${dotImage ? "with-image" : ""}" style="background:${gem.color}; ${dotImage ? `background-image:${dotImage}` : ""}"></div>
@@ -5634,7 +5795,9 @@ function renderPlay(){
     renderToolButtons();
     renderCurrentTool();
     renderSoakOverlay(step, gem, visual);
+    syncGamepadAimToStep(step);
     renderHotspot();
+    renderGamepadHud();
 }
 function cleanErasePath(points){
     if(!points || !points.length) return "";
@@ -5897,12 +6060,353 @@ function cycleLensByWheel(deltaY){
 }
 function cycleToolByRightClick(){
     if(!state.active) return;
+    cycleToolByDirection(1);
+}
+function cycleToolByDirection(dir=1){
+    if(!state.active) return;
     const order = TOOL_ORDER;
     const current = order.indexOf(state.activeTool);
-    const next = order[(current + 1 + order.length) % order.length];
+    const next = order[(current + dir + order.length) % order.length];
     state.activeTool = next;
     renderPlay();
     toast(`切换到${TOOL_LABELS[next]}工具`);
+}
+const GAMEPAD_KEY_SET = new Set([
+    "w","a","s","d","i","j","k","l","q","e","u","o","1","2","3","4",
+    "ArrowUp","ArrowDown","ArrowLeft","ArrowRight"
+]);
+function gamepadKeyName(e){
+    return e.key && e.key.length === 1 ? e.key.toLowerCase() : e.key;
+}
+function isGamepadMode(){
+    return state.layoutMode === "gamepad";
+}
+function gamepadAxis(negativeKey, positiveKey){
+    return (state.gamepadKeys.has(positiveKey) ? 1 : 0) - (state.gamepadKeys.has(negativeKey) ? 1 : 0);
+}
+function selectedGamepadGem(){
+    const gems = sortedListGems();
+    if(!gems.length) return null;
+    state.gamepadSelectionIndex = clampNumber(state.gamepadSelectionIndex || 0, 0, gems.length - 1);
+    return gems[state.gamepadSelectionIndex] || null;
+}
+function moveGamepadSelection(dir){
+    const gems = sortedListGems();
+    if(!gems.length) return;
+    let index = state.gamepadSelectionIndex || 0;
+    for(let i = 0; i < gems.length; i++){
+        index = (index + dir + gems.length) % gems.length;
+        if(countInBag(gems[index].id) > 0) break;
+    }
+    state.gamepadSelectionIndex = index;
+    renderKnownList();
+    renderGamepadHud();
+    const card = document.querySelector(`.stone-card[data-gem-id="${gems[index].id}"]`);
+    card?.scrollIntoView({ block:"nearest", behavior:"smooth" });
+}
+function startGamepadSelectedStone(){
+    let gem = selectedGamepadGem();
+    if(!gem || countInBag(gem.id) <= 0){
+        gem = sortedListGems().find(item=>countInBag(item.id) > 0);
+    }
+    if(!gem){
+        toast("素体袋为空");
+        return;
+    }
+    startKnownStone(gem.id);
+}
+function syncGamepadAimToStep(step, force=false){
+    if(!step){
+        state.gamepadAimStepId = null;
+        state.gamepadAimX = 50;
+        state.gamepadAimY = 50;
+        return;
+    }
+    if(!force && state.gamepadAimStepId === step.id) return;
+    const pos = defectStagePosition(step);
+    state.gamepadAimStepId = step.id;
+    state.gamepadAimX = clampNumber(pos.x, 10, 90);
+    state.gamepadAimY = clampNumber(pos.y, 10, 90);
+}
+function gamepadAimClientPoint(){
+    const stage = document.getElementById("lens-stage");
+    const rect = stage?.getBoundingClientRect();
+    if(!rect || !rect.width || !rect.height) return { x:0, y:0 };
+    return {
+        x:rect.left + rect.width * (state.gamepadAimX || 50) / 100,
+        y:rect.top + rect.height * (state.gamepadAimY || 50) / 100
+    };
+}
+function beginGamepadUse(){
+    if(!isGamepadMode() || !state.active) return;
+    const step = currentStep();
+    if(!step) return;
+    state.gamepadUseActive = true;
+    if(step.type === "repair"){
+        if(state.lensIndex !== step.lens || state.activeTool !== step.type){
+            toast(state.lensIndex !== step.lens ? `先用 Q/E 切到 ${LENSES[step.lens].label}` : `先切到${TOOL_LABELS[step.type]}工具`);
+            state.gamepadUseActive = false;
+            renderGamepadHud();
+            return;
+        }
+        handleHotspotClick();
+        state.gamepadUseActive = false;
+        return;
+    }
+    if(state.lensIndex !== step.lens || state.activeTool !== step.type){
+        toast(state.lensIndex !== step.lens ? `先用 Q/E 切到 ${LENSES[step.lens].label}` : `先切到${TOOL_LABELS[step.type]}工具`);
+        renderGamepadHud();
+        return;
+    }
+    const point = gamepadAimClientPoint();
+    const shapeTrace = step.type === "shape" ? beginShapeTrace(point.x, point.y) : null;
+    state.gamepadDrag = {
+        type:step.type,
+        startX:point.x,
+        startY:point.y,
+        lastX:point.x,
+        lastY:point.y,
+        distance:0,
+        cleanBrushLean:0,
+        velocityX:0,
+        cutDistance:0,
+        points:[{ x:point.x, y:point.y }],
+        shapeTrace
+    };
+    if(step.type === "clean"){
+        addCleanErasePoint(step, point.x, point.y);
+        renderCleanToolFx(point.x, point.y, 0);
+        renderPlay();
+    }
+    if(step.type === "shape") renderShapeToolFx(point.x, point.y);
+    if(step.type === "light"){
+        updateLightSearch(step, point.x, point.y, 0);
+        renderLightToolFx(point.x, point.y, step.lightSignal || 0, step);
+    }
+    if(step.type === "soak"){
+        if(step.soakPhase !== "complete" && step.soakPhase !== "failed") step.soakPhase = "shake";
+        renderPlay();
+    }
+    spawnDragParticle(point.x, point.y, step.type);
+    renderGamepadHud();
+}
+function finishGamepadUse(){
+    const drag = state.gamepadDrag;
+    const step = currentStep();
+    state.gamepadUseActive = false;
+    state.gamepadDrag = null;
+    if(!drag || !step) {
+        renderGamepadHud();
+        return;
+    }
+    if(drag.type === "clean") clearCleanToolFx();
+    if(drag.type === "light"){
+        clearLightToolFx();
+        if(!step.done) toast(`反光锁定 ${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`);
+    }
+    if(drag.type === "soak" && !step.done && step.soakPhase !== "failed"){
+        step.soakVelocityX = (step.soakVelocityX || 0) * .35;
+        step.soakWave = (step.soakWave || 0) * .3;
+        toast(`浸润 ${Math.min(100, Math.round((step.soakProgress || 0) / SOAK_REQUIRED_MS * 100))}%`);
+        renderPlay();
+    }
+    if(drag.type === "shape"){
+        clearShapeToolFx();
+        if(traceMatchesShape(drag.points, step.shapeTarget)){
+            playShapeLaserStrike(drag.shapeTrace, step);
+            fadeShapeTrace(drag.shapeTrace);
+            step.shapeLaserPending = true;
+            setTimeout(()=>{
+                if(currentStep()?.id === step.id && !step.done){
+                    step.shapeLaserPending = false;
+                    completeCurrentStep(step);
+                }
+            }, 700);
+        } else {
+            fadeShapeTrace(drag.shapeTrace);
+            toast(`描边不完整，再顺着${SHAPE_LABELS[step.shapeTarget]}轮廓拖一遍。`);
+        }
+    }
+    renderGamepadHud();
+}
+function updateGamepadAim(dt){
+    const step = currentStep();
+    if(state.active) syncGamepadAimToStep(step);
+    const axisX = gamepadAxis("ArrowLeft", "ArrowRight");
+    const axisY = gamepadAxis("ArrowUp", "ArrowDown");
+    if(axisX || axisY){
+        const speed = state.gamepadUseActive ? 28 : 38;
+        const scale = Math.max(16, dt) / 1000 * speed;
+        state.gamepadAimX = clampNumber((state.gamepadAimX || 50) + axisX * scale, 7, 93);
+        state.gamepadAimY = clampNumber((state.gamepadAimY || 50) + axisY * scale, 7, 93);
+    }
+}
+function updateGamepadUse(dt){
+    if(!state.gamepadUseActive || !state.active) return;
+    const step = currentStep();
+    if(!step || step.type === "repair") return;
+    if(state.lensIndex !== step.lens || state.activeTool !== step.type) return;
+    if(!state.gamepadDrag) beginGamepadUse();
+    const drag = state.gamepadDrag;
+    if(!drag) return;
+    const point = gamepadAimClientPoint();
+    const dx = point.x - drag.lastX;
+    const dy = point.y - drag.lastY;
+    const movement = Math.hypot(dx, dy);
+    drag.distance += movement;
+    drag.lastX = point.x;
+    drag.lastY = point.y;
+    drag.points.push({ x:point.x, y:point.y });
+    if(step.type === "clean"){
+        const velocityX = dx / Math.max(16, dt);
+        const accelerationX = (velocityX - (drag.velocityX || 0)) / Math.max(16, dt);
+        const leanTarget = clampNumber(velocityX * 10 + accelerationX * 180, -18, 18);
+        drag.cleanBrushLean = (drag.cleanBrushLean || 0) * .58 + leanTarget * .42;
+        drag.velocityX = velocityX;
+        addCleanErasePoint(step, point.x, point.y);
+        step.dragDistance = Math.min(CLEAN_DISTANCE_REQUIRED, (step.dragDistance || 0) + Math.max(movement, Math.abs(gamepadAxis("ArrowLeft", "ArrowRight")) * dt * .045));
+        renderCleanToolFx(point.x, point.y, drag.cleanBrushLean);
+        renderPlay();
+        if(step.dragDistance >= CLEAN_DISTANCE_REQUIRED){
+            clearCleanToolFx();
+            state.gamepadDrag = null;
+            state.gamepadUseActive = false;
+            completeCurrentStep(step);
+        }
+    }
+    if(step.type === "cut"){
+        const angle = Math.atan2(dy || Math.sin((step.cutAngle || 0) * Math.PI / 180), dx || Math.cos((step.cutAngle || 0) * Math.PI / 180)) * 180 / Math.PI;
+        const diff = angleDiff(angle, step.cutAngle || 0);
+        const aligned = diff < 52 ? movement : movement * .34;
+        drag.cutDistance = (drag.cutDistance || 0) + aligned;
+        if(movement > 1) spawnDragParticle(point.x, point.y, step.type);
+        if((drag.cutDistance || 0) >= 105){
+            playCutSwipeFx(step, { startX:drag.startX, startY:drag.startY }, point.x, point.y);
+            state.gamepadDrag = null;
+            state.gamepadUseActive = false;
+            completeCutSwipe(step);
+        }
+    }
+    if(step.type === "shape"){
+        updateShapeTrace(drag.shapeTrace, point.x, point.y);
+        renderShapeToolFx(point.x, point.y);
+        if(movement > 1) spawnDragParticle(point.x, point.y, step.type);
+    }
+    if(step.type === "light"){
+        updateLightSearch(step, point.x, point.y, dt);
+        renderLightToolFx(point.x, point.y, step.lightSignal || 0, step);
+        renderCurrentTool();
+        if((step.lightHold || 0) >= LIGHT_SEARCH_REQUIRED_MS){
+            clearLightToolFx();
+            state.gamepadDrag = null;
+            state.gamepadUseActive = false;
+            completeCurrentStep(step);
+        }
+    }
+    if(step.type === "soak"){
+        const stickX = gamepadAxis("ArrowLeft", "ArrowRight");
+        const stickY = gamepadAxis("ArrowUp", "ArrowDown");
+        updateSoakShake(step, stickX * Math.max(2, dt * .08), stickY * Math.max(2, dt * .08), dt);
+        renderPlay();
+        if(step.soakPhase === "failed"){
+            state.gamepadDrag = null;
+            state.gamepadUseActive = false;
+            return;
+        }
+        if((step.soakProgress || 0) >= SOAK_REQUIRED_MS && !step.soakCompleting){
+            step.soakCompleting = true;
+            step.soakPhase = "complete";
+            state.gamepadDrag = null;
+            state.gamepadUseActive = false;
+            renderPlay();
+            setTimeout(()=>{
+                if(currentStep()?.id === step.id && !step.done) completeCurrentStep(step);
+            }, 620);
+        }
+    }
+}
+function renderGamepadHud(){
+    const aim = document.getElementById("gamepad-aim");
+    if(aim){
+        aim.style.left = `${state.gamepadAimX || 50}%`;
+        aim.style.top = `${state.gamepadAimY || 50}%`;
+        aim.classList.toggle("using", !!state.gamepadUseActive);
+    }
+    const focus = document.getElementById("gamepad-focus-text");
+    const action = document.getElementById("gamepad-action-text");
+    if(!focus || !action) return;
+    if(!isGamepadMode()){
+        focus.textContent = "左摇杆上下选择素体，K(A) 放入镜片。";
+        action.textContent = "玩法内：方向键移动瞄准点，按住 O(R2) 使用工具，Q/E 切镜头。";
+        return;
+    }
+    const step = currentStep();
+    if(!state.active){
+        const gem = selectedGamepadGem();
+        focus.textContent = gem ? `当前选择：${gem.name} × ${countInBag(gem.id)}。W/S 或 1/2 选择，K(A) 开始。` : "素体袋为空。";
+        action.textContent = "3(十字左) 整袋处理，4(十字右) 放入镜片，L(B) 取消当前玩法。";
+        return;
+    }
+    const lensOk = step && state.lensIndex === step.lens;
+    const toolOk = step && state.activeTool === step.type;
+    focus.textContent = step
+        ? `瞄准：${TOOL_LABELS[step.type]} · ${step.title}。当前镜头 ${LENSES[state.lensIndex].label}，工具 ${TOOL_LABELS[state.activeTool]}。`
+        : "当前素体流程已完成。";
+    action.textContent = step
+        ? `${lensOk ? "镜头正确" : `Q/E 切到 ${LENSES[step.lens].label}`}；${toolOk ? "工具正确" : `3/4 切到 ${TOOL_LABELS[step.type]}`}；按住 O(R2) 或 K(A) 执行动作。`
+        : "K(A) 收下一个提示，L(B) 退出。";
+}
+function handleGamepadKeyDown(e){
+    const key = gamepadKeyName(e);
+    if(!GAMEPAD_KEY_SET.has(key) || !isGamepadMode()) return;
+    if(e.target.closest?.("input,textarea")) return;
+    e.preventDefault();
+    if(!state.gamepadKeys.has(key)) state.gamepadKeys.add(key);
+    const firstPress = !e.repeat;
+    if(!firstPress && !["w","s","1","2"].includes(key)) return;
+    if(!state.active){
+        if(key === "w" || key === "1") moveGamepadSelection(-1);
+        if(key === "s" || key === "2") moveGamepadSelection(1);
+        if(key === "k" || key === "d" || key === "4") startGamepadSelectedStone();
+        if(key === "a" || key === "3") startBatchFromBag();
+        return;
+    }
+    if(key === "l"){
+        exitPlay();
+        return;
+    }
+    if(key === "q" || key === "1"){
+        if(setLensIndex(state.lensIndex - 1, true, -1)){ renderPlay(); toast(`切换到 ${LENSES[state.lensIndex].label}`); }
+    }
+    if(key === "e" || key === "2"){
+        if(setLensIndex(state.lensIndex + 1, true, 1)){ renderPlay(); toast(`切换到 ${LENSES[state.lensIndex].label}`); }
+    }
+    if(key === "3") cycleToolByDirection(-1);
+    if(key === "4") cycleToolByDirection(1);
+    if(key === "k" || key === "o" || key === "u") beginGamepadUse();
+}
+function handleGamepadKeyUp(e){
+    const key = gamepadKeyName(e);
+    if(!GAMEPAD_KEY_SET.has(key)) return;
+    state.gamepadKeys.delete(key);
+    if(!isGamepadMode()) return;
+    if((key === "k" || key === "o" || key === "u")
+        && !state.gamepadKeys.has("k")
+        && !state.gamepadKeys.has("o")
+        && !state.gamepadKeys.has("u")){
+        finishGamepadUse();
+    }
+}
+function gamepadTick(now){
+    const previous = state.gamepadLastTick || now;
+    const dt = Math.min(64, Math.max(16, now - previous));
+    state.gamepadLastTick = now;
+    if(isGamepadMode()){
+        updateGamepadAim(dt);
+        updateGamepadUse(dt);
+        renderGamepadHud();
+    }
+    requestAnimationFrame(gamepadTick);
 }
 function renderHotspot(){
     const step = currentStep();
@@ -5922,7 +6426,10 @@ function renderHotspot(){
             const mobileLensWindow = document.body.classList.contains("layout-mobile-landscape");
             scrollCue.style.display = step && !mobileLensWindow ? "block" : "none";
             if(step){
-                scrollCue.innerHTML = `<span class="lens-scroll-text">滚动滚轮翻镜片</span><span class="lens-scroll-wheel-mark"></span>`;
+                const gamepadLensWindow = document.body.classList.contains("layout-gamepad");
+                scrollCue.innerHTML = gamepadLensWindow
+                    ? `<span class="lens-scroll-text">Q / E 切换镜头</span><span class="lens-scroll-wheel-mark"></span>`
+                    : `<span class="lens-scroll-text">滚动滚轮翻镜片</span><span class="lens-scroll-wheel-mark"></span>`;
             }
         }
         return;
@@ -6785,7 +7292,7 @@ function completeActiveGem(){
 }
 function finishRound(message){
     document.body.classList.remove("playing");
-    setMobileBagCollapsed(false);
+    setMobileBagCollapsed(state.layoutMode === "mobileLandscape");
     document.getElementById("lens-stage").classList.add("idle");
     clearHotspot();
     addLog(message);
@@ -6868,7 +7375,7 @@ function collectRewards(){
     state.plate = {};
     state.plateItems = [];
     document.body.classList.remove("playing");
-    setMobileBagCollapsed(false);
+    setMobileBagCollapsed(state.layoutMode === "mobileLandscape");
     document.getElementById("lens-stage").classList.add("idle");
     closeRewardModal();
     renderMain();
@@ -6924,7 +7431,7 @@ function exitPlay(){
     state.hotspotRevealKey = null;
     state.lensLockedUntil = 0;
     document.body.classList.remove("playing");
-    setMobileBagCollapsed(false);
+    setMobileBagCollapsed(state.layoutMode === "mobileLandscape");
     document.getElementById("lens-stage").classList.add("idle");
     clearHotspot();
     renderMain();
@@ -6947,7 +7454,7 @@ function resetDemo(){
     state.hotspotRevealKey = null;
     state.lensLockedUntil = 0;
     document.body.classList.remove("playing");
-    setMobileBagCollapsed(false);
+    setMobileBagCollapsed(state.layoutMode === "mobileLandscape");
     document.getElementById("reward-modal").classList.remove("show");
     document.getElementById("tutorial-modal").classList.remove("show");
     document.getElementById("lens-stage").classList.add("idle");
@@ -7008,6 +7515,9 @@ document.addEventListener("DOMContentLoaded", ()=>{
     warmupImageCache();
     setupDragDrop();
     setupCoreMouseControls();
+    document.addEventListener("keydown", handleGamepadKeyDown);
+    document.addEventListener("keyup", handleGamepadKeyUp);
+    requestAnimationFrame(gamepadTick);
     setupLogPanel();
     setupSortControls();
     setupRewardListScroll();
@@ -7047,7 +7557,12 @@ document.addEventListener("DOMContentLoaded", ()=>{
     document.getElementById("organize-plate-btn").addEventListener("click", rerollPlate);
     document.getElementById("topbar-toggle-btn").addEventListener("click", ()=>setTopbarCollapsed(!state.topbarCollapsed));
     document.getElementById("mobile-bag-toggle").addEventListener("click", ()=>setMobileBagCollapsed(!state.mobileBagCollapsed));
-    document.getElementById("layout-select").addEventListener("change", e=>applyLayoutMode(e.target.value, { manual:true }));
+    document.getElementById("layout-select").addEventListener("change", e=>{
+        applyLayoutMode(e.target.value, { manual:true });
+        if(state.active) renderPlay();
+        else renderMain();
+        e.target.blur?.();
+    });
     document.getElementById("desktop-lens-mode-select").addEventListener("change", e=>applyDesktopLensMode(e.target.value));
     document.getElementById("data-pack-select").addEventListener("change", e=>applyDataPack(e.target.value));
     document.getElementById("reset-demo-btn").addEventListener("click", resetDemo);
