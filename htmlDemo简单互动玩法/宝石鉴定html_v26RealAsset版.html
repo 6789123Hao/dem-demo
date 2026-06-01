@@ -118,6 +118,16 @@
         padding:0 12px;
         box-shadow:0 6px 16px rgba(68,43,25,.08);
     }
+    .desktop-lens-mode-select{
+        min-height:42px;
+        min-width:168px;
+        border:1px solid rgba(86,52,31,.22);
+        border-radius:8px;
+        background:#fff9ee;
+        color:var(--ink);
+        padding:0 12px;
+        box-shadow:0 6px 16px rgba(68,43,25,.08);
+    }
     .gm-btn{
         display:inline-flex;
         border-style:dashed;
@@ -2068,6 +2078,72 @@
     .lens-orb.recommended{
         animation:lensOrbRecommend 1.18s ease-in-out infinite;
     }
+    .lens-dial.mode-wheel{
+        left:-22px;
+        bottom:12px;
+        width:270px;
+        height:276px;
+        overflow:hidden;
+    }
+    .lens-dial.mode-wheel::before{
+        content:"";
+        position:absolute;
+        left:-88px;
+        top:2px;
+        width:270px;
+        height:270px;
+        border-radius:50%;
+        border:2px solid rgba(255,240,174,.2);
+        box-shadow:inset 0 0 0 12px rgba(255,255,255,.05), 0 0 28px rgba(255,228,136,.12);
+        pointer-events:none;
+    }
+    .lens-dial.mode-wheel .lens-orb{
+        transition:left .34s cubic-bezier(.18,.86,.22,1), top .34s cubic-bezier(.18,.86,.22,1), transform .24s ease, border-color .18s ease, box-shadow .18s ease, opacity .18s ease;
+    }
+    .lens-dial.mode-wheel .lens-orb.slot-0{
+        left:132px;
+        top:92px;
+        transform:scale(1.08);
+    }
+    .lens-dial.mode-wheel .lens-orb.slot-1{
+        left:42px;
+        top:24px;
+        transform:scale(.9);
+    }
+    .lens-dial.mode-wheel .lens-orb.slot-2{
+        left:38px;
+        top:164px;
+        transform:scale(.9);
+    }
+    .lens-dial.mode-wheel .lens-orb.active{
+        border-color:rgba(255,96,96,.96);
+        box-shadow:
+            inset 0 0 0 3px rgba(255,255,255,.22),
+            0 0 0 4px rgba(255,96,96,.22),
+            0 0 24px rgba(255,104,104,.42),
+            0 16px 28px rgba(6,26,22,.22);
+    }
+    .lens-dial.mode-line{
+        left:20px;
+        bottom:18px;
+        width:184px;
+        height:312px;
+    }
+    .lens-dial.mode-line .lens-orb{
+        transform:scale(.94);
+    }
+    .lens-dial.mode-line .lens-orb-a{
+        left:0;
+        top:18px;
+    }
+    .lens-dial.mode-line .lens-orb-b{
+        left:24px;
+        top:130px;
+    }
+    .lens-dial.mode-line .lens-orb-c{
+        left:76px;
+        top:238px;
+    }
     .lens-orb-a{
         --orb-core:rgba(255,255,246,.92);
         --orb-edge:rgba(196,238,229,.44);
@@ -2537,6 +2613,22 @@
         margin:0 0 16px;
         color:#fff1bd;
         font-size:28px;
+    }
+    .tutorial-image-slot{
+        width:100%;
+        aspect-ratio:16 / 7;
+        margin:0 0 16px;
+        border:2px dashed rgba(240,198,104,.58);
+        border-radius:8px;
+        display:grid;
+        place-items:center;
+        color:rgba(255,236,181,.72);
+        font-size:15px;
+        font-weight:900;
+        background:
+            linear-gradient(135deg, rgba(255,239,180,.1) 25%, transparent 25% 50%, rgba(255,239,180,.1) 50% 75%, transparent 75%) 0 0 / 24px 24px,
+            rgba(15,52,43,.38);
+        box-shadow:inset 0 0 24px rgba(255,250,210,.08);
     }
     .tutorial-page-body{
         margin:0;
@@ -3211,6 +3303,12 @@
     body:not(.layout-mobile-landscape).playing .lens-dial{
         display:block;
     }
+    body.lens-mode-text:not(.layout-mobile-landscape).playing .core-controls{
+        display:grid;
+    }
+    body.lens-mode-text:not(.layout-mobile-landscape).playing .lens-dial{
+        display:none;
+    }
     body.playing .core-hint{ display:block; }
     .hotspot{ z-index:6; }
     .focus-ring{ z-index:5; }
@@ -3442,6 +3540,8 @@
         color:rgba(255,244,209,.78);
     }
     body.v26-real-asset .data-pack-select,
+    body.v26-real-asset .layout-select,
+    body.v26-real-asset .desktop-lens-mode-select,
     body.v26-real-asset .btn.ghost{
         border-color:rgba(239,198,96,.38);
         background:rgba(255,248,224,.86);
@@ -3753,7 +3853,8 @@
     body.layout-mobile-landscape .title p{ display:none; }
     body.layout-mobile-landscape .btn,
     body.layout-mobile-landscape .data-pack-select,
-    body.layout-mobile-landscape .layout-select{
+    body.layout-mobile-landscape .layout-select,
+    body.layout-mobile-landscape .desktop-lens-mode-select{
         min-height:48px;
         font-size:16px;
         font-weight:800;
@@ -3787,13 +3888,14 @@
         height:28px;
         font-size:16px;
     }
-    body.layout-mobile-landscape .tutorial-dialog{
-        width:min(560px, 88vw);
-        min-height:250px;
-        padding:26px 62px 22px;
-    }
-    body.layout-mobile-landscape .tutorial-dialog h2{ font-size:22px; }
-    body.layout-mobile-landscape .tutorial-page-body{ font-size:15px; line-height:1.65; }
+        body.layout-mobile-landscape .tutorial-dialog{
+            width:min(560px, 88vw);
+            min-height:250px;
+            padding:26px 62px 22px;
+        }
+        body.layout-mobile-landscape .tutorial-dialog h2{ font-size:22px; }
+        body.layout-mobile-landscape .tutorial-image-slot{ margin-bottom:12px; }
+        body.layout-mobile-landscape .tutorial-page-body{ font-size:15px; line-height:1.65; }
     body.layout-mobile-landscape .tutorial-nav-btn{
         width:34px;
         height:58px;
@@ -4028,6 +4130,12 @@
                         <option value="mobileLandscape">手机横屏</option>
                         <option value="gamepad" hidden disabled>手柄测试</option>
                     </select>
+                    <select id="desktop-lens-mode-select" class="desktop-lens-mode-select" aria-label="电脑镜片显示方式">
+                        <option value="triangle">三镜片三角式</option>
+                        <option value="text">三文字式</option>
+                        <option value="wheel">三镜片轮盘式</option>
+                        <option value="line">三镜片一字式</option>
+                    </select>
                     <select id="data-pack-select" class="data-pack-select" aria-label="演示数据包"></select>
                     <button class="btn ghost" id="reset-demo-btn">重置演示数据</button>
                 </div>
@@ -4159,8 +4267,9 @@
         <button class="tutorial-close-btn" id="tutorial-close-btn" type="button" aria-label="关闭教程">×</button>
         <button class="tutorial-nav-btn prev" id="tutorial-prev-btn" type="button" aria-label="上一页">‹</button>
         <div class="tutorial-page">
-            <p class="tutorial-page-kicker" id="tutorial-kicker">教程 1/5</p>
+            <p class="tutorial-page-kicker" id="tutorial-kicker">教程 1/6</p>
             <h2 id="tutorial-title">素体袋</h2>
+            <div class="tutorial-image-slot" id="tutorial-image-slot" aria-hidden="true">图片占位 · 第 1 页</div>
             <p class="tutorial-page-body" id="tutorial-body">左侧是目前收集的素体，需要完成修复过程。</p>
             <div class="tutorial-page-counter" id="tutorial-counter">1 / 6</div>
         </div>
@@ -4341,6 +4450,7 @@ const state = {
     activeTool:"clean",
     dataPackKey:"fullCoverage",
     layoutMode:"desktop",
+    desktopLensMode:"triangle",
     listSortKey:"quantity",
     raritySortDir:-1,
     dragPayload:null,
@@ -4360,6 +4470,15 @@ function applyLayoutMode(mode){
     document.body.classList.toggle("layout-gamepad", state.layoutMode === "gamepad");
     const select = document.getElementById("layout-select");
     if(select) select.value = state.layoutMode;
+}
+function applyDesktopLensMode(mode){
+    const validModes = ["triangle", "text", "wheel", "line"];
+    state.desktopLensMode = validModes.includes(mode) ? mode : "triangle";
+    validModes.forEach(key=>document.body.classList.toggle(`lens-mode-${key}`, state.desktopLensMode === key));
+    const select = document.getElementById("desktop-lens-mode-select");
+    if(select) select.value = state.desktopLensMode;
+    renderLensDial();
+    renderLensButtons();
 }
 function normalizedBag(bag){
     const result = {};
@@ -4445,6 +4564,8 @@ function renderMain(){
     if(packSelect) packSelect.value = state.dataPackKey;
     const layoutSelect = document.getElementById("layout-select");
     if(layoutSelect) layoutSelect.value = state.layoutMode;
+    const lensModeSelect = document.getElementById("desktop-lens-mode-select");
+    if(lensModeSelect) lensModeSelect.value = state.desktopLensMode;
     renderKnownList();
     renderPlate();
     renderCurrentTool();
@@ -5305,24 +5426,37 @@ function renderLensButtons(){
 function renderLensDial(){
     const dial = document.getElementById("lens-dial");
     if(!dial) return;
-    dial.innerHTML = "";
+    const mode = state.desktopLensMode || "triangle";
+    const attention = dial.classList.contains("lens-attention");
+    dial.className = `lens-dial mode-${mode} ${attention ? "lens-attention" : ""}`.trim();
     const step = currentStep();
+    const existing = new Map([...dial.querySelectorAll(".lens-orb")].map(btn=>[Number(btn.dataset.lensIndex), btn]));
+    const seen = new Set();
     LENSES.forEach((lens, index)=>{
-        const btn = document.createElement("button");
+        let btn = existing.get(index);
+        if(!btn){
+            btn = document.createElement("button");
+            btn.type = "button";
+            btn.dataset.lensIndex = String(index);
+            btn.addEventListener("click", ()=>{
+                const direction = index >= state.lensIndex ? 1 : -1;
+                if(setLensIndex(index, true, direction)){
+                    renderPlay();
+                    toast(`切换到 ${LENSES[index].label}`);
+                }
+            });
+        }
         const active = state.lensIndex === index;
         const recommended = step?.lens === index && !active;
-        btn.className = `lens-orb lens-orb-${lens.key.toLowerCase()} ${active ? "active" : ""} ${recommended ? "recommended" : ""}`;
-        btn.type = "button";
+        const wheelSlot = mode === "wheel" ? ` slot-${(index - state.lensIndex + LENSES.length) % LENSES.length}` : "";
+        btn.className = `lens-orb lens-orb-${lens.key.toLowerCase()}${wheelSlot} ${active ? "active" : ""} ${recommended ? "recommended" : ""}`.trim();
         btn.title = lens.label;
         btn.setAttribute("aria-label", `${lens.label}${recommended ? "，当前步骤需要" : ""}`);
-        btn.addEventListener("click", ()=>{
-            const direction = index >= state.lensIndex ? 1 : -1;
-            if(setLensIndex(index, true, direction)){
-                renderPlay();
-                toast(`切换到 ${lens.label}`);
-            }
-        });
+        seen.add(index);
         dial.appendChild(btn);
+    });
+    existing.forEach((btn, index)=>{
+        if(!seen.has(index)) btn.remove();
     });
 }
 function setLensAttention(active){
@@ -6283,6 +6417,7 @@ function renderTutorialModal(){
     const pageNumber = state.tutorialPage + 1;
     document.getElementById("tutorial-kicker").textContent = `教程 ${pageNumber}/${TUTORIAL_PAGES.length}`;
     document.getElementById("tutorial-title").textContent = page.title;
+    document.getElementById("tutorial-image-slot").textContent = `图片占位 · 第 ${pageNumber} 页`;
     document.getElementById("tutorial-body").textContent = page.body;
     document.getElementById("tutorial-counter").textContent = `${pageNumber} / ${TUTORIAL_PAGES.length}`;
     document.getElementById("tutorial-prev-btn").disabled = state.tutorialPage <= 0;
@@ -6491,11 +6626,13 @@ document.addEventListener("DOMContentLoaded", ()=>{
     document.getElementById("collect-btn").addEventListener("click", openRewardModal);
     document.getElementById("organize-plate-btn").addEventListener("click", rerollPlate);
     document.getElementById("layout-select").addEventListener("change", e=>applyLayoutMode(e.target.value));
+    document.getElementById("desktop-lens-mode-select").addEventListener("change", e=>applyDesktopLensMode(e.target.value));
     document.getElementById("data-pack-select").addEventListener("change", e=>applyDataPack(e.target.value));
     document.getElementById("reset-demo-btn").addEventListener("click", resetDemo);
     addLog("主 UI 已就绪：从左侧拖拽素体到镜片位置。");
     renderDataPackOptions();
     applyLayoutMode(state.layoutMode);
+    applyDesktopLensMode(state.desktopLensMode);
     renderMain();
     setTimeout(openTutorialOnce, 260);
 });
