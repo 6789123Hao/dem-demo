@@ -41,12 +41,84 @@
     .screen{ display:none; min-height:100dvh; padding:24px; }
     .screen.active{ display:block; }
     #screen-main{ position:relative; }
+    .mobile-orientation-tip{
+        position:fixed;
+        inset:0;
+        z-index:90;
+        display:none;
+        place-items:center;
+        padding:24px;
+        background:linear-gradient(180deg, rgba(37,31,23,.82), rgba(34,42,34,.88));
+        color:#fff7dc;
+        text-align:center;
+        pointer-events:auto;
+    }
+    body.mobile-portrait-blocked{
+        overflow:hidden;
+    }
+    body.mobile-portrait-blocked .mobile-orientation-tip{
+        display:grid;
+    }
+    .mobile-orientation-card{
+        width:min(320px, 88vw);
+        display:grid;
+        gap:10px;
+        justify-items:center;
+        padding:24px 20px;
+        border:1px solid rgba(255,223,137,.38);
+        border-radius:12px;
+        background:linear-gradient(180deg, rgba(35,54,43,.92), rgba(44,35,25,.92));
+        box-shadow:0 24px 60px rgba(0,0,0,.34), inset 0 0 24px rgba(255,255,255,.08);
+    }
+    .mobile-orientation-mark{
+        width:54px;
+        height:54px;
+        display:grid;
+        place-items:center;
+        border-radius:50%;
+        border:2px solid rgba(255,221,132,.72);
+        color:#ffe28a;
+        font-size:28px;
+        font-weight:900;
+    }
+    .mobile-orientation-card strong{
+        font-size:22px;
+        line-height:1.2;
+    }
+    .mobile-orientation-card span{
+        color:rgba(255,247,220,.78);
+        font-size:14px;
+        line-height:1.65;
+    }
     .topbar{
         display:flex;
         align-items:center;
         justify-content:space-between;
         gap:18px;
         margin-bottom:18px;
+    }
+    .topbar-toggle-btn{
+        position:fixed;
+        left:50%;
+        top:6px;
+        z-index:40;
+        width:46px;
+        height:28px;
+        display:grid;
+        place-items:center;
+        border:1px solid rgba(255,231,164,.72);
+        border-radius:999px;
+        background:linear-gradient(180deg, rgba(255,248,205,.96), rgba(209,151,57,.94));
+        color:#214d38;
+        font-size:17px;
+        font-weight:1000;
+        line-height:1;
+        box-shadow:0 8px 18px rgba(44,31,19,.2), inset 0 1px 0 rgba(255,255,255,.58);
+        transform:translateX(-50%);
+        cursor:pointer;
+    }
+    body.topbar-collapsed .topbar{
+        display:none;
     }
     .top-actions{
         display:flex;
@@ -1010,6 +1082,9 @@
         --repair-fill-remain:1;
     }
     .repair-overlay.visible{ display:block; }
+    .repair-overlay.gem-enter{
+        animation:repairOverlayGemEnter .66s cubic-bezier(.16,.88,.24,1.08) both;
+    }
     .repair-crack-svg{
         position:absolute;
         inset:0;
@@ -1163,6 +1238,11 @@
     }
     .repair-overlay.repair-reveal .repair-crack-svg{
         animation:repairCrackReveal .42s ease-out both;
+    }
+    @keyframes repairOverlayGemEnter{
+        0%{ opacity:0; transform:translate(-76%, -62%) rotate(-18deg) scale(.62); filter:blur(3px); }
+        64%{ opacity:1; transform:translate(-48%, -50%) rotate(4deg) scale(1.08); filter:blur(0); }
+        100%{ opacity:1; transform:translate(-50%, -50%) rotate(0deg) scale(1); filter:blur(0); }
     }
     @keyframes repairEssenceDrop{
         0%{ opacity:0; transform:translate(-50%, -330%) scale(.56); }
@@ -2096,14 +2176,42 @@
         border:2px solid rgba(255,240,174,.2);
         box-shadow:inset 0 0 0 12px rgba(255,255,255,.05), 0 0 28px rgba(255,228,136,.12);
         pointer-events:none;
+        transform-origin:50% 50%;
+    }
+    .lens-dial.mode-wheel::after{
+        content:"";
+        position:absolute;
+        left:126px;
+        top:86px;
+        width:104px;
+        height:104px;
+        border:4px solid rgba(248,203,96,.96);
+        border-radius:50%;
+        z-index:8;
+        pointer-events:none;
+        box-shadow:0 0 0 4px rgba(248,203,96,.18), 0 0 24px rgba(255,216,118,.46), inset 0 0 18px rgba(255,255,255,.18);
     }
     .lens-dial.mode-wheel .lens-orb{
-        transition:left .34s cubic-bezier(.18,.86,.22,1), top .34s cubic-bezier(.18,.86,.22,1), transform .24s ease, border-color .18s ease, box-shadow .18s ease, opacity .18s ease;
+        z-index:3;
+        transition:left .68s cubic-bezier(.14,.82,.18,1), top .68s cubic-bezier(.14,.82,.18,1), transform .42s ease, border-color .18s ease, box-shadow .18s ease, opacity .18s ease;
+    }
+    .lens-dial.mode-wheel.roll-forward::before{
+        animation:lensWheelRimForward .46s cubic-bezier(.16,.86,.22,1) both;
+    }
+    .lens-dial.mode-wheel.roll-back::before{
+        animation:lensWheelRimBack .46s cubic-bezier(.16,.86,.22,1) both;
+    }
+    .lens-dial.mode-wheel.roll-forward .lens-orb{
+        animation:lensWheelOrbForward .42s cubic-bezier(.16,.86,.22,1) both;
+    }
+    .lens-dial.mode-wheel.roll-back .lens-orb{
+        animation:lensWheelOrbBack .42s cubic-bezier(.16,.86,.22,1) both;
     }
     .lens-dial.mode-wheel .lens-orb.slot-0{
         left:132px;
         top:92px;
         transform:scale(1.08);
+        z-index:5;
     }
     .lens-dial.mode-wheel .lens-orb.slot-1{
         left:42px;
@@ -2116,12 +2224,32 @@
         transform:scale(.9);
     }
     .lens-dial.mode-wheel .lens-orb.active{
-        border-color:rgba(255,96,96,.96);
+        border-color:rgba(235,255,246,.88);
         box-shadow:
-            inset 0 0 0 3px rgba(255,255,255,.22),
-            0 0 0 4px rgba(255,96,96,.22),
-            0 0 24px rgba(255,104,104,.42),
-            0 16px 28px rgba(6,26,22,.22);
+            inset 0 0 0 2px rgba(255,255,255,.2),
+            inset 0 -18px 30px rgba(9,42,34,.26),
+            0 0 0 1px rgba(14,54,41,.2),
+            0 14px 26px rgba(6,26,22,.18);
+    }
+    @keyframes lensWheelRimForward{
+        0%{ transform:rotate(-46deg) scale(.98); opacity:.56; }
+        72%{ transform:rotate(8deg) scale(1.01); opacity:.92; }
+        100%{ transform:rotate(0deg) scale(1); opacity:1; }
+    }
+    @keyframes lensWheelRimBack{
+        0%{ transform:rotate(46deg) scale(.98); opacity:.56; }
+        72%{ transform:rotate(-8deg) scale(1.01); opacity:.92; }
+        100%{ transform:rotate(0deg) scale(1); opacity:1; }
+    }
+    @keyframes lensWheelOrbForward{
+        0%{ filter:brightness(.82) saturate(.88); }
+        42%{ filter:brightness(1.18) saturate(1.14); }
+        100%{ filter:brightness(1) saturate(1); }
+    }
+    @keyframes lensWheelOrbBack{
+        0%{ filter:brightness(.82) saturate(.88); }
+        42%{ filter:brightness(1.18) saturate(1.14); }
+        100%{ filter:brightness(1) saturate(1); }
     }
     .lens-dial.mode-line{
         left:20px;
@@ -2515,6 +2643,9 @@
     }
     .known-title-row{
         position:relative;
+    }
+    .mobile-bag-toggle{
+        display:none;
     }
     .tutorial-help-btn{
         position:absolute;
@@ -3320,6 +3451,10 @@
         justify-content:flex-start;
         gap:12px;
         min-height:0;
+        --desktop-plate-bottom:0px;
+        --desktop-plate-size:304px;
+        --desktop-plate-gap:10px;
+        --desktop-collect-height:58px;
         padding-bottom:382px;
     }
     body:not(.layout-mobile-landscape) .current-tool-card{
@@ -3646,6 +3781,15 @@
             var(--v26-notebook) center / 100% 100% no-repeat;
         box-shadow:none;
     }
+    body.v26-real-asset:not(.layout-mobile-landscape) .notebook-title{
+        font-size:20px;
+    }
+    body.v26-real-asset:not(.layout-mobile-landscape) .notebook-line{
+        font-size:14px;
+    }
+    body.v26-real-asset:not(.layout-mobile-landscape) .notebook-step{
+        font-size:13px;
+    }
     body.v26-real-asset .core-controls .step-box{
         border-color:transparent;
         background:
@@ -3735,6 +3879,7 @@
         background:var(--v26-mouse-right) center / contain no-repeat;
     }
     body.v26-real-asset .lens-scroll-cue{
+        top:72%;
         width:150px;
         height:118px;
         background:rgba(38,29,20,.5);
@@ -3758,6 +3903,34 @@
         width:70%;
         transform:translate(-50%, -50%);
         color:rgba(63,45,28,.58);
+    }
+    @media (min-width:1101px){
+        body:not(.layout-mobile-landscape) .right-panel{
+            padding-bottom:calc(var(--desktop-plate-bottom) + var(--desktop-plate-size) + var(--desktop-plate-gap) + var(--desktop-collect-height) + 18px);
+        }
+        body.v26-real-asset:not(.layout-mobile-landscape) .right-panel{
+            padding:26px 22px calc(var(--desktop-plate-bottom) + var(--desktop-plate-size) + var(--desktop-plate-gap) + var(--desktop-collect-height) + 18px);
+        }
+        body:not(.layout-mobile-landscape) .collect-cta{
+            position:absolute;
+            left:22px;
+            right:22px;
+            bottom:calc(var(--desktop-plate-bottom) + var(--desktop-plate-size) + var(--desktop-plate-gap));
+            width:auto;
+            margin:0;
+        }
+        body:not(.layout-mobile-landscape) .right-panel .plate-actions{
+            right:32px;
+            bottom:calc(var(--desktop-plate-bottom) + 30px);
+        }
+        body:not(.layout-mobile-landscape) .plate{
+            left:50%;
+            right:auto;
+            bottom:var(--desktop-plate-bottom);
+            width:var(--desktop-plate-size);
+            height:var(--desktop-plate-size);
+            transform:translateX(-50%);
+        }
     }
     body.v26-real-asset .hotspot-clean::before{
         background:none;
@@ -3845,6 +4018,12 @@
         min-width:960px;
         overflow:hidden;
     }
+    body.layout-mobile-landscape .topbar-toggle-btn{
+        top:5px;
+    }
+    body.layout-mobile-landscape.topbar-collapsed #screen-main{
+        padding-top:36px;
+    }
     body.layout-mobile-landscape .topbar{
         gap:8px;
         margin-bottom:8px;
@@ -3861,26 +4040,123 @@
     }
     body.layout-mobile-landscape .workbench{
         position:relative;
-        grid-template-columns:300px minmax(650px, 1fr);
+        grid-template-columns:320px minmax(630px, 1fr);
         grid-template-rows:calc(100vh - 88px);
         gap:8px;
+        transition:grid-template-columns .24s cubic-bezier(.18,.78,.22,1), grid-template-rows .2s ease;
+    }
+    body.layout-mobile-landscape.topbar-collapsed .workbench{
+        grid-template-rows:calc(100vh - 52px);
+    }
+    body.layout-mobile-landscape.playing.mobile-bag-collapsed .workbench{
+        grid-template-columns:118px minmax(780px, 1fr);
     }
     body.layout-mobile-landscape .bag-panel{
         grid-column:1;
         min-height:0;
         padding:12px;
+        position:relative;
+        transition:padding .24s cubic-bezier(.18,.78,.22,1), transform .24s ease;
+    }
+    body.layout-mobile-landscape.playing.mobile-bag-collapsed .bag-panel{
+        padding:10px 7px;
     }
     body.layout-mobile-landscape .bag-panel > h2,
     body.layout-mobile-landscape .bag-panel > #bag{ display:none; }
+    body.layout-mobile-landscape.playing .mobile-bag-toggle{
+        position:absolute;
+        right:-26px;
+        top:50%;
+        z-index:18;
+        width:40px;
+        height:72px;
+        display:grid;
+        place-items:center;
+        border:2px solid rgba(255,132,42,.92);
+        border-left:0;
+        border-radius:0 24px 24px 0;
+        background:linear-gradient(180deg, rgba(255,247,215,.92), rgba(255,223,152,.78));
+        color:#f27a2a;
+        font-size:28px;
+        font-weight:1000;
+        box-shadow:0 12px 22px rgba(64,39,23,.18);
+        transform:translateY(-50%);
+        cursor:pointer;
+    }
+    body.layout-mobile-landscape.playing:not(.mobile-bag-collapsed) .mobile-bag-toggle{
+        transform:translateY(-50%) scaleX(-1);
+    }
+    body.layout-mobile-landscape.playing.mobile-bag-collapsed .known-title-row h3{
+        font-size:15px;
+        text-align:center;
+    }
+    body.layout-mobile-landscape.playing.mobile-bag-collapsed .tutorial-help-btn{
+        right:0;
+        width:25px;
+        height:25px;
+        font-size:14px;
+    }
+    body.layout-mobile-landscape.playing.mobile-bag-collapsed .sort-row{
+        gap:5px;
+        margin-bottom:8px;
+    }
+    body.layout-mobile-landscape.playing.mobile-bag-collapsed .sort-btn{
+        min-height:30px;
+        padding:0 2px;
+        font-size:13px;
+        border-radius:7px;
+    }
     body.layout-mobile-landscape .stone-list{
         gap:9px;
         max-height:calc(100vh - 180px);
+        overflow-x:hidden;
+    }
+    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-list{
+        gap:8px;
+        max-height:calc(100vh - 144px);
+        padding-right:2px;
     }
     body.layout-mobile-landscape .stone-card{
         min-height:70px;
         grid-template-columns:50px 1fr 58px;
         padding:12px;
         font-size:16px;
+    }
+    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-card{
+        position:relative;
+        min-height:68px;
+        grid-template-columns:1fr;
+        gap:0;
+        justify-items:center;
+        padding:8px 4px;
+    }
+    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-card .stone-dot{
+        width:50px;
+        height:50px;
+    }
+    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-card > div:nth-child(2){
+        position:absolute;
+        right:2px;
+        top:5px;
+        min-width:0;
+    }
+    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-title,
+    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-rarity,
+    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-meta,
+    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-card .pill{
+        display:none;
+    }
+    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-name{
+        display:block;
+    }
+    body.layout-mobile-landscape.playing.mobile-bag-collapsed .stone-count{
+        display:grid;
+        place-items:center;
+        min-width:32px;
+        min-height:22px;
+        padding:1px 5px;
+        font-size:12px;
+        box-shadow:0 5px 10px rgba(84,52,22,.16);
     }
     body.layout-mobile-landscape .tutorial-help-btn{
         right:8px;
@@ -3930,23 +4206,23 @@
     body.layout-mobile-landscape .notebook-card{
         display:block;
         position:absolute;
-        left:16px;
-        top:16px;
-        width:232px;
-        min-height:134px;
-        padding:18px 16px 14px 44px;
+        left:6px;
+        top:6px;
+        width:272px;
+        min-height:154px;
+        padding:18px 18px 14px 42px;
         pointer-events:none;
-        transform:scale(.92);
+        transform:scale(1);
         transform-origin:left top;
         z-index:9;
     }
     body.layout-mobile-landscape .notebook-card .notebook-title{
-        font-size:17px;
+        font-size:20px;
     }
     body.layout-mobile-landscape .notebook-card .notebook-line,
     body.layout-mobile-landscape .notebook-card .notebook-steps{
-        font-size:12px;
-        line-height:1.35;
+        font-size:14px;
+        line-height:1.42;
     }
     body.layout-mobile-landscape .notebook-card .progress{
         height:8px;
@@ -3957,7 +4233,7 @@
         right:auto;
         top:auto;
         bottom:18px;
-        width:230px;
+        width:198px;
         display:none;
     }
     body.layout-mobile-landscape.playing .core-controls{
@@ -3972,15 +4248,15 @@
         50%{ transform:scale(1.055); box-shadow:0 14px 34px rgba(221,178,79,.26), 0 0 0 3px rgba(255,218,104,.2); }
     }
     body.layout-mobile-landscape .core-controls .step-box{
-        padding:14px;
+        padding:10px;
     }
     body.layout-mobile-landscape .core-controls .step-box h3{
-        font-size:18px;
+        font-size:16px;
     }
     body.layout-mobile-landscape .lens-btn{
-        min-height:54px;
-        padding:14px;
-        font-size:17px;
+        min-height:44px;
+        padding:10px;
+        font-size:15px;
         font-weight:900;
     }
     body.layout-mobile-landscape .right-panel{
@@ -4072,7 +4348,7 @@
             --lens-flip-mid-scale:.788;
         }
         body.layout-mobile-landscape .notebook-card{
-            transform:scale(.84);
+            transform:scale(.94);
         }
     }
     @media (max-height:600px){
@@ -4092,7 +4368,7 @@
             padding:10px 18px;
         }
         body.layout-mobile-landscape .notebook-card{
-            transform:scale(.76);
+            transform:scale(.9);
         }
         body.layout-mobile-landscape .plate{
             width:212px;
@@ -4115,6 +4391,7 @@
 </head>
 <body class="v26-real-asset">
 <section id="screen-main" class="screen active">
+    <button id="topbar-toggle-btn" class="topbar-toggle-btn" type="button" aria-label="收起顶部区域">⌃</button>
     <div class="topbar">
         <div class="title">
             <h1>宝石素体鉴定台</h1>
@@ -4178,6 +4455,7 @@
                 </div>
                 <div id="known-list" class="stone-list"></div>
             </div>
+            <button id="mobile-bag-toggle" class="mobile-bag-toggle" type="button" aria-label="展开素体列表">›</button>
         </aside>
 
         <main class="panel center-panel">
@@ -4450,7 +4728,10 @@ const state = {
     activeTool:"clean",
     dataPackKey:"fullCoverage",
     layoutMode:"desktop",
-    desktopLensMode:"triangle",
+    layoutManualOverride:false,
+    topbarCollapsed:false,
+    mobileBagCollapsed:false,
+    desktopLensMode:"text",
     listSortKey:"quantity",
     raritySortDir:-1,
     dragPayload:null,
@@ -4459,17 +4740,105 @@ const state = {
     lensLockedUntil:0,
     hotspotRevealKey:null,
     tutorialPage:0,
-    tutorialAutoOpened:false
+    tutorialAutoOpened:false,
+    lensWheelFromIndex:0,
+    lensWheelRollDir:0,
+    lensWheelRollToken:0
 };
+let responsiveLayoutTimer = 0;
 
 function gemById(id){ return GEM_BLUEPRINTS.find(g => g.id === id); }
 function currentDataPack(){ return DEMO_DATA_PACKS[state.dataPackKey] || DEMO_DATA_PACKS.fullCoverage; }
-function applyLayoutMode(mode){
+function applyLayoutMode(mode, options = {}){
+    if(options.manual){
+        state.layoutManualOverride = true;
+        document.body.classList.remove("mobile-portrait-blocked");
+    }
     state.layoutMode = ["desktop","mobileLandscape","gamepad"].includes(mode) ? mode : "desktop";
     document.body.classList.toggle("layout-mobile-landscape", state.layoutMode === "mobileLandscape");
     document.body.classList.toggle("layout-gamepad", state.layoutMode === "gamepad");
     const select = document.getElementById("layout-select");
     if(select) select.value = state.layoutMode;
+    if(state.layoutMode === "mobileLandscape"){
+        setTopbarCollapsed(true);
+        setMobileBagCollapsed(!!state.active);
+    } else {
+        setTopbarCollapsed(false);
+        setMobileBagCollapsed(false);
+    }
+}
+function setTopbarCollapsed(collapsed){
+    state.topbarCollapsed = !!collapsed;
+    document.body.classList.toggle("topbar-collapsed", state.topbarCollapsed);
+    const btn = document.getElementById("topbar-toggle-btn");
+    if(btn){
+        btn.textContent = state.topbarCollapsed ? "⌄" : "⌃";
+        btn.setAttribute("aria-label", state.topbarCollapsed ? "展开顶部区域" : "收起顶部区域");
+    }
+}
+function setMobileBagCollapsed(collapsed){
+    state.mobileBagCollapsed = !!collapsed;
+    document.body.classList.toggle("mobile-bag-collapsed", state.mobileBagCollapsed);
+    const btn = document.getElementById("mobile-bag-toggle");
+    if(btn){
+        btn.setAttribute("aria-label", state.mobileBagCollapsed ? "展开素体列表" : "收起素体列表");
+    }
+    if(document.getElementById("known-list")) renderKnownList();
+}
+function ensureMobileOrientationTip(){
+    let tip = document.getElementById("mobile-orientation-tip");
+    if(tip) return tip;
+    tip = document.createElement("div");
+    tip.id = "mobile-orientation-tip";
+    tip.className = "mobile-orientation-tip";
+    tip.setAttribute("role", "status");
+    tip.setAttribute("aria-live", "polite");
+    const card = document.createElement("div");
+    card.className = "mobile-orientation-card";
+    const mark = document.createElement("div");
+    mark.className = "mobile-orientation-mark";
+    mark.textContent = "↻";
+    const title = document.createElement("strong");
+    title.textContent = "请横屏体验";
+    const note = document.createElement("span");
+    note.textContent = "把手机横过来，宝石、工具和成石盘会自动贴合横屏布局。";
+    card.append(mark, title, note);
+    tip.appendChild(card);
+    document.body.appendChild(tip);
+    return tip;
+}
+function isMobileAutoLayoutCandidate(){
+    const coarsePointer = (navigator.maxTouchPoints || 0) > 0 || !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+    const minSide = Math.min(window.innerWidth || 0, window.innerHeight || 0);
+    const maxSide = Math.max(window.innerWidth || 0, window.innerHeight || 0);
+    return coarsePointer && minSide <= 820 && maxSide <= 1400;
+}
+function isLandscapeViewport(){
+    return !!(window.matchMedia && window.matchMedia("(orientation: landscape)").matches) || window.innerWidth > window.innerHeight;
+}
+function applyResponsiveLayout(force = false){
+    ensureMobileOrientationTip();
+    if(state.layoutManualOverride && !force){
+        document.body.classList.remove("mobile-portrait-blocked");
+        return;
+    }
+    const mobileAuto = isMobileAutoLayoutCandidate();
+    const landscape = isLandscapeViewport();
+    document.body.classList.toggle("mobile-portrait-blocked", mobileAuto && !landscape);
+    const nextMode = mobileAuto && landscape ? "mobileLandscape" : "desktop";
+    if(force || state.layoutMode !== nextMode) applyLayoutMode(nextMode);
+}
+function queueResponsiveLayout(){
+    clearTimeout(responsiveLayoutTimer);
+    responsiveLayoutTimer = setTimeout(()=>applyResponsiveLayout(), 90);
+}
+function installResponsiveLayoutListeners(){
+    window.addEventListener("resize", queueResponsiveLayout, { passive:true });
+    window.addEventListener("orientationchange", queueResponsiveLayout, { passive:true });
+    if(window.visualViewport) window.visualViewport.addEventListener("resize", queueResponsiveLayout, { passive:true });
+    const orientationQuery = window.matchMedia && window.matchMedia("(orientation: landscape)");
+    if(orientationQuery?.addEventListener) orientationQuery.addEventListener("change", queueResponsiveLayout);
+    else if(orientationQuery?.addListener) orientationQuery.addListener(queueResponsiveLayout);
 }
 function applyDesktopLensMode(mode){
     const validModes = ["triangle", "text", "wheel", "line"];
@@ -4584,9 +4953,18 @@ function renderDataPackOptions(){
 function renderKnownList(){
     const list = document.getElementById("known-list");
     list.innerHTML = "";
+    const compactSortLabels = document.body.classList.contains("layout-mobile-landscape")
+        && document.body.classList.contains("playing")
+        && document.body.classList.contains("mobile-bag-collapsed");
     document.querySelectorAll(".sort-btn").forEach(btn=>{
         btn.classList.toggle("active", btn.dataset.sort === state.listSortKey);
-        if(btn.dataset.sort === "rarity") btn.textContent = `按星级 ${state.raritySortDir < 0 ? "高→低" : "低→高"}`;
+        if(compactSortLabels){
+            btn.textContent = btn.dataset.sort === "rarity" ? "星" : "量";
+        } else if(btn.dataset.sort === "rarity"){
+            btn.textContent = `按星级 ${state.raritySortDir < 0 ? "高→低" : "低→高"}`;
+        } else {
+            btn.textContent = "按拾取数量";
+        }
     });
     sortedListGems().forEach(gem=>{
         const known = true;
@@ -4920,6 +5298,8 @@ function startCorePlay(id, meta){
     state.hotspotRevealKey = null;
     state.lensLockedUntil = 0;
     document.body.classList.add("playing");
+    if(state.layoutMode === "mobileLandscape") setTopbarCollapsed(true);
+    setMobileBagCollapsed(state.layoutMode === "mobileLandscape");
     document.getElementById("lens-stage").classList.remove("idle");
     showScreen("screen-main");
     renderPlay();
@@ -4933,10 +5313,16 @@ function setLensIndex(nextIndex, shouldFlip=true, flipDir=1){
     if(Date.now() < state.lensLockedUntil){
         return false;
     }
+    const previous = state.lensIndex;
     const next = (nextIndex + LENSES.length) % LENSES.length;
     const changed = state.lensIndex !== next;
     state.lensIndex = next;
-    if(changed && shouldFlip) playLensFlip(flipDir);
+    if(changed){
+        state.lensWheelFromIndex = previous;
+        state.lensWheelRollDir = flipDir >= 0 ? 1 : -1;
+        state.lensWheelRollToken += 1;
+        if(shouldFlip) playLensFlip(flipDir);
+    }
     return true;
 }
 function playLensFlip(direction=1){
@@ -5428,10 +5814,21 @@ function renderLensDial(){
     if(!dial) return;
     const mode = state.desktopLensMode || "triangle";
     const attention = dial.classList.contains("lens-attention");
-    dial.className = `lens-dial mode-${mode} ${attention ? "lens-attention" : ""}`.trim();
+    const shouldRoll = mode === "wheel" && state.lensWheelRollToken && dial.dataset.rollToken !== String(state.lensWheelRollToken);
+    const rollClass = shouldRoll ? (state.lensWheelRollDir >= 0 ? "roll-forward" : "roll-back") : "";
+    dial.className = `lens-dial mode-${mode} ${attention ? "lens-attention" : ""} ${rollClass}`.trim();
+    if(shouldRoll){
+        dial.dataset.rollToken = String(state.lensWheelRollToken);
+        clearTimeout(renderLensDial.rollTimer);
+        renderLensDial.rollTimer = setTimeout(()=>{
+            dial.classList.remove("roll-forward", "roll-back");
+        }, 480);
+    }
     const step = currentStep();
     const existing = new Map([...dial.querySelectorAll(".lens-orb")].map(btn=>[Number(btn.dataset.lensIndex), btn]));
     const seen = new Set();
+    const fromIndex = Number.isFinite(state.lensWheelFromIndex) ? state.lensWheelFromIndex : state.lensIndex;
+    const targetClasses = [];
     LENSES.forEach((lens, index)=>{
         let btn = existing.get(index);
         if(!btn){
@@ -5448,16 +5845,28 @@ function renderLensDial(){
         }
         const active = state.lensIndex === index;
         const recommended = step?.lens === index && !active;
-        const wheelSlot = mode === "wheel" ? ` slot-${(index - state.lensIndex + LENSES.length) % LENSES.length}` : "";
+        const targetWheelSlot = mode === "wheel" ? (index - state.lensIndex + LENSES.length) % LENSES.length : null;
+        const startWheelSlot = shouldRoll ? (index - fromIndex + LENSES.length) % LENSES.length : targetWheelSlot;
+        const wheelSlot = mode === "wheel" ? ` slot-${shouldRoll ? startWheelSlot : targetWheelSlot}` : "";
+        const targetClass = `lens-orb lens-orb-${lens.key.toLowerCase()}${mode === "wheel" ? ` slot-${targetWheelSlot}` : ""} ${active ? "active" : ""} ${recommended ? "recommended" : ""}`.trim();
         btn.className = `lens-orb lens-orb-${lens.key.toLowerCase()}${wheelSlot} ${active ? "active" : ""} ${recommended ? "recommended" : ""}`.trim();
         btn.title = lens.label;
         btn.setAttribute("aria-label", `${lens.label}${recommended ? "，当前步骤需要" : ""}`);
         seen.add(index);
         dial.appendChild(btn);
+        targetClasses.push([btn, targetClass]);
     });
     existing.forEach((btn, index)=>{
         if(!seen.has(index)) btn.remove();
     });
+    if(shouldRoll){
+        void dial.offsetWidth;
+        requestAnimationFrame(()=>{
+            targetClasses.forEach(([btn, targetClass])=>{
+                btn.className = targetClass;
+            });
+        });
+    }
 }
 function setLensAttention(active){
     document.querySelector(".core-controls")?.classList.toggle("lens-attention", !!active);
@@ -5737,7 +6146,14 @@ function playGemAnimation(className, duration=420){
     const gem3d = document.getElementById("gem3d");
     if(!gem3d) return;
     gem3d.classList.remove(className);
+    const repairOverlay = className === "gem-enter" ? document.getElementById("repair-overlay") : null;
+    if(repairOverlay?.classList.contains("visible")) repairOverlay.classList.remove(className);
     void gem3d.offsetWidth;
+    if(repairOverlay?.classList.contains("visible")){
+        void repairOverlay.offsetWidth;
+        repairOverlay.classList.add(className);
+        setTimeout(()=>repairOverlay.classList.remove(className), duration);
+    }
     gem3d.classList.add(className);
     setTimeout(()=>gem3d.classList.remove(className), duration);
 }
@@ -6369,6 +6785,7 @@ function completeActiveGem(){
 }
 function finishRound(message){
     document.body.classList.remove("playing");
+    setMobileBagCollapsed(false);
     document.getElementById("lens-stage").classList.add("idle");
     clearHotspot();
     addLog(message);
@@ -6451,6 +6868,7 @@ function collectRewards(){
     state.plate = {};
     state.plateItems = [];
     document.body.classList.remove("playing");
+    setMobileBagCollapsed(false);
     document.getElementById("lens-stage").classList.add("idle");
     closeRewardModal();
     renderMain();
@@ -6506,6 +6924,7 @@ function exitPlay(){
     state.hotspotRevealKey = null;
     state.lensLockedUntil = 0;
     document.body.classList.remove("playing");
+    setMobileBagCollapsed(false);
     document.getElementById("lens-stage").classList.add("idle");
     clearHotspot();
     renderMain();
@@ -6528,6 +6947,7 @@ function resetDemo(){
     state.hotspotRevealKey = null;
     state.lensLockedUntil = 0;
     document.body.classList.remove("playing");
+    setMobileBagCollapsed(false);
     document.getElementById("reward-modal").classList.remove("show");
     document.getElementById("tutorial-modal").classList.remove("show");
     document.getElementById("lens-stage").classList.add("idle");
@@ -6625,13 +7045,16 @@ document.addEventListener("DOMContentLoaded", ()=>{
     });
     document.getElementById("collect-btn").addEventListener("click", openRewardModal);
     document.getElementById("organize-plate-btn").addEventListener("click", rerollPlate);
-    document.getElementById("layout-select").addEventListener("change", e=>applyLayoutMode(e.target.value));
+    document.getElementById("topbar-toggle-btn").addEventListener("click", ()=>setTopbarCollapsed(!state.topbarCollapsed));
+    document.getElementById("mobile-bag-toggle").addEventListener("click", ()=>setMobileBagCollapsed(!state.mobileBagCollapsed));
+    document.getElementById("layout-select").addEventListener("change", e=>applyLayoutMode(e.target.value, { manual:true }));
     document.getElementById("desktop-lens-mode-select").addEventListener("change", e=>applyDesktopLensMode(e.target.value));
     document.getElementById("data-pack-select").addEventListener("change", e=>applyDataPack(e.target.value));
     document.getElementById("reset-demo-btn").addEventListener("click", resetDemo);
     addLog("主 UI 已就绪：从左侧拖拽素体到镜片位置。");
     renderDataPackOptions();
-    applyLayoutMode(state.layoutMode);
+    installResponsiveLayoutListeners();
+    applyResponsiveLayout(true);
     applyDesktopLensMode(state.desktopLensMode);
     renderMain();
     setTimeout(openTutorialOnce, 260);
