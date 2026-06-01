@@ -715,6 +715,48 @@
         48%{ transform:translate(-50%, -50%) rotate(16deg) scale(1.04); opacity:.84; }
         100%{ transform:translate(-50%, -50%) rotate(-10deg) scale(.96); opacity:.52; }
     }
+    .hotspot-soak{
+        width:300px;
+        height:330px;
+        border:0;
+        border-radius:28px;
+        background:transparent;
+        box-shadow:none;
+        color:transparent;
+        cursor:grab;
+    }
+    .hotspot-soak:active{ cursor:grabbing; }
+    .hotspot-soak::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:246px;
+        height:286px;
+        transform:translate(-50%, -50%);
+        border-radius:28px 28px 54px 54px;
+        background:radial-gradient(ellipse at 50% 64%, rgba(95,220,214,.16), transparent 62%);
+        box-shadow:0 0 0 12px rgba(90,208,202,.08), inset 0 0 28px rgba(255,255,255,.12);
+        animation:soakCupHint 1.38s ease-in-out infinite;
+        pointer-events:none;
+    }
+    .hotspot-soak::after{
+        content:"\5DE6\53F3\6447";
+        position:absolute;
+        left:50%;
+        top:50%;
+        transform:translate(-50%, -50%);
+        color:rgba(255,250,226,.9);
+        font-size:15px;
+        font-weight:900;
+        letter-spacing:.14em;
+        text-shadow:0 2px 10px rgba(70,46,23,.3), 0 0 14px rgba(120,235,220,.36);
+        pointer-events:none;
+    }
+    @keyframes soakCupHint{
+        0%,100%{ opacity:.46; transform:translate(-50%, -50%) rotate(-1.5deg) scale(.98); }
+        50%{ opacity:.86; transform:translate(-50%, -50%) rotate(1.5deg) scale(1.02); }
+    }
     .hotspot-shape{
         width:360px;
         height:360px;
@@ -825,6 +867,15 @@
         box-shadow:0 0 30px rgba(255,230,142,.18), inset 0 0 24px rgba(98,224,218,.08);
         animation:lightRingPulse 1.8s ease-in-out infinite;
         opacity:.64;
+    }
+    .focus-ring-soak{
+        width:260px;
+        height:294px;
+        border-radius:30px 30px 58px 58px;
+        border:1px solid rgba(210,255,248,.46);
+        box-shadow:0 0 32px rgba(92,226,210,.18), inset 0 0 28px rgba(255,255,255,.1);
+        animation:soakCupHint 1.38s ease-in-out infinite;
+        opacity:.72;
     }
     @keyframes lightRingPulse{
         0%,100%{ transform:translate(-50%, -50%) scale(.97); opacity:.36; }
@@ -1251,6 +1302,12 @@
         background:rgba(255,245,186,.92);
         box-shadow:0 0 12px rgba(255,230,118,.58), 0 0 20px rgba(93,228,220,.28);
     }
+    .drag-particle-soak{
+        width:9px;
+        height:9px;
+        background:rgba(125,238,224,.82);
+        box-shadow:0 0 12px rgba(96,232,220,.48), 0 0 20px rgba(255,250,210,.2);
+    }
     .clean-tool-fx{
         position:absolute;
         left:var(--clean-tool-x, 50%);
@@ -1435,6 +1492,318 @@
         0%{ opacity:0; transform:translate(-50%, -50%) scale(.34) rotate(0deg); }
         34%{ opacity:1; transform:translate(-50%, -50%) scale(1.16) rotate(24deg); }
         100%{ opacity:0; transform:translate(-50%, -50%) scale(1.86) rotate(46deg); }
+    }
+    .soak-overlay{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:320px;
+        height:360px;
+        transform:translate(-50%, -49%);
+        z-index:6;
+        display:none;
+        pointer-events:none;
+        --soak-progress:0;
+        --soak-stone-x:0px;
+        --soak-stone-y:8px;
+        --soak-stone-rot:0deg;
+        --soak-cup-tilt:0deg;
+        --soak-water-tilt:0deg;
+        --soak-wave-shift:0px;
+        --soak-wave:0;
+        --soak-progress-width:0%;
+        --soak-bubble-opacity:.18;
+        --soak-water-level:62%;
+        --soak-stone-scale:.72;
+        --soak-stone-color:linear-gradient(135deg, #c9efe8, #6aa39a);
+        --soak-stone-image:none;
+    }
+    .soak-overlay.visible{ display:block; }
+    .soak-cup{
+        position:absolute;
+        left:50%;
+        top:53%;
+        width:232px;
+        height:286px;
+        transform:translate(-50%, -50%) rotate(var(--soak-cup-tilt));
+        transform-origin:50% 82%;
+        filter:drop-shadow(0 18px 24px rgba(20,22,24,.2));
+    }
+    .soak-glass{
+        position:absolute;
+        inset:0;
+        border:4px solid rgba(219,255,250,.72);
+        border-top-width:7px;
+        border-radius:24px 24px 48px 48px;
+        background:
+            linear-gradient(90deg, rgba(255,255,255,.22), transparent 16% 78%, rgba(255,255,255,.18)),
+            radial-gradient(ellipse at 50% 88%, rgba(255,255,255,.2), transparent 58%);
+        box-shadow:inset 0 0 30px rgba(255,255,255,.16), inset 0 -20px 28px rgba(65,170,168,.08);
+        overflow:hidden;
+    }
+    .soak-glass::before{
+        content:"";
+        position:absolute;
+        left:18px;
+        top:34px;
+        bottom:34px;
+        width:24px;
+        background:
+            repeating-linear-gradient(180deg, rgba(59,86,83,.46) 0 2px, transparent 2px 24px);
+        opacity:.42;
+    }
+    .soak-water{
+        position:absolute;
+        left:-10%;
+        right:-10%;
+        bottom:16px;
+        z-index:1;
+        height:var(--soak-water-level);
+        border-radius:0 0 44px 44px;
+        background:
+            radial-gradient(circle at 50% 34%, rgba(255,255,255,.32), transparent 28%),
+            linear-gradient(180deg, rgba(130,248,226,.58), rgba(35,168,180,.58));
+        transform:rotate(var(--soak-water-tilt));
+        transform-origin:50% 0;
+        box-shadow:inset 0 16px 26px rgba(255,255,255,.14), inset 0 -16px 28px rgba(18,97,115,.18);
+    }
+    .soak-water::before{
+        content:"";
+        position:absolute;
+        left:0;
+        right:0;
+        top:-13px;
+        height:26px;
+        border-radius:50%;
+        background:
+            radial-gradient(ellipse at 28% 42%, rgba(255,255,255,.82), transparent 23%),
+            linear-gradient(90deg, rgba(182,255,241,.72), rgba(63,219,206,.66), rgba(255,255,255,.5));
+        transform:translateX(var(--soak-wave-shift));
+        box-shadow:0 0 18px rgba(130,250,228,.3);
+    }
+    .soak-stone{
+        position:absolute;
+        left:calc(50% + var(--soak-stone-x));
+        top:calc(62% + var(--soak-stone-y));
+        z-index:3;
+        width:94px;
+        height:94px;
+        transform:translate(-50%, -50%) rotate(var(--soak-stone-rot)) scale(var(--soak-stone-scale));
+        background:
+            var(--soak-stone-image) center / contain no-repeat,
+            var(--soak-stone-color);
+        border-radius:34% 42% 38% 44%;
+        box-shadow:0 12px 22px rgba(17,58,64,.26), inset 0 0 18px rgba(255,255,255,.16);
+        filter:saturate(1.08) drop-shadow(0 0 12px rgba(122,236,218,.18));
+        transition:top .12s linear, left .12s linear, transform .12s linear;
+    }
+    .soak-bubble{
+        position:absolute;
+        left:var(--bubble-x);
+        bottom:var(--bubble-bottom);
+        z-index:4;
+        width:var(--bubble-size);
+        height:var(--bubble-size);
+        border-radius:50%;
+        border:1px solid rgba(228,255,250,.72);
+        background:radial-gradient(circle at 35% 32%, rgba(255,255,255,.9), rgba(120,238,224,.24) 54%, transparent 70%);
+        opacity:var(--soak-bubble-opacity);
+        animation:soakBubbleRise var(--bubble-duration) ease-in infinite;
+        animation-delay:var(--bubble-delay);
+    }
+    .soak-crack{
+        position:absolute;
+        top:72px;
+        width:72px;
+        height:132px;
+        z-index:7;
+        opacity:0;
+        pointer-events:none;
+        overflow:visible;
+        filter:drop-shadow(0 0 7px rgba(208,255,249,.5)) drop-shadow(0 0 2px rgba(15,62,70,.44));
+    }
+    .soak-crack-left{ left:-2px; }
+    .soak-crack-right{ right:-2px; }
+    .soak-crack path{
+        fill:none;
+        stroke:rgba(244,255,252,.92);
+        stroke-linecap:square;
+        stroke-linejoin:miter;
+        stroke-dasharray:180;
+        stroke-dashoffset:0;
+        vector-effect:non-scaling-stroke;
+    }
+    .soak-crack .crack-main{ stroke-width:2.45; }
+    .soak-crack .crack-branch{ stroke-width:1.55; opacity:.78; }
+    .soak-crack .level-2-only{ opacity:0; }
+    .soak-crack.level-1{ opacity:.76; }
+    .soak-crack.level-2{
+        opacity:1;
+        filter:drop-shadow(0 0 9px rgba(223,255,251,.58)) drop-shadow(0 0 3px rgba(10,58,68,.52));
+    }
+    .soak-crack.level-2 .level-2-only{ opacity:.92; }
+    .soak-overlay.hit-left .soak-crack-left path,
+    .soak-overlay.hit-right .soak-crack-right path{
+        animation:soakCrackDraw .3s cubic-bezier(.15,.86,.26,1) both;
+    }
+    .soak-shatter{
+        position:absolute;
+        inset:18px 18px 28px;
+        z-index:9;
+        opacity:0;
+        pointer-events:none;
+    }
+    .soak-shatter::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:48%;
+        width:170px;
+        height:170px;
+        transform:translate(-50%, -50%);
+        background:
+            linear-gradient(35deg, transparent 0 45%, rgba(255,255,255,.78) 46% 47.5%, transparent 49%),
+            linear-gradient(-42deg, transparent 0 50%, rgba(255,255,255,.7) 51% 52.2%, transparent 54%),
+            linear-gradient(82deg, transparent 0 42%, rgba(176,255,246,.62) 43% 44.2%, transparent 46%),
+            linear-gradient(-8deg, transparent 0 48%, rgba(255,255,255,.62) 49% 50%, transparent 52%);
+        clip-path:polygon(18% 0, 84% 0, 100% 88%, 12% 100%, 0 18%);
+        filter:drop-shadow(0 0 11px rgba(220,255,249,.66));
+    }
+    .soak-shatter i{
+        position:absolute;
+        left:50%;
+        top:48%;
+        width:var(--shard-w, 66px);
+        height:2px;
+        border-radius:999px;
+        background:linear-gradient(90deg, transparent, rgba(255,255,255,.9), rgba(122,247,230,.82), transparent);
+        opacity:0;
+        transform:translate(-50%, -50%) rotate(var(--shard-rot, 0deg)) scaleX(.18);
+    }
+    .soak-hit-row{
+        position:absolute;
+        left:50%;
+        top:28px;
+        display:flex;
+        gap:7px;
+        transform:translateX(-50%);
+    }
+    .soak-hit{
+        width:15px;
+        height:15px;
+        border-radius:50%;
+        border:2px solid rgba(255,245,218,.72);
+        background:rgba(255,255,255,.18);
+        box-shadow:0 0 10px rgba(255,245,210,.2);
+    }
+    .soak-hit.active{
+        background:rgba(240,92,72,.9);
+        border-color:rgba(255,238,218,.95);
+        box-shadow:0 0 14px rgba(240,92,72,.58);
+    }
+    .soak-meter{
+        position:absolute;
+        left:50%;
+        bottom:14px;
+        width:210px;
+        height:8px;
+        transform:translateX(-50%);
+        border-radius:999px;
+        background:rgba(38,69,65,.18);
+        overflow:hidden;
+    }
+    .soak-meter::before{
+        content:"";
+        position:absolute;
+        left:0;
+        top:0;
+        bottom:0;
+        width:var(--soak-progress-width);
+        border-radius:999px;
+        background:linear-gradient(90deg, rgba(90,224,206,.92), rgba(255,230,136,.92));
+        box-shadow:0 0 14px rgba(99,230,210,.36);
+    }
+    .soak-overlay.phase-intro .soak-stone{
+        animation:soakStoneDrop .78s cubic-bezier(.2,.86,.2,1) both;
+    }
+    .soak-overlay.wall-hit .soak-glass{
+        animation:soakWallFlash .24s ease-out both;
+    }
+    .soak-overlay.phase-failed .soak-cup{
+        animation:soakFailShake .72s ease-out both;
+    }
+    .soak-overlay.phase-failed .soak-glass{
+        animation:soakGlassBreak .86s ease-out both;
+    }
+    .soak-overlay.phase-failed .soak-shatter{
+        animation:soakShatterFlash .86s ease-out both;
+    }
+    .soak-overlay.phase-failed .soak-shatter i{
+        animation:soakShardScatter .86s cubic-bezier(.16,.86,.26,1) both;
+        animation-delay:var(--shard-delay, 0s);
+    }
+    .soak-overlay.phase-complete::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:52%;
+        width:230px;
+        height:230px;
+        transform:translate(-50%, -50%);
+        border-radius:50%;
+        background:radial-gradient(circle, rgba(255,255,228,.48), rgba(91,232,210,.18) 48%, transparent 70%);
+        mix-blend-mode:screen;
+        animation:soakCompleteFlash .62s ease-out both;
+    }
+    @keyframes soakBubbleRise{
+        0%{ transform:translateY(18px) scale(.72); opacity:0; }
+        18%{ opacity:var(--soak-bubble-opacity); }
+        100%{ transform:translateY(-142px) scale(1.12); opacity:0; }
+    }
+    @keyframes soakStoneDrop{
+        0%{ opacity:0; transform:translate(-50%, -210%) rotate(-10deg) scale(.92); }
+        58%{ opacity:1; transform:translate(-50%, -44%) rotate(5deg) scale(.78); }
+        100%{ opacity:1; transform:translate(-50%, -50%) rotate(var(--soak-stone-rot)) scale(var(--soak-stone-scale)); }
+    }
+    @keyframes soakWallFlash{
+        0%{ box-shadow:inset 0 0 34px rgba(255,255,255,.22), 0 0 0 rgba(239,86,70,0); }
+        46%{ box-shadow:inset 0 0 34px rgba(255,255,255,.22), 0 0 28px rgba(239,86,70,.5); }
+        100%{ box-shadow:inset 0 0 30px rgba(255,255,255,.16), 0 0 0 rgba(239,86,70,0); }
+    }
+    @keyframes soakCrackDraw{
+        0%{ stroke-dashoffset:90; opacity:.2; }
+        58%{ stroke-dashoffset:0; opacity:1; }
+        100%{ stroke-dashoffset:0; opacity:1; }
+    }
+    @keyframes soakFailShake{
+        0%,100%{ transform:translate(-50%, -50%) rotate(var(--soak-cup-tilt)); }
+        16%{ transform:translate(calc(-50% - 12px), -50%) rotate(-6deg); }
+        34%{ transform:translate(calc(-50% + 11px), -50%) rotate(5deg); }
+        58%{ transform:translate(calc(-50% - 6px), -50%) rotate(-3deg); }
+        82%{ transform:translate(calc(-50% + 3px), -50%) rotate(1deg); }
+    }
+    @keyframes soakGlassBreak{
+        0%{ filter:none; opacity:1; }
+        22%{ filter:brightness(1.55); opacity:1; }
+        100%{ filter:brightness(1.12); opacity:.76; }
+    }
+    @keyframes soakShatterFlash{
+        0%{ opacity:0; transform:scale(.76); }
+        24%{ opacity:1; transform:scale(1.05); }
+        100%{ opacity:0; transform:scale(1.28); }
+    }
+    @keyframes soakShardScatter{
+        0%{ opacity:0; transform:translate(-50%, -50%) rotate(var(--shard-rot, 0deg)) scaleX(.18); }
+        24%{ opacity:1; transform:translate(-50%, -50%) rotate(var(--shard-rot, 0deg)) scaleX(.9); }
+        100%{
+            opacity:0;
+            transform:translate(calc(-50% + var(--shard-x, 0px)), calc(-50% + var(--shard-y, 0px))) rotate(calc(var(--shard-rot, 0deg) + 9deg)) scaleX(1.1);
+        }
+    }
+    @keyframes soakCompleteFlash{
+        0%{ opacity:0; transform:translate(-50%, -50%) scale(.55); }
+        38%{ opacity:1; transform:translate(-50%, -50%) scale(1.05); }
+        100%{ opacity:0; transform:translate(-50%, -50%) scale(1.45); }
     }
     .finish-fragment{
         position:fixed;
@@ -1810,6 +2179,9 @@
         place-items:center;
         background:rgba(255,248,226,.13);
         box-shadow:inset 0 0 0 2px rgba(255,255,255,.14);
+        color:#fff4d1;
+        font-size:28px;
+        font-weight:900;
         opacity:.5;
         transform:scale(.82);
     }
@@ -2312,6 +2684,10 @@
         z-index:12;
     }
     .gem3d.step-shape{ transform:translate(-50%, -50%) scale(1.28); }
+    .gem3d.step-soak{
+        opacity:.48;
+        filter:saturate(.86) brightness(.96);
+    }
     .gem3d.visual-shaped:not(.step-shape){ transform:translate(-50%, -50%) scale(.9); }
     @keyframes gemEnter{
         0%{ opacity:0; transform:translate(-76%, -62%) rotate(-18deg) scale(.62); filter:blur(4px) drop-shadow(0 18px 18px rgba(52,35,21,.12)); }
@@ -2667,7 +3043,8 @@
     body:not(.playing) .gem3d,
     body:not(.playing) .hotspot,
     body:not(.playing) .focus-ring,
-    body:not(.playing) .repair-overlay{
+    body:not(.playing) .repair-overlay,
+    body:not(.playing) .soak-overlay{
         display:none;
     }
     .core-hud{
@@ -3575,6 +3952,7 @@
                     </div>
                     <div id="lens-viewport" class="lens-viewport" aria-hidden="true"></div>
                     <div id="repair-overlay" class="repair-overlay" aria-hidden="true"></div>
+                    <div id="soak-overlay" class="soak-overlay" aria-hidden="true"></div>
                     <button id="hotspot" class="hotspot" aria-label="当前处理点"></button>
                     <div id="focus-ring" class="focus-ring"></div>
                     <div id="lens-scroll-cue" class="lens-scroll-cue" aria-label="向下滚轮切换镜头"></div>
@@ -3650,9 +4028,10 @@ const TOOL_LABELS = {
     repair:"修补",
     cut:"切除",
     shape:"定型",
-    light:"寻光"
+    light:"寻光",
+    soak:"浸润"
 };
-const TOOL_ICONS = { cut:"切", repair:"滴", shape:"型", clean:"净", light:"光" };
+const TOOL_ICONS = { cut:"切", repair:"滴", shape:"型", clean:"净", light:"光", soak:"浸" };
 const TOOL_SPRITES = {
     cut:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_cut_C.png",
     repair:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_repair_C.png",
@@ -3665,9 +4044,10 @@ const TOOL_NOTES = {
     repair:"瞄准裂缝滴入修复精华",
     shape:"描摹目标轮廓定型",
     clean:"擦净后闪光收纳",
-    light:"移动寻光灯找反光点"
+    light:"移动寻光灯找反光点",
+    soak:"放入量杯左右摇晃"
 };
-const TOOL_ORDER = ["cut","repair","light","shape","clean"];
+const TOOL_ORDER = ["cut","repair","light","shape","soak","clean"];
 const REPAIR_TARGETS = [
     { x:31, y:56, dx:-30, dy:7 },
     { x:50, y:45, dx:0, dy:-6 },
@@ -3689,6 +4069,11 @@ const LIGHT_TARGETS = [
     { x:45, y:66 },
     { x:52, y:48 }
 ];
+const SOAK_REQUIRED_MS = 3000;
+const SOAK_WALL_HIT_LIMIT = 3;
+const SOAK_WALL_LIMIT = 78;
+const SOAK_REBOUND = 11;
+const SOAK_TRIAL_GEMS = new Set(["agate", "fluorite"]);
 function clampNumber(value, min, max){ return Math.max(min, Math.min(max, value)); }
 const LENSES = [
     { key:"A", label:"表层镜", filter:"radial-gradient(circle at 38% 28%, rgba(255,255,255,.08), transparent 18%), radial-gradient(circle at 50% 50%, rgba(255,255,255,.035), transparent 64%)" },
@@ -3701,13 +4086,13 @@ const SHAPE_LABELS = { circle:"圆形", triangle:"三角形", square:"正方形"
 const SHAPE_MARKS = { circle:"○", triangle:"△", square:"□" };
 const GEM_STEP_INSTRUCTIONS = {
     pearl:{ repair:"珍珠：瞄准珠层细裂，分段滴入修复精华，让裂缝被柔光填满。", clean:"珍珠：用清洁刷轻擦表面雾膜，擦出柔和珠光。" },
-    agate:{ repair:"玛瑙：沿下缘细裂注入精华，先补边缘再让纹带连贯。", clean:"玛瑙：来回擦开表面灰膜，让红橙纹带重新透亮。" },
+    agate:{ repair:"玛瑙：沿下缘细裂注入精华，先补边缘再让纹带连贯。", soak:"玛瑙：放入量杯浸润，左右轻摇让纹带里的浊气冒泡散开。", clean:"玛瑙：来回擦开表面灰膜，让红橙纹带重新透亮。" },
     garnet:{ repair:"石榴石：对准边缘缺口滴入精华，把缺口亮线补齐。", clean:"石榴石：擦掉深色石面上的灰尘层，让血色反光浮出来。" },
     sunstone:{ repair:"砂金石：把细小缺角补满，保住边缘的金砂闪点。", clean:"砂金石：顺着金砂亮面擦拭，让细闪从污渍下显出来。" },
     catseye:{ repair:"猫眼石：修补猫眼边缘损伤，别让亮线被裂口截断。", clean:"猫眼石：左右擦净瞳线附近的雾层，让猫眼光带变清楚。" },
     jadeite:{ repair:"翡翠：沿边缘细裂注入精华，先让裂纹显影再填平。", clean:"翡翠：擦掉翠面灰膜，保留内部通透的绿色高光。" },
     obsidian:{ cut:"黑曜石：按住石皮长条切两次，把外层暗皮削开。", shape_triangle:"黑曜石：描出三角轮廓，让激光把黑镜面切成尖角。", clean:"黑曜石：擦净黑镜面的灰痕，露出干净反射。" },
-    fluorite:{ cut:"萤石：顺着杂层方向切开，把外层混浊带剥掉。", shape_circle:"萤石：描圆定型，让激光把晶体收成圆润球面。", clean:"萤石：擦掉表面粉尘，留下清透的荧光感。" },
+    fluorite:{ cut:"萤石：顺着杂层方向切开，把外层混浊带剥掉。", shape_circle:"萤石：描圆定型，让激光把晶体收成圆润球面。", soak:"萤石：把定型后的晶体浸入量杯，左右摇出细小气泡。", clean:"萤石：擦掉表面粉尘，留下清透的荧光感。" },
     malachite:{ cut:"孔雀石：切两次削掉矿皮，露出里面的孔雀纹。", repair:"孔雀石：沿孔雀纹裂缝注入精华，让纹路重新连上。", shape_square:"孔雀石：描正方轮廓，把纹理压进方形章面。", clean:"孔雀石：擦净石面灰尘，让绿色纹带更分明。" },
     turquoise:{ cut:"绿松石：切两次剥掉泥皮，露出蓝绿色主体。", repair:"绿松石：沿脉络裂隙滴入精华，把断开的纹理补回去。", shape_triangle:"绿松石：描三角轮廓，让激光切出利落尖角。", clean:"绿松石：擦掉泥雾和粉尘，让松石蓝绿更干净。" },
     hetian:{ cut:"和田玉：顺着杂质筋切开，把影响通透的筋带削掉。", shape_circle:"和田玉：描圆定型，把玉面收成温润圆形。", clean:"和田玉：轻擦玉面灰膜，让油润感浮出来。" },
@@ -3718,6 +4103,7 @@ function defaultGemStepInstruction(gem, task){
     const copy = GEM_STEP_INSTRUCTIONS[gem.id]?.[shapeKey] || GEM_STEP_INSTRUCTIONS[gem.id]?.[task.type];
     if(copy) return copy;
     if(task.type === "light") return `${gem.name}：按住扫光区移动寻光灯，找到最亮的反光点。`;
+    if(task.type === "soak") return `${gem.name}：把宝石放入量杯，左右摇晃浸润到气泡散开。`;
     if(task.type === "repair") return `${gem.name}：瞄准裂缝光圈，滴入修复精华填满裂隙。`;
     if(task.type === "clean") return `${gem.name}：按住污渍范围来回擦拭，把脏污层擦掉。`;
     if(task.type === "cut") return `${gem.name}：按住切除长条，顺着角度拖拽削掉外层。`;
@@ -3726,13 +4112,13 @@ function defaultGemStepInstruction(gem, task){
 }
 const GEM_BLUEPRINTS = [
     { id:"pearl", name:"珍珠", rarity:3, version:"西西亚·三星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #fff9ef 0%, #d9d3dd 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/pearl", tasks:[{type:"repair", title:"珠层细裂", lens:2, face:1, pos:{x:54,y:46}}, {type:"clean", title:"柔光净化", lens:0, face:1, pos:{x:50,y:54}}] },
-    { id:"agate", name:"玛瑙", rarity:3, version:"长安·三星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/agate", tasks:[{type:"repair", title:"下缘细裂", lens:2, face:2, pos:{x:46,y:64}}, {type:"clean", title:"通透净化", lens:1, face:1, pos:{x:50,y:52}}] },
+    { id:"agate", name:"玛瑙", rarity:3, version:"长安·三星成石", kind:"成品宝石", sub:"修补 -> 浸润 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/agate", tasks:[{type:"repair", title:"下缘细裂", lens:2, face:2, pos:{x:46,y:64}}, {type:"soak", title:"量杯浸润", lens:0, face:1, pos:{x:50,y:50}}, {type:"clean", title:"通透净化", lens:1, face:1, pos:{x:50,y:52}}] },
     { id:"garnet", name:"石榴石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b85a52 0%, #6d1f23 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/garnet", tasks:[{type:"repair", title:"边缘缺口", lens:1, face:2, pos:{x:58,y:42}}, {type:"clean", title:"血色提亮", lens:2, face:0, pos:{x:50,y:50}}] },
     { id:"sunstone", name:"砂金石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #f1b07c 0%, #9a4f2d 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/sunstone", tasks:[{type:"repair", title:"细小缺角", lens:2, face:1, pos:{x:40,y:60}}, {type:"clean", title:"金砂唤亮", lens:0, face:2, pos:{x:50,y:52}}] },
     { id:"catseye", name:"猫眼石", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #d8f1a8 0%, #7ea042 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/catseye", tasks:[{type:"repair", title:"猫眼边缘损伤", lens:2, face:1, pos:{x:56,y:40}}, {type:"clean", title:"瞳线净化", lens:1, face:2, pos:{x:50,y:50}}] },
     { id:"jadeite", name:"翡翠", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b8f0c6 0%, #3d9b63 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/jadeite", tasks:[{type:"repair", title:"边缘细裂", lens:1, face:1, pos:{x:56,y:62}}, {type:"clean", title:"翠面净化", lens:2, face:0, pos:{x:50,y:50}}] },
     { id:"obsidian", name:"黑曜石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6f6b83 0%, #15131f 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/obsidian", tasks:[{type:"cut", title:"石皮切除", lens:0, face:0, pos:{x:58,y:38}, cutHitsRequired:2}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:2, face:1, pos:{x:50,y:50}}, {type:"clean", title:"黑镜净化", lens:1, face:0, pos:{x:52,y:50}}] },
-    { id:"fluorite", name:"萤石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #bca7e8 0%, #4f5a7e 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/fluorite", tasks:[{type:"cut", title:"杂层切除", lens:1, face:1, pos:{x:62,y:52}}, {type:"shape", title:"圆形成球", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"clean", title:"荧光净化", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"fluorite", name:"萤石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 浸润 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #bca7e8 0%, #4f5a7e 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/fluorite", tasks:[{type:"cut", title:"杂层切除", lens:1, face:1, pos:{x:62,y:52}}, {type:"shape", title:"圆形成球", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"soak", title:"量杯浸润", lens:0, face:0, pos:{x:50,y:50}}, {type:"clean", title:"荧光净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"malachite", name:"孔雀石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6ec07f 0%, #1d5a38 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/malachite", tasks:[{type:"cut", title:"矿皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"孔雀纹裂", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"正方定型", targetShape:"square", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"石面净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"turquoise", name:"绿松石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #86dfd0 0%, #2a8f89 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/turquoise", tasks:[{type:"cut", title:"泥皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"脉络裂隙", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"松石净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"hetian", name:"和田玉", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #edf0d5 0%, #a9b484 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/hetian", tasks:[{type:"cut", title:"杂质筋切除", lens:1, face:1, pos:{x:40,y:52}}, {type:"shape", title:"圆润定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:50}}, {type:"clean", title:"玉面净化", lens:0, face:0, pos:{x:52,y:52}}] },
@@ -4154,6 +4540,7 @@ function completeKnownStoneInBatch(id){
 }
 function shouldInsertLightTask(gem){
     if(gem.kind !== "成品宝石") return false;
+    if(SOAK_TRIAL_GEMS.has(gem.id)) return false;
     if(!state.playedTypes.size) return true;
     return Math.random() < LIGHT_STEP_CHANCE;
 }
@@ -4191,6 +4578,20 @@ function buildCoreTasks(gem){
         lightHold:0,
         lightSignal:0,
         lightTarget:task.type === "light" ? (task.lightTarget || LIGHT_TARGETS[index % LIGHT_TARGETS.length]) : null,
+        soakPhase:task.type === "soak" ? "intro" : null,
+        soakProgress:0,
+        soakHits:0,
+        soakStoneX:0,
+        soakStoneY:8,
+        soakVelocityX:0,
+        soakWave:0,
+        soakLastDir:0,
+        soakSwingCount:0,
+        soakLastWallHitAt:0,
+        soakLastHitSide:null,
+        soakCrackLeft:0,
+        soakCrackRight:0,
+        soakCompleting:false,
         cutHits:0,
         cutHitsRequired: task.type === "cut" ? (task.cutHitsRequired || 1) : 1,
         dragDistance:0,
@@ -4256,6 +4657,7 @@ function stepStatusText(step){
     if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / CLEAN_DISTANCE_REQUIRED * 100))}%`;
     if(step.type === "repair") return `${base} · 精华填充 ${Math.min(100, Math.round((step.repairFill || 0) * 100))}%`;
     if(step.type === "light") return `${base} · 反光锁定 ${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`;
+    if(step.type === "soak") return `${base} · 浸润摇晃 ${Math.min(100, Math.round((step.soakProgress || 0) / SOAK_REQUIRED_MS * 100))}% · 碰壁 ${step.soakHits || 0}/${SOAK_WALL_HIT_LIMIT}`;
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `${base} · 切除 ${step.cutHits || 0}/${step.cutHitsRequired}`;
     if(step.type === "cut") return `${base} · 顺着长条角度拖拽`;
     if(step.type === "shape") return `${base} · 描边${SHAPE_LABELS[step.shapeTarget]}`;
@@ -4267,6 +4669,7 @@ function stepHintText(step){
     if(step.type === "clean") return "清洁：按住范围圈，在瑕疵上来回拖拽擦除。";
     if(step.type === "repair") return "修补：瞄准裂缝光圈，滴入修复精华填满裂隙。";
     if(step.type === "light") return "寻光：按住扫光区移动寻光灯，找到宝石表面的反光点。";
+    if(step.type === "soak") return "浸润：按住量杯左右摇晃，避免石头连续撞到杯壁。";
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：这颗需要切 ${step.cutHitsRequired} 次，按住长条并顺着角度拖拽。`;
     if(step.type === "cut") return "切除：按住长条瑕疵，沿相近角度拖拽切除。";
     if(step.type === "shape") return `定型：按住形状特效，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`;
@@ -4275,6 +4678,7 @@ function stepHintText(step){
 function wrongLensHint(step){
     if(step.type === "repair") return `裂缝还没显影：滚动镜片切到 ${LENSES[step.lens].label}，看清裂缝走向。`;
     if(step.type === "light") return `反光点需要 ${LENSES[step.lens].label}：切到正确镜片后再扫光。`;
+    if(step.type === "soak") return `量杯观察需要 ${LENSES[step.lens].label}：切到正确镜片后再摇晃。`;
     return `镜片不对：请滚动鼠标滚轮翻镜片，切到 ${LENSES[step.lens].label}。`;
 }
 function visualStateForActive(active, step){
@@ -4512,6 +4916,7 @@ function shortToolNote(step){
     if(step.type === "repair") return `${Math.min(100, Math.round((step.repairFill || 0) * 100))}%`;
     if(step.type === "clean") return `${Math.min(100, Math.round((step.dragDistance || 0) / CLEAN_DISTANCE_REQUIRED * 100))}%`;
     if(step.type === "light") return `${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`;
+    if(step.type === "soak") return `${Math.min(100, Math.round((step.soakProgress || 0) / SOAK_REQUIRED_MS * 100))}%`;
     if(step.type === "shape") return SHAPE_MARKS[step.shapeTarget] || "描边";
     return step.title || "";
 }
@@ -4545,6 +4950,7 @@ function renderPlay(){
     renderLensButtons();
     renderToolButtons();
     renderCurrentTool();
+    renderSoakOverlay(step, gem, visual);
     renderHotspot();
 }
 function cleanErasePath(points){
@@ -4579,6 +4985,105 @@ function renderCleanEraseMask(step, gem3d, progress=0){
         return;
     }
     gem3d.style.setProperty("--clean-erase-mask", cleanEraseMaskValue(step.cleanErasePoints || [], progress));
+}
+function renderSoakOverlay(step, gem, visual){
+    const overlay = document.getElementById("soak-overlay");
+    if(!overlay) return;
+    if(!step || step.type !== "soak"){
+        overlay.className = "soak-overlay";
+        overlay.innerHTML = "";
+        delete overlay.dataset.stepId;
+        clearTimeout(renderSoakOverlay.introTimer);
+        return;
+    }
+    if(!step.soakPhase) step.soakPhase = "intro";
+    if(step.soakPhase === "intro" && !step.soakIntroStartedAt){
+        step.soakIntroStartedAt = performance.now();
+        clearTimeout(renderSoakOverlay.introTimer);
+        renderSoakOverlay.introTimer = setTimeout(()=>{
+            if(currentStep()?.id === step.id && step.soakPhase === "intro"){
+                step.soakPhase = "shake";
+                renderPlay();
+            }
+        }, 820);
+    }
+    const progress = clampNumber((step.soakProgress || 0) / SOAK_REQUIRED_MS, 0, 1);
+    const hitFlash = performance.now() - (step.soakLastWallHitAt || 0) < 260;
+    const hitSideClass = hitFlash && step.soakLastHitSide ? `hit-${step.soakLastHitSide}` : "";
+    overlay.className = `soak-overlay visible phase-${step.soakPhase || "shake"} ${hitFlash ? "wall-hit" : ""} ${hitSideClass}`;
+    overlay.style.setProperty("--soak-progress", progress.toFixed(3));
+    overlay.style.setProperty("--soak-progress-width", `${(progress * 100).toFixed(1)}%`);
+    overlay.style.setProperty("--soak-bubble-opacity", `${(.18 + progress * .52).toFixed(3)}`);
+    overlay.style.setProperty("--soak-stone-x", `${(step.soakStoneX || 0).toFixed(1)}px`);
+    overlay.style.setProperty("--soak-stone-y", `${(step.soakStoneY ?? 8).toFixed(1)}px`);
+    overlay.style.setProperty("--soak-stone-rot", `${((step.soakStoneX || 0) * .18 + (step.soakVelocityX || 0) * 1.2).toFixed(1)}deg`);
+    overlay.style.setProperty("--soak-cup-tilt", `${clampNumber((step.soakWave || 0) * 4.8, -8, 8).toFixed(2)}deg`);
+    overlay.style.setProperty("--soak-water-tilt", `${clampNumber((step.soakWave || 0) * 5 - (step.soakWave || 0) * 2.2, -8, 8).toFixed(2)}deg`);
+    overlay.style.setProperty("--soak-wave-shift", `${clampNumber(step.soakWave || 0, -1, 1) * 12}px`);
+    overlay.style.setProperty("--soak-wave", `${clampNumber(step.soakWave || 0, -1, 1).toFixed(3)}`);
+    overlay.style.setProperty("--soak-water-level", `${62 + progress * 4}%`);
+    overlay.style.setProperty("--soak-stone-scale", `${(.72 + progress * .04).toFixed(3)}`);
+    overlay.style.setProperty("--soak-stone-color", gem?.color || "linear-gradient(135deg, #c9efe8, #6aa39a)");
+    overlay.style.setProperty("--soak-stone-image", stageImageValue(gem, visual));
+    if(overlay.dataset.stepId !== step.id || !overlay.querySelector(".soak-cup")){
+        overlay.dataset.stepId = step.id;
+        overlay.innerHTML = `
+            <div class="soak-cup" aria-hidden="true">
+                <div class="soak-glass">
+                    <div class="soak-water"></div>
+                    <div class="soak-stone"></div>
+                    ${soakBubbleMarkup()}
+                    ${soakCrackMarkup("left")}
+                    ${soakCrackMarkup("right")}
+                    <div class="soak-shatter">${soakShatterMarkup()}</div>
+                </div>
+            </div>
+            <div class="soak-hit-row" aria-hidden="true">
+                ${[0,1,2].map(index=>`<i class="soak-hit"></i>`).join("")}
+            </div>
+            <div class="soak-meter" aria-hidden="true"></div>
+        `;
+    }
+    overlay.querySelectorAll(".soak-hit").forEach((hit, index)=>{
+        hit.classList.toggle("active", index < (step.soakHits || 0));
+    });
+    const leftCrack = overlay.querySelector(".soak-crack-left");
+    const rightCrack = overlay.querySelector(".soak-crack-right");
+    if(leftCrack) leftCrack.setAttribute("class", `soak-crack soak-crack-left level-${clampNumber(step.soakCrackLeft || 0, 0, 2)}`);
+    if(rightCrack) rightCrack.setAttribute("class", `soak-crack soak-crack-right level-${clampNumber(step.soakCrackRight || 0, 0, 2)}`);
+}
+function soakCrackMarkup(side){
+    return `
+        <svg class="soak-crack soak-crack-${side} level-0" viewBox="0 0 72 132" aria-hidden="true" focusable="false">
+            <path class="crack-main" d="M16 10 L30 25 L22 43 L38 61 L28 82 L43 107 L36 124"></path>
+            <path class="crack-branch" d="M23 42 L10 54 L22 62"></path>
+            <path class="crack-branch" d="M33 62 L52 69 L44 80"></path>
+            <path class="crack-branch level-2-only" d="M29 83 L12 95 L24 105"></path>
+            <path class="crack-branch level-2-only" d="M39 104 L58 112 L48 124"></path>
+        </svg>
+    `;
+}
+function soakShatterMarkup(){
+    const shards = [
+        { rot:-68, x:-62, y:-48, w:76, delay:.01 },
+        { rot:-32, x:-42, y:34, w:62, delay:.03 },
+        { rot:8, x:54, y:-30, w:74, delay:.02 },
+        { rot:43, x:58, y:48, w:68, delay:.05 },
+        { rot:84, x:4, y:-64, w:58, delay:.04 },
+        { rot:-6, x:-8, y:60, w:88, delay:.06 },
+        { rot:122, x:-54, y:8, w:58, delay:.07 }
+    ];
+    return shards.map(shard=>`<i style="--shard-rot:${shard.rot}deg;--shard-x:${shard.x}px;--shard-y:${shard.y}px;--shard-w:${shard.w}px;--shard-delay:${shard.delay}s"></i>`).join("");
+}
+function soakBubbleMarkup(){
+    return Array.from({ length:14 }, (_, index)=>{
+        const x = 24 + (index * 17 % 56);
+        const bottom = 26 + (index * 23 % 108);
+        const size = 6 + (index % 5) * 3;
+        const duration = 1.15 + (index % 6) * .18;
+        const delay = -((index * .17) % 1.2);
+        return `<i class="soak-bubble" style="--bubble-x:${x}%;--bubble-bottom:${bottom}px;--bubble-size:${size}px;--bubble-duration:${duration.toFixed(2)}s;--bubble-delay:${delay.toFixed(2)}s"></i>`;
+    }).join("");
 }
 function renderArchiveNotebook(active, gem){
     const title = document.getElementById("archive-title");
@@ -4829,7 +5334,7 @@ function playRepairDrop(targetIndex){
     playRepairDrop.timer = setTimeout(()=>overlay.classList.remove("drop-active"), 720);
 }
 function defectStagePosition(step){
-    const scale = step.type === "shape" ? 0.42 : step.type === "light" ? 0.36 : 0.48;
+    const scale = step.type === "shape" ? 0.42 : step.type === "light" ? 0.36 : step.type === "soak" ? 0.28 : 0.48;
     const yLift = step.type === "repair" ? 3 : step.type === "clean" ? 3 : step.type === "shape" ? 4 : 0;
     return {
         x:50 + (step.pos.x - 50) * scale,
@@ -4841,6 +5346,7 @@ function hotspotLabel(step){
     if(step.type === "repair") return "";
     if(step.type === "cut") return "  滑→→→       ";
     if(step.type === "light") return "寻光";
+    if(step.type === "soak") return "摇晃";
     if(step.type === "shape") return "描边";
     return "";
 }
@@ -4849,6 +5355,7 @@ function clearHotspot(){
     const ring = document.getElementById("focus-ring");
     const scrollCue = document.getElementById("lens-scroll-cue");
     const repairOverlay = document.getElementById("repair-overlay");
+    const soakOverlay = document.getElementById("soak-overlay");
     clearCleanToolFx();
     clearShapeToolFx();
     clearLightToolFx();
@@ -4859,6 +5366,11 @@ function clearHotspot(){
     if(repairOverlay){
         repairOverlay.className = "repair-overlay";
         repairOverlay.innerHTML = "";
+    }
+    if(soakOverlay){
+        soakOverlay.className = "soak-overlay";
+        soakOverlay.innerHTML = "";
+        delete soakOverlay.dataset.stepId;
     }
 }
 function canUseCurrentStep(step){
@@ -4996,11 +5508,12 @@ function handleHotspotClick(){
     if(step.type === "clean") toast("按住瑕疵范围来回拖拽擦拭。");
     if(step.type === "cut") toast("按住长条，沿相近角度拖拽切除。");
     if(step.type === "light") toast("按住扫光区移动寻光灯，靠近反光点会出现星芒。");
+    if(step.type === "soak") toast("按住量杯左右摇晃，别让石头撞杯壁三次。");
     if(step.type === "shape") toast(`按住形状，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`);
 }
 function startDefectDrag(e){
     const step = currentStep();
-    if(!step || !["clean","cut","shape","light"].includes(step.type)) return;
+    if(!step || !["clean","cut","shape","light","soak"].includes(step.type)) return;
     if(!canUseCurrentStep(step)) return;
     e.preventDefault();
     e.currentTarget.setPointerCapture?.(e.pointerId);
@@ -5018,6 +5531,7 @@ function startDefectDrag(e){
         cleanBrushLean:0,
         baseDistance:step.type === "clean" ? (step.dragDistance || 0) : 0,
         lightBaseHold:step.type === "light" ? (step.lightHold || 0) : 0,
+        soakBaseProgress:step.type === "soak" ? (step.soakProgress || 0) : 0,
         distance:0,
         lastParticleDistance:0,
         points:[{ x:e.clientX, y:e.clientY }],
@@ -5033,6 +5547,10 @@ function startDefectDrag(e){
         updateLightSearch(step, e.clientX, e.clientY, 0);
         renderLightToolFx(e.clientX, e.clientY, step.lightSignal || 0, step);
         renderCurrentTool();
+    }
+    if(step.type === "soak"){
+        if(step.soakPhase !== "complete" && step.soakPhase !== "failed") step.soakPhase = "shake";
+        renderPlay();
     }
     spawnDragParticle(e.clientX, e.clientY, step.type);
 }
@@ -5068,6 +5586,27 @@ function updateDefectDrag(e){
             state.defectDrag = null;
             clearLightToolFx();
             completeCurrentStep(step);
+            return;
+        }
+    }
+    if(step.type === "soak"){
+        updateSoakShake(step, dx, dy, dt);
+        renderPlay();
+        renderCurrentTool();
+        if(step.soakPhase === "failed"){
+            state.suppressNextClick = true;
+            state.defectDrag = null;
+            return;
+        }
+        if((step.soakProgress || 0) >= SOAK_REQUIRED_MS && !step.soakCompleting){
+            step.soakCompleting = true;
+            step.soakPhase = "complete";
+            state.suppressNextClick = true;
+            state.defectDrag = null;
+            renderPlay();
+            setTimeout(()=>{
+                if(currentStep()?.id === step.id && !step.done) completeCurrentStep(step);
+            }, 620);
             return;
         }
     }
@@ -5139,6 +5678,80 @@ function updateLightSearch(step, clientX, clientY, dt){
     } else {
         step.lightHold = Math.max(0, (step.lightHold || 0) - Math.max(0, dt) * .28);
     }
+}
+function updateSoakShake(step, dx, dy, dt){
+    if(!step || step.type !== "soak" || step.soakPhase === "failed" || step.soakPhase === "complete") return;
+    const horizontalPower = Math.abs(dx);
+    const verticalPower = Math.abs(dy);
+    const direction = horizontalPower > 1.8 ? Math.sign(dx) : 0;
+    const crossedDirection = direction && direction !== (step.soakLastDir || 0);
+    if(crossedDirection){
+        step.soakSwingCount = (step.soakSwingCount || 0) + 1;
+        step.soakLastDir = direction;
+    }
+    const shakePower = clampNumber(horizontalPower / 18, 0, 1.4);
+    const horizontalBias = horizontalPower >= verticalPower * .45;
+    if(horizontalBias && horizontalPower > 1.2){
+        const gain = crossedDirection ? 1.25 : .42;
+        step.soakProgress = Math.min(SOAK_REQUIRED_MS, (step.soakProgress || 0) + dt * gain * Math.min(1.15, .4 + shakePower));
+    } else {
+        step.soakProgress = Math.max(0, (step.soakProgress || 0) - dt * .08);
+    }
+    step.soakVelocityX = clampNumber((step.soakVelocityX || 0) * .72 + dx * .34, -18, 18);
+    step.soakStoneX = (step.soakStoneX || 0) + step.soakVelocityX;
+    step.soakWave = clampNumber((step.soakWave || 0) * .64 + step.soakVelocityX / 18, -1, 1);
+    step.soakStoneY = 8 + Math.sin((step.soakSwingCount || 0) * .9 + (step.soakProgress || 0) / 280) * (4 + shakePower * 3);
+    if(step.soakStoneX <= -SOAK_WALL_LIMIT){
+        step.soakStoneX = -SOAK_WALL_LIMIT;
+        step.soakVelocityX = SOAK_REBOUND;
+        registerSoakWallHit(step, "left");
+    } else if(step.soakStoneX >= SOAK_WALL_LIMIT){
+        step.soakStoneX = SOAK_WALL_LIMIT;
+        step.soakVelocityX = -SOAK_REBOUND;
+        registerSoakWallHit(step, "right");
+    }
+}
+function registerSoakWallHit(step, side){
+    const now = performance.now();
+    if(now - (step.soakLastWallHitAt || 0) < 520) return;
+    step.soakLastWallHitAt = now;
+    step.soakLastHitSide = side;
+    step.soakHits = (step.soakHits || 0) + 1;
+    step.soakProgress = Math.max(0, (step.soakProgress || 0) - 360);
+    if(step.soakHits >= SOAK_WALL_HIT_LIMIT){
+        step.soakPhase = "failed";
+        toast("量杯破裂，重新浸润。");
+        clearTimeout(registerSoakWallHit.resetTimer);
+        registerSoakWallHit.resetTimer = setTimeout(()=>{
+            if(currentStep()?.id === step.id){
+                resetSoakAttempt(step);
+                renderPlay();
+            }
+        }, 980);
+        return;
+    }
+    if(side === "left"){
+        step.soakCrackLeft = Math.min(2, (step.soakCrackLeft || 0) + 1);
+    } else if(side === "right"){
+        step.soakCrackRight = Math.min(2, (step.soakCrackRight || 0) + 1);
+    }
+    toast(`碰到${side === "left" ? "左" : "右"}杯壁 ${step.soakHits}/${SOAK_WALL_HIT_LIMIT}`);
+}
+function resetSoakAttempt(step){
+    step.soakPhase = "shake";
+    step.soakProgress = 0;
+    step.soakHits = 0;
+    step.soakStoneX = 0;
+    step.soakStoneY = 8;
+    step.soakVelocityX = 0;
+    step.soakWave = 0;
+    step.soakLastDir = 0;
+    step.soakSwingCount = 0;
+    step.soakLastWallHitAt = 0;
+    step.soakLastHitSide = null;
+    step.soakCrackLeft = 0;
+    step.soakCrackRight = 0;
+    step.soakCompleting = false;
 }
 function renderCleanToolFx(clientX, clientY, lean=0){
     const stage = document.getElementById("lens-stage");
@@ -5342,6 +5955,15 @@ function finishDefectDrag(e){
     }
     if(step.type === "light"){
         toast(`反光锁定 ${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`);
+        return;
+    }
+    if(step.type === "soak"){
+        if(step.soakPhase !== "complete" && step.soakPhase !== "failed"){
+            step.soakVelocityX = (step.soakVelocityX || 0) * .35;
+            step.soakWave = (step.soakWave || 0) * .3;
+            renderPlay();
+            toast(`浸润 ${Math.min(100, Math.round((step.soakProgress || 0) / SOAK_REQUIRED_MS * 100))}%`);
+        }
         return;
     }
     if(step.type === "shape"){
