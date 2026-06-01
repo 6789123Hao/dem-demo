@@ -993,7 +993,7 @@
         width:calc(var(--gem-size, 220px) * .72);
         height:calc(var(--gem-size, 220px) * .54);
         transform:translate(-50%, -50%);
-        z-index:5;
+        z-index:3;
         pointer-events:none;
         display:none;
         overflow:visible;
@@ -2437,6 +2437,119 @@
         background:linear-gradient(180deg, #f3c36d, #d99d3c);
         border-color:#f1c072;
     }
+    .known-title-row{
+        position:relative;
+    }
+    .tutorial-help-btn{
+        position:absolute;
+        right:10px;
+        top:50%;
+        width:30px;
+        height:30px;
+        transform:translateY(-50%);
+        border:1px solid rgba(255,231,164,.78);
+        border-radius:50%;
+        background:linear-gradient(180deg, rgba(255,248,205,.95), rgba(225,178,80,.95));
+        color:#244c37;
+        font-size:18px;
+        font-weight:1000;
+        line-height:1;
+        cursor:pointer;
+        box-shadow:0 6px 14px rgba(33,69,48,.24), inset 0 1px 0 rgba(255,255,255,.62);
+        z-index:2;
+    }
+    .tutorial-help-btn:hover{
+        filter:brightness(1.06);
+        transform:translateY(-50%) scale(1.04);
+    }
+    .tutorial-modal{
+        position:fixed;
+        inset:0;
+        z-index:22;
+        display:none;
+        place-items:center;
+        padding:24px;
+        background:
+            radial-gradient(circle at 22% 28%, rgba(255,224,129,.2), transparent 18%),
+            radial-gradient(circle at 78% 24%, rgba(96,218,180,.18), transparent 18%),
+            rgba(18,38,31,.62);
+        backdrop-filter:blur(4px);
+    }
+    .tutorial-modal.show{ display:grid; }
+    .tutorial-dialog{
+        position:relative;
+        width:min(620px, 92vw);
+        min-height:320px;
+        border:2px solid rgba(232,190,92,.76);
+        border-radius:10px;
+        padding:34px 78px 28px;
+        color:#fff5df;
+        background:
+            linear-gradient(180deg, rgba(32,91,67,.96), rgba(17,50,41,.97)),
+            #1f5b42;
+        box-shadow:0 26px 76px rgba(8,28,22,.42), inset 0 0 0 3px rgba(255,250,222,.14);
+    }
+    .tutorial-close-btn,
+    .tutorial-nav-btn{
+        border:1px solid rgba(255,231,164,.68);
+        background:rgba(255,247,219,.88);
+        color:#264531;
+        cursor:pointer;
+        box-shadow:0 8px 18px rgba(12,32,25,.24), inset 0 1px 0 rgba(255,255,255,.54);
+    }
+    .tutorial-close-btn{
+        position:absolute;
+        right:16px;
+        top:14px;
+        width:32px;
+        height:32px;
+        border-radius:50%;
+        font-size:22px;
+        line-height:1;
+        font-weight:900;
+    }
+    .tutorial-nav-btn{
+        position:absolute;
+        top:50%;
+        width:40px;
+        height:72px;
+        transform:translateY(-50%);
+        border-radius:999px;
+        font-size:34px;
+        font-weight:800;
+        line-height:1;
+    }
+    .tutorial-nav-btn.prev{ left:18px; }
+    .tutorial-nav-btn.next{ right:18px; }
+    .tutorial-nav-btn:disabled{
+        opacity:.32;
+        cursor:not-allowed;
+        filter:saturate(.55);
+    }
+    .tutorial-page-kicker{
+        margin:0 0 8px;
+        color:#f0c66a;
+        font-size:13px;
+        font-weight:900;
+        letter-spacing:.08em;
+    }
+    .tutorial-dialog h2{
+        margin:0 0 16px;
+        color:#fff1bd;
+        font-size:28px;
+    }
+    .tutorial-page-body{
+        margin:0;
+        color:rgba(255,246,221,.92);
+        font-size:18px;
+        line-height:1.8;
+    }
+    .tutorial-page-counter{
+        margin-top:24px;
+        color:rgba(255,236,181,.72);
+        font-size:13px;
+        text-align:center;
+    }
     .panel-head{
         display:flex;
         align-items:center;
@@ -3668,6 +3781,24 @@
         padding:12px;
         font-size:16px;
     }
+    body.layout-mobile-landscape .tutorial-help-btn{
+        right:8px;
+        width:28px;
+        height:28px;
+        font-size:16px;
+    }
+    body.layout-mobile-landscape .tutorial-dialog{
+        width:min(560px, 88vw);
+        min-height:250px;
+        padding:26px 62px 22px;
+    }
+    body.layout-mobile-landscape .tutorial-dialog h2{ font-size:22px; }
+    body.layout-mobile-landscape .tutorial-page-body{ font-size:15px; line-height:1.65; }
+    body.layout-mobile-landscape .tutorial-nav-btn{
+        width:34px;
+        height:58px;
+        font-size:28px;
+    }
     body.layout-mobile-landscape .stone-dot{
         width:48px;
         height:48px;
@@ -3889,7 +4020,7 @@
         </div>
         <div class="top-actions">
             <div class="gm-actions" aria-label="GM测试控制，不属于正式玩法">
-                <button class="btn primary gm-btn" id="finish-fast-btn">GM一键鉴定当前</button>
+                <button class="btn primary gm-btn" id="finish-fast-btn">GM一键完成当前</button>
                 <button class="btn ghost play-exit-btn" id="exit-play-btn">退出玩法</button>
                 <div class="demo-actions">
                     <select id="layout-select" class="layout-select" aria-label="窗口比例布局">
@@ -3929,7 +4060,10 @@
                 </div>
             </div>
             <div class="known-section">
-                <h3>素体选择</h3>
+                <div class="known-title-row">
+                    <h3>素体选择</h3>
+                    <button class="tutorial-help-btn" id="tutorial-help-btn" type="button" aria-label="打开教程">?</button>
+                </div>
                 <div class="sort-row" aria-label="宝石排序">
                     <button class="sort-btn active" type="button" data-sort="quantity">按拾取数量</button>
                     <button class="sort-btn" type="button" data-sort="rarity">按星级</button>
@@ -4017,6 +4151,20 @@
         <div class="reward-actions">
             <button class="btn primary" id="reward-back-btn">领取</button>
         </div>
+    </div>
+</div>
+
+<div id="tutorial-modal" class="tutorial-modal" role="dialog" aria-modal="true" aria-labelledby="tutorial-title" aria-describedby="tutorial-body">
+    <div class="tutorial-dialog">
+        <button class="tutorial-close-btn" id="tutorial-close-btn" type="button" aria-label="关闭教程">×</button>
+        <button class="tutorial-nav-btn prev" id="tutorial-prev-btn" type="button" aria-label="上一页">‹</button>
+        <div class="tutorial-page">
+            <p class="tutorial-page-kicker" id="tutorial-kicker">教程 1/5</p>
+            <h2 id="tutorial-title">素体袋</h2>
+            <p class="tutorial-page-body" id="tutorial-body">左侧是目前收集的素体，需要完成修复过程。</p>
+            <div class="tutorial-page-counter" id="tutorial-counter">1 / 6</div>
+        </div>
+        <button class="tutorial-nav-btn next" id="tutorial-next-btn" type="button" aria-label="下一页">›</button>
     </div>
 </div>
 
@@ -4153,6 +4301,32 @@ const DEMO_DATA_PACKS = {
         bag:{ pearl:10, agate:4, garnet:8, sunstone:3, catseye:12, jadeite:5, obsidian:9, fluorite:2, malachite:11, turquoise:6, hetian:7, shoushan:1 }
     }
 };
+const TUTORIAL_PAGES = [
+    {
+        title:"素体袋",
+        body:"左侧是目前收集的素体。选择一颗素体进入镜片区，按步骤完成修复与鉴定过程。"
+    },
+    {
+        title:"选择素体",
+        body:"在素体选择列表中点击一颗素体，或把它拖拽到中间镜片区，就会开始处理单颗宝石。"
+    },
+    {
+        title:"查看步骤",
+        body:"中间 UI 会提示现在要做什么。左上角档案会显示素体名字、类型、出处和当前步骤。"
+    },
+    {
+        title:"镜头与提示",
+        body:"部分玩法需要切换到正确镜头。完成提示会告诉你当前操作是否有效，以及还差多少进度。"
+    },
+    {
+        title:"成石盘奖励",
+        body:"右下角成石盘会暂存完成奖励。可以立刻收集，也可以累计多颗后一口气收集。"
+    },
+    {
+        title:"再次查看",
+        body:"如果忘记了某个内容，随时点击素体选择右侧的小问号，就能重新打开这份教程。"
+    }
+];
 const initialBag = DEMO_DATA_PACKS.fullCoverage.bag;
 const state = {
     bag:{ ...initialBag },
@@ -4173,7 +4347,9 @@ const state = {
     defectDrag:null,
     suppressNextClick:false,
     lensLockedUntil:0,
-    hotspotRevealKey:null
+    hotspotRevealKey:null,
+    tutorialPage:0,
+    tutorialAutoOpened:false
 };
 
 function gemById(id){ return GEM_BLUEPRINTS.find(g => g.id === id); }
@@ -6102,6 +6278,33 @@ function openRewardModal(){
 function closeRewardModal(){
     document.getElementById("reward-modal").classList.remove("show");
 }
+function renderTutorialModal(){
+    const page = TUTORIAL_PAGES[state.tutorialPage] || TUTORIAL_PAGES[0];
+    const pageNumber = state.tutorialPage + 1;
+    document.getElementById("tutorial-kicker").textContent = `教程 ${pageNumber}/${TUTORIAL_PAGES.length}`;
+    document.getElementById("tutorial-title").textContent = page.title;
+    document.getElementById("tutorial-body").textContent = page.body;
+    document.getElementById("tutorial-counter").textContent = `${pageNumber} / ${TUTORIAL_PAGES.length}`;
+    document.getElementById("tutorial-prev-btn").disabled = state.tutorialPage <= 0;
+    document.getElementById("tutorial-next-btn").disabled = state.tutorialPage >= TUTORIAL_PAGES.length - 1;
+}
+function openTutorialModal(page=0){
+    state.tutorialPage = clampNumber(page, 0, TUTORIAL_PAGES.length - 1);
+    renderTutorialModal();
+    document.getElementById("tutorial-modal").classList.add("show");
+}
+function closeTutorialModal(){
+    document.getElementById("tutorial-modal").classList.remove("show");
+}
+function turnTutorialPage(delta){
+    state.tutorialPage = clampNumber(state.tutorialPage + delta, 0, TUTORIAL_PAGES.length - 1);
+    renderTutorialModal();
+}
+function openTutorialOnce(){
+    if(state.tutorialAutoOpened) return;
+    state.tutorialAutoOpened = true;
+    openTutorialModal(0);
+}
 function collectRewards(){
     if(!state.rewards.length){
         toast("没有待收集奖励");
@@ -6191,6 +6394,7 @@ function resetDemo(){
     state.lensLockedUntil = 0;
     document.body.classList.remove("playing");
     document.getElementById("reward-modal").classList.remove("show");
+    document.getElementById("tutorial-modal").classList.remove("show");
     document.getElementById("lens-stage").classList.add("idle");
     const mainLog = document.getElementById("main-log");
     if(mainLog) mainLog.innerHTML = "";
@@ -6272,8 +6476,17 @@ document.addEventListener("DOMContentLoaded", ()=>{
     document.getElementById("reward-modal").addEventListener("click", e=>{
         if(e.target.id === "reward-modal") collectRewards();
     });
+    document.getElementById("tutorial-help-btn").addEventListener("click", ()=>openTutorialModal(0));
+    document.getElementById("tutorial-close-btn").addEventListener("click", closeTutorialModal);
+    document.getElementById("tutorial-prev-btn").addEventListener("click", ()=>turnTutorialPage(-1));
+    document.getElementById("tutorial-next-btn").addEventListener("click", ()=>turnTutorialPage(1));
+    document.getElementById("tutorial-modal").addEventListener("click", e=>{
+        if(e.target.id === "tutorial-modal") closeTutorialModal();
+    });
     document.addEventListener("keydown", e=>{
-        if(e.key === "Escape" && document.getElementById("reward-modal").classList.contains("show")) collectRewards();
+        if(e.key !== "Escape") return;
+        if(document.getElementById("tutorial-modal").classList.contains("show")) closeTutorialModal();
+        else if(document.getElementById("reward-modal").classList.contains("show")) collectRewards();
     });
     document.getElementById("collect-btn").addEventListener("click", openRewardModal);
     document.getElementById("organize-plate-btn").addEventListener("click", rerollPlate);
@@ -6284,6 +6497,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
     renderDataPackOptions();
     applyLayoutMode(state.layoutMode);
     renderMain();
+    setTimeout(openTutorialOnce, 260);
 });
 </script>
 </body>
