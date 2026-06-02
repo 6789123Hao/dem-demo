@@ -156,7 +156,12 @@
         gap:10px;
         margin-left:auto;
     }
-    .title h1{ margin:0 0 6px; font-size:30px; letter-spacing:0; }
+    .title{
+        position:relative;
+        min-width:0;
+        padding-right:0;
+    }
+    .title h1{ position:relative; z-index:1; margin:0 0 6px; font-size:30px; letter-spacing:0; }
     .title p{ margin:0; color:var(--muted); }
     .btn{
         border:1px solid rgba(86,52,31,.22);
@@ -835,9 +840,98 @@
         text-shadow:0 2px 10px rgba(70,46,23,.3), 0 0 14px rgba(120,235,220,.36);
         pointer-events:none;
     }
+    .hotspot-swirl{
+        width:318px;
+        height:254px;
+        border:0;
+        border-radius:50%;
+        background:transparent;
+        box-shadow:none;
+        color:transparent;
+        cursor:grab;
+    }
+    .hotspot-swirl:active{ cursor:grabbing; }
+    .hotspot-swirl::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:268px;
+        height:176px;
+        transform:translate(-50%, -50%);
+        border-radius:50%;
+        border:2px solid rgba(214,255,248,.34);
+        background:
+            radial-gradient(ellipse at 50% 50%, rgba(90,224,213,.18), transparent 64%),
+            conic-gradient(from 0deg, transparent 0 16%, rgba(255,240,176,.26) 19% 28%, transparent 31% 62%, rgba(108,232,218,.2) 66% 74%, transparent 78% 100%);
+        box-shadow:0 0 0 12px rgba(90,208,202,.07), inset 0 0 30px rgba(255,255,255,.1);
+        animation:swirlCupHint 1.7s ease-in-out infinite;
+        pointer-events:none;
+    }
+    .hotspot-swirl::after{
+        content:"椭圆摇";
+        position:absolute;
+        left:50%;
+        top:50%;
+        transform:translate(-50%, -50%);
+        color:rgba(255,250,226,.9);
+        font-size:14px;
+        font-weight:900;
+        letter-spacing:.12em;
+        text-shadow:0 2px 10px rgba(70,46,23,.3), 0 0 14px rgba(120,235,220,.36);
+        pointer-events:none;
+    }
+    .hotspot-spray{
+        width:318px;
+        height:318px;
+        border:0;
+        border-radius:50%;
+        background:transparent;
+        box-shadow:none;
+        color:transparent;
+        cursor:crosshair;
+    }
+    .hotspot-spray::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:248px;
+        height:248px;
+        transform:translate(-50%, -50%);
+        border-radius:50%;
+        border:2px dashed rgba(255,242,178,.44);
+        background:
+            radial-gradient(circle, transparent 0 45%, rgba(112,232,216,.12) 47% 56%, transparent 58%),
+            conic-gradient(from 22deg, rgba(255,242,178,.22) 0 8%, transparent 10% 24%, rgba(112,232,216,.2) 26% 34%, transparent 36% 100%);
+        box-shadow:0 0 0 13px rgba(210,155,69,.07), inset 0 0 28px rgba(255,255,255,.1);
+        animation:sprayRingHint 1.5s ease-in-out infinite;
+        pointer-events:none;
+    }
+    .hotspot-spray::after{
+        content:"绕喷";
+        position:absolute;
+        left:50%;
+        top:50%;
+        transform:translate(-50%, -50%);
+        color:rgba(255,250,226,.9);
+        font-size:14px;
+        font-weight:900;
+        letter-spacing:.12em;
+        text-shadow:0 2px 10px rgba(70,46,23,.3), 0 0 14px rgba(255,225,120,.36);
+        pointer-events:none;
+    }
     @keyframes soakCupHint{
         0%,100%{ opacity:.46; transform:translate(-50%, -50%) rotate(-1.5deg) scale(.98); }
         50%{ opacity:.86; transform:translate(-50%, -50%) rotate(1.5deg) scale(1.02); }
+    }
+    @keyframes swirlCupHint{
+        0%,100%{ opacity:.48; transform:translate(-50%, -50%) rotate(-7deg) scale(.98); }
+        50%{ opacity:.86; transform:translate(-50%, -50%) rotate(7deg) scale(1.02); }
+    }
+    @keyframes sprayRingHint{
+        0%,100%{ opacity:.48; transform:translate(-50%, -50%) rotate(-8deg) scale(.98); }
+        50%{ opacity:.86; transform:translate(-50%, -50%) rotate(8deg) scale(1.02); }
     }
     .hotspot-shape{
         width:360px;
@@ -957,6 +1051,24 @@
         border:1px solid rgba(210,255,248,.46);
         box-shadow:0 0 32px rgba(92,226,210,.18), inset 0 0 28px rgba(255,255,255,.1);
         animation:soakCupHint 1.38s ease-in-out infinite;
+        opacity:.72;
+    }
+    .focus-ring-swirl{
+        width:278px;
+        height:184px;
+        border-radius:50%;
+        border:1px solid rgba(210,255,248,.48);
+        box-shadow:0 0 30px rgba(92,226,210,.18), inset 0 0 28px rgba(255,255,255,.1);
+        animation:swirlCupHint 1.7s ease-in-out infinite;
+        opacity:.72;
+    }
+    .focus-ring-spray{
+        width:258px;
+        height:258px;
+        border-radius:50%;
+        border:1px dashed rgba(255,242,178,.58);
+        box-shadow:0 0 30px rgba(255,225,120,.16), inset 0 0 28px rgba(112,232,216,.1);
+        animation:sprayRingHint 1.5s ease-in-out infinite;
         opacity:.72;
     }
     @keyframes lightRingPulse{
@@ -1398,6 +1510,18 @@
         background:rgba(125,238,224,.82);
         box-shadow:0 0 12px rgba(96,232,220,.48), 0 0 20px rgba(255,250,210,.2);
     }
+    .drag-particle-swirl{
+        width:9px;
+        height:9px;
+        background:rgba(116,235,220,.82);
+        box-shadow:0 0 12px rgba(96,232,220,.48), 0 0 20px rgba(255,240,160,.22);
+    }
+    .drag-particle-spray{
+        width:7px;
+        height:7px;
+        background:rgba(255,236,166,.9);
+        box-shadow:0 0 12px rgba(255,225,120,.52), 0 0 18px rgba(96,232,220,.2);
+    }
     .clean-tool-fx{
         position:absolute;
         left:var(--clean-tool-x, 50%);
@@ -1491,6 +1615,28 @@
         --light-star-y:50%;
         --light-signal:0;
         --light-star-scale:.42;
+        --light-refraction:0;
+        --light-spot-opacity:.78;
+        --light-beam-opacity:.56;
+        --light-caustic-angle:18deg;
+        --light-caustic-opacity:0;
+    }
+    .light-tool-fx::after{
+        content:"";
+        position:absolute;
+        left:var(--light-star-x);
+        top:var(--light-star-y);
+        width:108px;
+        height:42px;
+        transform:translate(-50%, -50%) rotate(var(--light-caustic-angle));
+        border-radius:50%;
+        background:
+            linear-gradient(90deg, transparent, rgba(255,252,218,.48), transparent),
+            repeating-linear-gradient(100deg, transparent 0 10px, rgba(112,236,222,.22) 11px 13px, transparent 14px 24px);
+        filter:blur(.2px) drop-shadow(0 0 12px rgba(118,236,220,.28));
+        mix-blend-mode:screen;
+        opacity:var(--light-caustic-opacity);
+        pointer-events:none;
     }
     .light-tool-spot{
         position:absolute;
@@ -1503,7 +1649,7 @@
         background:radial-gradient(circle, rgba(255,255,232,.74) 0 10%, rgba(255,237,150,.34) 28%, rgba(93,228,220,.17) 48%, transparent 78%);
         box-shadow:0 0 36px rgba(255,232,132,.3), inset 0 0 24px rgba(255,255,255,.24);
         mix-blend-mode:screen;
-        opacity:.84;
+        opacity:var(--light-spot-opacity);
     }
     .light-tool-beam{
         position:absolute;
@@ -1516,7 +1662,28 @@
         clip-path:polygon(0 45%, 100% 0, 100% 100%, 0 55%);
         background:linear-gradient(90deg, rgba(255,255,236,.62), rgba(255,235,150,.3) 48%, rgba(93,228,220,0));
         filter:blur(.2px);
-        opacity:.56;
+        opacity:var(--light-beam-opacity);
+    }
+    .light-tool-beam::before,
+    .light-tool-beam::after{
+        content:"";
+        position:absolute;
+        left:18%;
+        width:74%;
+        height:2px;
+        border-radius:999px;
+        background:linear-gradient(90deg, transparent, rgba(255,255,230,.8), rgba(102,236,224,.42), transparent);
+        opacity:var(--light-refraction);
+        transform-origin:0 50%;
+        mix-blend-mode:screen;
+    }
+    .light-tool-beam::before{
+        top:34%;
+        transform:rotate(-6deg);
+    }
+    .light-tool-beam::after{
+        top:62%;
+        transform:rotate(5deg);
     }
     .light-tool-lamp{
         position:absolute;
@@ -1607,6 +1774,11 @@
         --soak-stone-scale:.72;
         --soak-stone-color:linear-gradient(135deg, #c9efe8, #6aa39a);
         --soak-stone-image:none;
+        --swirl-water-x:0px;
+        --swirl-water-y:0px;
+        --swirl-water-rot:0deg;
+        --swirl-water-counter-rot:0deg;
+        --swirl-rim-rot:0deg;
     }
     .soak-overlay.visible{ display:block; }
     .soak-cup{
@@ -1670,6 +1842,22 @@
             linear-gradient(90deg, rgba(182,255,241,.72), rgba(63,219,206,.66), rgba(255,255,255,.5));
         transform:translateX(var(--soak-wave-shift));
         box-shadow:0 0 18px rgba(130,250,228,.3);
+    }
+    .soak-water::after{
+        content:"";
+        position:absolute;
+        inset:0;
+        border-radius:inherit;
+        background:radial-gradient(circle at 50% 46%, rgba(255,96,76,.46), rgba(214,42,38,.18) 48%, transparent 78%);
+        opacity:0;
+        mix-blend-mode:screen;
+        pointer-events:none;
+    }
+    .soak-overlay.water-hit .soak-water{
+        animation:soakWaterRedPulse .34s ease-out both;
+    }
+    .soak-overlay.water-hit .soak-water::after{
+        animation:soakWaterRedOverlay .34s ease-out both;
     }
     .soak-stone{
         position:absolute;
@@ -1845,6 +2033,80 @@
         mix-blend-mode:screen;
         animation:soakCompleteFlash .62s ease-out both;
     }
+    .soak-overlay.mode-swirl{
+        width:346px;
+        height:330px;
+        transform:translate(-50%, -50%);
+    }
+    .soak-overlay.mode-swirl .soak-cup{
+        top:52%;
+        width:292px;
+        height:236px;
+        transform:translate(-50%, -50%);
+        filter:drop-shadow(0 18px 24px rgba(20,22,24,.18));
+    }
+    .soak-overlay.mode-swirl .soak-glass{
+        inset:14px 16px 20px;
+        border-width:4px 5px 7px;
+        border-radius:50% 50% 42% 42%;
+        overflow:visible;
+        background:
+            radial-gradient(ellipse at 50% 36%, rgba(255,255,255,.28), transparent 56%),
+            radial-gradient(ellipse at 50% 72%, rgba(48,148,145,.12), transparent 64%);
+    }
+    .soak-overlay.mode-swirl .soak-glass::before{
+        left:50%;
+        top:15px;
+        bottom:auto;
+        width:226px;
+        height:126px;
+        transform:translateX(-50%) rotate(var(--swirl-rim-rot));
+        border-radius:50%;
+        background:
+            radial-gradient(ellipse at 50% 50%, transparent 0 58%, rgba(236,255,251,.6) 59% 61%, transparent 63%),
+            repeating-conic-gradient(from 0deg, rgba(58,86,83,.32) 0deg 2deg, transparent 2deg 18deg);
+        opacity:.44;
+    }
+    .soak-overlay.mode-swirl .soak-water{
+        left:35px;
+        right:auto;
+        bottom:auto;
+        top:40px;
+        width:222px;
+        height:122px;
+        border-radius:50%;
+        transform:translate(var(--swirl-water-x), var(--swirl-water-y)) rotate(var(--swirl-water-rot));
+        transform-origin:50% 50%;
+        background:
+            radial-gradient(ellipse at 38% 34%, rgba(255,255,255,.48), transparent 22%),
+            radial-gradient(ellipse at 64% 58%, rgba(255,232,142,.22), transparent 26%),
+            conic-gradient(from var(--swirl-water-rot), rgba(128,250,229,.72), rgba(40,173,184,.54), rgba(255,243,176,.34), rgba(128,250,229,.72));
+        box-shadow:inset 0 12px 24px rgba(255,255,255,.18), 0 0 20px rgba(83,232,210,.26);
+    }
+    .soak-overlay.mode-swirl .soak-water::before{
+        top:10px;
+        height:92px;
+        border-radius:50%;
+        transform:translateX(var(--soak-wave-shift)) rotate(var(--swirl-water-counter-rot));
+        background:
+            linear-gradient(90deg, transparent, rgba(255,255,235,.68), transparent),
+            radial-gradient(ellipse at 68% 42%, rgba(255,255,255,.76), transparent 24%);
+        opacity:.62;
+    }
+    .soak-overlay.mode-swirl .soak-stone{
+        top:calc(50% + var(--soak-stone-y));
+        width:86px;
+        height:86px;
+        border-radius:36% 42% 40% 45%;
+        transition:top .14s linear, left .14s linear, transform .14s linear;
+    }
+    .soak-overlay.mode-swirl .soak-crack,
+    .soak-overlay.mode-swirl .soak-hit-row{
+        display:none;
+    }
+    .soak-overlay.mode-swirl .soak-meter{
+        bottom:12px;
+    }
     @keyframes soakBubbleRise{
         0%{ transform:translateY(18px) scale(.72); opacity:0; }
         18%{ opacity:var(--soak-bubble-opacity); }
@@ -1859,6 +2121,15 @@
         0%{ box-shadow:inset 0 0 34px rgba(255,255,255,.22), 0 0 0 rgba(239,86,70,0); }
         46%{ box-shadow:inset 0 0 34px rgba(255,255,255,.22), 0 0 28px rgba(239,86,70,.5); }
         100%{ box-shadow:inset 0 0 30px rgba(255,255,255,.16), 0 0 0 rgba(239,86,70,0); }
+    }
+    @keyframes soakWaterRedPulse{
+        0%{ filter:saturate(1) brightness(1); }
+        42%{ filter:saturate(1.35) brightness(1.1); box-shadow:inset 0 16px 26px rgba(255,255,255,.14), inset 0 -16px 28px rgba(18,97,115,.18), 0 0 24px rgba(238,76,62,.36); }
+        100%{ filter:saturate(1) brightness(1); }
+    }
+    @keyframes soakWaterRedOverlay{
+        0%,100%{ opacity:0; }
+        42%{ opacity:.88; }
     }
     @keyframes soakCrackDraw{
         0%{ stroke-dashoffset:90; opacity:.2; }
@@ -1894,6 +2165,94 @@
         0%{ opacity:0; transform:translate(-50%, -50%) scale(.55); }
         38%{ opacity:1; transform:translate(-50%, -50%) scale(1.05); }
         100%{ opacity:0; transform:translate(-50%, -50%) scale(1.45); }
+    }
+    .spray-tool-fx{
+        position:absolute;
+        inset:0;
+        z-index:8;
+        pointer-events:none;
+        --spray-center-x:50%;
+        --spray-center-y:50%;
+        --spray-source-x:50%;
+        --spray-source-y:50%;
+        --spray-angle:0deg;
+        --spray-coverage:conic-gradient(rgba(255,242,178,.2) 0deg 0deg, transparent 0deg 360deg);
+        --spray-progress:.04;
+        --spray-mist-opacity:.46;
+    }
+    .spray-coverage-ring{
+        position:absolute;
+        left:var(--spray-center-x);
+        top:var(--spray-center-y);
+        width:244px;
+        height:244px;
+        transform:translate(-50%, -50%);
+        border-radius:50%;
+        background:var(--spray-coverage);
+        opacity:.9;
+        -webkit-mask:radial-gradient(circle, transparent 0 47%, #000 48% 61%, transparent 62%);
+        mask:radial-gradient(circle, transparent 0 47%, #000 48% 61%, transparent 62%);
+        filter:drop-shadow(0 0 12px rgba(108,232,216,.18));
+    }
+    .spray-current-mist{
+        position:absolute;
+        left:var(--spray-source-x);
+        top:var(--spray-source-y);
+        width:150px;
+        height:92px;
+        transform-origin:0 50%;
+        transform:translateY(-50%) rotate(var(--spray-angle));
+        clip-path:polygon(0 42%, 100% 0, 100% 100%, 0 58%);
+        background:
+            radial-gradient(ellipse at 78% 50%, rgba(255,246,198,.34), transparent 54%),
+            linear-gradient(90deg, rgba(88,230,216,.46), rgba(255,240,166,.24), transparent);
+        mix-blend-mode:screen;
+        opacity:var(--spray-mist-opacity);
+        filter:blur(.2px);
+    }
+    .spray-tool-body{
+        position:absolute;
+        left:var(--spray-source-x);
+        top:var(--spray-source-y);
+        width:48px;
+        height:124px;
+        transform:translate(-50%, -50%) rotate(calc(var(--spray-angle) + 90deg));
+        transform-origin:50% 50%;
+        border-radius:16px 16px 22px 22px;
+        background:
+            linear-gradient(180deg, rgba(255,249,224,.95), rgba(206,157,74,.82) 52%, rgba(71,159,149,.88));
+        box-shadow:0 14px 20px rgba(15,11,7,.24), inset 0 0 0 2px rgba(255,255,255,.34);
+    }
+    .spray-tool-body::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:-13px;
+        width:26px;
+        height:30px;
+        transform:translateX(-50%);
+        border-radius:10px 10px 6px 6px;
+        background:linear-gradient(180deg, rgba(241,255,249,.92), rgba(81,205,190,.82));
+        box-shadow:0 0 12px rgba(102,232,216,.28);
+    }
+    .spray-complete-flash{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:246px;
+        height:246px;
+        transform:translate(-50%, -50%);
+        border-radius:50%;
+        border:4px solid rgba(255,240,166,.86);
+        box-shadow:0 0 26px rgba(255,228,132,.44), inset 0 0 36px rgba(96,232,216,.2);
+        pointer-events:none;
+        z-index:9;
+        animation:sprayCompleteFlash .72s ease-out forwards;
+    }
+    @keyframes sprayCompleteFlash{
+        0%{ opacity:0; transform:translate(-50%, -50%) scale(.72) rotate(-20deg); }
+        35%{ opacity:1; transform:translate(-50%, -50%) scale(1.05) rotate(6deg); }
+        100%{ opacity:0; transform:translate(-50%, -50%) scale(1.28) rotate(26deg); }
     }
     .finish-fragment{
         position:fixed;
@@ -3618,6 +3977,7 @@
         --muted:#6e614e;
         --line:#c89b47;
         --shadow:0 22px 58px rgba(15,42,32,.28);
+        --v26-bag-open:url("assets/ui_v26/ui_left_inventory/bag_open_down_F_ivory_oblique_v1.png");
         --v26-stone-card:url("assets/ui_v26/ui_left_inventory/stone_card_frame_A.png");
         --v26-stone-badge:url("assets/ui_v26/ui_left_inventory/stone_card_badge_A.png");
         --v26-lens-ring:url("assets/ui_v26/ui_lens_frame/lens_outer_ring_A.png");
@@ -3664,17 +4024,35 @@
         opacity:.72;
     }
     body.v26-real-asset .topbar{
+        position:relative;
+        overflow:hidden;
         padding:16px 18px;
         border:1px solid rgba(239,198,96,.28);
         border-radius:10px;
         background:linear-gradient(180deg, rgba(18,62,46,.86), rgba(17,47,39,.76));
         box-shadow:0 18px 42px rgba(10,35,27,.22);
     }
+    body.v26-real-asset .title::after{
+        content:"";
+        position:absolute;
+        left:214px;
+        top:50%;
+        z-index:0;
+        width:240px;
+        height:158px;
+        transform:translateY(-48%) rotate(-8deg);
+        background:var(--v26-bag-open) center / contain no-repeat;
+        opacity:.44;
+        filter:saturate(1.08) brightness(1.04) drop-shadow(0 8px 16px rgba(0,0,0,.16));
+        pointer-events:none;
+    }
     body.v26-real-asset .title h1{
         color:#fff1bd;
         text-shadow:0 2px 12px rgba(0,0,0,.22);
     }
     body.v26-real-asset .title p{
+        position:relative;
+        z-index:1;
         color:rgba(255,244,209,.78);
     }
     body.v26-real-asset .data-pack-select,
@@ -4035,6 +4413,7 @@
     }
     body.layout-mobile-landscape .title h1{ font-size:20px; }
     body.layout-mobile-landscape .title p{ display:none; }
+    body.layout-mobile-landscape .title::after,
     body.layout-mobile-landscape .btn,
     body.layout-mobile-landscape .data-pack-select,
     body.layout-mobile-landscape .layout-select,
@@ -4468,6 +4847,10 @@
     }
     body.layout-gamepad .gamepad-guide{ display:block; }
     body.layout-gamepad .current-tool-card{ display:none; }
+    body.layout-gamepad .title::after{
+        left:170px;
+        opacity:.34;
+    }
     .gamepad-guide h3{
         margin:0 0 8px;
         font-size:16px;
@@ -4478,6 +4861,24 @@
         font-size:12px;
         line-height:1.55;
         color:#244c37;
+    }
+    .gamepad-keymap-panel{
+        display:none;
+        width:100%;
+        aspect-ratio:3 / 2;
+        object-fit:contain;
+        object-position:center;
+        margin:0 0 10px;
+        border:1px solid rgba(255,231,164,.52);
+        border-radius:8px;
+        background:rgba(6,42,32,.18);
+        box-shadow:0 10px 20px rgba(8,38,28,.18), inset 0 0 0 1px rgba(255,255,255,.2);
+    }
+    body.layout-gamepad .gamepad-keymap-panel{
+        display:block;
+    }
+    body.layout-gamepad .gamepad-map{
+        display:none;
     }
     .gamepad-map{
         display:grid;
@@ -4773,6 +5174,7 @@
             <div id="gamepad-guide" class="gamepad-guide" aria-live="polite">
                 <h3>手柄模拟键位</h3>
                 <p>X 在素体选择与玩法之间往返；R2 开镜，方向键瞄准；R1 或 A 确认落刀/落刷。</p>
+                <img class="gamepad-keymap-panel" src="assets/ui_v26/ui_gamepad_guide/gamepad_keymap_A.png" alt="完整手柄模拟键位图">
                 <div class="gamepad-map" aria-hidden="true">
                     <span><b>W/S/A/D</b> 左摇杆选素体</span>
                     <span><b>F/V/C/B</b> 十字键选素体</span>
@@ -4853,9 +5255,11 @@ const TOOL_LABELS = {
     cut:"切除",
     shape:"定型",
     light:"寻光",
-    soak:"浸润"
+    soak:"浸润",
+    swirl:"摇晃杯",
+    spray:"喷油"
 };
-const TOOL_ICONS = { cut:"切", repair:"滴", shape:"型", clean:"净", light:"光", soak:"浸" };
+const TOOL_ICONS = { cut:"切", repair:"滴", shape:"型", clean:"净", light:"光", soak:"浸", swirl:"摇", spray:"喷" };
 const TOOL_SPRITES = {
     cut:"assets/ui_v26/ui_tool_sprites/tool_cut_C.png",
     repair:"assets/ui_v26/ui_tool_sprites/tool_repair_C.png",
@@ -4869,9 +5273,12 @@ const TOOL_NOTES = {
     shape:"描摹目标轮廓定型",
     clean:"擦净后闪光收纳",
     light:"移动寻光灯找反光点",
-    soak:"放入量杯左右摇晃"
+    soak:"放入量杯左右摇晃",
+    swirl:"绕椭圆摇动杯口",
+    spray:"绕宝石喷满一圈"
 };
-const TOOL_ORDER = ["cut","repair","light","shape","soak","clean"];
+const TOOL_ORDER = ["cut","repair","spray","light","shape","soak","swirl","clean"];
+const LENS_FREE_TYPES = new Set(["soak", "swirl", "spray"]);
 const REPAIR_TARGETS = [
     { x:31, y:56, dx:-30, dy:7 },
     { x:50, y:45, dx:0, dy:-6 },
@@ -4898,7 +5305,12 @@ const SOAK_WALL_HIT_LIMIT = 3;
 const SOAK_WALL_LIMIT = 78;
 const SOAK_REBOUND = 11;
 const SOAK_TRIAL_GEMS = new Set(["agate", "fluorite"]);
+const SWIRL_REQUIRED_MS = 2600;
+const SPRAY_SECTORS = 8;
+const SPRAY_REQUIRED_SECTORS = 7;
+const SPRAY_TRIAL_GEMS = new Set(["garnet", "sunstone"]);
 function clampNumber(value, min, max){ return Math.max(min, Math.min(max, value)); }
+function stepRequiresLens(step){ return !!step && !LENS_FREE_TYPES.has(step.type); }
 const LENSES = [
     { key:"A", label:"表层镜", filter:"radial-gradient(circle at 38% 28%, rgba(255,255,255,.08), transparent 18%), radial-gradient(circle at 50% 50%, rgba(255,255,255,.035), transparent 64%)" },
     { key:"B", label:"透光镜", filter:"url(\"assets/ui_v26/ui_lens_frame/lens_filter_transmit_B.png\") center / cover no-repeat" },
@@ -4911,16 +5323,16 @@ const SHAPE_MARKS = { circle:"○", triangle:"△", square:"□" };
 const GEM_STEP_INSTRUCTIONS = {
     pearl:{ repair:"珍珠：瞄准珠层细裂，分段滴入修复精华，让裂缝被柔光填满。", clean:"珍珠：用清洁刷轻擦表面雾膜，擦出柔和珠光。" },
     agate:{ repair:"玛瑙：沿下缘细裂注入精华，先补边缘再让纹带连贯。", soak:"玛瑙：放入量杯浸润，左右轻摇让纹带里的浊气冒泡散开。", clean:"玛瑙：来回擦开表面灰膜，让红橙纹带重新透亮。" },
-    garnet:{ repair:"石榴石：对准边缘缺口滴入精华，把缺口亮线补齐。", clean:"石榴石：擦掉深色石面上的灰尘层，让血色反光浮出来。" },
-    sunstone:{ repair:"砂金石：把细小缺角补满，保住边缘的金砂闪点。", clean:"砂金石：顺着金砂亮面擦拭，让细闪从污渍下显出来。" },
+    garnet:{ repair:"石榴石：对准边缘缺口滴入精华，把缺口亮线补齐。", spray:"石榴石：绕着石面喷一圈养护油，让每个角度都有薄雾覆盖。", clean:"石榴石：擦掉深色石面上的灰尘层，让血色反光浮出来。" },
+    sunstone:{ repair:"砂金石：把细小缺角补满，保住边缘的金砂闪点。", spray:"砂金石：让喷枪围着金砂边缘走一圈，补上均匀的保护油雾。", clean:"砂金石：顺着金砂亮面擦拭，让细闪从污渍下显出来。" },
     catseye:{ repair:"猫眼石：修补猫眼边缘损伤，别让亮线被裂口截断。", clean:"猫眼石：左右擦净瞳线附近的雾层，让猫眼光带变清楚。" },
     jadeite:{ repair:"翡翠：沿边缘细裂注入精华，先让裂纹显影再填平。", clean:"翡翠：擦掉翠面灰膜，保留内部通透的绿色高光。" },
     obsidian:{ cut:"黑曜石：按住石皮长条切两次，把外层暗皮削开。", shape_triangle:"黑曜石：描出三角轮廓，让激光把黑镜面切成尖角。", clean:"黑曜石：擦净黑镜面的灰痕，露出干净反射。" },
     fluorite:{ cut:"萤石：顺着杂层方向切开，把外层混浊带剥掉。", shape_circle:"萤石：描圆定型，让激光把晶体收成圆润球面。", soak:"萤石：把定型后的晶体浸入量杯，左右摇出细小气泡。", clean:"萤石：擦掉表面粉尘，留下清透的荧光感。" },
     malachite:{ cut:"孔雀石：切两次削掉矿皮，露出里面的孔雀纹。", repair:"孔雀石：沿孔雀纹裂缝注入精华，让纹路重新连上。", shape_square:"孔雀石：描正方轮廓，把纹理压进方形章面。", clean:"孔雀石：擦净石面灰尘，让绿色纹带更分明。" },
     turquoise:{ cut:"绿松石：切两次剥掉泥皮，露出蓝绿色主体。", repair:"绿松石：沿脉络裂隙滴入精华，把断开的纹理补回去。", shape_triangle:"绿松石：描三角轮廓，让激光切出利落尖角。", clean:"绿松石：擦掉泥雾和粉尘，让松石蓝绿更干净。" },
-    hetian:{ cut:"和田玉：顺着杂质筋切开，把影响通透的筋带削掉。", shape_circle:"和田玉：描圆定型，把玉面收成温润圆形。", clean:"和田玉：轻擦玉面灰膜，让油润感浮出来。" },
-    shoushan:{ cut:"寿山石：切两次去掉残皮，露出可定型的章料面。", shape_square:"寿山石：描正方轮廓，切出方章的平直边。", clean:"寿山石：擦净石面粉尘，让暖色石质更清楚。" }
+    hetian:{ cut:"和田玉：顺着杂质筋切开，把影响通透的筋带削掉。", shape_circle:"和田玉：描圆定型，把玉面收成温润圆形。", swirl:"和田玉：按住杯口绕椭圆摇动，让水面先转起来，玉石再慢半拍跟着走。", clean:"和田玉：轻擦玉面灰膜，让油润感浮出来。" },
+    shoushan:{ cut:"寿山石：切两次去掉残皮，露出可定型的章料面。", shape_square:"寿山石：描正方轮廓，切出方章的平直边。", swirl:"寿山石：绕着杯口轻轻画椭圆，像摇红酒杯一样让石料在液体里温和转动。", clean:"寿山石：擦净石面粉尘，让暖色石质更清楚。" }
 };
 function defaultGemStepInstruction(gem, task){
     const shapeKey = task.type === "shape" ? `shape_${task.targetShape || task.shapeTarget || "circle"}` : task.type;
@@ -4928,6 +5340,8 @@ function defaultGemStepInstruction(gem, task){
     if(copy) return copy;
     if(task.type === "light") return `${gem.name}：按住扫光区移动寻光灯，找到最亮的反光点。`;
     if(task.type === "soak") return `${gem.name}：把宝石放入量杯，左右摇晃浸润到气泡散开。`;
+    if(task.type === "swirl") return `${gem.name}：按住杯口绕椭圆摇晃，让液体和宝石错开节奏转动。`;
+    if(task.type === "spray") return `${gem.name}：绕着宝石移动喷枪，把每个角度都喷上细雾。`;
     if(task.type === "repair") return `${gem.name}：瞄准裂缝光圈，滴入修复精华填满裂隙。`;
     if(task.type === "clean") return `${gem.name}：按住污渍范围来回擦拭，把脏污层擦掉。`;
     if(task.type === "cut") return `${gem.name}：按住切除长条，顺着角度拖拽削掉外层。`;
@@ -4937,16 +5351,16 @@ function defaultGemStepInstruction(gem, task){
 const GEM_BLUEPRINTS = [
     { id:"pearl", name:"珍珠", rarity:3, version:"西西亚·三星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #fff9ef 0%, #d9d3dd 100%)", assetBase:"assets/gems/pearl", tasks:[{type:"repair", title:"珠层细裂", lens:2, face:1, pos:{x:54,y:46}}, {type:"clean", title:"柔光净化", lens:0, face:1, pos:{x:50,y:54}}] },
     { id:"agate", name:"玛瑙", rarity:3, version:"长安·三星成石", kind:"成品宝石", sub:"修补 -> 浸润 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", assetBase:"assets/gems/agate", tasks:[{type:"repair", title:"下缘细裂", lens:2, face:2, pos:{x:46,y:64}}, {type:"soak", title:"量杯浸润", lens:0, face:1, pos:{x:50,y:50}}, {type:"clean", title:"通透净化", lens:1, face:1, pos:{x:50,y:52}}] },
-    { id:"garnet", name:"石榴石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b85a52 0%, #6d1f23 100%)", assetBase:"assets/gems/garnet", tasks:[{type:"repair", title:"边缘缺口", lens:1, face:2, pos:{x:58,y:42}}, {type:"clean", title:"血色提亮", lens:2, face:0, pos:{x:50,y:50}}] },
-    { id:"sunstone", name:"砂金石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #f1b07c 0%, #9a4f2d 100%)", assetBase:"assets/gems/sunstone", tasks:[{type:"repair", title:"细小缺角", lens:2, face:1, pos:{x:40,y:60}}, {type:"clean", title:"金砂唤亮", lens:0, face:2, pos:{x:50,y:52}}] },
+    { id:"garnet", name:"石榴石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 喷油 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b85a52 0%, #6d1f23 100%)", assetBase:"assets/gems/garnet", tasks:[{type:"repair", title:"边缘缺口", lens:1, face:2, pos:{x:58,y:42}}, {type:"spray", title:"环面喷油", lens:0, face:1, pos:{x:50,y:50}}, {type:"clean", title:"血色提亮", lens:2, face:0, pos:{x:50,y:50}}] },
+    { id:"sunstone", name:"砂金石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 喷油 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #f1b07c 0%, #9a4f2d 100%)", assetBase:"assets/gems/sunstone", tasks:[{type:"repair", title:"细小缺角", lens:2, face:1, pos:{x:40,y:60}}, {type:"spray", title:"金砂喷油", lens:0, face:2, pos:{x:50,y:50}}, {type:"clean", title:"金砂唤亮", lens:0, face:2, pos:{x:50,y:52}}] },
     { id:"catseye", name:"猫眼石", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #d8f1a8 0%, #7ea042 100%)", assetBase:"assets/gems/catseye", tasks:[{type:"repair", title:"猫眼边缘损伤", lens:2, face:1, pos:{x:56,y:40}}, {type:"clean", title:"瞳线净化", lens:1, face:2, pos:{x:50,y:50}}] },
     { id:"jadeite", name:"翡翠", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b8f0c6 0%, #3d9b63 100%)", assetBase:"assets/gems/jadeite", tasks:[{type:"repair", title:"边缘细裂", lens:1, face:1, pos:{x:56,y:62}}, {type:"clean", title:"翠面净化", lens:2, face:0, pos:{x:50,y:50}}] },
     { id:"obsidian", name:"黑曜石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6f6b83 0%, #15131f 100%)", assetBase:"assets/gems/obsidian", tasks:[{type:"cut", title:"石皮切除", lens:0, face:0, pos:{x:58,y:38}, cutHitsRequired:2}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:2, face:1, pos:{x:50,y:50}}, {type:"clean", title:"黑镜净化", lens:1, face:0, pos:{x:52,y:50}}] },
     { id:"fluorite", name:"萤石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 浸润 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #bca7e8 0%, #4f5a7e 100%)", assetBase:"assets/gems/fluorite", tasks:[{type:"cut", title:"杂层切除", lens:1, face:1, pos:{x:62,y:52}}, {type:"shape", title:"圆形成球", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"soak", title:"量杯浸润", lens:0, face:0, pos:{x:50,y:50}}, {type:"clean", title:"荧光净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"malachite", name:"孔雀石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6ec07f 0%, #1d5a38 100%)", assetBase:"assets/gems/malachite", tasks:[{type:"cut", title:"矿皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"孔雀纹裂", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"正方定型", targetShape:"square", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"石面净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"turquoise", name:"绿松石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #86dfd0 0%, #2a8f89 100%)", assetBase:"assets/gems/turquoise", tasks:[{type:"cut", title:"泥皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"脉络裂隙", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"松石净化", lens:0, face:0, pos:{x:52,y:50}}] },
-    { id:"hetian", name:"和田玉", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #edf0d5 0%, #a9b484 100%)", assetBase:"assets/gems/hetian", tasks:[{type:"cut", title:"杂质筋切除", lens:1, face:1, pos:{x:40,y:52}}, {type:"shape", title:"圆润定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:50}}, {type:"clean", title:"玉面净化", lens:0, face:0, pos:{x:52,y:52}}] },
-    { id:"shoushan", name:"寿山石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #f0d2a7 0%, #b5794b 100%)", assetBase:"assets/gems/shoushan", tasks:[{type:"cut", title:"残皮切除", lens:0, face:2, pos:{x:54,y:60}, cutHitsRequired:2}, {type:"shape", title:"方章定型", targetShape:"square", lens:2, face:1, pos:{x:50,y:48}}, {type:"clean", title:"石面净化", lens:1, face:0, pos:{x:50,y:50}}] }
+    { id:"hetian", name:"和田玉", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 摇晃杯 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #edf0d5 0%, #a9b484 100%)", assetBase:"assets/gems/hetian", tasks:[{type:"cut", title:"杂质筋切除", lens:1, face:1, pos:{x:40,y:52}}, {type:"shape", title:"圆润定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:50}}, {type:"swirl", title:"温润摇杯", lens:0, face:0, pos:{x:50,y:50}}, {type:"clean", title:"玉面净化", lens:0, face:0, pos:{x:52,y:52}}] },
+    { id:"shoushan", name:"寿山石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 摇晃杯 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #f0d2a7 0%, #b5794b 100%)", assetBase:"assets/gems/shoushan", tasks:[{type:"cut", title:"残皮切除", lens:0, face:2, pos:{x:54,y:60}, cutHitsRequired:2}, {type:"shape", title:"方章定型", targetShape:"square", lens:2, face:1, pos:{x:50,y:48}}, {type:"swirl", title:"章料摇杯", lens:0, face:2, pos:{x:50,y:50}}, {type:"clean", title:"石面净化", lens:1, face:0, pos:{x:50,y:50}}] }
 ];
 const GEM_VISUALS = {
     pearl:{ rawClip:"circle(48% at 50% 50%)", cutClip:"circle(45% at 50% 50%)", cutScale:.92, texture:"radial-gradient(circle at 34% 28%, rgba(255,255,255,.78), transparent 22%)" },
@@ -5546,6 +5960,7 @@ function completeKnownStoneInBatch(id){
 function shouldInsertLightTask(gem){
     if(gem.kind !== "成品宝石") return false;
     if(SOAK_TRIAL_GEMS.has(gem.id)) return false;
+    if(SPRAY_TRIAL_GEMS.has(gem.id)) return false;
     if(!state.playedTypes.size) return true;
     return Math.random() < LIGHT_STEP_CHANCE;
 }
@@ -5597,6 +6012,16 @@ function buildCoreTasks(gem){
         soakCrackLeft:0,
         soakCrackRight:0,
         soakCompleting:false,
+        swirlProgress:0,
+        swirlAngle:null,
+        swirlWaterPhase:0,
+        swirlStonePhase:0,
+        swirlRadius:0,
+        swirlCompleting:false,
+        sprayMask:0,
+        sprayProgress:0,
+        sprayAngle:0,
+        sprayCompleting:false,
         cutHits:0,
         cutHitsRequired: task.type === "cut" ? (task.cutHitsRequired || 1) : 1,
         dragDistance:0,
@@ -5673,6 +6098,8 @@ function stepStatusText(step){
     if(step.type === "repair") return `${base} · 精华填充 ${Math.min(100, Math.round((step.repairFill || 0) * 100))}%`;
     if(step.type === "light") return `${base} · 反光锁定 ${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`;
     if(step.type === "soak") return `${base} · 浸润摇晃 ${Math.min(100, Math.round((step.soakProgress || 0) / SOAK_REQUIRED_MS * 100))}% · 碰壁 ${step.soakHits || 0}/${SOAK_WALL_HIT_LIMIT}`;
+    if(step.type === "swirl") return `${base} · 椭圆摇杯 ${Math.min(100, Math.round((step.swirlProgress || 0) / SWIRL_REQUIRED_MS * 100))}%`;
+    if(step.type === "spray") return `${base} · 喷雾覆盖 ${Math.min(100, Math.round((step.sprayProgress || 0) * 100))}%`;
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `${base} · 切除 ${step.cutHits || 0}/${step.cutHitsRequired}`;
     if(step.type === "cut") return `${base} · 顺着长条角度拖拽`;
     if(step.type === "shape") return `${base} · 描边${SHAPE_LABELS[step.shapeTarget]}`;
@@ -5685,12 +6112,15 @@ function stepHintText(step){
     if(step.type === "repair") return "修补：瞄准裂缝光圈，滴入修复精华填满裂隙。";
     if(step.type === "light") return "寻光：按住扫光区移动寻光灯，找到宝石表面的反光点。";
     if(step.type === "soak") return "浸润：按住量杯左右摇晃，避免石头连续撞到杯壁。";
+    if(step.type === "swirl") return "摇晃杯：按住杯口绕椭圆摇动，水面和石头会错开节奏旋转。";
+    if(step.type === "spray") return "喷油：按住绕宝石移动喷枪，把一整圈角度都喷上细雾。";
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：这颗需要切 ${step.cutHitsRequired} 次，按住长条并顺着角度拖拽。`;
     if(step.type === "cut") return "切除：按住长条瑕疵，沿相近角度拖拽切除。";
     if(step.type === "shape") return `定型：按住形状特效，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`;
     return "完成当前宝石。";
 }
 function wrongLensHint(step){
+    if(!stepRequiresLens(step)) return `${TOOL_LABELS[step.type]}不需要切镜片，直接按住操作。`;
     if(step.type === "repair") return `裂缝还没显影：滚动镜片切到 ${LENSES[step.lens].label}，看清裂缝走向。`;
     if(step.type === "light") return `反光点需要 ${LENSES[step.lens].label}：切到正确镜片后再扫光。`;
     if(step.type === "soak") return `量杯观察需要 ${LENSES[step.lens].label}：切到正确镜片后再摇晃。`;
@@ -5749,8 +6179,10 @@ function completionSpinImageValue(gem, fresh=false){
     return path ? `url("${path}?${version}")` : "none";
 }
 const V26_UI_PRELOAD_ASSETS = [
+    "assets/ui_v26/ui_left_inventory/bag_open_down_F_ivory_oblique_v1.png",
     "assets/ui_v26/ui_left_inventory/stone_card_frame_A.png",
     "assets/ui_v26/ui_left_inventory/stone_card_badge_A.png",
+    "assets/ui_v26/ui_gamepad_guide/gamepad_keymap_A.png",
     "assets/ui_v26/ui_lens_frame/lens_outer_ring_A.png",
     "assets/ui_v26/ui_lens_frame/lens_inner_glass_A.png",
     "assets/ui_v26/ui_lens_frame/lens_filter_transmit_B.png",
@@ -5932,6 +6364,8 @@ function shortToolNote(step){
     if(step.type === "clean") return `${Math.min(100, Math.round((step.dragDistance || 0) / CLEAN_DISTANCE_REQUIRED * 100))}%`;
     if(step.type === "light") return `${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`;
     if(step.type === "soak") return `${Math.min(100, Math.round((step.soakProgress || 0) / SOAK_REQUIRED_MS * 100))}%`;
+    if(step.type === "swirl") return `${Math.min(100, Math.round((step.swirlProgress || 0) / SWIRL_REQUIRED_MS * 100))}%`;
+    if(step.type === "spray") return `${Math.min(100, Math.round((step.sprayProgress || 0) * 100))}%`;
     if(step.type === "shape") return SHAPE_MARKS[step.shapeTarget] || "描边";
     return step.title || "";
 }
@@ -5957,7 +6391,7 @@ function renderPlay(){
     gem3d.style.setProperty("--crack-branch-opacity", Math.max(0, .72 - repairProgress * .82));
     gem3d.style.setProperty("--gem-stage-image", stageImageValue(gem, visual));
     renderArchiveNotebook(active, gem);
-    document.querySelector(".core-hint").textContent = step && state.lensIndex !== step.lens
+    document.querySelector(".core-hint").textContent = step && stepRequiresLens(step) && state.lensIndex !== step.lens
         ? wrongLensHint(step)
         : stepHintText(step);
     document.getElementById("step-progress").style.width = `${(active.stepIndex / active.tasks.length) * 100}%`;
@@ -5967,6 +6401,7 @@ function renderPlay(){
     renderToolButtons();
     renderCurrentTool();
     renderSoakOverlay(step, gem, visual);
+    if(step?.type !== "spray") clearSprayToolFx();
     syncGamepadAimToStep(step);
     renderHotspot();
     renderGamepadHud();
@@ -6007,10 +6442,11 @@ function renderCleanEraseMask(step, gem3d, progress=0){
 function renderSoakOverlay(step, gem, visual){
     const overlay = document.getElementById("soak-overlay");
     if(!overlay) return;
-    if(!step || step.type !== "soak"){
+    if(!step || !["soak", "swirl"].includes(step.type)){
         overlay.className = "soak-overlay";
         overlay.innerHTML = "";
         delete overlay.dataset.stepId;
+        delete overlay.dataset.stepType;
         clearTimeout(renderSoakOverlay.introTimer);
         return;
     }
@@ -6025,10 +6461,13 @@ function renderSoakOverlay(step, gem, visual){
             }
         }, 820);
     }
-    const progress = clampNumber((step.soakProgress || 0) / SOAK_REQUIRED_MS, 0, 1);
-    const hitFlash = performance.now() - (step.soakLastWallHitAt || 0) < 260;
+    const isSwirl = step.type === "swirl";
+    const progress = isSwirl
+        ? clampNumber((step.swirlProgress || 0) / SWIRL_REQUIRED_MS, 0, 1)
+        : clampNumber((step.soakProgress || 0) / SOAK_REQUIRED_MS, 0, 1);
+    const hitFlash = !isSwirl && performance.now() - (step.soakLastWallHitAt || 0) < 260;
     const hitSideClass = hitFlash && step.soakLastHitSide ? `hit-${step.soakLastHitSide}` : "";
-    overlay.className = `soak-overlay visible phase-${step.soakPhase || "shake"} ${hitFlash ? "wall-hit" : ""} ${hitSideClass}`;
+    overlay.className = `soak-overlay visible mode-${step.type} phase-${step.soakPhase || "shake"} ${hitFlash ? "wall-hit water-hit" : ""} ${hitSideClass}`;
     overlay.style.setProperty("--soak-progress", progress.toFixed(3));
     overlay.style.setProperty("--soak-progress-width", `${(progress * 100).toFixed(1)}%`);
     overlay.style.setProperty("--soak-bubble-opacity", `${(.18 + progress * .52).toFixed(3)}`);
@@ -6043,8 +6482,15 @@ function renderSoakOverlay(step, gem, visual){
     overlay.style.setProperty("--soak-stone-scale", `${(.72 + progress * .04).toFixed(3)}`);
     overlay.style.setProperty("--soak-stone-color", gem?.color || "linear-gradient(135deg, #c9efe8, #6aa39a)");
     overlay.style.setProperty("--soak-stone-image", stageImageValue(gem, visual));
-    if(overlay.dataset.stepId !== step.id || !overlay.querySelector(".soak-cup")){
+    const swirlRot = (step.swirlWaterPhase || 0) * 180 / Math.PI;
+    overlay.style.setProperty("--swirl-water-x", `${(Math.cos(step.swirlWaterPhase || 0) * 10 * (step.swirlRadius || .55)).toFixed(1)}px`);
+    overlay.style.setProperty("--swirl-water-y", `${(Math.sin(step.swirlWaterPhase || 0) * 7 * (step.swirlRadius || .55)).toFixed(1)}px`);
+    overlay.style.setProperty("--swirl-water-rot", `${swirlRot.toFixed(1)}deg`);
+    overlay.style.setProperty("--swirl-water-counter-rot", `${(-swirlRot).toFixed(1)}deg`);
+    overlay.style.setProperty("--swirl-rim-rot", `${clampNumber((step.soakWave || 0) * 12, -14, 14).toFixed(2)}deg`);
+    if(overlay.dataset.stepId !== step.id || overlay.dataset.stepType !== step.type || !overlay.querySelector(".soak-cup")){
         overlay.dataset.stepId = step.id;
+        overlay.dataset.stepType = step.type;
         overlay.innerHTML = `
             <div class="soak-cup" aria-hidden="true">
                 <div class="soak-glass">
@@ -6373,7 +6819,7 @@ function beginGamepadUse(){
     }
     const step = currentStep();
     if(!step || state.gamepadDrag || state.gamepadUseActive) return;
-    if(state.lensIndex !== step.lens){
+    if(stepRequiresLens(step) && state.lensIndex !== step.lens){
         toast(`先用 Q/E 切到 ${LENSES[step.lens].label}`);
         renderGamepadHud();
         return;
@@ -6417,6 +6863,16 @@ function beginGamepadUse(){
         if(step.soakPhase !== "complete" && step.soakPhase !== "failed") step.soakPhase = "shake";
         renderPlay();
     }
+    if(step.type === "swirl"){
+        if(step.soakPhase !== "complete") step.soakPhase = "shake";
+        updateSwirlCup(step, point.x, point.y, 0);
+        renderPlay();
+    }
+    if(step.type === "spray"){
+        updateSprayCoverage(step, point.x, point.y, 0);
+        renderSprayToolFx(point.x, point.y, step);
+        renderPlay();
+    }
     spawnDragParticle(point.x, point.y, step.type);
     renderGamepadHud();
 }
@@ -6434,10 +6890,18 @@ function finishGamepadUse(){
         clearLightToolFx();
         if(!step.done) toast(`反光锁定 ${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`);
     }
+    if(drag.type === "spray"){
+        clearSprayToolFx();
+        if(!step.done) toast(`喷雾覆盖 ${Math.min(100, Math.round((step.sprayProgress || 0) * 100))}%`);
+    }
     if(drag.type === "soak" && !step.done && step.soakPhase !== "failed"){
         step.soakVelocityX = (step.soakVelocityX || 0) * .35;
         step.soakWave = (step.soakWave || 0) * .3;
         toast(`浸润 ${Math.min(100, Math.round((step.soakProgress || 0) / SOAK_REQUIRED_MS * 100))}%`);
+        renderPlay();
+    }
+    if(drag.type === "swirl" && !step.done && step.soakPhase !== "complete"){
+        toast(`摇杯 ${Math.min(100, Math.round((step.swirlProgress || 0) / SWIRL_REQUIRED_MS * 100))}%`);
         renderPlay();
     }
     if(drag.type === "shape"){
@@ -6474,7 +6938,7 @@ function updateGamepadUse(dt){
     if(!state.gamepadUseActive || !state.gamepadAiming || !state.active) return;
     const step = currentStep();
     if(!step || step.type === "repair") return;
-    if(state.lensIndex !== step.lens) return;
+    if(stepRequiresLens(step) && state.lensIndex !== step.lens) return;
     state.activeTool = step.type;
     const drag = state.gamepadDrag;
     if(!drag) return;
@@ -6553,6 +7017,33 @@ function updateGamepadUse(dt){
             }, 620);
         }
     }
+    if(step.type === "swirl"){
+        updateSwirlCup(step, point.x, point.y, dt);
+        renderPlay();
+        renderCurrentTool();
+        if((step.swirlProgress || 0) >= SWIRL_REQUIRED_MS && !step.swirlCompleting){
+            step.swirlCompleting = true;
+            step.soakPhase = "complete";
+            state.gamepadDrag = null;
+            state.gamepadUseActive = false;
+            renderPlay();
+            setTimeout(()=>{
+                if(currentStep()?.id === step.id && !step.done) completeCurrentStep(step);
+            }, 620);
+        }
+    }
+    if(step.type === "spray"){
+        updateSprayCoverage(step, point.x, point.y, dt);
+        renderSprayToolFx(point.x, point.y, step);
+        renderPlay();
+        if((step.sprayCoverageCount || 0) >= SPRAY_REQUIRED_SECTORS && !step.sprayCompleting){
+            step.sprayCompleting = true;
+            clearSprayToolFx();
+            state.gamepadDrag = null;
+            state.gamepadUseActive = false;
+            completeCurrentStep(step);
+        }
+    }
 }
 function renderGamepadHud(){
     syncGamepadFocusClasses();
@@ -6588,12 +7079,12 @@ function renderGamepadHud(){
         action.textContent = `Q(L1) 按数量，U(R1) 按星级；I(Y) 收集奖励${state.active ? "；J(X) 回到玩法" : ""}。`;
         return;
     }
-    const lensOk = step && state.lensIndex === step.lens;
+    const lensOk = step && (!stepRequiresLens(step) || state.lensIndex === step.lens);
     focus.textContent = step
         ? `${state.gamepadAiming ? "开镜中" : "待开镜"}：${TOOL_LABELS[step.type]} · ${step.title}。当前镜头 ${LENSES[state.lensIndex].label}。`
         : "当前素体流程已完成。";
     action.textContent = step
-        ? `${lensOk ? "镜头正确" : `Q/E 或 F/V 切到 ${LENSES[step.lens].label}`}；O(R2) 开镜，U(R1)/K(A) 确认；J(X) 选素体，I(Y) 收集。`
+        ? `${lensOk ? (stepRequiresLens(step) ? "镜头正确" : "无需切镜头") : `Q/E 或 F/V 切到 ${LENSES[step.lens].label}`}；O(R2) 开镜，U(R1)/K(A) 确认；J(X) 选素体，I(Y) 收集。`
         : "K(A) 或 U(R1) 确认，L(B) 退出。";
 }
 function isGamepadExitConfirmOpen(){
@@ -6717,7 +7208,7 @@ function renderHotspot(){
     const spot = document.getElementById("hotspot");
     const ring = document.getElementById("focus-ring");
     const scrollCue = document.getElementById("lens-scroll-cue");
-    const visibleOnLens = !!(step && state.lensIndex === step.lens);
+    const visibleOnLens = !!(step && (!stepRequiresLens(step) || state.lensIndex === step.lens));
     const repairOverlayStep = repairTaskForOverlay(step);
     const repairOverlayPos = repairOverlayStep ? defectStagePosition(repairOverlayStep) : null;
     setLensAttention(!!step && !visibleOnLens);
@@ -6877,6 +7368,8 @@ function hotspotLabel(step){
     if(step.type === "cut") return "  滑→→→       ";
     if(step.type === "light") return "寻光";
     if(step.type === "soak") return "摇晃";
+    if(step.type === "swirl") return "摇杯";
+    if(step.type === "spray") return "喷油";
     if(step.type === "shape") return "描边";
     return "";
 }
@@ -6889,6 +7382,7 @@ function clearHotspot(){
     clearCleanToolFx();
     clearShapeToolFx();
     clearLightToolFx();
+    clearSprayToolFx();
     setLensAttention(false);
     if(spot) spot.style.display = "none";
     if(ring) ring.style.display = "none";
@@ -6905,7 +7399,7 @@ function clearHotspot(){
 }
 function canUseCurrentStep(step){
     if(!step) return;
-    if(state.lensIndex !== step.lens){
+    if(stepRequiresLens(step) && state.lensIndex !== step.lens){
         toast(step.type === "repair" ? `裂缝需要 ${LENSES[step.lens].label} 显影。` : `镜片不对，需要 ${LENSES[step.lens].label}`);
         return false;
     }
@@ -6918,6 +7412,7 @@ function canUseCurrentStep(step){
 function completeCurrentStep(step){
     if(step.type === "cut" || step.type === "shape") spawnCompletionFragments(step.type);
     if(step.type === "light") playLightFoundFx(step);
+    if(step.type === "spray") playSprayCompleteFx();
     step.done = true;
     state.active.stepIndex += 1;
     toast(`完成 ${TOOL_LABELS[step.type]}`);
@@ -7046,11 +7541,13 @@ function handleHotspotClick(){
     if(step.type === "cut") toast("按住长条，沿相近角度拖拽切除。");
     if(step.type === "light") toast("按住扫光区移动寻光灯，靠近反光点会出现星芒。");
     if(step.type === "soak") toast("按住量杯左右摇晃，别让石头撞杯壁三次。");
+    if(step.type === "swirl") toast("按住杯口绕椭圆摇晃，像摇红酒杯一样转动。");
+    if(step.type === "spray") toast("按住绕宝石移动喷枪，把一整圈角度喷满。");
     if(step.type === "shape") toast(`按住形状，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`);
 }
 function startDefectDrag(e){
     const step = currentStep();
-    if(!step || !["clean","cut","shape","light","soak"].includes(step.type)) return;
+    if(!step || !["clean","cut","shape","light","soak","swirl","spray"].includes(step.type)) return;
     if(!canUseCurrentStep(step)) return;
     e.preventDefault();
     e.currentTarget.setPointerCapture?.(e.pointerId);
@@ -7069,6 +7566,8 @@ function startDefectDrag(e){
         baseDistance:step.type === "clean" ? (step.dragDistance || 0) : 0,
         lightBaseHold:step.type === "light" ? (step.lightHold || 0) : 0,
         soakBaseProgress:step.type === "soak" ? (step.soakProgress || 0) : 0,
+        swirlBaseProgress:step.type === "swirl" ? (step.swirlProgress || 0) : 0,
+        sprayBaseMask:step.type === "spray" ? (step.sprayMask || 0) : 0,
         distance:0,
         lastParticleDistance:0,
         points:[{ x:e.clientX, y:e.clientY }],
@@ -7087,6 +7586,16 @@ function startDefectDrag(e){
     }
     if(step.type === "soak"){
         if(step.soakPhase !== "complete" && step.soakPhase !== "failed") step.soakPhase = "shake";
+        renderPlay();
+    }
+    if(step.type === "swirl"){
+        if(step.soakPhase !== "complete") step.soakPhase = "shake";
+        updateSwirlCup(step, e.clientX, e.clientY, 0);
+        renderPlay();
+    }
+    if(step.type === "spray"){
+        updateSprayCoverage(step, e.clientX, e.clientY, 0);
+        renderSprayToolFx(e.clientX, e.clientY, step);
         renderPlay();
     }
     spawnDragParticle(e.clientX, e.clientY, step.type);
@@ -7144,6 +7653,35 @@ function updateDefectDrag(e){
             setTimeout(()=>{
                 if(currentStep()?.id === step.id && !step.done) completeCurrentStep(step);
             }, 620);
+            return;
+        }
+    }
+    if(step.type === "swirl"){
+        updateSwirlCup(step, e.clientX, e.clientY, dt);
+        renderPlay();
+        renderCurrentTool();
+        if((step.swirlProgress || 0) >= SWIRL_REQUIRED_MS && !step.swirlCompleting){
+            step.swirlCompleting = true;
+            step.soakPhase = "complete";
+            state.suppressNextClick = true;
+            state.defectDrag = null;
+            renderPlay();
+            setTimeout(()=>{
+                if(currentStep()?.id === step.id && !step.done) completeCurrentStep(step);
+            }, 620);
+            return;
+        }
+    }
+    if(step.type === "spray"){
+        updateSprayCoverage(step, e.clientX, e.clientY, dt);
+        renderSprayToolFx(e.clientX, e.clientY, step);
+        renderPlay();
+        if((step.sprayCoverageCount || 0) >= SPRAY_REQUIRED_SECTORS && !step.sprayCompleting){
+            step.sprayCompleting = true;
+            state.suppressNextClick = true;
+            state.defectDrag = null;
+            clearSprayToolFx();
+            completeCurrentStep(step);
             return;
         }
     }
@@ -7275,7 +7813,8 @@ function registerSoakWallHit(step, side){
     toast(`碰到${side === "left" ? "左" : "右"}杯壁 ${step.soakHits}/${SOAK_WALL_HIT_LIMIT}`);
 }
 function resetSoakAttempt(step){
-    step.soakPhase = "shake";
+    step.soakPhase = "intro";
+    step.soakIntroStartedAt = 0;
     step.soakProgress = 0;
     step.soakHits = 0;
     step.soakStoneX = 0;
@@ -7289,6 +7828,71 @@ function resetSoakAttempt(step){
     step.soakCrackLeft = 0;
     step.soakCrackRight = 0;
     step.soakCompleting = false;
+}
+function shortestAngleDelta(next, prev){
+    let delta = next - prev;
+    while(delta > Math.PI) delta -= Math.PI * 2;
+    while(delta < -Math.PI) delta += Math.PI * 2;
+    return delta;
+}
+function gemCenterClientPoint(){
+    const gem = document.getElementById("gem3d");
+    const rect = gem?.getBoundingClientRect();
+    if(!rect || !rect.width || !rect.height) return { x:0, y:0, width:1, height:1 };
+    return { x:rect.left + rect.width / 2, y:rect.top + rect.height / 2, width:rect.width, height:rect.height };
+}
+function updateSwirlCup(step, clientX, clientY, dt){
+    if(!step || step.type !== "swirl" || step.soakPhase === "complete") return;
+    const center = gemCenterClientPoint();
+    const rx = Math.max(72, center.width * .58);
+    const ry = Math.max(42, center.height * .38);
+    const nx = (clientX - center.x) / rx;
+    const ny = (clientY - center.y) / ry;
+    const radius = Math.hypot(nx, ny);
+    const angle = Math.atan2(ny, nx);
+    if(step.swirlAngle == null){
+        step.swirlAngle = angle;
+        step.swirlWaterPhase = angle;
+        step.swirlStonePhase = angle - .72;
+        step.swirlRadius = clampNumber(radius, .25, 1.25);
+        return;
+    }
+    const delta = shortestAngleDelta(angle, step.swirlAngle);
+    const absDelta = Math.abs(delta);
+    const radiusScore = clampNumber(1 - Math.abs(radius - .86) / .58, 0, 1);
+    const angularGain = clampNumber(absDelta / .18, 0, 1.35);
+    if(radiusScore > .18 && absDelta > .01){
+        step.swirlProgress = Math.min(SWIRL_REQUIRED_MS, (step.swirlProgress || 0) + Math.max(0, dt) * (.2 + angularGain) * radiusScore);
+    } else {
+        step.swirlProgress = Math.max(0, (step.swirlProgress || 0) - Math.max(0, dt) * .08);
+    }
+    step.swirlAngle = angle;
+    step.swirlRadius = (step.swirlRadius || radius) * .78 + clampNumber(radius, .22, 1.28) * .22;
+    step.swirlWaterPhase = (step.swirlWaterPhase || angle) + delta * 1.18;
+    const stoneTarget = angle - Math.sign(delta || 1) * .9;
+    step.swirlStonePhase = (step.swirlStonePhase || stoneTarget) + shortestAngleDelta(stoneTarget, step.swirlStonePhase || stoneTarget) * .14;
+    const stoneRadius = clampNumber(step.swirlRadius || .72, .35, 1.08);
+    step.soakStoneX = Math.cos(step.swirlStonePhase || 0) * 48 * stoneRadius;
+    step.soakStoneY = 4 + Math.sin(step.swirlStonePhase || 0) * 21 * stoneRadius;
+    step.soakVelocityX = clampNumber(delta * 58, -14, 14);
+    step.soakWave = clampNumber((step.soakWave || 0) * .7 + Math.sin(step.swirlWaterPhase || 0) * .42 + delta * 2.2, -1, 1);
+    step.soakSwingCount = (step.soakSwingCount || 0) + (absDelta > .012 ? 1 : 0);
+}
+function countMaskBits(mask){
+    let count = 0;
+    for(let i = 0; i < 32; i++) if(mask & (1 << i)) count++;
+    return count;
+}
+function updateSprayCoverage(step, clientX, clientY, dt){
+    if(!step || step.type !== "spray") return;
+    const center = gemCenterClientPoint();
+    const angle = Math.atan2(clientY - center.y, clientX - center.x);
+    const normalized = (angle + Math.PI * 2 + Math.PI / 2) % (Math.PI * 2);
+    const sector = Math.floor(normalized / (Math.PI * 2 / SPRAY_SECTORS));
+    step.sprayAngle = angle;
+    step.sprayMask = (step.sprayMask || 0) | (1 << sector);
+    step.sprayCoverageCount = countMaskBits(step.sprayMask || 0);
+    step.sprayProgress = clampNumber(step.sprayCoverageCount / SPRAY_SECTORS, 0, 1);
 }
 function renderCleanToolFx(clientX, clientY, lean=0){
     const stage = document.getElementById("lens-stage");
@@ -7347,6 +7951,7 @@ function renderLightToolFx(clientX, clientY, signal=0, step=currentStep()){
     const target = gemPointToStagePoint(step?.lightTarget || { x:50, y:50 });
     const visibleSignal = clampNumber(signal, 0, 1);
     const lightAngle = Math.atan2(y - sourceY, x - sourceX) * 180 / Math.PI;
+    const refraction = Math.pow(visibleSignal, 1.35) * .46;
     fx.style.setProperty("--light-tool-x", `${x}px`);
     fx.style.setProperty("--light-tool-y", `${y}px`);
     fx.style.setProperty("--light-source-x", `${sourceX}px`);
@@ -7356,6 +7961,11 @@ function renderLightToolFx(clientX, clientY, signal=0, step=currentStep()){
     fx.style.setProperty("--light-star-y", `${target.y}px`);
     fx.style.setProperty("--light-signal", visibleSignal.toFixed(3));
     fx.style.setProperty("--light-star-scale", (.42 + visibleSignal * .76).toFixed(3));
+    fx.style.setProperty("--light-refraction", refraction.toFixed(3));
+    fx.style.setProperty("--light-spot-opacity", (.7 + visibleSignal * .16).toFixed(3));
+    fx.style.setProperty("--light-beam-opacity", (.48 + visibleSignal * .16).toFixed(3));
+    fx.style.setProperty("--light-caustic-opacity", (visibleSignal * .38).toFixed(3));
+    fx.style.setProperty("--light-caustic-angle", `${(lightAngle + 18).toFixed(1)}deg`);
 }
 function clearLightToolFx(){
     document.querySelectorAll(".light-tool-fx").forEach(el=>el.remove());
@@ -7370,6 +7980,58 @@ function playLightFoundFx(step){
     burst.style.setProperty("--light-star-y", `${point.y}px`);
     stage.appendChild(burst);
     setTimeout(()=>burst.remove(), 720);
+}
+function sprayCoverageGradient(step){
+    const mask = step?.sprayMask || 0;
+    const parts = [];
+    const gap = 3;
+    const sectorDeg = 360 / SPRAY_SECTORS;
+    for(let i = 0; i < SPRAY_SECTORS; i++){
+        const start = i * sectorDeg;
+        const end = (i + 1) * sectorDeg;
+        const covered = !!(mask & (1 << i));
+        const color = covered ? "rgba(255,238,162,.82)" : "rgba(106,230,218,.12)";
+        parts.push(`${color} ${start.toFixed(1)}deg ${(end - gap).toFixed(1)}deg`);
+        parts.push(`transparent ${(end - gap).toFixed(1)}deg ${end.toFixed(1)}deg`);
+    }
+    return `conic-gradient(from -90deg, ${parts.join(",")})`;
+}
+function renderSprayToolFx(clientX, clientY, step=currentStep()){
+    const stage = document.getElementById("lens-stage");
+    if(!stage || !step) return;
+    let fx = stage.querySelector(".spray-tool-fx");
+    if(!fx){
+        fx = document.createElement("div");
+        fx.className = "spray-tool-fx";
+        fx.innerHTML = `<span class="spray-coverage-ring"></span><span class="spray-current-mist"></span><span class="spray-tool-body"></span>`;
+        stage.appendChild(fx);
+    }
+    const rect = stage.getBoundingClientRect();
+    const center = gemPointToStagePoint({ x:50, y:50 });
+    const angle = Number.isFinite(step.sprayAngle) ? step.sprayAngle : Math.atan2(clientY - rect.top - center.y, clientX - rect.left - center.x);
+    const radius = Math.min(Math.max(146, Math.min(rect.width, rect.height) * .3), 218);
+    const sourceX = center.x + Math.cos(angle) * radius;
+    const sourceY = center.y + Math.sin(angle) * radius * .72;
+    const beamAngle = Math.atan2(center.y - sourceY, center.x - sourceX) * 180 / Math.PI;
+    fx.style.setProperty("--spray-center-x", `${center.x}px`);
+    fx.style.setProperty("--spray-center-y", `${center.y}px`);
+    fx.style.setProperty("--spray-source-x", `${sourceX}px`);
+    fx.style.setProperty("--spray-source-y", `${sourceY}px`);
+    fx.style.setProperty("--spray-angle", `${beamAngle.toFixed(1)}deg`);
+    fx.style.setProperty("--spray-coverage", sprayCoverageGradient(step));
+    fx.style.setProperty("--spray-progress", `${clampNumber(step.sprayProgress || 0, 0, 1).toFixed(3)}`);
+    fx.style.setProperty("--spray-mist-opacity", `${(.46 + clampNumber(step.sprayProgress || 0, 0, 1) * .22).toFixed(3)}`);
+}
+function clearSprayToolFx(){
+    document.querySelectorAll(".spray-tool-fx").forEach(el=>el.remove());
+}
+function playSprayCompleteFx(){
+    const stage = document.getElementById("lens-stage");
+    if(!stage) return;
+    const flash = document.createElement("span");
+    flash.className = "spray-complete-flash";
+    stage.appendChild(flash);
+    setTimeout(()=>flash.remove(), 760);
 }
 function spawnCompletionFragments(type){
     const spot = document.getElementById("hotspot");
@@ -7478,6 +8140,7 @@ function finishDefectDrag(e){
     if(drag.type === "clean") clearCleanToolFx();
     if(drag.type === "shape") clearShapeToolFx();
     if(drag.type === "light") clearLightToolFx();
+    if(drag.type === "spray") clearSprayToolFx();
     if(step.type === "cut"){
         const dx = e.clientX - drag.startX;
         const dy = e.clientY - drag.startY;
@@ -7501,6 +8164,17 @@ function finishDefectDrag(e){
             renderPlay();
             toast(`浸润 ${Math.min(100, Math.round((step.soakProgress || 0) / SOAK_REQUIRED_MS * 100))}%`);
         }
+        return;
+    }
+    if(step.type === "swirl"){
+        if(step.soakPhase !== "complete"){
+            renderPlay();
+            toast(`摇杯 ${Math.min(100, Math.round((step.swirlProgress || 0) / SWIRL_REQUIRED_MS * 100))}%`);
+        }
+        return;
+    }
+    if(step.type === "spray"){
+        toast(`喷雾覆盖 ${Math.min(100, Math.round((step.sprayProgress || 0) * 100))}%`);
         return;
     }
     if(step.type === "shape"){

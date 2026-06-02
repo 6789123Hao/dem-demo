@@ -1,0 +1,39 @@
+{
+  "source": "C:\\Users\\linglingshuai\\.codex\\generated_images\\019e8799-8c27-7bb0-af78-7ec45fad1c1a\\ig_0fe471b7630846ce016a1ea2107c2c8191a3c19a3334270346.png",
+  "base_copy": "assets/ui_v26/ui_gamepad_guide/gamepad_keymap_A_base_no_text_source.png",
+  "previous_version_backup": "assets/ui_v26/ui_gamepad_guide/gamepad_keymap_A_before_layout_ref.png",
+  "output": "assets/ui_v26/ui_gamepad_guide/gamepad_keymap_A.png",
+  "canvas": [
+    720,
+    480
+  ],
+  "workflow": "image_gen no-text emerald-gold controller board, then deterministic PIL overlay for readable key letters",
+  "label_style": {
+    "fill": "ivory gold",
+    "stroke": "dark emerald",
+    "shadow": "soft warm gold",
+    "avoid": "red labels"
+  },
+  "labels": [
+    "Q",
+    "E",
+    "W",
+    "A",
+    "S",
+    "D",
+    "F",
+    "C",
+    "V",
+    "B",
+    "G",
+    "H",
+    "U",
+    "O",
+    "I",
+    "J",
+    "L",
+    "K",
+    "right-stick crosshair"
+  ],
+  "updated": "2026-06-02"
+}

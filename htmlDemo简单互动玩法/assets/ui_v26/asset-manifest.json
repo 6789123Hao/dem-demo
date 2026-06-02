@@ -28,6 +28,7 @@
     "htmlDemo简单互动玩法/assets/ui_v26/ui_hint_layer/hint_toast_bg_A.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_hint_layer/mouse_right_icon_A.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_hint_layer/mouse_wheel_icon_A.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_left_inventory/bag_open_down_F_ivory_oblique_v1.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_left_inventory/left_panel_frame_A.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_left_inventory/left_scroll_track_A.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_left_inventory/stone_card_badge_A.png",
@@ -40,6 +41,7 @@
     "htmlDemo简单互动玩法/assets/ui_v26/ui_lens_frame/lens_filter_transmit_B.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_lens_frame/lens_inner_glass_A.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_lens_frame/lens_outer_ring_A.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_gamepad_guide/gamepad_keymap_A.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_motion_fx/fx_clean_flash_ring_A.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_motion_fx/fx_cut_fragment_C.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_motion_fx/fx_drag_particle_gold_A.png",
@@ -56,8 +58,9 @@
     "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_box/tool_slot_side_C.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_clean_C.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_cut_C.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_light_C.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_repair_C.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_shape_C.png"
   ],
-  "updated": "2026-05-26_translucent_repair_drop"
+  "updated": "2026-06-02_bag_and_gamepad_keymap"
 }

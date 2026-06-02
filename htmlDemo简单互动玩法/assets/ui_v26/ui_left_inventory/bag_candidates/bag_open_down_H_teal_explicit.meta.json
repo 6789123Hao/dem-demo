@@ -1,0 +1,12 @@
+{
+  "name": "bag_open_down_H_teal_explicit",
+  "label": "青蓝明确开口",
+  "purpose": "v26 explicit downward-opening bag candidate, transparent PNG",
+  "size": [
+    640,
+    420
+  ],
+  "raw_source": "C:\\Users\\linglingshuai\\.codex\\generated_images\\019e38f0-4d36-76a1-9021-ece8193be613\\ig_03511b8a917f79cd016a1e93aaa4b48191b1daf12a50d6ee1d.png",
+  "direction_notes": "Top is intended as closed bag body; bottom is the only open mouth, with falling gems indicating downward opening.",
+  "processing": "Generated with image_gen, magenta-cleaned through generate2dsprite process, normalized to 640x420 RGBA."
+}

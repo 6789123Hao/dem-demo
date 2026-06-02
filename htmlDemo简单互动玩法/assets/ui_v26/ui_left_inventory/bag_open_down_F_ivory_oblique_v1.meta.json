@@ -1,0 +1,16 @@
+{
+  "name": "bag_open_down_F_ivory_oblique_v1",
+  "source_reference": "bag_candidates/bag_open_down_F_ivory_explicit.png",
+  "generated_source": "bag_candidates/bag_open_down_F_ivory_oblique_v1_source.png",
+  "output": "assets/ui_v26/ui_left_inventory/bag_open_down_F_ivory_oblique_v1.png",
+  "intent": "Ivory explicit-open pouch, adjusted from front-facing icon toward an oblique top-down realistic pouch view for the UI upper-left decoration.",
+  "background_removal": {
+    "method": "imagegen chroma key helper",
+    "key_color": "#fb02f9",
+    "transparent_threshold": 12,
+    "opaque_threshold": 220,
+    "soft_matte": true,
+    "despill": true
+  },
+  "created": "2026-06-02"
+}
