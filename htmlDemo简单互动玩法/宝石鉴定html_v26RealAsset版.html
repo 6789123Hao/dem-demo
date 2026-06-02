@@ -1854,10 +1854,10 @@
         pointer-events:none;
     }
     .soak-overlay.water-hit .soak-water{
-        animation:soakWaterRedPulse .34s ease-out both;
+        animation:soakWaterRedPulse .72s ease-out both;
     }
     .soak-overlay.water-hit .soak-water::after{
-        animation:soakWaterRedOverlay .34s ease-out both;
+        animation:soakWaterRedOverlay .72s ease-out both;
     }
     .soak-stone{
         position:absolute;
@@ -1936,16 +1936,12 @@
         position:absolute;
         left:50%;
         top:48%;
-        width:170px;
-        height:170px;
+        width:196px;
+        height:196px;
         transform:translate(-50%, -50%);
-        background:
-            linear-gradient(35deg, transparent 0 45%, rgba(255,255,255,.78) 46% 47.5%, transparent 49%),
-            linear-gradient(-42deg, transparent 0 50%, rgba(255,255,255,.7) 51% 52.2%, transparent 54%),
-            linear-gradient(82deg, transparent 0 42%, rgba(176,255,246,.62) 43% 44.2%, transparent 46%),
-            linear-gradient(-8deg, transparent 0 48%, rgba(255,255,255,.62) 49% 50%, transparent 52%);
-        clip-path:polygon(18% 0, 84% 0, 100% 88%, 12% 100%, 0 18%);
-        filter:drop-shadow(0 0 11px rgba(220,255,249,.66));
+        background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 196 196'%3E%3Cpath d='M32 14 L70 48 L58 84 L96 112 L86 178' fill='none' stroke='%23831d1c' stroke-width='8' stroke-linecap='square' stroke-linejoin='miter'/%3E%3Cpath d='M128 12 L106 54 L126 92 L108 134 L146 184' fill='none' stroke='%23831d1c' stroke-width='7' stroke-linecap='square' stroke-linejoin='miter'/%3E%3Cpath d='M14 110 L54 96 L82 124 L120 104 L178 124' fill='none' stroke='%23d13b32' stroke-width='5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3Cpath d='M58 84 L28 104 M70 48 L104 36 M96 112 L66 146 M126 92 L162 70 M108 134 L136 140 M120 104 L150 92' fill='none' stroke='%23501816' stroke-width='4' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E") center / contain no-repeat;
+        opacity:.96;
+        filter:drop-shadow(0 0 10px rgba(185,31,28,.66)) drop-shadow(0 0 3px rgba(58,10,8,.74));
     }
     .soak-shatter i{
         position:absolute;
@@ -1954,7 +1950,7 @@
         width:var(--shard-w, 66px);
         height:2px;
         border-radius:999px;
-        background:linear-gradient(90deg, transparent, rgba(255,255,255,.9), rgba(122,247,230,.82), transparent);
+        background:linear-gradient(90deg, transparent, rgba(84,18,16,.94), rgba(215,52,44,.86), transparent);
         opacity:0;
         transform:translate(-50%, -50%) rotate(var(--shard-rot, 0deg)) scaleX(.18);
     }
@@ -2004,14 +2000,35 @@
     .soak-overlay.phase-intro .soak-stone{
         animation:soakStoneDrop .78s cubic-bezier(.2,.86,.2,1) both;
     }
+    .soak-overlay.phase-intro .soak-water::before{
+        animation:soakWaterEntrySplash .78s cubic-bezier(.2,.86,.2,1) both;
+    }
     .soak-overlay.wall-hit .soak-glass{
         animation:soakWallFlash .24s ease-out both;
     }
     .soak-overlay.phase-failed .soak-cup{
         animation:soakFailShake .72s ease-out both;
     }
+    .soak-overlay.phase-failed::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:52%;
+        width:310px;
+        height:310px;
+        transform:translate(-50%, -50%);
+        border-radius:50%;
+        background:radial-gradient(circle, rgba(196,26,24,.42), rgba(103,14,13,.24) 42%, transparent 70%);
+        mix-blend-mode:multiply;
+        pointer-events:none;
+        animation:soakDangerPulse .88s ease-out both;
+    }
     .soak-overlay.phase-failed .soak-glass{
         animation:soakGlassBreak .86s ease-out both;
+    }
+    .soak-overlay.phase-failed .soak-water{
+        filter:saturate(1.55) brightness(.78) hue-rotate(136deg);
+        box-shadow:inset 0 16px 28px rgba(86,9,8,.28), inset 0 -18px 32px rgba(116,14,12,.34), 0 0 30px rgba(202,32,27,.46);
     }
     .soak-overlay.phase-failed .soak-shatter{
         animation:soakShatterFlash .86s ease-out both;
@@ -2118,18 +2135,23 @@
         100%{ opacity:1; transform:translate(-50%, -50%) rotate(var(--soak-stone-rot)) scale(var(--soak-stone-scale)); }
     }
     @keyframes soakWallFlash{
-        0%{ box-shadow:inset 0 0 34px rgba(255,255,255,.22), 0 0 0 rgba(239,86,70,0); }
-        46%{ box-shadow:inset 0 0 34px rgba(255,255,255,.22), 0 0 28px rgba(239,86,70,.5); }
-        100%{ box-shadow:inset 0 0 30px rgba(255,255,255,.16), 0 0 0 rgba(239,86,70,0); }
+        0%{ box-shadow:inset 0 0 30px rgba(80,12,10,.2), 0 0 0 rgba(210,38,32,0); filter:brightness(.96); }
+        46%{ box-shadow:inset 0 0 38px rgba(120,18,14,.36), 0 0 34px rgba(210,38,32,.62); filter:brightness(.82) saturate(1.35); }
+        100%{ box-shadow:inset 0 0 30px rgba(255,255,255,.12), 0 0 0 rgba(210,38,32,0); filter:brightness(.96); }
+    }
+    @keyframes soakWaterEntrySplash{
+        0%,42%{ opacity:.2; transform:translateX(var(--soak-wave-shift)) scaleX(.72) translateY(0); }
+        58%{ opacity:1; transform:translateX(var(--soak-wave-shift)) scaleX(1.28) translateY(-6px); }
+        100%{ opacity:1; transform:translateX(var(--soak-wave-shift)) scaleX(1) translateY(0); }
     }
     @keyframes soakWaterRedPulse{
         0%{ filter:saturate(1) brightness(1); }
-        42%{ filter:saturate(1.35) brightness(1.1); box-shadow:inset 0 16px 26px rgba(255,255,255,.14), inset 0 -16px 28px rgba(18,97,115,.18), 0 0 24px rgba(238,76,62,.36); }
+        22%,58%{ filter:saturate(1.85) brightness(.86) hue-rotate(136deg); box-shadow:inset 0 16px 26px rgba(86,9,8,.24), inset 0 -16px 28px rgba(116,14,12,.34), 0 0 34px rgba(211,36,30,.62); }
         100%{ filter:saturate(1) brightness(1); }
     }
     @keyframes soakWaterRedOverlay{
         0%,100%{ opacity:0; }
-        42%{ opacity:.88; }
+        22%,58%{ opacity:.96; }
     }
     @keyframes soakCrackDraw{
         0%{ stroke-dashoffset:90; opacity:.2; }
@@ -2138,20 +2160,26 @@
     }
     @keyframes soakFailShake{
         0%,100%{ transform:translate(-50%, -50%) rotate(var(--soak-cup-tilt)); }
-        16%{ transform:translate(calc(-50% - 12px), -50%) rotate(-6deg); }
-        34%{ transform:translate(calc(-50% + 11px), -50%) rotate(5deg); }
-        58%{ transform:translate(calc(-50% - 6px), -50%) rotate(-3deg); }
-        82%{ transform:translate(calc(-50% + 3px), -50%) rotate(1deg); }
+        10%{ transform:translate(calc(-50% - 18px), calc(-50% - 2px)) rotate(-9deg); }
+        24%{ transform:translate(calc(-50% + 17px), calc(-50% + 3px)) rotate(8deg); }
+        42%{ transform:translate(calc(-50% - 12px), calc(-50% + 2px)) rotate(-6deg); }
+        64%{ transform:translate(calc(-50% + 8px), calc(-50% - 1px)) rotate(3deg); }
+        84%{ transform:translate(calc(-50% - 3px), -50%) rotate(-1deg); }
     }
     @keyframes soakGlassBreak{
-        0%{ filter:none; opacity:1; }
-        22%{ filter:brightness(1.55); opacity:1; }
-        100%{ filter:brightness(1.12); opacity:.76; }
+        0%{ filter:brightness(1) saturate(1); opacity:1; }
+        18%{ filter:brightness(.62) saturate(1.55) sepia(.28); opacity:1; }
+        100%{ filter:brightness(.72) saturate(1.35) sepia(.18); opacity:.82; }
     }
     @keyframes soakShatterFlash{
-        0%{ opacity:0; transform:scale(.76); }
-        24%{ opacity:1; transform:scale(1.05); }
-        100%{ opacity:0; transform:scale(1.28); }
+        0%{ opacity:0; transform:scale(.66); filter:brightness(.74); }
+        18%{ opacity:1; transform:scale(1.08); filter:brightness(.9); }
+        100%{ opacity:0; transform:scale(1.18); filter:brightness(.62); }
+    }
+    @keyframes soakDangerPulse{
+        0%{ opacity:0; transform:translate(-50%, -50%) scale(.72); }
+        22%{ opacity:1; transform:translate(-50%, -50%) scale(1.04); }
+        100%{ opacity:0; transform:translate(-50%, -50%) scale(1.22); }
     }
     @keyframes soakShardScatter{
         0%{ opacity:0; transform:translate(-50%, -50%) rotate(var(--shard-rot, 0deg)) scaleX(.18); }
@@ -6465,7 +6493,7 @@ function renderSoakOverlay(step, gem, visual){
     const progress = isSwirl
         ? clampNumber((step.swirlProgress || 0) / SWIRL_REQUIRED_MS, 0, 1)
         : clampNumber((step.soakProgress || 0) / SOAK_REQUIRED_MS, 0, 1);
-    const hitFlash = !isSwirl && performance.now() - (step.soakLastWallHitAt || 0) < 260;
+    const hitFlash = !isSwirl && performance.now() - (step.soakLastWallHitAt || 0) < 760;
     const hitSideClass = hitFlash && step.soakLastHitSide ? `hit-${step.soakLastHitSide}` : "";
     overlay.className = `soak-overlay visible mode-${step.type} phase-${step.soakPhase || "shake"} ${hitFlash ? "wall-hit water-hit" : ""} ${hitSideClass}`;
     overlay.style.setProperty("--soak-progress", progress.toFixed(3));
@@ -7801,8 +7829,9 @@ function registerSoakWallHit(step, side){
             if(currentStep()?.id === step.id){
                 resetSoakAttempt(step);
                 renderPlay();
+                toast("新一轮浸润开始。");
             }
-        }, 980);
+        }, 1180);
         return;
     }
     if(side === "left"){
@@ -8003,7 +8032,7 @@ function renderSprayToolFx(clientX, clientY, step=currentStep()){
     if(!fx){
         fx = document.createElement("div");
         fx.className = "spray-tool-fx";
-        fx.innerHTML = `<span class="spray-coverage-ring"></span><span class="spray-current-mist"></span><span class="spray-tool-body"></span>`;
+        fx.innerHTML = `<span class="spray-coverage-ring"></span><span class="spray-current-mist"></span><span class="spray-tool-body"></span><span class="spray-progress-bar"><b></b><em>0%</em></span>`;
         stage.appendChild(fx);
     }
     const rect = stage.getBoundingClientRect();
@@ -8021,6 +8050,9 @@ function renderSprayToolFx(clientX, clientY, step=currentStep()){
     fx.style.setProperty("--spray-coverage", sprayCoverageGradient(step));
     fx.style.setProperty("--spray-progress", `${clampNumber(step.sprayProgress || 0, 0, 1).toFixed(3)}`);
     fx.style.setProperty("--spray-mist-opacity", `${(.46 + clampNumber(step.sprayProgress || 0, 0, 1) * .22).toFixed(3)}`);
+    fx.style.setProperty("--spray-progress-width", `${(clampNumber(step.sprayProgress || 0, 0, 1) * 100).toFixed(1)}%`);
+    const label = fx.querySelector(".spray-progress-bar em");
+    if(label) label.textContent = `${Math.min(100, Math.round((step.sprayProgress || 0) * 100))}%`;
 }
 function clearSprayToolFx(){
     document.querySelectorAll(".spray-tool-fx").forEach(el=>el.remove());
