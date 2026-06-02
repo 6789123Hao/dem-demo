@@ -856,29 +856,29 @@
         position:absolute;
         left:50%;
         top:50%;
-        width:268px;
-        height:176px;
+        width:292px;
+        height:186px;
         transform:translate(-50%, -50%);
         border-radius:50%;
-        border:2px solid rgba(214,255,248,.34);
+        border:3px solid rgba(214,255,248,.42);
         background:
-            radial-gradient(ellipse at 50% 50%, rgba(90,224,213,.18), transparent 64%),
-            conic-gradient(from 0deg, transparent 0 16%, rgba(255,240,176,.26) 19% 28%, transparent 31% 62%, rgba(108,232,218,.2) 66% 74%, transparent 78% 100%);
-        box-shadow:0 0 0 12px rgba(90,208,202,.07), inset 0 0 30px rgba(255,255,255,.1);
+            radial-gradient(ellipse at 50% 50%, rgba(90,224,213,.14), transparent 66%),
+            linear-gradient(90deg, transparent 0 10%, rgba(255,240,176,.2) 18% 24%, transparent 33% 67%, rgba(108,232,218,.18) 76% 82%, transparent 90% 100%);
+        box-shadow:0 0 0 13px rgba(90,208,202,.08), inset 0 0 34px rgba(255,255,255,.12);
         animation:swirlCupHint 1.7s ease-in-out infinite;
         pointer-events:none;
     }
     .hotspot-swirl::after{
-        content:"椭圆摇";
+        content:"绕杯口";
         position:absolute;
         left:50%;
-        top:50%;
+        top:calc(50% + 114px);
         transform:translate(-50%, -50%);
         color:rgba(255,250,226,.9);
         font-size:14px;
         font-weight:900;
         letter-spacing:.12em;
-        text-shadow:0 2px 10px rgba(70,46,23,.3), 0 0 14px rgba(120,235,220,.36);
+        text-shadow:0 2px 10px rgba(70,46,23,.3), 0 0 14px rgba(120,235,220,.44);
         pointer-events:none;
     }
     .hotspot-spray{
@@ -896,26 +896,24 @@
         position:absolute;
         left:50%;
         top:50%;
-        width:248px;
-        height:248px;
+        width:286px;
+        height:286px;
         transform:translate(-50%, -50%);
         border-radius:50%;
-        border:2px dashed rgba(255,242,178,.44);
-        background:
-            radial-gradient(circle, transparent 0 45%, rgba(112,232,216,.12) 47% 56%, transparent 58%),
-            conic-gradient(from 22deg, rgba(255,242,178,.22) 0 8%, transparent 10% 24%, rgba(112,232,216,.2) 26% 34%, transparent 36% 100%);
-        box-shadow:0 0 0 13px rgba(210,155,69,.07), inset 0 0 28px rgba(255,255,255,.1);
+        border:1px solid rgba(255,242,178,.18);
+        background:radial-gradient(circle, transparent 0 62%, rgba(112,232,216,.08) 64% 66%, transparent 68%);
+        box-shadow:0 0 0 13px rgba(210,155,69,.04), inset 0 0 24px rgba(255,255,255,.06);
         animation:sprayRingHint 1.5s ease-in-out infinite;
         pointer-events:none;
     }
     .hotspot-spray::after{
-        content:"绕喷";
+        content:"进度看下方";
         position:absolute;
         left:50%;
-        top:50%;
+        top:calc(50% + 154px);
         transform:translate(-50%, -50%);
         color:rgba(255,250,226,.9);
-        font-size:14px;
+        font-size:13px;
         font-weight:900;
         letter-spacing:.12em;
         text-shadow:0 2px 10px rgba(70,46,23,.3), 0 0 14px rgba(255,225,120,.36);
@@ -926,8 +924,8 @@
         50%{ opacity:.86; transform:translate(-50%, -50%) rotate(1.5deg) scale(1.02); }
     }
     @keyframes swirlCupHint{
-        0%,100%{ opacity:.48; transform:translate(-50%, -50%) rotate(-7deg) scale(.98); }
-        50%{ opacity:.86; transform:translate(-50%, -50%) rotate(7deg) scale(1.02); }
+        0%,100%{ opacity:.54; transform:translate(-50%, -50%) scale(.985); }
+        50%{ opacity:.9; transform:translate(-50%, -50%) scale(1.02); }
     }
     @keyframes sprayRingHint{
         0%,100%{ opacity:.48; transform:translate(-50%, -50%) rotate(-8deg) scale(.98); }
@@ -1779,6 +1777,8 @@
         --swirl-water-rot:0deg;
         --swirl-water-counter-rot:0deg;
         --swirl-rim-rot:0deg;
+        --swirl-guide-x:0px;
+        --swirl-guide-y:0px;
     }
     .soak-overlay.visible{ display:block; }
     .soak-cup{
@@ -2051,71 +2051,104 @@
         animation:soakCompleteFlash .62s ease-out both;
     }
     .soak-overlay.mode-swirl{
-        width:346px;
-        height:330px;
+        width:430px;
+        height:372px;
         transform:translate(-50%, -50%);
     }
     .soak-overlay.mode-swirl .soak-cup{
-        top:52%;
-        width:292px;
-        height:236px;
+        top:51%;
+        width:352px;
+        height:286px;
         transform:translate(-50%, -50%);
-        filter:drop-shadow(0 18px 24px rgba(20,22,24,.18));
+        filter:drop-shadow(0 22px 28px rgba(20,22,24,.24));
+    }
+    .soak-overlay.mode-swirl .soak-cup::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:39%;
+        z-index:6;
+        width:286px;
+        height:138px;
+        transform:translate(-50%, -50%);
+        border-radius:50%;
+        border:3px dashed rgba(255,239,171,.48);
+        box-shadow:0 0 0 10px rgba(89,221,210,.05), 0 0 18px rgba(255,238,172,.18);
+        pointer-events:none;
+    }
+    .soak-overlay.mode-swirl .soak-cup::after{
+        content:"";
+        position:absolute;
+        left:calc(50% + var(--swirl-guide-x));
+        top:calc(39% + var(--swirl-guide-y));
+        z-index:8;
+        width:24px;
+        height:24px;
+        transform:translate(-50%, -50%);
+        border-radius:50%;
+        background:radial-gradient(circle at 38% 32%, rgba(255,255,236,.95), rgba(251,214,105,.88) 42%, rgba(72,211,198,.64) 72%, transparent 74%);
+        box-shadow:0 0 0 5px rgba(255,228,134,.18), 0 0 18px rgba(115,235,218,.4);
+        pointer-events:none;
     }
     .soak-overlay.mode-swirl .soak-glass{
-        inset:14px 16px 20px;
-        border-width:4px 5px 7px;
-        border-radius:50% 50% 42% 42%;
+        inset:10px 12px 18px;
+        border:6px solid rgba(219,255,250,.86);
+        border-top-width:10px;
+        border-bottom-width:9px;
+        border-radius:50% 50% 43% 43%;
         overflow:visible;
         background:
-            radial-gradient(ellipse at 50% 36%, rgba(255,255,255,.28), transparent 56%),
-            radial-gradient(ellipse at 50% 72%, rgba(48,148,145,.12), transparent 64%);
+            linear-gradient(90deg, rgba(255,255,255,.22), transparent 15% 84%, rgba(255,255,255,.18)),
+            radial-gradient(ellipse at 50% 35%, rgba(255,255,255,.32), transparent 55%),
+            radial-gradient(ellipse at 50% 72%, rgba(48,148,145,.18), transparent 64%);
+        box-shadow:inset 0 0 34px rgba(255,255,255,.18), 0 0 22px rgba(96,222,211,.16);
     }
     .soak-overlay.mode-swirl .soak-glass::before{
         left:50%;
-        top:15px;
+        top:17px;
         bottom:auto;
-        width:226px;
-        height:126px;
+        width:286px;
+        height:144px;
         transform:translateX(-50%) rotate(var(--swirl-rim-rot));
         border-radius:50%;
         background:
-            radial-gradient(ellipse at 50% 50%, transparent 0 58%, rgba(236,255,251,.6) 59% 61%, transparent 63%),
+            radial-gradient(ellipse at 50% 50%, transparent 0 57%, rgba(236,255,251,.82) 58% 61%, transparent 63%),
             repeating-conic-gradient(from 0deg, rgba(58,86,83,.32) 0deg 2deg, transparent 2deg 18deg);
-        opacity:.44;
+        opacity:.7;
     }
     .soak-overlay.mode-swirl .soak-water{
-        left:35px;
+        left:41px;
         right:auto;
         bottom:auto;
-        top:40px;
-        width:222px;
-        height:122px;
+        top:44px;
+        width:270px;
+        height:138px;
         border-radius:50%;
         transform:translate(var(--swirl-water-x), var(--swirl-water-y)) rotate(var(--swirl-water-rot));
         transform-origin:50% 50%;
         background:
-            radial-gradient(ellipse at 38% 34%, rgba(255,255,255,.48), transparent 22%),
-            radial-gradient(ellipse at 64% 58%, rgba(255,232,142,.22), transparent 26%),
-            conic-gradient(from var(--swirl-water-rot), rgba(128,250,229,.72), rgba(40,173,184,.54), rgba(255,243,176,.34), rgba(128,250,229,.72));
-        box-shadow:inset 0 12px 24px rgba(255,255,255,.18), 0 0 20px rgba(83,232,210,.26);
+            radial-gradient(ellipse at 38% 34%, rgba(255,255,255,.54), transparent 22%),
+            radial-gradient(ellipse at 64% 58%, rgba(255,232,142,.28), transparent 26%),
+            conic-gradient(from var(--swirl-water-rot), rgba(128,250,229,.78), rgba(40,173,184,.6), rgba(255,243,176,.38), rgba(128,250,229,.78));
+        box-shadow:inset 0 12px 24px rgba(255,255,255,.22), 0 0 24px rgba(83,232,210,.32);
     }
     .soak-overlay.mode-swirl .soak-water::before{
         top:10px;
-        height:92px;
+        height:102px;
         border-radius:50%;
         transform:translateX(var(--soak-wave-shift)) rotate(var(--swirl-water-counter-rot));
         background:
             linear-gradient(90deg, transparent, rgba(255,255,235,.68), transparent),
             radial-gradient(ellipse at 68% 42%, rgba(255,255,255,.76), transparent 24%);
-        opacity:.62;
+        opacity:.72;
     }
     .soak-overlay.mode-swirl .soak-stone{
-        top:calc(50% + var(--soak-stone-y));
-        width:86px;
-        height:86px;
+        top:calc(52% + var(--soak-stone-y));
+        width:112px;
+        height:112px;
         border-radius:36% 42% 40% 45%;
-        transition:top .14s linear, left .14s linear, transform .14s linear;
+        box-shadow:0 14px 24px rgba(17,58,64,.3), inset 0 0 20px rgba(255,255,255,.18), 0 0 18px rgba(109,235,218,.22);
+        transition:top .1s linear, left .1s linear, transform .1s linear;
     }
     .soak-overlay.mode-swirl .soak-crack,
     .soak-overlay.mode-swirl .soak-hit-row{
@@ -2206,9 +2239,11 @@
         --spray-angle:0deg;
         --spray-coverage:conic-gradient(rgba(255,242,178,.2) 0deg 0deg, transparent 0deg 360deg);
         --spray-progress:.04;
+        --spray-progress-width:0%;
         --spray-mist-opacity:.46;
     }
     .spray-coverage-ring{
+        display:none;
         position:absolute;
         left:var(--spray-center-x);
         top:var(--spray-center-y);
@@ -2262,6 +2297,43 @@
         border-radius:10px 10px 6px 6px;
         background:linear-gradient(180deg, rgba(241,255,249,.92), rgba(81,205,190,.82));
         box-shadow:0 0 12px rgba(102,232,216,.28);
+    }
+    .spray-progress-bar{
+        position:absolute;
+        left:var(--spray-center-x);
+        top:calc(var(--spray-center-y) + 148px);
+        width:228px;
+        height:20px;
+        transform:translate(-50%, -50%);
+        border-radius:999px;
+        border:1px solid rgba(255,236,166,.62);
+        background:linear-gradient(180deg, rgba(41,75,70,.46), rgba(21,42,41,.54));
+        box-shadow:0 8px 18px rgba(32,22,13,.18), inset 0 0 0 1px rgba(255,255,255,.13);
+        overflow:hidden;
+    }
+    .spray-progress-bar b{
+        position:absolute;
+        left:0;
+        top:0;
+        bottom:0;
+        width:var(--spray-progress-width);
+        border-radius:inherit;
+        background:linear-gradient(90deg, rgba(83,228,214,.95), rgba(255,226,128,.94));
+        box-shadow:0 0 18px rgba(114,232,216,.34);
+        transition:width .16s ease;
+    }
+    .spray-progress-bar em{
+        position:absolute;
+        inset:0;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:rgba(255,252,232,.94);
+        font-size:12px;
+        font-style:normal;
+        font-weight:900;
+        letter-spacing:.06em;
+        text-shadow:0 1px 4px rgba(36,26,14,.5);
     }
     .spray-complete-flash{
         position:absolute;
@@ -3413,6 +3485,11 @@
     .gem3d.step-soak{
         opacity:.48;
         filter:saturate(.86) brightness(.96);
+    }
+    .gem3d.step-swirl{
+        opacity:.22;
+        transform:translate(-50%, -50%) scale(.92);
+        filter:saturate(.72) brightness(.9) blur(.2px);
     }
     .gem3d.visual-shaped:not(.step-shape){ transform:translate(-50%, -50%) scale(.9); }
     @keyframes gemEnter{
@@ -5283,11 +5360,9 @@ const TOOL_LABELS = {
     cut:"切除",
     shape:"定型",
     light:"寻光",
-    soak:"浸润",
-    swirl:"摇晃杯",
-    spray:"喷油"
+    soak:"浸润"
 };
-const TOOL_ICONS = { cut:"切", repair:"滴", shape:"型", clean:"净", light:"光", soak:"浸", swirl:"摇", spray:"喷" };
+const TOOL_ICONS = { cut:"切", repair:"滴", shape:"型", clean:"净", light:"光", soak:"浸" };
 const TOOL_SPRITES = {
     cut:"assets/ui_v26/ui_tool_sprites/tool_cut_C.png",
     repair:"assets/ui_v26/ui_tool_sprites/tool_repair_C.png",
@@ -5301,12 +5376,10 @@ const TOOL_NOTES = {
     shape:"描摹目标轮廓定型",
     clean:"擦净后闪光收纳",
     light:"移动寻光灯找反光点",
-    soak:"放入量杯左右摇晃",
-    swirl:"绕椭圆摇动杯口",
-    spray:"绕宝石喷满一圈"
+    soak:"放入量杯左右摇晃"
 };
-const TOOL_ORDER = ["cut","repair","spray","light","shape","soak","swirl","clean"];
-const LENS_FREE_TYPES = new Set(["soak", "swirl", "spray"]);
+const TOOL_ORDER = ["cut","repair","light","shape","soak","clean"];
+const LENS_FREE_TYPES = new Set(["soak"]);
 const REPAIR_TARGETS = [
     { x:31, y:56, dx:-30, dy:7 },
     { x:50, y:45, dx:0, dy:-6 },
@@ -5333,10 +5406,6 @@ const SOAK_WALL_HIT_LIMIT = 3;
 const SOAK_WALL_LIMIT = 78;
 const SOAK_REBOUND = 11;
 const SOAK_TRIAL_GEMS = new Set(["agate", "fluorite"]);
-const SWIRL_REQUIRED_MS = 2600;
-const SPRAY_SECTORS = 8;
-const SPRAY_REQUIRED_SECTORS = 7;
-const SPRAY_TRIAL_GEMS = new Set(["garnet", "sunstone"]);
 function clampNumber(value, min, max){ return Math.max(min, Math.min(max, value)); }
 function stepRequiresLens(step){ return !!step && !LENS_FREE_TYPES.has(step.type); }
 const LENSES = [
@@ -5351,16 +5420,16 @@ const SHAPE_MARKS = { circle:"○", triangle:"△", square:"□" };
 const GEM_STEP_INSTRUCTIONS = {
     pearl:{ repair:"珍珠：瞄准珠层细裂，分段滴入修复精华，让裂缝被柔光填满。", clean:"珍珠：用清洁刷轻擦表面雾膜，擦出柔和珠光。" },
     agate:{ repair:"玛瑙：沿下缘细裂注入精华，先补边缘再让纹带连贯。", soak:"玛瑙：放入量杯浸润，左右轻摇让纹带里的浊气冒泡散开。", clean:"玛瑙：来回擦开表面灰膜，让红橙纹带重新透亮。" },
-    garnet:{ repair:"石榴石：对准边缘缺口滴入精华，把缺口亮线补齐。", spray:"石榴石：绕着石面喷一圈养护油，让每个角度都有薄雾覆盖。", clean:"石榴石：擦掉深色石面上的灰尘层，让血色反光浮出来。" },
-    sunstone:{ repair:"砂金石：把细小缺角补满，保住边缘的金砂闪点。", spray:"砂金石：让喷枪围着金砂边缘走一圈，补上均匀的保护油雾。", clean:"砂金石：顺着金砂亮面擦拭，让细闪从污渍下显出来。" },
+    garnet:{ repair:"石榴石：对准边缘缺口滴入精华，把缺口亮线补齐。", clean:"石榴石：擦掉深色石面上的灰尘层，让血色反光浮出来。" },
+    sunstone:{ repair:"砂金石：把细小缺角补满，保住边缘的金砂闪点。", clean:"砂金石：顺着金砂亮面擦拭，让细闪从污渍下显出来。" },
     catseye:{ repair:"猫眼石：修补猫眼边缘损伤，别让亮线被裂口截断。", clean:"猫眼石：左右擦净瞳线附近的雾层，让猫眼光带变清楚。" },
     jadeite:{ repair:"翡翠：沿边缘细裂注入精华，先让裂纹显影再填平。", clean:"翡翠：擦掉翠面灰膜，保留内部通透的绿色高光。" },
     obsidian:{ cut:"黑曜石：按住石皮长条切两次，把外层暗皮削开。", shape_triangle:"黑曜石：描出三角轮廓，让激光把黑镜面切成尖角。", clean:"黑曜石：擦净黑镜面的灰痕，露出干净反射。" },
     fluorite:{ cut:"萤石：顺着杂层方向切开，把外层混浊带剥掉。", shape_circle:"萤石：描圆定型，让激光把晶体收成圆润球面。", soak:"萤石：把定型后的晶体浸入量杯，左右摇出细小气泡。", clean:"萤石：擦掉表面粉尘，留下清透的荧光感。" },
     malachite:{ cut:"孔雀石：切两次削掉矿皮，露出里面的孔雀纹。", repair:"孔雀石：沿孔雀纹裂缝注入精华，让纹路重新连上。", shape_square:"孔雀石：描正方轮廓，把纹理压进方形章面。", clean:"孔雀石：擦净石面灰尘，让绿色纹带更分明。" },
     turquoise:{ cut:"绿松石：切两次剥掉泥皮，露出蓝绿色主体。", repair:"绿松石：沿脉络裂隙滴入精华，把断开的纹理补回去。", shape_triangle:"绿松石：描三角轮廓，让激光切出利落尖角。", clean:"绿松石：擦掉泥雾和粉尘，让松石蓝绿更干净。" },
-    hetian:{ cut:"和田玉：顺着杂质筋切开，把影响通透的筋带削掉。", shape_circle:"和田玉：描圆定型，把玉面收成温润圆形。", swirl:"和田玉：按住杯口绕椭圆摇动，让水面先转起来，玉石再慢半拍跟着走。", clean:"和田玉：轻擦玉面灰膜，让油润感浮出来。" },
-    shoushan:{ cut:"寿山石：切两次去掉残皮，露出可定型的章料面。", shape_square:"寿山石：描正方轮廓，切出方章的平直边。", swirl:"寿山石：绕着杯口轻轻画椭圆，像摇红酒杯一样让石料在液体里温和转动。", clean:"寿山石：擦净石面粉尘，让暖色石质更清楚。" }
+    hetian:{ cut:"和田玉：顺着杂质筋切开，把影响通透的筋带削掉。", shape_circle:"和田玉：描圆定型，把玉面收成温润圆形。", clean:"和田玉：轻擦玉面灰膜，让油润感浮出来。" },
+    shoushan:{ cut:"寿山石：切两次去掉残皮，露出可定型的章料面。", shape_square:"寿山石：描正方轮廓，切出方章的平直边。", clean:"寿山石：擦净石面粉尘，让暖色石质更清楚。" }
 };
 function defaultGemStepInstruction(gem, task){
     const shapeKey = task.type === "shape" ? `shape_${task.targetShape || task.shapeTarget || "circle"}` : task.type;
@@ -5368,8 +5437,6 @@ function defaultGemStepInstruction(gem, task){
     if(copy) return copy;
     if(task.type === "light") return `${gem.name}：按住扫光区移动寻光灯，找到最亮的反光点。`;
     if(task.type === "soak") return `${gem.name}：把宝石放入量杯，左右摇晃浸润到气泡散开。`;
-    if(task.type === "swirl") return `${gem.name}：按住杯口绕椭圆摇晃，让液体和宝石错开节奏转动。`;
-    if(task.type === "spray") return `${gem.name}：绕着宝石移动喷枪，把每个角度都喷上细雾。`;
     if(task.type === "repair") return `${gem.name}：瞄准裂缝光圈，滴入修复精华填满裂隙。`;
     if(task.type === "clean") return `${gem.name}：按住污渍范围来回擦拭，把脏污层擦掉。`;
     if(task.type === "cut") return `${gem.name}：按住切除长条，顺着角度拖拽削掉外层。`;
@@ -5379,16 +5446,16 @@ function defaultGemStepInstruction(gem, task){
 const GEM_BLUEPRINTS = [
     { id:"pearl", name:"珍珠", rarity:3, version:"西西亚·三星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #fff9ef 0%, #d9d3dd 100%)", assetBase:"assets/gems/pearl", tasks:[{type:"repair", title:"珠层细裂", lens:2, face:1, pos:{x:54,y:46}}, {type:"clean", title:"柔光净化", lens:0, face:1, pos:{x:50,y:54}}] },
     { id:"agate", name:"玛瑙", rarity:3, version:"长安·三星成石", kind:"成品宝石", sub:"修补 -> 浸润 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", assetBase:"assets/gems/agate", tasks:[{type:"repair", title:"下缘细裂", lens:2, face:2, pos:{x:46,y:64}}, {type:"soak", title:"量杯浸润", lens:0, face:1, pos:{x:50,y:50}}, {type:"clean", title:"通透净化", lens:1, face:1, pos:{x:50,y:52}}] },
-    { id:"garnet", name:"石榴石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 喷油 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b85a52 0%, #6d1f23 100%)", assetBase:"assets/gems/garnet", tasks:[{type:"repair", title:"边缘缺口", lens:1, face:2, pos:{x:58,y:42}}, {type:"spray", title:"环面喷油", lens:0, face:1, pos:{x:50,y:50}}, {type:"clean", title:"血色提亮", lens:2, face:0, pos:{x:50,y:50}}] },
-    { id:"sunstone", name:"砂金石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 喷油 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #f1b07c 0%, #9a4f2d 100%)", assetBase:"assets/gems/sunstone", tasks:[{type:"repair", title:"细小缺角", lens:2, face:1, pos:{x:40,y:60}}, {type:"spray", title:"金砂喷油", lens:0, face:2, pos:{x:50,y:50}}, {type:"clean", title:"金砂唤亮", lens:0, face:2, pos:{x:50,y:52}}] },
+    { id:"garnet", name:"石榴石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b85a52 0%, #6d1f23 100%)", assetBase:"assets/gems/garnet", tasks:[{type:"repair", title:"边缘缺口", lens:1, face:2, pos:{x:58,y:42}}, {type:"clean", title:"血色提亮", lens:2, face:0, pos:{x:50,y:50}}] },
+    { id:"sunstone", name:"砂金石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #f1b07c 0%, #9a4f2d 100%)", assetBase:"assets/gems/sunstone", tasks:[{type:"repair", title:"细小缺角", lens:2, face:1, pos:{x:40,y:60}}, {type:"clean", title:"金砂唤亮", lens:0, face:2, pos:{x:50,y:52}}] },
     { id:"catseye", name:"猫眼石", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #d8f1a8 0%, #7ea042 100%)", assetBase:"assets/gems/catseye", tasks:[{type:"repair", title:"猫眼边缘损伤", lens:2, face:1, pos:{x:56,y:40}}, {type:"clean", title:"瞳线净化", lens:1, face:2, pos:{x:50,y:50}}] },
     { id:"jadeite", name:"翡翠", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b8f0c6 0%, #3d9b63 100%)", assetBase:"assets/gems/jadeite", tasks:[{type:"repair", title:"边缘细裂", lens:1, face:1, pos:{x:56,y:62}}, {type:"clean", title:"翠面净化", lens:2, face:0, pos:{x:50,y:50}}] },
     { id:"obsidian", name:"黑曜石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6f6b83 0%, #15131f 100%)", assetBase:"assets/gems/obsidian", tasks:[{type:"cut", title:"石皮切除", lens:0, face:0, pos:{x:58,y:38}, cutHitsRequired:2}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:2, face:1, pos:{x:50,y:50}}, {type:"clean", title:"黑镜净化", lens:1, face:0, pos:{x:52,y:50}}] },
     { id:"fluorite", name:"萤石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 浸润 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #bca7e8 0%, #4f5a7e 100%)", assetBase:"assets/gems/fluorite", tasks:[{type:"cut", title:"杂层切除", lens:1, face:1, pos:{x:62,y:52}}, {type:"shape", title:"圆形成球", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"soak", title:"量杯浸润", lens:0, face:0, pos:{x:50,y:50}}, {type:"clean", title:"荧光净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"malachite", name:"孔雀石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6ec07f 0%, #1d5a38 100%)", assetBase:"assets/gems/malachite", tasks:[{type:"cut", title:"矿皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"孔雀纹裂", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"正方定型", targetShape:"square", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"石面净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"turquoise", name:"绿松石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #86dfd0 0%, #2a8f89 100%)", assetBase:"assets/gems/turquoise", tasks:[{type:"cut", title:"泥皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"脉络裂隙", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"松石净化", lens:0, face:0, pos:{x:52,y:50}}] },
-    { id:"hetian", name:"和田玉", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 摇晃杯 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #edf0d5 0%, #a9b484 100%)", assetBase:"assets/gems/hetian", tasks:[{type:"cut", title:"杂质筋切除", lens:1, face:1, pos:{x:40,y:52}}, {type:"shape", title:"圆润定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:50}}, {type:"swirl", title:"温润摇杯", lens:0, face:0, pos:{x:50,y:50}}, {type:"clean", title:"玉面净化", lens:0, face:0, pos:{x:52,y:52}}] },
-    { id:"shoushan", name:"寿山石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 摇晃杯 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #f0d2a7 0%, #b5794b 100%)", assetBase:"assets/gems/shoushan", tasks:[{type:"cut", title:"残皮切除", lens:0, face:2, pos:{x:54,y:60}, cutHitsRequired:2}, {type:"shape", title:"方章定型", targetShape:"square", lens:2, face:1, pos:{x:50,y:48}}, {type:"swirl", title:"章料摇杯", lens:0, face:2, pos:{x:50,y:50}}, {type:"clean", title:"石面净化", lens:1, face:0, pos:{x:50,y:50}}] }
+    { id:"hetian", name:"和田玉", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #edf0d5 0%, #a9b484 100%)", assetBase:"assets/gems/hetian", tasks:[{type:"cut", title:"杂质筋切除", lens:1, face:1, pos:{x:40,y:52}}, {type:"shape", title:"圆润定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:50}}, {type:"clean", title:"玉面净化", lens:0, face:0, pos:{x:52,y:52}}] },
+    { id:"shoushan", name:"寿山石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #f0d2a7 0%, #b5794b 100%)", assetBase:"assets/gems/shoushan", tasks:[{type:"cut", title:"残皮切除", lens:0, face:2, pos:{x:54,y:60}, cutHitsRequired:2}, {type:"shape", title:"方章定型", targetShape:"square", lens:2, face:1, pos:{x:50,y:48}}, {type:"clean", title:"石面净化", lens:1, face:0, pos:{x:50,y:50}}] }
 ];
 const GEM_VISUALS = {
     pearl:{ rawClip:"circle(48% at 50% 50%)", cutClip:"circle(45% at 50% 50%)", cutScale:.92, texture:"radial-gradient(circle at 34% 28%, rgba(255,255,255,.78), transparent 22%)" },
@@ -5988,7 +6055,6 @@ function completeKnownStoneInBatch(id){
 function shouldInsertLightTask(gem){
     if(gem.kind !== "成品宝石") return false;
     if(SOAK_TRIAL_GEMS.has(gem.id)) return false;
-    if(SPRAY_TRIAL_GEMS.has(gem.id)) return false;
     if(!state.playedTypes.size) return true;
     return Math.random() < LIGHT_STEP_CHANCE;
 }
@@ -6040,16 +6106,6 @@ function buildCoreTasks(gem){
         soakCrackLeft:0,
         soakCrackRight:0,
         soakCompleting:false,
-        swirlProgress:0,
-        swirlAngle:null,
-        swirlWaterPhase:0,
-        swirlStonePhase:0,
-        swirlRadius:0,
-        swirlCompleting:false,
-        sprayMask:0,
-        sprayProgress:0,
-        sprayAngle:0,
-        sprayCompleting:false,
         cutHits:0,
         cutHitsRequired: task.type === "cut" ? (task.cutHitsRequired || 1) : 1,
         dragDistance:0,
@@ -6126,8 +6182,6 @@ function stepStatusText(step){
     if(step.type === "repair") return `${base} · 精华填充 ${Math.min(100, Math.round((step.repairFill || 0) * 100))}%`;
     if(step.type === "light") return `${base} · 反光锁定 ${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`;
     if(step.type === "soak") return `${base} · 浸润摇晃 ${Math.min(100, Math.round((step.soakProgress || 0) / SOAK_REQUIRED_MS * 100))}% · 碰壁 ${step.soakHits || 0}/${SOAK_WALL_HIT_LIMIT}`;
-    if(step.type === "swirl") return `${base} · 椭圆摇杯 ${Math.min(100, Math.round((step.swirlProgress || 0) / SWIRL_REQUIRED_MS * 100))}%`;
-    if(step.type === "spray") return `${base} · 喷雾覆盖 ${Math.min(100, Math.round((step.sprayProgress || 0) * 100))}%`;
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `${base} · 切除 ${step.cutHits || 0}/${step.cutHitsRequired}`;
     if(step.type === "cut") return `${base} · 顺着长条角度拖拽`;
     if(step.type === "shape") return `${base} · 描边${SHAPE_LABELS[step.shapeTarget]}`;
@@ -6140,8 +6194,6 @@ function stepHintText(step){
     if(step.type === "repair") return "修补：瞄准裂缝光圈，滴入修复精华填满裂隙。";
     if(step.type === "light") return "寻光：按住扫光区移动寻光灯，找到宝石表面的反光点。";
     if(step.type === "soak") return "浸润：按住量杯左右摇晃，避免石头连续撞到杯壁。";
-    if(step.type === "swirl") return "摇晃杯：按住杯口绕椭圆摇动，水面和石头会错开节奏旋转。";
-    if(step.type === "spray") return "喷油：按住绕宝石移动喷枪，把一整圈角度都喷上细雾。";
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：这颗需要切 ${step.cutHitsRequired} 次，按住长条并顺着角度拖拽。`;
     if(step.type === "cut") return "切除：按住长条瑕疵，沿相近角度拖拽切除。";
     if(step.type === "shape") return `定型：按住形状特效，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`;
@@ -6392,8 +6444,6 @@ function shortToolNote(step){
     if(step.type === "clean") return `${Math.min(100, Math.round((step.dragDistance || 0) / CLEAN_DISTANCE_REQUIRED * 100))}%`;
     if(step.type === "light") return `${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`;
     if(step.type === "soak") return `${Math.min(100, Math.round((step.soakProgress || 0) / SOAK_REQUIRED_MS * 100))}%`;
-    if(step.type === "swirl") return `${Math.min(100, Math.round((step.swirlProgress || 0) / SWIRL_REQUIRED_MS * 100))}%`;
-    if(step.type === "spray") return `${Math.min(100, Math.round((step.sprayProgress || 0) * 100))}%`;
     if(step.type === "shape") return SHAPE_MARKS[step.shapeTarget] || "描边";
     return step.title || "";
 }
@@ -6507,15 +6557,17 @@ function renderSoakOverlay(step, gem, visual){
     overlay.style.setProperty("--soak-wave-shift", `${clampNumber(step.soakWave || 0, -1, 1) * 12}px`);
     overlay.style.setProperty("--soak-wave", `${clampNumber(step.soakWave || 0, -1, 1).toFixed(3)}`);
     overlay.style.setProperty("--soak-water-level", `${62 + progress * 4}%`);
-    overlay.style.setProperty("--soak-stone-scale", `${(.72 + progress * .04).toFixed(3)}`);
+    overlay.style.setProperty("--soak-stone-scale", `${(isSwirl ? .9 : .72 + progress * .04).toFixed(3)}`);
     overlay.style.setProperty("--soak-stone-color", gem?.color || "linear-gradient(135deg, #c9efe8, #6aa39a)");
     overlay.style.setProperty("--soak-stone-image", stageImageValue(gem, visual));
     const swirlRot = (step.swirlWaterPhase || 0) * 180 / Math.PI;
-    overlay.style.setProperty("--swirl-water-x", `${(Math.cos(step.swirlWaterPhase || 0) * 10 * (step.swirlRadius || .55)).toFixed(1)}px`);
-    overlay.style.setProperty("--swirl-water-y", `${(Math.sin(step.swirlWaterPhase || 0) * 7 * (step.swirlRadius || .55)).toFixed(1)}px`);
+    overlay.style.setProperty("--swirl-water-x", `${(Math.cos(step.swirlWaterPhase || 0) * 18 * (step.swirlRadius || .55)).toFixed(1)}px`);
+    overlay.style.setProperty("--swirl-water-y", `${(Math.sin(step.swirlWaterPhase || 0) * 10 * (step.swirlRadius || .55)).toFixed(1)}px`);
     overlay.style.setProperty("--swirl-water-rot", `${swirlRot.toFixed(1)}deg`);
     overlay.style.setProperty("--swirl-water-counter-rot", `${(-swirlRot).toFixed(1)}deg`);
     overlay.style.setProperty("--swirl-rim-rot", `${clampNumber((step.soakWave || 0) * 12, -14, 14).toFixed(2)}deg`);
+    overlay.style.setProperty("--swirl-guide-x", `${(Math.cos(step.swirlWaterPhase || 0) * 118 * clampNumber(step.swirlRadius || .72, .42, 1.02)).toFixed(1)}px`);
+    overlay.style.setProperty("--swirl-guide-y", `${(Math.sin(step.swirlWaterPhase || 0) * 53 * clampNumber(step.swirlRadius || .72, .42, 1.02)).toFixed(1)}px`);
     if(overlay.dataset.stepId !== step.id || overlay.dataset.stepType !== step.type || !overlay.querySelector(".soak-cup")){
         overlay.dataset.stepId = step.id;
         overlay.dataset.stepType = step.type;
@@ -6891,16 +6943,6 @@ function beginGamepadUse(){
         if(step.soakPhase !== "complete" && step.soakPhase !== "failed") step.soakPhase = "shake";
         renderPlay();
     }
-    if(step.type === "swirl"){
-        if(step.soakPhase !== "complete") step.soakPhase = "shake";
-        updateSwirlCup(step, point.x, point.y, 0);
-        renderPlay();
-    }
-    if(step.type === "spray"){
-        updateSprayCoverage(step, point.x, point.y, 0);
-        renderSprayToolFx(point.x, point.y, step);
-        renderPlay();
-    }
     spawnDragParticle(point.x, point.y, step.type);
     renderGamepadHud();
 }
@@ -6918,18 +6960,10 @@ function finishGamepadUse(){
         clearLightToolFx();
         if(!step.done) toast(`反光锁定 ${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`);
     }
-    if(drag.type === "spray"){
-        clearSprayToolFx();
-        if(!step.done) toast(`喷雾覆盖 ${Math.min(100, Math.round((step.sprayProgress || 0) * 100))}%`);
-    }
     if(drag.type === "soak" && !step.done && step.soakPhase !== "failed"){
         step.soakVelocityX = (step.soakVelocityX || 0) * .35;
         step.soakWave = (step.soakWave || 0) * .3;
         toast(`浸润 ${Math.min(100, Math.round((step.soakProgress || 0) / SOAK_REQUIRED_MS * 100))}%`);
-        renderPlay();
-    }
-    if(drag.type === "swirl" && !step.done && step.soakPhase !== "complete"){
-        toast(`摇杯 ${Math.min(100, Math.round((step.swirlProgress || 0) / SWIRL_REQUIRED_MS * 100))}%`);
         renderPlay();
     }
     if(drag.type === "shape"){
@@ -7043,33 +7077,6 @@ function updateGamepadUse(dt){
             setTimeout(()=>{
                 if(currentStep()?.id === step.id && !step.done) completeCurrentStep(step);
             }, 620);
-        }
-    }
-    if(step.type === "swirl"){
-        updateSwirlCup(step, point.x, point.y, dt);
-        renderPlay();
-        renderCurrentTool();
-        if((step.swirlProgress || 0) >= SWIRL_REQUIRED_MS && !step.swirlCompleting){
-            step.swirlCompleting = true;
-            step.soakPhase = "complete";
-            state.gamepadDrag = null;
-            state.gamepadUseActive = false;
-            renderPlay();
-            setTimeout(()=>{
-                if(currentStep()?.id === step.id && !step.done) completeCurrentStep(step);
-            }, 620);
-        }
-    }
-    if(step.type === "spray"){
-        updateSprayCoverage(step, point.x, point.y, dt);
-        renderSprayToolFx(point.x, point.y, step);
-        renderPlay();
-        if((step.sprayCoverageCount || 0) >= SPRAY_REQUIRED_SECTORS && !step.sprayCompleting){
-            step.sprayCompleting = true;
-            clearSprayToolFx();
-            state.gamepadDrag = null;
-            state.gamepadUseActive = false;
-            completeCurrentStep(step);
         }
     }
 }
@@ -7396,8 +7403,6 @@ function hotspotLabel(step){
     if(step.type === "cut") return "  滑→→→       ";
     if(step.type === "light") return "寻光";
     if(step.type === "soak") return "摇晃";
-    if(step.type === "swirl") return "摇杯";
-    if(step.type === "spray") return "喷油";
     if(step.type === "shape") return "描边";
     return "";
 }
@@ -7440,7 +7445,6 @@ function canUseCurrentStep(step){
 function completeCurrentStep(step){
     if(step.type === "cut" || step.type === "shape") spawnCompletionFragments(step.type);
     if(step.type === "light") playLightFoundFx(step);
-    if(step.type === "spray") playSprayCompleteFx();
     step.done = true;
     state.active.stepIndex += 1;
     toast(`完成 ${TOOL_LABELS[step.type]}`);
@@ -7569,13 +7573,11 @@ function handleHotspotClick(){
     if(step.type === "cut") toast("按住长条，沿相近角度拖拽切除。");
     if(step.type === "light") toast("按住扫光区移动寻光灯，靠近反光点会出现星芒。");
     if(step.type === "soak") toast("按住量杯左右摇晃，别让石头撞杯壁三次。");
-    if(step.type === "swirl") toast("按住杯口绕椭圆摇晃，像摇红酒杯一样转动。");
-    if(step.type === "spray") toast("按住绕宝石移动喷枪，把一整圈角度喷满。");
     if(step.type === "shape") toast(`按住形状，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`);
 }
 function startDefectDrag(e){
     const step = currentStep();
-    if(!step || !["clean","cut","shape","light","soak","swirl","spray"].includes(step.type)) return;
+    if(!step || !["clean","cut","shape","light","soak"].includes(step.type)) return;
     if(!canUseCurrentStep(step)) return;
     e.preventDefault();
     e.currentTarget.setPointerCapture?.(e.pointerId);
@@ -7594,8 +7596,6 @@ function startDefectDrag(e){
         baseDistance:step.type === "clean" ? (step.dragDistance || 0) : 0,
         lightBaseHold:step.type === "light" ? (step.lightHold || 0) : 0,
         soakBaseProgress:step.type === "soak" ? (step.soakProgress || 0) : 0,
-        swirlBaseProgress:step.type === "swirl" ? (step.swirlProgress || 0) : 0,
-        sprayBaseMask:step.type === "spray" ? (step.sprayMask || 0) : 0,
         distance:0,
         lastParticleDistance:0,
         points:[{ x:e.clientX, y:e.clientY }],
@@ -7614,16 +7614,6 @@ function startDefectDrag(e){
     }
     if(step.type === "soak"){
         if(step.soakPhase !== "complete" && step.soakPhase !== "failed") step.soakPhase = "shake";
-        renderPlay();
-    }
-    if(step.type === "swirl"){
-        if(step.soakPhase !== "complete") step.soakPhase = "shake";
-        updateSwirlCup(step, e.clientX, e.clientY, 0);
-        renderPlay();
-    }
-    if(step.type === "spray"){
-        updateSprayCoverage(step, e.clientX, e.clientY, 0);
-        renderSprayToolFx(e.clientX, e.clientY, step);
         renderPlay();
     }
     spawnDragParticle(e.clientX, e.clientY, step.type);
@@ -7681,35 +7671,6 @@ function updateDefectDrag(e){
             setTimeout(()=>{
                 if(currentStep()?.id === step.id && !step.done) completeCurrentStep(step);
             }, 620);
-            return;
-        }
-    }
-    if(step.type === "swirl"){
-        updateSwirlCup(step, e.clientX, e.clientY, dt);
-        renderPlay();
-        renderCurrentTool();
-        if((step.swirlProgress || 0) >= SWIRL_REQUIRED_MS && !step.swirlCompleting){
-            step.swirlCompleting = true;
-            step.soakPhase = "complete";
-            state.suppressNextClick = true;
-            state.defectDrag = null;
-            renderPlay();
-            setTimeout(()=>{
-                if(currentStep()?.id === step.id && !step.done) completeCurrentStep(step);
-            }, 620);
-            return;
-        }
-    }
-    if(step.type === "spray"){
-        updateSprayCoverage(step, e.clientX, e.clientY, dt);
-        renderSprayToolFx(e.clientX, e.clientY, step);
-        renderPlay();
-        if((step.sprayCoverageCount || 0) >= SPRAY_REQUIRED_SECTORS && !step.sprayCompleting){
-            step.sprayCompleting = true;
-            state.suppressNextClick = true;
-            state.defectDrag = null;
-            clearSprayToolFx();
-            completeCurrentStep(step);
             return;
         }
     }
@@ -7890,22 +7851,28 @@ function updateSwirlCup(step, clientX, clientY, dt){
     const absDelta = Math.abs(delta);
     const radiusScore = clampNumber(1 - Math.abs(radius - .86) / .58, 0, 1);
     const angularGain = clampNumber(absDelta / .18, 0, 1.35);
-    if(radiusScore > .18 && absDelta > .01){
+    const movingOnEllipse = radiusScore > .18 && absDelta > .008;
+    if(movingOnEllipse){
         step.swirlProgress = Math.min(SWIRL_REQUIRED_MS, (step.swirlProgress || 0) + Math.max(0, dt) * (.2 + angularGain) * radiusScore);
+        step.swirlDirection = Math.sign(delta) || step.swirlDirection || 1;
     } else {
         step.swirlProgress = Math.max(0, (step.swirlProgress || 0) - Math.max(0, dt) * .08);
     }
     step.swirlAngle = angle;
     step.swirlRadius = (step.swirlRadius || radius) * .78 + clampNumber(radius, .22, 1.28) * .22;
-    step.swirlWaterPhase = (step.swirlWaterPhase || angle) + delta * 1.18;
-    const stoneTarget = angle - Math.sign(delta || 1) * .9;
+    const waterPhase = Number.isFinite(step.swirlWaterPhase) ? step.swirlWaterPhase : angle;
+    step.swirlWaterPhase = movingOnEllipse
+        ? waterPhase + delta * 1.08
+        : waterPhase + shortestAngleDelta(angle, waterPhase) * .035;
+    const direction = step.swirlDirection || Math.sign(delta) || 1;
+    const stoneTarget = (step.swirlWaterPhase || angle) - direction * .82;
     step.swirlStonePhase = (step.swirlStonePhase || stoneTarget) + shortestAngleDelta(stoneTarget, step.swirlStonePhase || stoneTarget) * .14;
     const stoneRadius = clampNumber(step.swirlRadius || .72, .35, 1.08);
-    step.soakStoneX = Math.cos(step.swirlStonePhase || 0) * 48 * stoneRadius;
-    step.soakStoneY = 4 + Math.sin(step.swirlStonePhase || 0) * 21 * stoneRadius;
+    step.soakStoneX = Math.cos(step.swirlStonePhase || 0) * 68 * stoneRadius;
+    step.soakStoneY = 6 + Math.sin(step.swirlStonePhase || 0) * 31 * stoneRadius;
     step.soakVelocityX = clampNumber(delta * 58, -14, 14);
-    step.soakWave = clampNumber((step.soakWave || 0) * .7 + Math.sin(step.swirlWaterPhase || 0) * .42 + delta * 2.2, -1, 1);
-    step.soakSwingCount = (step.soakSwingCount || 0) + (absDelta > .012 ? 1 : 0);
+    step.soakWave = clampNumber((step.soakWave || 0) * .7 + Math.sin(step.swirlWaterPhase || 0) * (movingOnEllipse ? .42 : .14) + delta * 2.2, -1, 1);
+    step.soakSwingCount = (step.soakSwingCount || 0) + (movingOnEllipse ? 1 : 0);
 }
 function countMaskBits(mask){
     let count = 0;
@@ -8032,7 +7999,7 @@ function renderSprayToolFx(clientX, clientY, step=currentStep()){
     if(!fx){
         fx = document.createElement("div");
         fx.className = "spray-tool-fx";
-        fx.innerHTML = `<span class="spray-coverage-ring"></span><span class="spray-current-mist"></span><span class="spray-tool-body"></span><span class="spray-progress-bar"><b></b><em>0%</em></span>`;
+        fx.innerHTML = `<span class="spray-current-mist"></span><span class="spray-tool-body"></span><span class="spray-progress-bar"><b></b><em>0%</em></span>`;
         stage.appendChild(fx);
     }
     const rect = stage.getBoundingClientRect();
@@ -8196,17 +8163,6 @@ function finishDefectDrag(e){
             renderPlay();
             toast(`浸润 ${Math.min(100, Math.round((step.soakProgress || 0) / SOAK_REQUIRED_MS * 100))}%`);
         }
-        return;
-    }
-    if(step.type === "swirl"){
-        if(step.soakPhase !== "complete"){
-            renderPlay();
-            toast(`摇杯 ${Math.min(100, Math.round((step.swirlProgress || 0) / SWIRL_REQUIRED_MS * 100))}%`);
-        }
-        return;
-    }
-    if(step.type === "spray"){
-        toast(`喷雾覆盖 ${Math.min(100, Math.round((step.sprayProgress || 0) * 100))}%`);
         return;
     }
     if(step.type === "shape"){
