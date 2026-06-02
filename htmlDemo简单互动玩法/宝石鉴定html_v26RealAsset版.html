@@ -840,6 +840,45 @@
         text-shadow:0 2px 10px rgba(70,46,23,.3), 0 0 14px rgba(120,235,220,.36);
         pointer-events:none;
     }
+    .hotspot-chamfer{
+        width:342px;
+        height:342px;
+        border:0;
+        border-radius:50%;
+        background:transparent;
+        box-shadow:none;
+        color:transparent;
+        cursor:grab;
+    }
+    .hotspot-chamfer:active{ cursor:grabbing; }
+    .hotspot-chamfer::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:286px;
+        height:236px;
+        transform:translate(-50%, -50%);
+        border-radius:50%;
+        border:2px dashed rgba(255,231,144,.36);
+        background:radial-gradient(ellipse at 50% 50%, transparent 0 60%, rgba(99,226,206,.08) 62% 68%, transparent 70%);
+        box-shadow:0 0 0 12px rgba(210,155,69,.05), inset 0 0 26px rgba(255,255,255,.06);
+        animation:chamferTrackHint 1.42s ease-in-out infinite;
+        pointer-events:none;
+    }
+    .hotspot-chamfer::after{
+        content:"沿边磨";
+        position:absolute;
+        left:50%;
+        top:calc(50% + 142px);
+        transform:translate(-50%, -50%);
+        color:rgba(255,250,226,.88);
+        font-size:13px;
+        font-weight:900;
+        letter-spacing:.12em;
+        text-shadow:0 2px 10px rgba(70,46,23,.3), 0 0 14px rgba(255,225,120,.3);
+        pointer-events:none;
+    }
     .hotspot-swirl{
         width:318px;
         height:254px;
@@ -930,6 +969,10 @@
     @keyframes sprayRingHint{
         0%,100%{ opacity:.48; transform:translate(-50%, -50%) rotate(-8deg) scale(.98); }
         50%{ opacity:.86; transform:translate(-50%, -50%) rotate(8deg) scale(1.02); }
+    }
+    @keyframes chamferTrackHint{
+        0%,100%{ opacity:.42; transform:translate(-50%, -50%) scale(.985); }
+        50%{ opacity:.82; transform:translate(-50%, -50%) scale(1.018); }
     }
     .hotspot-shape{
         width:360px;
@@ -1050,6 +1093,15 @@
         box-shadow:0 0 32px rgba(92,226,210,.18), inset 0 0 28px rgba(255,255,255,.1);
         animation:soakCupHint 1.38s ease-in-out infinite;
         opacity:.72;
+    }
+    .focus-ring-chamfer{
+        width:292px;
+        height:238px;
+        border-radius:50%;
+        border:1px dashed rgba(255,230,142,.48);
+        box-shadow:0 0 26px rgba(255,225,120,.12), inset 0 0 24px rgba(112,232,216,.08);
+        animation:chamferTrackHint 1.42s ease-in-out infinite;
+        opacity:.66;
     }
     .focus-ring-swirl{
         width:278px;
@@ -1508,6 +1560,13 @@
         background:rgba(125,238,224,.82);
         box-shadow:0 0 12px rgba(96,232,220,.48), 0 0 20px rgba(255,250,210,.2);
     }
+    .drag-particle-chamfer{
+        width:11px;
+        height:6px;
+        border-radius:2px;
+        background:rgba(168,143,112,.82);
+        box-shadow:0 0 8px rgba(82,62,42,.26), 0 0 14px rgba(255,224,142,.18);
+    }
     .drag-particle-swirl{
         width:9px;
         height:9px;
@@ -1712,14 +1771,14 @@
         position:absolute;
         left:var(--light-star-x);
         top:var(--light-star-y);
-        width:56px;
-        height:56px;
+        width:64px;
+        height:64px;
         transform:translate(-50%, -50%) scale(var(--light-star-scale));
         pointer-events:none;
     }
     .light-signal-star{
         opacity:var(--light-signal);
-        filter:drop-shadow(0 0 10px rgba(255,240,160,.8)) drop-shadow(0 0 20px rgba(93,228,220,.4));
+        filter:drop-shadow(0 0 12px rgba(255,240,160,.86)) drop-shadow(0 0 22px rgba(93,228,220,.46));
     }
     .light-signal-star::before,
     .light-signal-star::after,
@@ -1734,9 +1793,9 @@
         transform:translate(-50%, -50%);
     }
     .light-signal-star::before,
-    .light-found-burst::before{ width:52px; height:4px; }
+    .light-found-burst::before{ width:60px; height:7px; }
     .light-signal-star::after,
-    .light-found-burst::after{ width:4px; height:52px; }
+    .light-found-burst::after{ width:7px; height:60px; }
     .light-found-burst{
         z-index:9;
         --light-star-scale:1;
@@ -1747,6 +1806,187 @@
         0%{ opacity:0; transform:translate(-50%, -50%) scale(.34) rotate(0deg); }
         34%{ opacity:1; transform:translate(-50%, -50%) scale(1.16) rotate(24deg); }
         100%{ opacity:0; transform:translate(-50%, -50%) scale(1.86) rotate(46deg); }
+    }
+    .chamfer-overlay{
+        position:absolute;
+        inset:0;
+        z-index:5;
+        display:none;
+        pointer-events:none;
+        --chamfer-progress:0;
+    }
+    .chamfer-overlay.visible{ display:block; }
+    .chamfer-track-svg{
+        position:absolute;
+        inset:0;
+        width:100%;
+        height:100%;
+        overflow:visible;
+    }
+    .chamfer-track-line{
+        fill:none;
+        stroke:rgba(255,226,137,.58);
+        stroke-width:3;
+        stroke-dasharray:9 12;
+        filter:drop-shadow(0 0 8px rgba(255,220,120,.22));
+    }
+    .chamfer-track-glow{
+        fill:none;
+        stroke:rgba(92,230,212,.16);
+        stroke-width:18;
+    }
+    .chamfer-track-progress{
+        fill:none;
+        stroke:rgba(104,236,214,.62);
+        stroke-width:5;
+        stroke-linecap:round;
+        stroke-dasharray:var(--chamfer-progress, 0) 1000;
+        filter:drop-shadow(0 0 9px rgba(100,235,215,.32));
+        transition:stroke-dasharray .24s ease;
+    }
+    .chamfer-corner path{
+        fill:rgba(66,44,23,.42);
+        stroke:rgba(255,242,194,.78);
+        stroke-width:2;
+        vector-effect:non-scaling-stroke;
+        filter:drop-shadow(0 0 7px rgba(255,226,132,.28));
+    }
+    .chamfer-corner .corner-notch{
+        fill:none;
+        stroke:rgba(255,238,176,.9);
+        stroke-width:2.4;
+        stroke-linecap:square;
+    }
+    .chamfer-corner.pass-1 path,
+    .chamfer-corner.pass-2 path{
+        fill:rgba(155,116,54,.44);
+        stroke:rgba(255,230,148,.94);
+    }
+    .chamfer-corner.done path{
+        fill:rgba(77,216,188,.36);
+        stroke:rgba(143,255,226,.94);
+        filter:drop-shadow(0 0 10px rgba(96,235,214,.46));
+    }
+    .chamfer-corner.done .corner-notch{
+        stroke:rgba(255,247,210,.76);
+    }
+    .chamfer-clean-preview-layer{
+        position:absolute;
+        left:var(--preview-left);
+        top:var(--preview-top);
+        width:var(--preview-width);
+        height:var(--preview-height);
+        border-radius:50%;
+        clip-path:circle(48% at 50% 50%);
+        background:
+            linear-gradient(90deg, transparent 0 8%, rgba(255,250,230,.72) 10% 19%, transparent 21% 30%, rgba(69,59,48,.38) 32% 47%, transparent 49% 58%, rgba(255,250,230,.64) 60% 70%, transparent 72% 100%) 50% 38% / 198px 12px no-repeat,
+            linear-gradient(90deg, transparent 0 12%, rgba(69,59,48,.42) 14% 34%, transparent 36% 48%, rgba(255,250,230,.72) 50% 62%, transparent 64% 72%, rgba(69,59,48,.34) 74% 88%, transparent 90% 100%) 50% 50% / 222px 14px no-repeat,
+            linear-gradient(90deg, transparent 0 9%, rgba(255,250,230,.6) 12% 24%, transparent 26% 40%, rgba(69,59,48,.38) 42% 58%, transparent 60% 75%, rgba(255,250,230,.52) 78% 91%, transparent 93% 100%) 50% 62% / 188px 11px no-repeat,
+            radial-gradient(ellipse at 50% 50%, rgba(215,205,186,.38) 0 34%, rgba(88,74,61,.18) 50%, transparent 72%),
+            radial-gradient(circle at 50% 52%, rgba(232,222,202,.44) 0 18px, rgba(78,66,55,.26) 29px, transparent 62px),
+            radial-gradient(circle at 24% 32%, rgba(236,226,205,.5) 0 5px, transparent 6px),
+            radial-gradient(circle at 62% 28%, rgba(236,226,205,.44) 0 7px, transparent 8px),
+            radial-gradient(circle at 52% 68%, rgba(82,70,58,.34) 0 6px, transparent 7px),
+            radial-gradient(circle at 74% 58%, rgba(236,226,205,.4) 0 5px, transparent 6px),
+            repeating-linear-gradient(18deg, rgba(255,250,230,.16) 0 2px, transparent 2px 14px),
+            linear-gradient(145deg, rgba(66,55,45,.2), rgba(242,232,210,.2) 62%, rgba(255,255,255,0) 76%);
+        mix-blend-mode:normal;
+        filter:drop-shadow(0 1px 2px rgba(42,32,24,.22));
+        -webkit-mask-image:var(--chamfer-preview-mask, linear-gradient(#000, #000));
+        mask-image:var(--chamfer-preview-mask, linear-gradient(#000, #000));
+        -webkit-mask-size:100% 100%;
+        mask-size:100% 100%;
+        -webkit-mask-repeat:no-repeat;
+        mask-repeat:no-repeat;
+        opacity:.96;
+        animation:chamferDirtPreview .34s ease-out both;
+    }
+    .chamfer-cloth{
+        position:absolute;
+        left:var(--cloth-x);
+        top:var(--cloth-y);
+        width:64px;
+        height:44px;
+        object-fit:contain;
+        transform:translate(-50%, -50%) rotate(var(--cloth-rot)) translate(var(--cloth-jitter-x, 0px), var(--cloth-jitter-y, 0px));
+        transform-origin:50% 50%;
+        filter:drop-shadow(0 10px 10px rgba(18,12,8,.28)) drop-shadow(0 0 8px rgba(255,224,142,.22));
+        transition:left .08s linear, top .08s linear, transform .08s linear;
+    }
+    .chamfer-cloth img{
+        width:100%;
+        height:100%;
+        display:block;
+        object-fit:contain;
+        pointer-events:none;
+    }
+    .chamfer-cloth.placeholder img{
+        display:none;
+    }
+    .chamfer-cloth.placeholder::before,
+    .chamfer-cloth.placeholder::after{
+        content:"";
+        position:absolute;
+        inset:0;
+        pointer-events:none;
+    }
+    .chamfer-cloth.placeholder::before{
+        clip-path:polygon(10% 16%, 62% 4%, 94% 24%, 88% 82%, 50% 96%, 14% 88%, 4% 54%);
+        background:
+            radial-gradient(ellipse at 48% 18%, rgba(255,240,194,.42), transparent 34%),
+            repeating-linear-gradient(115deg, rgba(92,73,51,.28) 0 2px, transparent 2px 7px),
+            linear-gradient(145deg, #b39363 0%, #8a6745 56%, #5f4636 100%);
+        box-shadow:
+            inset 0 0 0 2px rgba(255,231,172,.32),
+            inset 0 10px 10px rgba(255,235,178,.14),
+            inset 0 -10px 14px rgba(52,34,24,.34);
+    }
+    .chamfer-cloth.placeholder::after{
+        inset:5px 7px 8px;
+        clip-path:polygon(4% 20%, 60% 0, 100% 18%, 88% 88%, 34% 100%, 0 66%);
+        background:
+            linear-gradient(180deg, rgba(255,238,188,.72) 0 13%, transparent 14%),
+            repeating-linear-gradient(102deg, transparent 0 5px, rgba(38,26,18,.26) 5px 7px, transparent 7px 13px),
+            repeating-linear-gradient(14deg, rgba(255,232,176,.18) 0 1px, transparent 1px 5px);
+        opacity:.9;
+        mix-blend-mode:multiply;
+    }
+    body.layout-mobile-landscape .chamfer-cloth{
+        width:52px;
+        height:36px;
+    }
+    body.layout-mobile-landscape .hotspot-chamfer{
+        width:300px;
+        height:300px;
+    }
+    .chamfer-overlay.snagging .chamfer-cloth{
+        animation:chamferClothSnag .16s steps(2, end) infinite;
+    }
+    .chamfer-overlay.completing::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:calc(var(--gem-size, 220px) * 1.18);
+        height:calc(var(--gem-size, 220px) * .92);
+        transform:translate(-50%, -50%);
+        border-radius:50%;
+        background:radial-gradient(ellipse, transparent 0 54%, rgba(112,244,216,.28) 58%, rgba(255,235,144,.22) 64%, transparent 72%);
+        mix-blend-mode:screen;
+        animation:chamferEdgeComplete .68s ease-out both;
+    }
+    @keyframes chamferClothSnag{
+        0%{ margin-left:-1px; margin-top:0; }
+        100%{ margin-left:1px; margin-top:-1px; }
+    }
+    @keyframes chamferDirtPreview{
+        0%{ opacity:0; filter:drop-shadow(0 1px 2px rgba(42,32,24,.22)) blur(1px); }
+        100%{ opacity:.96; filter:drop-shadow(0 1px 2px rgba(42,32,24,.22)) blur(0); }
+    }
+    @keyframes chamferEdgeComplete{
+        0%{ opacity:0; transform:translate(-50%, -50%) scale(.82); }
+        35%{ opacity:1; transform:translate(-50%, -50%) scale(1.02); }
+        100%{ opacity:0; transform:translate(-50%, -50%) scale(1.16); }
     }
     .soak-overlay{
         position:absolute;
@@ -2866,6 +3106,9 @@
         opacity:.68;
         transform:scale(.9);
     }
+    .tool-wheel-item.sprite-missing::after{
+        content:attr(data-fallback);
+    }
     .current-tool-text{
         position:relative;
         z-index:2;
@@ -3708,6 +3951,14 @@
         -webkit-mask-repeat:no-repeat;
         mask-repeat:no-repeat;
     }
+    .gem3d.step-clean.clean-finishing .gem-surface{
+        animation:cleanFinishDirtLift .72s ease-out both;
+    }
+    @keyframes cleanFinishDirtLift{
+        0%{ filter:drop-shadow(0 1px 2px rgba(42,32,24,.22)); }
+        52%{ filter:drop-shadow(0 2px 8px rgba(82,66,38,.28)) brightness(1.05); }
+        100%{ filter:drop-shadow(0 0 0 rgba(42,32,24,0)) brightness(1.12); }
+    }
     .gem3d.step-cut .gem-surface{
         opacity:1;
         background:
@@ -3847,7 +4098,8 @@
     body:not(.playing) .hotspot,
     body:not(.playing) .focus-ring,
     body:not(.playing) .repair-overlay,
-    body:not(.playing) .soak-overlay{
+    body:not(.playing) .soak-overlay,
+    body:not(.playing) .chamfer-overlay{
         display:none;
     }
     .core-hud{
@@ -5237,6 +5489,7 @@
                     <div id="lens-viewport" class="lens-viewport" aria-hidden="true"></div>
                     <div id="repair-overlay" class="repair-overlay" aria-hidden="true"></div>
                     <div id="soak-overlay" class="soak-overlay" aria-hidden="true"></div>
+                    <div id="chamfer-overlay" class="chamfer-overlay" aria-hidden="true"></div>
                     <button id="hotspot" class="hotspot" aria-label="当前处理点"></button>
                     <div id="focus-ring" class="focus-ring"></div>
                     <div id="lens-scroll-cue" class="lens-scroll-cue" aria-label="向下滚轮切换镜头"></div>
@@ -5360,15 +5613,17 @@ const TOOL_LABELS = {
     cut:"切除",
     shape:"定型",
     light:"寻光",
-    soak:"浸润"
+    soak:"浸润",
+    chamfer:"边缘倒角"
 };
-const TOOL_ICONS = { cut:"切", repair:"滴", shape:"型", clean:"净", light:"光", soak:"浸" };
+const TOOL_ICONS = { cut:"切", repair:"滴", shape:"型", clean:"净", light:"光", soak:"浸", chamfer:"倒" };
 const TOOL_SPRITES = {
     cut:"assets/ui_v26/ui_tool_sprites/tool_cut_C.png",
     repair:"assets/ui_v26/ui_tool_sprites/tool_repair_C.png",
     shape:"assets/ui_v26/ui_tool_sprites/tool_shape_C.png",
     clean:"assets/ui_v26/ui_tool_sprites/tool_clean_C.png",
-    light:"assets/ui_v26/ui_tool_sprites/tool_light_C.png"
+    light:"assets/ui_v26/ui_tool_sprites/tool_light_C.png",
+    chamfer:"assets/ui_v26/ui_tool_sprites/tool_chamfer_cloth_A.png"
 };
 const TOOL_NOTES = {
     cut:"沿灰色石皮拖拽切开",
@@ -5376,9 +5631,10 @@ const TOOL_NOTES = {
     shape:"描摹目标轮廓定型",
     clean:"擦净后闪光收纳",
     light:"移动寻光灯找反光点",
-    soak:"放入量杯左右摇晃"
+    soak:"放入量杯左右摇晃",
+    chamfer:"沿边缘来回磨过尖角"
 };
-const TOOL_ORDER = ["cut","repair","light","shape","soak","clean"];
+const TOOL_ORDER = ["cut","repair","light","shape","soak","chamfer","clean"];
 const LENS_FREE_TYPES = new Set(["soak"]);
 const REPAIR_TARGETS = [
     { x:31, y:56, dx:-30, dy:7 },
@@ -5401,11 +5657,17 @@ const LIGHT_TARGETS = [
     { x:45, y:66 },
     { x:52, y:48 }
 ];
-const SOAK_REQUIRED_MS = 3000;
+const SOAK_REQUIRED_MS = 2250;
 const SOAK_WALL_HIT_LIMIT = 3;
 const SOAK_WALL_LIMIT = 78;
 const SOAK_REBOUND = 11;
 const SOAK_TRIAL_GEMS = new Set(["agate", "fluorite"]);
+const CHAMFER_REQUIRED_PASSES = 3;
+const CHAMFER_CLOTH_SRC = "assets/ui_v26/ui_tool_sprites/tool_chamfer_cloth_A.png";
+const CHAMFER_CONFIGS = {
+    pearl:{ rx:.55, ry:.55, start:-105, corners:[-136, -42, 48, 142] },
+    agate:{ rx:.58, ry:.49, start:-116, corners:[-152, -56, 38, 132] }
+};
 function clampNumber(value, min, max){ return Math.max(min, Math.min(max, value)); }
 function stepRequiresLens(step){ return !!step && !LENS_FREE_TYPES.has(step.type); }
 const LENSES = [
@@ -5418,8 +5680,8 @@ const SHAPE_TARGETS = ["circle", "triangle", "square"];
 const SHAPE_LABELS = { circle:"圆形", triangle:"三角形", square:"正方形" };
 const SHAPE_MARKS = { circle:"○", triangle:"△", square:"□" };
 const GEM_STEP_INSTRUCTIONS = {
-    pearl:{ repair:"珍珠：瞄准珠层细裂，分段滴入修复精华，让裂缝被柔光填满。", clean:"珍珠：用清洁刷轻擦表面雾膜，擦出柔和珠光。" },
-    agate:{ repair:"玛瑙：沿下缘细裂注入精华，先补边缘再让纹带连贯。", soak:"玛瑙：放入量杯浸润，左右轻摇让纹带里的浊气冒泡散开。", clean:"玛瑙：来回擦开表面灰膜，让红橙纹带重新透亮。" },
+    pearl:{ repair:"珍珠：瞄准珠层细裂，分段滴入修复精华，让裂缝被柔光填满。", chamfer:"珍珠：切到清洁用镜片后，沿珠缘轨道来回磨过发涩尖角。", clean:"珍珠：用清洁刷轻擦表面雾膜，擦出柔和珠光。" },
+    agate:{ repair:"玛瑙：沿下缘细裂注入精华，先补边缘再让纹带连贯。", soak:"玛瑙：放入量杯浸润，左右轻摇让纹带里的浊气冒泡散开。", chamfer:"玛瑙：切到清洁用镜片后，让砂布贴着纹带边缘来回倒角。", clean:"玛瑙：来回擦开表面灰膜，让红橙纹带重新透亮。" },
     garnet:{ repair:"石榴石：对准边缘缺口滴入精华，把缺口亮线补齐。", clean:"石榴石：擦掉深色石面上的灰尘层，让血色反光浮出来。" },
     sunstone:{ repair:"砂金石：把细小缺角补满，保住边缘的金砂闪点。", clean:"砂金石：顺着金砂亮面擦拭，让细闪从污渍下显出来。" },
     catseye:{ repair:"猫眼石：修补猫眼边缘损伤，别让亮线被裂口截断。", clean:"猫眼石：左右擦净瞳线附近的雾层，让猫眼光带变清楚。" },
@@ -5437,6 +5699,7 @@ function defaultGemStepInstruction(gem, task){
     if(copy) return copy;
     if(task.type === "light") return `${gem.name}：按住扫光区移动寻光灯，找到最亮的反光点。`;
     if(task.type === "soak") return `${gem.name}：把宝石放入量杯，左右摇晃浸润到气泡散开。`;
+    if(task.type === "chamfer") return `${gem.name}：沿外围轨道拖拽砂布，来回通过尖角直到阻滞消失。`;
     if(task.type === "repair") return `${gem.name}：瞄准裂缝光圈，滴入修复精华填满裂隙。`;
     if(task.type === "clean") return `${gem.name}：按住污渍范围来回擦拭，把脏污层擦掉。`;
     if(task.type === "cut") return `${gem.name}：按住切除长条，顺着角度拖拽削掉外层。`;
@@ -5444,8 +5707,8 @@ function defaultGemStepInstruction(gem, task){
     return `${gem.name}：完成当前处理步骤。`;
 }
 const GEM_BLUEPRINTS = [
-    { id:"pearl", name:"珍珠", rarity:3, version:"西西亚·三星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #fff9ef 0%, #d9d3dd 100%)", assetBase:"assets/gems/pearl", tasks:[{type:"repair", title:"珠层细裂", lens:2, face:1, pos:{x:54,y:46}}, {type:"clean", title:"柔光净化", lens:0, face:1, pos:{x:50,y:54}}] },
-    { id:"agate", name:"玛瑙", rarity:3, version:"长安·三星成石", kind:"成品宝石", sub:"修补 -> 浸润 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", assetBase:"assets/gems/agate", tasks:[{type:"repair", title:"下缘细裂", lens:2, face:2, pos:{x:46,y:64}}, {type:"soak", title:"量杯浸润", lens:0, face:1, pos:{x:50,y:50}}, {type:"clean", title:"通透净化", lens:1, face:1, pos:{x:50,y:52}}] },
+    { id:"pearl", name:"珍珠", rarity:3, version:"西西亚·三星成石", kind:"成品宝石", sub:"修补 -> 边缘倒角 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #fff9ef 0%, #d9d3dd 100%)", assetBase:"assets/gems/pearl", tasks:[{type:"repair", title:"珠层细裂", lens:2, face:1, pos:{x:54,y:46}}, {type:"chamfer", title:"珠缘倒角", lens:0, face:1, pos:{x:50,y:50}}, {type:"clean", title:"柔光净化", lens:0, face:1, pos:{x:50,y:54}}] },
+    { id:"agate", name:"玛瑙", rarity:3, version:"长安·三星成石", kind:"成品宝石", sub:"修补 -> 浸润 -> 边缘倒角 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", assetBase:"assets/gems/agate", tasks:[{type:"repair", title:"下缘细裂", lens:2, face:2, pos:{x:46,y:64}}, {type:"soak", title:"量杯浸润", lens:0, face:1, pos:{x:50,y:50}}, {type:"chamfer", title:"纹带倒角", lens:1, face:1, pos:{x:50,y:50}}, {type:"clean", title:"通透净化", lens:1, face:1, pos:{x:50,y:52}}] },
     { id:"garnet", name:"石榴石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b85a52 0%, #6d1f23 100%)", assetBase:"assets/gems/garnet", tasks:[{type:"repair", title:"边缘缺口", lens:1, face:2, pos:{x:58,y:42}}, {type:"clean", title:"血色提亮", lens:2, face:0, pos:{x:50,y:50}}] },
     { id:"sunstone", name:"砂金石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #f1b07c 0%, #9a4f2d 100%)", assetBase:"assets/gems/sunstone", tasks:[{type:"repair", title:"细小缺角", lens:2, face:1, pos:{x:40,y:60}}, {type:"clean", title:"金砂唤亮", lens:0, face:2, pos:{x:50,y:52}}] },
     { id:"catseye", name:"猫眼石", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #d8f1a8 0%, #7ea042 100%)", assetBase:"assets/gems/catseye", tasks:[{type:"repair", title:"猫眼边缘损伤", lens:2, face:1, pos:{x:56,y:40}}, {type:"clean", title:"瞳线净化", lens:1, face:2, pos:{x:50,y:50}}] },
@@ -6106,6 +6369,13 @@ function buildCoreTasks(gem){
         soakCrackLeft:0,
         soakCrackRight:0,
         soakCompleting:false,
+        chamferCorners:task.type === "chamfer" ? makeChamferCorners(gem.id) : [],
+        chamferAngle:task.type === "chamfer" ? degToRad(CHAMFER_CONFIGS[gem.id]?.start ?? -110) : 0,
+        chamferLastAngle:null,
+        chamferLastDirection:0,
+        chamferSnagLevel:0,
+        chamferCleanPreview:0,
+        chamferCompleting:false,
         cutHits:0,
         cutHitsRequired: task.type === "cut" ? (task.cutHitsRequired || 1) : 1,
         dragDistance:0,
@@ -6182,6 +6452,7 @@ function stepStatusText(step){
     if(step.type === "repair") return `${base} · 精华填充 ${Math.min(100, Math.round((step.repairFill || 0) * 100))}%`;
     if(step.type === "light") return `${base} · 反光锁定 ${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`;
     if(step.type === "soak") return `${base} · 浸润摇晃 ${Math.min(100, Math.round((step.soakProgress || 0) / SOAK_REQUIRED_MS * 100))}% · 碰壁 ${step.soakHits || 0}/${SOAK_WALL_HIT_LIMIT}`;
+    if(step.type === "chamfer") return `${base} · 尖角 ${chamferCompletedCornerCount(step)}/${step.chamferCorners?.length || 4} · 通过 ${Math.round(chamferProgress(step) * 100)}%`;
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `${base} · 切除 ${step.cutHits || 0}/${step.cutHitsRequired}`;
     if(step.type === "cut") return `${base} · 顺着长条角度拖拽`;
     if(step.type === "shape") return `${base} · 描边${SHAPE_LABELS[step.shapeTarget]}`;
@@ -6194,6 +6465,7 @@ function stepHintText(step){
     if(step.type === "repair") return "修补：瞄准裂缝光圈，滴入修复精华填满裂隙。";
     if(step.type === "light") return "寻光：按住扫光区移动寻光灯，找到宝石表面的反光点。";
     if(step.type === "soak") return "浸润：按住量杯左右摇晃，避免石头连续撞到杯壁。";
+    if(step.type === "chamfer") return "边缘倒角：按住砂布沿宝石外围轨道拖拽，来回磨过发涩尖角。";
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：这颗需要切 ${step.cutHitsRequired} 次，按住长条并顺着角度拖拽。`;
     if(step.type === "cut") return "切除：按住长条瑕疵，沿相近角度拖拽切除。";
     if(step.type === "shape") return `定型：按住形状特效，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`;
@@ -6204,6 +6476,7 @@ function wrongLensHint(step){
     if(step.type === "repair") return `裂缝还没显影：滚动镜片切到 ${LENSES[step.lens].label}，看清裂缝走向。`;
     if(step.type === "light") return `反光点需要 ${LENSES[step.lens].label}：切到正确镜片后再扫光。`;
     if(step.type === "soak") return `量杯观察需要 ${LENSES[step.lens].label}：切到正确镜片后再摇晃。`;
+    if(step.type === "chamfer") return `尖角需要 ${LENSES[step.lens].label}：切到正确镜片后才能看到边缘轨道。`;
     return `镜片不对：请滚动鼠标滚轮翻镜片，切到 ${LENSES[step.lens].label}。`;
 }
 function visualStateForActive(active, step){
@@ -6434,9 +6707,9 @@ function toolWheelItemMarkup(type, active){
     const sprite = TOOL_SPRITES[type];
     const label = TOOL_LABELS[type] || type;
     const content = sprite
-        ? `<img class="tool-sprite" src="${sprite}" alt="${label}">`
+        ? `<img class="tool-sprite" src="${sprite}" alt="${label}" onerror="this.closest('.tool-wheel-item')?.classList.add('sprite-missing');this.remove();">`
         : (TOOL_ICONS[type] || "-");
-    return `<span class="tool-wheel-item ${active ? "active" : ""}">${content}</span>`;
+    return `<span class="tool-wheel-item ${active ? "active" : ""}" data-fallback="${TOOL_ICONS[type] || "-"}">${content}</span>`;
 }
 function shortToolNote(step){
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `${step.cutHits || 0}/${step.cutHitsRequired}`;
@@ -6444,6 +6717,7 @@ function shortToolNote(step){
     if(step.type === "clean") return `${Math.min(100, Math.round((step.dragDistance || 0) / CLEAN_DISTANCE_REQUIRED * 100))}%`;
     if(step.type === "light") return `${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`;
     if(step.type === "soak") return `${Math.min(100, Math.round((step.soakProgress || 0) / SOAK_REQUIRED_MS * 100))}%`;
+    if(step.type === "chamfer") return `${chamferCompletedCornerCount(step)}/${step.chamferCorners?.length || 4}`;
     if(step.type === "shape") return SHAPE_MARKS[step.shapeTarget] || "描边";
     return step.title || "";
 }
@@ -6456,8 +6730,9 @@ function renderPlay(){
     const gem3d = document.getElementById("gem3d");
     const visual = visualStateForActive(active, step);
     const stepClass = step ? `step-${step.type}` : "";
+    const cleanFinishClass = step?.type === "clean" && step.cleanCompleting ? "clean-finishing" : "";
     const kindClass = gem.kind === "原石" ? "gem-kind-rough" : "gem-kind-finished";
-    gem3d.className = `gem3d ${kindClass} ${stepClass} visual-${visual.stage} ${visual.shape ? `shape-${visual.shape}` : ""} ${V24_ENTITY_ASSETS[gem.id] ? "has-stage-image" : ""}`.trim();
+    gem3d.className = `gem3d ${kindClass} ${stepClass} ${cleanFinishClass} visual-${visual.stage} ${visual.shape ? `shape-${visual.shape}` : ""} ${V24_ENTITY_ASSETS[gem.id] ? "has-stage-image" : ""}`.trim();
     applyGemVisualVars(gem3d, gem);
     gem3d.style.setProperty("--defect-x", step ? `${step.pos.x}%` : "50%");
     gem3d.style.setProperty("--defect-y", step ? `${step.pos.y}%` : "50%");
@@ -6478,6 +6753,7 @@ function renderPlay(){
     renderLensButtons();
     renderToolButtons();
     renderCurrentTool();
+    renderChamferOverlay(step, gem, visual);
     renderSoakOverlay(step, gem, visual);
     if(step?.type !== "spray") clearSprayToolFx();
     syncGamepadAimToStep(step);
@@ -6492,16 +6768,33 @@ function cleanErasePath(points){
     }
     return points.map((point, index)=>`${index ? "L" : "M"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(" ");
 }
-function cleanEraseMaskValue(points, progress=0){
+function cleanFinishSweepMask(progress=0){
+    const p = clampNumber(progress, 0, 1);
+    if(p <= 0) return "";
+    const sweepX = -16 + p * 132;
+    const opacity = (.72 + p * .28).toFixed(3);
+    const fullOpacity = p > .9 ? ((p - .9) / .1).toFixed(3) : "0";
+    return `
+        <g opacity="${opacity}">
+            <path d="M -16 22 C ${sweepX - 38} 16 ${sweepX - 18} 30 ${sweepX} 24" fill="none" stroke="black" stroke-width="33" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M -18 50 C ${sweepX - 42} 44 ${sweepX - 18} 58 ${sweepX} 51" fill="none" stroke="black" stroke-width="43" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M -16 78 C ${sweepX - 36} 74 ${sweepX - 16} 86 ${sweepX} 79" fill="none" stroke="black" stroke-width="35" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <rect x="-8" y="-8" width="116" height="116" fill="black" opacity="${fullOpacity}"/>
+    `;
+}
+function cleanEraseMaskValue(points, progress=0, finishProgress=0){
     const erasePath = cleanErasePath(points);
-    if(!erasePath) return "linear-gradient(#fff, #fff)";
+    const finishSweep = cleanFinishSweepMask(finishProgress);
+    if(!erasePath && !finishSweep) return "linear-gradient(#fff, #fff)";
     const wipeWidth = Math.round(13 + Math.min(progress, 1) * 7);
     const svg = `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">
             <defs>
                 <mask id="cleanMask" maskUnits="userSpaceOnUse">
                     <rect x="0" y="0" width="100" height="100" fill="white"/>
-                    <path d="${erasePath}" fill="none" stroke="black" stroke-width="${wipeWidth}" stroke-linecap="round" stroke-linejoin="round"/>
+                    ${erasePath ? `<path d="${erasePath}" fill="none" stroke="black" stroke-width="${wipeWidth}" stroke-linecap="round" stroke-linejoin="round"/>` : ""}
+                    ${finishSweep}
                 </mask>
             </defs>
             <rect x="0" y="0" width="100" height="100" fill="white" mask="url(#cleanMask)"/>
@@ -6515,7 +6808,7 @@ function renderCleanEraseMask(step, gem3d, progress=0){
         gem3d.style.removeProperty("--clean-erase-mask");
         return;
     }
-    gem3d.style.setProperty("--clean-erase-mask", cleanEraseMaskValue(step.cleanErasePoints || [], progress));
+    gem3d.style.setProperty("--clean-erase-mask", cleanEraseMaskValue(step.cleanErasePoints || [], progress, step.cleanFinishProgress || 0));
 }
 function renderSoakOverlay(step, gem, visual){
     const overlay = document.getElementById("soak-overlay");
@@ -6628,6 +6921,260 @@ function soakBubbleMarkup(){
         const delay = -((index * .17) % 1.2);
         return `<i class="soak-bubble" style="--bubble-x:${x}%;--bubble-bottom:${bottom}px;--bubble-size:${size}px;--bubble-duration:${duration.toFixed(2)}s;--bubble-delay:${delay.toFixed(2)}s"></i>`;
     }).join("");
+}
+function degToRad(deg){ return deg * Math.PI / 180; }
+function radToDeg(rad){ return rad * 180 / Math.PI; }
+function normalizeRad(rad){
+    let angle = rad;
+    while(angle > Math.PI) angle -= Math.PI * 2;
+    while(angle <= -Math.PI) angle += Math.PI * 2;
+    return angle;
+}
+function makeChamferCorners(gemId){
+    const config = CHAMFER_CONFIGS[gemId] || CHAMFER_CONFIGS.pearl;
+    return config.corners.map(angle=>({
+        angle:degToRad(angle),
+        passes:0,
+        done:false,
+        lastDirection:0,
+        lastPassAt:0
+    }));
+}
+function ensureChamferRuntime(step){
+    if(!step || step.type !== "chamfer") return;
+    const gem = gemById(state.active?.gemId);
+    const config = CHAMFER_CONFIGS[gem?.id] || CHAMFER_CONFIGS.pearl;
+    if(!Array.isArray(step.chamferCorners) || !step.chamferCorners.length){
+        step.chamferCorners = makeChamferCorners(gem?.id);
+    }
+    if(!Number.isFinite(step.chamferAngle)){
+        step.chamferAngle = degToRad(config.start ?? -110);
+    }
+}
+function chamferConfigForStep(step){
+    const gem = gemById(state.active?.gemId);
+    return CHAMFER_CONFIGS[gem?.id] || CHAMFER_CONFIGS.pearl;
+}
+function chamferTrackGeometry(step){
+    const stage = document.getElementById("lens-stage");
+    const gem = document.getElementById("gem3d");
+    const stageRect = stage?.getBoundingClientRect();
+    const gemRect = gem?.getBoundingClientRect();
+    if(!stageRect || !gemRect || !stageRect.width || !gemRect.width) return null;
+    const config = chamferConfigForStep(step);
+    const gemLeft = gemRect.left - stageRect.left;
+    const gemTop = gemRect.top - stageRect.top;
+    const centerX = gemRect.left - stageRect.left + gemRect.width / 2;
+    const centerY = gemRect.top - stageRect.top + gemRect.height / 2;
+    return {
+        stageLeft:stageRect.left,
+        stageTop:stageRect.top,
+        stageWidth:stageRect.width,
+        stageHeight:stageRect.height,
+        gemLeft,
+        gemTop,
+        gemWidth:gemRect.width,
+        gemHeight:gemRect.height,
+        centerX,
+        centerY,
+        rx:gemRect.width * config.rx,
+        ry:gemRect.height * config.ry
+    };
+}
+function chamferPointAtAngle(geometry, angle, scale=1){
+    return {
+        x:geometry.centerX + Math.cos(angle) * geometry.rx * scale,
+        y:geometry.centerY + Math.sin(angle) * geometry.ry * scale
+    };
+}
+function projectPointToChamferTrack(step, clientX, clientY){
+    const geometry = chamferTrackGeometry(step);
+    if(!geometry) return null;
+    const px = clientX - geometry.stageLeft;
+    const py = clientY - geometry.stageTop;
+    const angle = Math.atan2((py - geometry.centerY) / geometry.ry, (px - geometry.centerX) / geometry.rx);
+    return { ...geometry, angle:normalizeRad(angle), ...chamferPointAtAngle(geometry, angle) };
+}
+function chamferProgress(step){
+    const corners = step?.chamferCorners || [];
+    const total = Math.max(1, corners.length * CHAMFER_REQUIRED_PASSES);
+    const passes = corners.reduce((sum, corner)=>sum + Math.min(CHAMFER_REQUIRED_PASSES, corner.passes || 0), 0);
+    return clampNumber(passes / total, 0, 1);
+}
+function chamferCompletedCornerCount(step){
+    return (step?.chamferCorners || []).filter(corner=>corner.done).length;
+}
+function chamferAllCornersDone(step){
+    const corners = step?.chamferCorners || [];
+    return !!corners.length && corners.every(corner=>corner.done);
+}
+function chamferCleanPreviewMask(step){
+    const corners = (step?.chamferCorners || []).filter(corner=>corner.done);
+    if(!corners.length) return "";
+    const paths = corners.flatMap((corner, index)=>{
+        const cx = 50 + Math.cos(corner.angle) * 36;
+        const cy = 50 + Math.sin(corner.angle) * 34;
+        const sway = index % 2 ? -1 : 1;
+        return [
+            `<path d="M ${(cx - 21).toFixed(1)} ${(cy - 9).toFixed(1)} L ${(cx + 16).toFixed(1)} ${(cy - 11 + sway).toFixed(1)}" stroke="black" stroke-width="7" stroke-linecap="butt"/>`,
+            `<path d="M ${(cx - 16).toFixed(1)} ${(cy + 2).toFixed(1)} L ${(cx + 22).toFixed(1)} ${(cy + 1 - sway).toFixed(1)}" stroke="black" stroke-width="10" stroke-linecap="butt"/>`,
+            `<path d="M ${(cx - 23).toFixed(1)} ${(cy + 13).toFixed(1)} L ${(cx + 2).toFixed(1)} ${(cy + 11 + sway).toFixed(1)}" stroke="black" stroke-width="6" stroke-linecap="butt"/>`
+        ];
+    }).join("");
+    const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+            ${paths}
+        </svg>
+    `.trim();
+    return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+function chamferNearestCornerIndex(step, angle, threshold=.3){
+    let bestIndex = -1;
+    let bestDiff = Infinity;
+    (step.chamferCorners || []).forEach((corner, index)=>{
+        if(corner.done) return;
+        const diff = Math.abs(shortestAngleDelta(angle, corner.angle));
+        if(diff < bestDiff){
+            bestDiff = diff;
+            bestIndex = index;
+        }
+    });
+    return bestDiff <= threshold ? bestIndex : -1;
+}
+function chamferCrossedCorner(prevAngle, nextAngle, cornerAngle){
+    const before = shortestAngleDelta(prevAngle, cornerAngle);
+    const after = shortestAngleDelta(nextAngle, cornerAngle);
+    const closeEnough = Math.abs(before) < .44 || Math.abs(after) < .44;
+    return closeEnough && ((before <= 0 && after >= 0) || (before >= 0 && after <= 0));
+}
+function registerChamferCornerPass(step, cornerIndex, direction){
+    const corner = step?.chamferCorners?.[cornerIndex];
+    if(!corner || corner.done || !direction) return false;
+    const now = performance.now();
+    if(now - (corner.lastPassAt || 0) < 150) return false;
+    if(corner.lastDirection && corner.lastDirection === direction) return false;
+    corner.lastDirection = direction;
+    corner.lastPassAt = now;
+    corner.passes = Math.min(CHAMFER_REQUIRED_PASSES, (corner.passes || 0) + 1);
+    if(corner.passes >= CHAMFER_REQUIRED_PASSES){
+        corner.done = true;
+        step.chamferCleanPreview = chamferCompletedCornerCount(step);
+        toast(`尖角打磨 ${step.chamferCleanPreview}/${step.chamferCorners.length}`);
+    }
+    return true;
+}
+function updateChamferDrag(step, clientX, clientY, dt=16){
+    if(!step || step.type !== "chamfer" || step.chamferCompleting) return;
+    ensureChamferRuntime(step);
+    const target = projectPointToChamferTrack(step, clientX, clientY);
+    if(!target) return;
+    const previous = Number.isFinite(step.chamferAngle) ? step.chamferAngle : target.angle;
+    const targetDelta = shortestAngleDelta(target.angle, previous);
+    const direction = Math.sign(targetDelta);
+    const currentSnag = chamferNearestCornerIndex(step, previous, .32);
+    const targetSnag = chamferNearestCornerIndex(step, target.angle, .24);
+    const snagIndex = currentSnag >= 0 ? currentSnag : targetSnag;
+    let response = .72;
+    if(snagIndex >= 0){
+        const passes = step.chamferCorners[snagIndex].passes || 0;
+        response = .18 + Math.min(passes, CHAMFER_REQUIRED_PASSES - 1) * .18;
+        step.chamferSnagLevel = CHAMFER_REQUIRED_PASSES - passes;
+    } else {
+        step.chamferSnagLevel = 0;
+    }
+    const absDelta = Math.abs(targetDelta);
+    const frame = Math.max(16, Math.min(48, dt)) / 1000;
+    const maxStep = Math.max(.01, Math.min(absDelta, frame * 5.6 * response + absDelta * .2 * response));
+    const next = absDelta <= maxStep || !direction
+        ? target.angle
+        : normalizeRad(previous + direction * maxStep);
+    const actualDelta = shortestAngleDelta(next, previous);
+    step.chamferLastAngle = previous;
+    step.chamferAngle = normalizeRad(next);
+    if(Math.abs(actualDelta) > .003) step.chamferLastDirection = Math.sign(actualDelta);
+    (step.chamferCorners || []).forEach((corner, index)=>{
+        if(corner.done) return;
+        if(chamferCrossedCorner(previous, step.chamferAngle, corner.angle)){
+            registerChamferCornerPass(step, index, step.chamferLastDirection);
+        }
+    });
+    if(chamferAllCornersDone(step)) beginChamferComplete(step);
+}
+function renderChamferOverlay(step, gem){
+    const overlay = document.getElementById("chamfer-overlay");
+    if(!overlay) return;
+    if(!step || step.type !== "chamfer" || (stepRequiresLens(step) && state.lensIndex !== step.lens)){
+        overlay.className = "chamfer-overlay";
+        overlay.innerHTML = "";
+        delete overlay.dataset.stepId;
+        return;
+    }
+    ensureChamferRuntime(step);
+    const geometry = chamferTrackGeometry(step);
+    if(!geometry) return;
+    const progress = chamferProgress(step);
+    const angle = step.chamferAngle;
+    const cloth = chamferPointAtAngle(geometry, angle);
+    const activeDrag = state.defectDrag?.type === "chamfer" || state.gamepadDrag?.type === "chamfer";
+    const snagging = activeDrag && !step.chamferCompleting && (step.chamferSnagLevel || 0) > 0;
+    const jitter = snagging ? Math.min(3, step.chamferSnagLevel || 0) : 0;
+    overlay.className = `chamfer-overlay visible ${snagging ? "snagging" : ""} ${step.chamferCompleting ? "completing" : ""}`;
+    overlay.style.setProperty("--chamfer-progress", `${(progress * 1000).toFixed(1)}`);
+    overlay.style.setProperty("--cloth-x", `${cloth.x.toFixed(1)}px`);
+    overlay.style.setProperty("--cloth-y", `${cloth.y.toFixed(1)}px`);
+    overlay.style.setProperty("--cloth-rot", `${(radToDeg(angle) - 90).toFixed(1)}deg`);
+    overlay.style.setProperty("--cloth-jitter-x", `${(Math.sin(performance.now() * .13) * jitter).toFixed(1)}px`);
+    overlay.style.setProperty("--cloth-jitter-y", `${(Math.cos(performance.now() * .11) * jitter * .55).toFixed(1)}px`);
+    overlay.style.setProperty("--preview-left", `${(geometry.gemLeft + 14).toFixed(1)}px`);
+    overlay.style.setProperty("--preview-top", `${(geometry.gemTop + 14).toFixed(1)}px`);
+    overlay.style.setProperty("--preview-width", `${Math.max(1, geometry.gemWidth - 28).toFixed(1)}px`);
+    overlay.style.setProperty("--preview-height", `${Math.max(1, geometry.gemHeight - 28).toFixed(1)}px`);
+    overlay.style.setProperty("--chamfer-preview-mask", chamferCleanPreviewMask(step) || "linear-gradient(transparent, transparent)");
+    const corners = step.chamferCorners || [];
+    const cornerMarkup = corners.map((corner, index)=>{
+        const point = chamferPointAtAngle(geometry, corner.angle);
+        const passClass = corner.done ? "done" : corner.passes ? `pass-${corner.passes}` : "";
+        return `
+            <g class="chamfer-corner ${passClass}" transform="translate(${point.x.toFixed(1)} ${point.y.toFixed(1)}) rotate(${(radToDeg(corner.angle) + 90).toFixed(1)})">
+                <path d="M0 -14 L12 4 L0 13 L-12 4 Z"></path>
+                <path class="corner-notch" d="M-7 3 L0 -7 L7 3"></path>
+            </g>
+        `;
+    }).join("");
+    const previewMarkup = corners.some(corner=>corner.done)
+        ? `<div class="chamfer-clean-preview-layer" aria-hidden="true"></div>`
+        : "";
+    overlay.innerHTML = `
+        <svg class="chamfer-track-svg" viewBox="0 0 ${geometry.stageWidth.toFixed(0)} ${geometry.stageHeight.toFixed(0)}" focusable="false" aria-hidden="true">
+            <ellipse class="chamfer-track-glow" cx="${geometry.centerX.toFixed(1)}" cy="${geometry.centerY.toFixed(1)}" rx="${geometry.rx.toFixed(1)}" ry="${geometry.ry.toFixed(1)}" pathLength="1000"></ellipse>
+            <ellipse class="chamfer-track-line" cx="${geometry.centerX.toFixed(1)}" cy="${geometry.centerY.toFixed(1)}" rx="${geometry.rx.toFixed(1)}" ry="${geometry.ry.toFixed(1)}" pathLength="1000"></ellipse>
+            <ellipse class="chamfer-track-progress" cx="${geometry.centerX.toFixed(1)}" cy="${geometry.centerY.toFixed(1)}" rx="${geometry.rx.toFixed(1)}" ry="${geometry.ry.toFixed(1)}" pathLength="1000"></ellipse>
+            ${cornerMarkup}
+        </svg>
+        ${previewMarkup}
+        <span class="chamfer-cloth placeholder" aria-hidden="true">
+            <img src="${CHAMFER_CLOTH_SRC}" alt="" draggable="false" onload="this.parentElement.classList.remove('placeholder')" onerror="this.remove()">
+        </span>
+    `;
+}
+function clearChamferOverlay(){
+    const overlay = document.getElementById("chamfer-overlay");
+    if(!overlay) return;
+    overlay.className = "chamfer-overlay";
+    overlay.innerHTML = "";
+    delete overlay.dataset.stepId;
+}
+function beginChamferComplete(step){
+    if(!step || step.type !== "chamfer" || step.chamferCompleting) return;
+    step.chamferCompleting = true;
+    state.defectDrag = null;
+    state.gamepadDrag = null;
+    state.gamepadUseActive = false;
+    toast("边缘阻滞已磨顺。");
+    renderPlay();
+    setTimeout(()=>{
+        if(currentStep()?.id === step.id && !step.done) completeCurrentStep(step);
+    }, 680);
 }
 function renderArchiveNotebook(active, gem){
     const title = document.getElementById("archive-title");
@@ -6924,6 +7471,8 @@ function beginGamepadUse(){
         lastY:point.y,
         distance:0,
         cleanBrushLean:0,
+        cleanCompleting:false,
+        cleanFinishProgress:0,
         velocityX:0,
         cutDistance:0,
         points:[{ x:point.x, y:point.y }],
@@ -6941,6 +7490,10 @@ function beginGamepadUse(){
     }
     if(step.type === "soak"){
         if(step.soakPhase !== "complete" && step.soakPhase !== "failed") step.soakPhase = "shake";
+        renderPlay();
+    }
+    if(step.type === "chamfer"){
+        updateChamferDrag(step, point.x, point.y, 0);
         renderPlay();
     }
     spawnDragParticle(point.x, point.y, step.type);
@@ -6964,6 +7517,11 @@ function finishGamepadUse(){
         step.soakVelocityX = (step.soakVelocityX || 0) * .35;
         step.soakWave = (step.soakWave || 0) * .3;
         toast(`浸润 ${Math.min(100, Math.round((step.soakProgress || 0) / SOAK_REQUIRED_MS * 100))}%`);
+        renderPlay();
+    }
+    if(drag.type === "chamfer" && !step.done){
+        step.chamferSnagLevel = 0;
+        toast(`倒角 ${Math.round(chamferProgress(step) * 100)}%`);
         renderPlay();
     }
     if(drag.type === "shape"){
@@ -7023,10 +7581,9 @@ function updateGamepadUse(dt){
         renderCleanToolFx(point.x, point.y, drag.cleanBrushLean);
         renderPlay();
         if(step.dragDistance >= CLEAN_DISTANCE_REQUIRED){
-            clearCleanToolFx();
             state.gamepadDrag = null;
             state.gamepadUseActive = false;
-            completeCurrentStep(step);
+            beginCleanFinish(step);
         }
     }
     if(step.type === "cut"){
@@ -7077,6 +7634,14 @@ function updateGamepadUse(dt){
             setTimeout(()=>{
                 if(currentStep()?.id === step.id && !step.done) completeCurrentStep(step);
             }, 620);
+        }
+    }
+    if(step.type === "chamfer"){
+        updateChamferDrag(step, point.x, point.y, dt);
+        renderPlay();
+        if(step.chamferCompleting){
+            state.gamepadDrag = null;
+            state.gamepadUseActive = false;
         }
     }
 }
@@ -7390,7 +7955,7 @@ function playRepairDrop(targetIndex){
     playRepairDrop.timer = setTimeout(()=>overlay.classList.remove("drop-active"), 720);
 }
 function defectStagePosition(step){
-    const scale = step.type === "shape" ? 0.42 : step.type === "light" ? 0.36 : step.type === "soak" ? 0.28 : 0.48;
+    const scale = step.type === "shape" ? 0.42 : step.type === "light" ? 0.36 : step.type === "soak" ? 0.28 : step.type === "chamfer" ? 0.18 : 0.48;
     const yLift = step.type === "repair" ? 3 : step.type === "clean" ? 3 : step.type === "shape" ? 4 : 0;
     return {
         x:50 + (step.pos.x - 50) * scale,
@@ -7403,6 +7968,7 @@ function hotspotLabel(step){
     if(step.type === "cut") return "  滑→→→       ";
     if(step.type === "light") return "寻光";
     if(step.type === "soak") return "摇晃";
+    if(step.type === "chamfer") return "倒角";
     if(step.type === "shape") return "描边";
     return "";
 }
@@ -7412,10 +7978,12 @@ function clearHotspot(){
     const scrollCue = document.getElementById("lens-scroll-cue");
     const repairOverlay = document.getElementById("repair-overlay");
     const soakOverlay = document.getElementById("soak-overlay");
+    const chamferOverlay = document.getElementById("chamfer-overlay");
     clearCleanToolFx();
     clearShapeToolFx();
     clearLightToolFx();
     clearSprayToolFx();
+    clearChamferOverlay();
     setLensAttention(false);
     if(spot) spot.style.display = "none";
     if(ring) ring.style.display = "none";
@@ -7429,9 +7997,15 @@ function clearHotspot(){
         soakOverlay.innerHTML = "";
         delete soakOverlay.dataset.stepId;
     }
+    if(chamferOverlay){
+        chamferOverlay.className = "chamfer-overlay";
+        chamferOverlay.innerHTML = "";
+        delete chamferOverlay.dataset.stepId;
+    }
 }
 function canUseCurrentStep(step){
     if(!step) return;
+    if(step.type === "clean" && step.cleanCompleting) return false;
     if(stepRequiresLens(step) && state.lensIndex !== step.lens){
         toast(step.type === "repair" ? `裂缝需要 ${LENSES[step.lens].label} 显影。` : `镜片不对，需要 ${LENSES[step.lens].label}`);
         return false;
@@ -7441,6 +8015,34 @@ function canUseCurrentStep(step){
         return false;
     }
     return true;
+}
+function beginCleanFinish(step){
+    if(!step || step.type !== "clean" || step.done || step.cleanCompleting) return;
+    step.cleanCompleting = true;
+    step.cleanFinishProgress = 0;
+    step.cleanFinishStartedAt = performance.now();
+    state.defectDrag = null;
+    state.gamepadDrag = null;
+    state.gamepadUseActive = false;
+    clearCleanToolFx();
+    toast("余污清除中");
+    const tick = now=>{
+        if(currentStep()?.id !== step.id || step.done) return;
+        const progress = clampNumber((now - step.cleanFinishStartedAt) / 720, 0, 1);
+        step.cleanFinishProgress = progress;
+        renderPlay();
+        if(progress < 1){
+            requestAnimationFrame(tick);
+            return;
+        }
+        step.dragDistance = CLEAN_DISTANCE_REQUIRED;
+        step.cleanFinishProgress = 1;
+        renderPlay();
+        setTimeout(()=>{
+            if(currentStep()?.id === step.id && !step.done) completeCurrentStep(step);
+        }, 100);
+    };
+    requestAnimationFrame(tick);
 }
 function completeCurrentStep(step){
     if(step.type === "cut" || step.type === "shape") spawnCompletionFragments(step.type);
@@ -7573,11 +8175,12 @@ function handleHotspotClick(){
     if(step.type === "cut") toast("按住长条，沿相近角度拖拽切除。");
     if(step.type === "light") toast("按住扫光区移动寻光灯，靠近反光点会出现星芒。");
     if(step.type === "soak") toast("按住量杯左右摇晃，别让石头撞杯壁三次。");
+    if(step.type === "chamfer") toast("按住砂布沿边缘轨道来回拖拽，磨顺发涩尖角。");
     if(step.type === "shape") toast(`按住形状，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`);
 }
 function startDefectDrag(e){
     const step = currentStep();
-    if(!step || !["clean","cut","shape","light","soak"].includes(step.type)) return;
+    if(!step || !["clean","cut","shape","light","soak","chamfer"].includes(step.type)) return;
     if(!canUseCurrentStep(step)) return;
     e.preventDefault();
     e.currentTarget.setPointerCapture?.(e.pointerId);
@@ -7614,6 +8217,10 @@ function startDefectDrag(e){
     }
     if(step.type === "soak"){
         if(step.soakPhase !== "complete" && step.soakPhase !== "failed") step.soakPhase = "shake";
+        renderPlay();
+    }
+    if(step.type === "chamfer"){
+        updateChamferDrag(step, e.clientX, e.clientY, 0);
         renderPlay();
     }
     spawnDragParticle(e.clientX, e.clientY, step.type);
@@ -7674,6 +8281,15 @@ function updateDefectDrag(e){
             return;
         }
     }
+    if(step.type === "chamfer"){
+        updateChamferDrag(step, e.clientX, e.clientY, dt);
+        renderPlay();
+        if(step.chamferCompleting){
+            state.suppressNextClick = true;
+            state.defectDrag = null;
+            return;
+        }
+    }
     if(step.type === "shape") renderShapeToolFx(e.clientX, e.clientY);
     if(drag.distance - drag.lastParticleDistance >= 18){
         spawnDragParticle(e.clientX, e.clientY, step.type);
@@ -7685,8 +8301,7 @@ function updateDefectDrag(e){
         if(step.dragDistance >= CLEAN_DISTANCE_REQUIRED){
             state.suppressNextClick = true;
             state.defectDrag = null;
-            clearCleanToolFx();
-            completeCurrentStep(step);
+            beginCleanFinish(step);
         }
     }
 }
@@ -8163,6 +8778,12 @@ function finishDefectDrag(e){
             renderPlay();
             toast(`浸润 ${Math.min(100, Math.round((step.soakProgress || 0) / SOAK_REQUIRED_MS * 100))}%`);
         }
+        return;
+    }
+    if(step.type === "chamfer"){
+        step.chamferSnagLevel = 0;
+        renderPlay();
+        toast(`倒角 ${Math.round(chamferProgress(step) * 100)}%`);
         return;
     }
     if(step.type === "shape"){
