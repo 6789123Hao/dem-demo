@@ -2669,6 +2669,9 @@
         filter:brightness(1.06);
         transform:translateY(-50%) scale(1.04);
     }
+    .tutorial-help-plate-btn{
+        display:none;
+    }
     .tutorial-modal{
         position:fixed;
         inset:0;
@@ -4116,6 +4119,16 @@
         gap:9px;
         max-height:calc(100vh - 180px);
         overflow-x:hidden;
+        touch-action:pan-y;
+        cursor:grab;
+        overscroll-behavior:contain;
+    }
+    body.layout-mobile-landscape .stone-list.dragging{
+        cursor:grabbing;
+        user-select:none;
+    }
+    body.layout-mobile-landscape .stone-list.dragging .stone-card{
+        pointer-events:none;
     }
     body.layout-mobile-landscape.mobile-bag-collapsed .stone-list{
         gap:8px;
@@ -4127,6 +4140,7 @@
         grid-template-columns:50px 1fr 58px;
         padding:12px;
         font-size:16px;
+        cursor:pointer;
     }
     body.layout-mobile-landscape.mobile-bag-collapsed .stone-card{
         position:relative;
@@ -4164,7 +4178,26 @@
         font-size:12px;
         box-shadow:0 5px 10px rgba(84,52,22,.16);
     }
-    body.layout-mobile-landscape .tutorial-help-btn{
+    body.layout-mobile-landscape .known-title-row .tutorial-help-btn{
+        display:none;
+    }
+    body.layout-mobile-landscape .tutorial-help-plate-btn{
+        display:grid;
+        place-items:center;
+        right:252px;
+        left:auto;
+        top:auto;
+        bottom:162px;
+        width:34px;
+        height:34px;
+        font-size:17px;
+        pointer-events:auto;
+        transform:none;
+    }
+    body.layout-mobile-landscape .tutorial-help-plate-btn:hover{
+        transform:scale(1.04);
+    }
+    body.layout-mobile-landscape .tutorial-help-btn:not(.tutorial-help-plate-btn){
         right:8px;
         width:28px;
         height:28px;
@@ -4219,6 +4252,10 @@
         --gem-size:210px;
         --lens-view-scale:.92;
         --lens-flip-mid-scale:.906;
+        touch-action:none;
+    }
+    body.layout-mobile-landscape .lens-stage.mobile-lens-dragging{
+        cursor:ns-resize;
     }
     body.layout-mobile-landscape .core-hint{
         top:18px;
@@ -4406,14 +4443,19 @@
             right:220px;
             bottom:86px;
         }
+        body.layout-mobile-landscape .tutorial-help-plate-btn{
+            right:226px;
+            bottom:142px;
+        }
     }
     .gamepad-guide{
         display:none;
-        position:absolute;
-        left:18px;
-        top:92px;
-        z-index:32;
-        width:314px;
+        position:relative;
+        z-index:2;
+        flex:0 0 auto;
+        width:258px;
+        min-height:318px;
+        align-self:center;
         padding:14px 16px;
         border:1px solid rgba(255,231,164,.62);
         border-radius:8px;
@@ -4422,8 +4464,10 @@
         color:#173a2d;
         box-shadow:0 18px 36px rgba(5,28,22,.28), inset 0 0 0 1px rgba(255,255,255,.28);
         pointer-events:none;
+        overflow:hidden;
     }
     body.layout-gamepad .gamepad-guide{ display:block; }
+    body.layout-gamepad .current-tool-card{ display:none; }
     .gamepad-guide h3{
         margin:0 0 8px;
         font-size:16px;
@@ -4470,15 +4514,54 @@
     body.layout-gamepad .entry-drag-cue{
         display:none;
     }
-    body.layout-gamepad .stone-card.gamepad-selected{
-        border-color:rgba(248,203,96,.9);
+    body.layout-gamepad .bag-panel,
+    body.layout-gamepad .center-panel{
+        transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+    }
+    body.layout-gamepad.gamepad-focus-bag .bag-panel{
+        border-color:rgba(255,221,120,.9);
         box-shadow:
-            0 0 0 3px rgba(248,203,96,.22),
-            0 12px 26px rgba(12,54,39,.18);
-        transform:translateX(4px);
+            0 0 0 3px rgba(255,214,99,.2),
+            0 20px 44px rgba(6,48,36,.22),
+            inset 0 0 0 1px rgba(255,247,206,.44);
+    }
+    body.layout-gamepad.gamepad-focus-bag .known-section{
+        filter:drop-shadow(0 0 14px rgba(255,222,114,.26));
+    }
+    body.layout-gamepad.gamepad-focus-play .center-panel{
+        border-color:rgba(120,236,195,.62);
+        box-shadow:0 0 0 2px rgba(92,226,183,.1), 0 18px 38px rgba(5,34,29,.26);
+    }
+    body.layout-gamepad .sort-btn.active{
+        border-color:#f0bf55;
+        background:linear-gradient(180deg, #fff2bf, #f4c760);
+        box-shadow:0 0 0 2px rgba(255,220,112,.22), inset 0 0 0 1px rgba(255,255,255,.34);
+    }
+    body.layout-gamepad .stone-card.gamepad-selected{
+        border-color:#ffd96d;
+        background:
+            linear-gradient(rgba(255,247,207,.9), rgba(255,239,174,.82)),
+            var(--v26-stone-card) center / 100% 100% no-repeat;
+        box-shadow:
+            0 0 0 4px rgba(255,219,96,.28),
+            0 0 22px rgba(255,215,94,.42),
+            0 14px 28px rgba(12,54,39,.24);
+        transform:translateX(8px) scale(1.018);
+        outline:2px solid rgba(255,246,189,.7);
+        outline-offset:2px;
     }
     body.layout-gamepad .stone-card.gamepad-selected .stone-dot{
-        box-shadow:0 0 0 3px rgba(255,241,174,.75), 0 8px 18px rgba(22,77,54,.18);
+        box-shadow:
+            0 0 0 4px rgba(255,241,174,.88),
+            0 0 18px rgba(255,224,104,.58),
+            0 8px 18px rgba(22,77,54,.18);
+    }
+    body.layout-gamepad.gamepad-focus-bag .stone-card.gamepad-selected{
+        animation:gamepadStoneSelectPulse 1.25s ease-in-out infinite alternate;
+    }
+    @keyframes gamepadStoneSelectPulse{
+        from{ box-shadow:0 0 0 4px rgba(255,219,96,.25), 0 0 18px rgba(255,215,94,.32), 0 14px 28px rgba(12,54,39,.22); }
+        to{ box-shadow:0 0 0 6px rgba(255,230,132,.42), 0 0 30px rgba(255,215,94,.58), 0 16px 32px rgba(12,54,39,.26); }
     }
     .gamepad-aim{
         display:none;
@@ -4494,7 +4577,10 @@
         border-radius:50%;
         box-shadow:0 0 0 5px rgba(255,214,99,.15), 0 0 22px rgba(255,225,126,.34);
     }
-    body.layout-gamepad.playing .gamepad-aim{ display:block; }
+    body.layout-gamepad.playing.gamepad-aiming .gamepad-aim{
+        display:block;
+        animation:gamepadAimEnter .22s cubic-bezier(.18,.86,.24,1) both;
+    }
     .gamepad-aim::before,
     .gamepad-aim::after{
         content:"";
@@ -4512,9 +4598,52 @@
         box-shadow:0 0 0 6px rgba(94,230,184,.16), 0 0 30px rgba(94,230,184,.46);
         animation:gamepadAimUse .7s ease-in-out infinite alternate;
     }
+    body.layout-gamepad.playing.gamepad-aiming .gamepad-aim.using{
+        animation:gamepadAimUse .7s ease-in-out infinite alternate;
+    }
+    @keyframes gamepadAimEnter{
+        0%{ opacity:0; transform:translate(-50%, -50%) scale(.42); }
+        72%{ opacity:1; transform:translate(-50%, -50%) scale(1.08); }
+        100%{ opacity:1; transform:translate(-50%, -50%) scale(1); }
+    }
     @keyframes gamepadAimUse{
         from{ transform:translate(-50%, -50%) scale(.96); }
         to{ transform:translate(-50%, -50%) scale(1.05); }
+    }
+    .gamepad-exit-modal{
+        position:fixed;
+        inset:0;
+        z-index:80;
+        display:none;
+        place-items:center;
+        padding:24px;
+        background:rgba(3,18,15,.46);
+    }
+    .gamepad-exit-modal.show{ display:grid; }
+    .gamepad-exit-dialog{
+        width:min(360px, 92vw);
+        padding:22px 24px 20px;
+        border:1px solid rgba(255,231,164,.72);
+        border-radius:8px;
+        background:
+            linear-gradient(180deg, rgba(255,248,220,.98), rgba(238,202,120,.92) 46%, rgba(26,86,62,.96));
+        color:#173a2d;
+        box-shadow:0 22px 44px rgba(0,0,0,.34), inset 0 0 0 1px rgba(255,255,255,.3);
+        text-align:center;
+    }
+    .gamepad-exit-dialog h2{
+        margin:0 0 10px;
+        font-size:22px;
+    }
+    .gamepad-exit-dialog p{
+        margin:0 0 16px;
+        color:#244c37;
+        line-height:1.55;
+    }
+    .gamepad-exit-actions{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:10px;
     }
 </style>
 </head>
@@ -4546,23 +4675,6 @@
                     <button class="btn ghost" id="reset-demo-btn">重置演示数据</button>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div id="gamepad-guide" class="gamepad-guide" aria-live="polite">
-        <h3>手柄模拟键位</h3>
-        <p>目标是右手承担大部分玩法：默认有一个瞄准点，按住肩键后用右摇杆方向滑行，不要求严格对齐鼠标。</p>
-        <div class="gamepad-map" aria-hidden="true">
-            <span><b>WSAD</b> 左摇杆</span>
-            <span><b>方向键</b> 右摇杆</span>
-            <span><b>I/J/K/L</b> Y/X/A/B</span>
-            <span><b>1/2/3/4</b> 十字键</span>
-            <span><b>U/O</b> R1/R2</span>
-            <span><b>Q/E</b> L1/L2</span>
-        </div>
-        <div class="gamepad-status">
-            <span id="gamepad-focus-text">左摇杆上下选择素体，K(A) 放入镜片。</span>
-            <span id="gamepad-action-text">玩法内：方向键移动瞄准点，按住 O(R2) 使用工具，Q/E 切镜头。</span>
         </div>
     </div>
 
@@ -4658,6 +4770,24 @@
 
         <aside class="panel right-panel">
             <h2>工具与宝石</h2>
+            <div id="gamepad-guide" class="gamepad-guide" aria-live="polite">
+                <h3>手柄模拟键位</h3>
+                <p>X 在素体选择与玩法之间往返；R2 开镜，方向键瞄准；R1 或 A 确认落刀/落刷。</p>
+                <div class="gamepad-map" aria-hidden="true">
+                    <span><b>W/S/A/D</b> 左摇杆选素体</span>
+                    <span><b>F/V/C/B</b> 十字键选素体</span>
+                    <span><b>方向键</b> 右摇杆瞄准</span>
+                    <span><b>I/J/K/L</b> Y/X/A/B</span>
+                    <span><b>Q/E</b> L1/L2 切镜</span>
+                    <span><b>Q/U</b> 素体排序</span>
+                    <span><b>U/K</b> R1/A确认</span>
+                    <span><b>O</b> R2开镜</span>
+                </div>
+                <div class="gamepad-status">
+                    <span id="gamepad-focus-text">WSAD 或 F/V/C/B 选择素体，K(A) 放入镜片。</span>
+                    <span id="gamepad-action-text">Y 收集奖励，X 切换素体选择/玩法。</span>
+                </div>
+            </div>
             <div id="current-tool-card" class="current-tool-card">
                 <div id="current-tool-icon" class="current-tool-icon">-</div>
                 <div class="current-tool-text">
@@ -4672,6 +4802,7 @@
             <div class="plate-actions">
                 <button class="btn ghost organize-plate-btn" id="organize-plate-btn" title="重新撒石头" aria-label="重新撒石头">⚂</button>
             </div>
+            <button class="tutorial-help-btn tutorial-help-plate-btn" id="tutorial-help-plate-btn" type="button" aria-label="打开教程">?</button>
             <div id="plate" class="plate"></div>
         </aside>
     </div>
@@ -4699,6 +4830,17 @@
             <div class="tutorial-page-counter" id="tutorial-counter">1 / 6</div>
         </div>
         <button class="tutorial-nav-btn next" id="tutorial-next-btn" type="button" aria-label="下一页">›</button>
+    </div>
+</div>
+
+<div id="gamepad-exit-modal" class="gamepad-exit-modal" role="dialog" aria-modal="true" aria-labelledby="gamepad-exit-title" aria-describedby="gamepad-exit-body">
+    <div class="gamepad-exit-dialog">
+        <h2 id="gamepad-exit-title">退出当前处理？</h2>
+        <p id="gamepad-exit-body">未完成的素体会留在袋中。</p>
+        <div class="gamepad-exit-actions">
+            <button class="btn ghost" id="gamepad-exit-cancel-btn" type="button">取消 L(B)</button>
+            <button class="btn primary" id="gamepad-exit-confirm-btn" type="button">确认 K(A)/U(R1)</button>
+        </div>
     </div>
 </div>
 
@@ -4878,6 +5020,7 @@ const state = {
     layoutManualOverride:false,
     topbarCollapsed:false,
     mobileBagCollapsed:false,
+    mobileBagSuppressClick:false,
     desktopLensMode:"text",
     listSortKey:"quantity",
     raritySortDir:-1,
@@ -4892,18 +5035,24 @@ const state = {
     lensWheelRollDir:0,
     lensWheelRollToken:0,
     gamepadSelectionIndex:0,
+    gamepadFocus:"bag",
     gamepadAimX:50,
     gamepadAimY:50,
     gamepadAimStepId:null,
     gamepadKeys:new Set(),
+    gamepadAiming:false,
     gamepadUseActive:false,
     gamepadLastTick:0,
-    gamepadDrag:null
+    gamepadDrag:null,
+    gamepadExitConfirmOpen:false
 };
 let responsiveLayoutTimer = 0;
 
 function gemById(id){ return GEM_BLUEPRINTS.find(g => g.id === id); }
 function currentDataPack(){ return DEMO_DATA_PACKS[state.dataPackKey] || DEMO_DATA_PACKS.fullCoverage; }
+function isMobileLandscapeMode(){
+    return state.layoutMode === "mobileLandscape" || document.body.classList.contains("layout-mobile-landscape");
+}
 function applyLayoutMode(mode, options = {}){
     if(options.manual){
         state.layoutManualOverride = true;
@@ -4912,6 +5061,12 @@ function applyLayoutMode(mode, options = {}){
     state.layoutMode = ["desktop","mobileLandscape","gamepad"].includes(mode) ? mode : "desktop";
     document.body.classList.toggle("layout-mobile-landscape", state.layoutMode === "mobileLandscape");
     document.body.classList.toggle("layout-gamepad", state.layoutMode === "gamepad");
+    if(state.layoutMode !== "gamepad"){
+        setGamepadAiming(false);
+        closeGamepadExitConfirm();
+    } else {
+        state.gamepadFocus = state.active ? "play" : "bag";
+    }
     const select = document.getElementById("layout-select");
     if(select) select.value = state.layoutMode;
     if(state.layoutMode === "mobileLandscape"){
@@ -5071,16 +5226,18 @@ function setupLogPanel(){
 function setupSortControls(){
     document.querySelectorAll(".sort-btn").forEach(btn=>{
         btn.addEventListener("click", ()=>{
-            const nextSort = btn.dataset.sort || "quantity";
-            if(nextSort === "rarity" && state.listSortKey === "rarity"){
-                state.raritySortDir *= -1;
-            } else {
-                state.listSortKey = nextSort;
-                if(nextSort === "rarity") state.raritySortDir = -1;
-            }
-            renderKnownList();
+            applyListSort(btn.dataset.sort || "quantity");
         });
     });
+}
+function applyListSort(nextSort){
+    if(nextSort === "rarity" && state.listSortKey === "rarity"){
+        state.raritySortDir *= -1;
+    } else {
+        state.listSortKey = nextSort;
+        if(nextSort === "rarity") state.raritySortDir = -1;
+    }
+    renderKnownList();
 }
 function renderMain(){
     document.getElementById("bag-count").textContent = `${bagTotal()}素体`;
@@ -5133,7 +5290,8 @@ function renderKnownList(){
         const selected = state.layoutMode === "gamepad" && index === state.gamepadSelectionIndex;
         card.className = `stone-card ${known ? "" : "locked"} ${available ? "" : "empty"} ${selected ? "gamepad-selected" : ""}`;
         card.dataset.gemId = gem.id;
-        card.draggable = known && available;
+        const allowDragSelect = known && available && !isMobileLandscapeMode();
+        card.draggable = allowDragSelect;
         card.innerHTML = `
             <div class="stone-dot ${dotImage ? "with-image" : ""}" style="background:${gem.color}; ${dotImage ? `background-image:${dotImage}` : ""}"></div>
             <div>
@@ -5146,11 +5304,22 @@ function renderKnownList(){
             <span class="pill">${known ? "拖拽→" : "未识别"}</span>
         `;
         if(known && available){
-            card.addEventListener("click", ()=>startKnownStone(gem.id));
-            card.addEventListener("dragstart", e=>{
-                state.dragPayload = { type:"known", id:gem.id };
-                e.dataTransfer.setData("text/plain", JSON.stringify(state.dragPayload));
+            card.addEventListener("click", e=>{
+                if(state.mobileBagSuppressClick){
+                    e.preventDefault();
+                    state.mobileBagSuppressClick = false;
+                    return;
+                }
+                startKnownStone(gem.id);
             });
+            if(allowDragSelect){
+                card.addEventListener("dragstart", e=>{
+                    state.dragPayload = { type:"known", id:gem.id };
+                    e.dataTransfer.setData("text/plain", JSON.stringify(state.dragPayload));
+                });
+            } else {
+                card.addEventListener("dragstart", e=>e.preventDefault());
+            }
         }
         list.appendChild(card);
     });
@@ -5443,6 +5612,7 @@ function abandonActiveGem(message){
     state.pendingBatch = false;
     state.hotspotRevealKey = null;
     state.lensLockedUntil = 0;
+    state.gamepadFocus = "bag";
     addLog(`${gem.name} 未完成，已退出当前处理。${message}`);
 }
 function startCorePlay(id, meta){
@@ -5458,6 +5628,7 @@ function startCorePlay(id, meta){
     state.activeTool = state.active.tasks[0]?.type || "clean";
     state.hotspotRevealKey = null;
     state.lensLockedUntil = 0;
+    state.gamepadFocus = "play";
     document.body.classList.add("playing");
     if(state.layoutMode === "mobileLandscape") setTopbarCollapsed(true);
     setMobileBagCollapsed(state.layoutMode === "mobileLandscape");
@@ -5769,6 +5940,7 @@ function renderPlay(){
     if(!active) return;
     const gem = gemById(active.gemId);
     const step = currentStep();
+    if(isGamepadMode() && step) state.activeTool = step.type;
     const gem3d = document.getElementById("gem3d");
     const visual = visualStateForActive(active, step);
     const stepClass = step ? `step-${step.type}` : "";
@@ -6072,7 +6244,7 @@ function cycleToolByDirection(dir=1){
     toast(`切换到${TOOL_LABELS[next]}工具`);
 }
 const GAMEPAD_KEY_SET = new Set([
-    "w","a","s","d","i","j","k","l","q","e","u","o","1","2","3","4",
+    "w","a","s","d","f","v","c","b","i","j","k","l","q","e","u","o",
     "ArrowUp","ArrowDown","ArrowLeft","ArrowRight"
 ]);
 function gamepadKeyName(e){
@@ -6081,8 +6253,38 @@ function gamepadKeyName(e){
 function isGamepadMode(){
     return state.layoutMode === "gamepad";
 }
+function isGamepadBagFocus(){
+    return !state.active || state.gamepadFocus === "bag";
+}
+function syncGamepadFocusClasses(){
+    const gamepad = isGamepadMode();
+    const bagFocus = gamepad && isGamepadBagFocus();
+    document.body.classList.toggle("gamepad-focus-bag", bagFocus);
+    document.body.classList.toggle("gamepad-focus-play", gamepad && !!state.active && !bagFocus);
+}
+function setGamepadFocus(focus, options = {}){
+    const next = !state.active || focus === "bag" ? "bag" : "play";
+    if(next === "bag" && state.gamepadFocus !== "bag"){
+        finishGamepadUse();
+        setGamepadAiming(false);
+    }
+    state.gamepadFocus = next;
+    syncGamepadFocusClasses();
+    renderGamepadHud();
+    if(options.toast){
+        toast(next === "bag" ? "切到素体选择" : "回到玩法");
+    }
+}
 function gamepadAxis(negativeKey, positiveKey){
     return (state.gamepadKeys.has(positiveKey) ? 1 : 0) - (state.gamepadKeys.has(negativeKey) ? 1 : 0);
+}
+function gamepadSelectionDirForKey(key){
+    if(["w","a","f","c"].includes(key)) return -1;
+    if(["s","d","v","b"].includes(key)) return 1;
+    return 0;
+}
+function isGamepadSelectionKey(key){
+    return gamepadSelectionDirForKey(key) !== 0;
 }
 function selectedGamepadGem(){
     const gems = sortedListGems();
@@ -6115,6 +6317,22 @@ function startGamepadSelectedStone(){
     }
     startKnownStone(gem.id);
 }
+function applyGamepadSort(sortKey){
+    applyListSort(sortKey);
+    renderGamepadHud();
+    toast(sortKey === "quantity"
+        ? "按拾取数量排序"
+        : `按星级 ${state.raritySortDir < 0 ? "高→低" : "低→高"}`);
+}
+function handleGamepadRewardKey(){
+    const modal = document.getElementById("reward-modal");
+    if(modal?.classList.contains("show")){
+        collectRewards();
+        return;
+    }
+    openRewardModal();
+    renderGamepadHud();
+}
 function syncGamepadAimToStep(step, force=false){
     if(!step){
         state.gamepadAimStepId = null;
@@ -6123,10 +6341,20 @@ function syncGamepadAimToStep(step, force=false){
         return;
     }
     if(!force && state.gamepadAimStepId === step.id) return;
-    const pos = defectStagePosition(step);
     state.gamepadAimStepId = step.id;
-    state.gamepadAimX = clampNumber(pos.x, 10, 90);
-    state.gamepadAimY = clampNumber(pos.y, 10, 90);
+    state.gamepadAimX = 50;
+    state.gamepadAimY = 50;
+}
+function setGamepadAiming(active, resetCenter=false){
+    state.gamepadAiming = !!active;
+    if(state.gamepadAiming && resetCenter){
+        state.gamepadAimX = 50;
+        state.gamepadAimY = 50;
+        document.body.classList.remove("gamepad-aiming");
+        void document.body.offsetWidth;
+    }
+    document.body.classList.toggle("gamepad-aiming", state.gamepadAiming);
+    renderGamepadHud();
 }
 function gamepadAimClientPoint(){
     const stage = document.getElementById("lens-stage");
@@ -6139,25 +6367,27 @@ function gamepadAimClientPoint(){
 }
 function beginGamepadUse(){
     if(!isGamepadMode() || !state.active) return;
-    const step = currentStep();
-    if(!step) return;
-    state.gamepadUseActive = true;
-    if(step.type === "repair"){
-        if(state.lensIndex !== step.lens || state.activeTool !== step.type){
-            toast(state.lensIndex !== step.lens ? `先用 Q/E 切到 ${LENSES[step.lens].label}` : `先切到${TOOL_LABELS[step.type]}工具`);
-            state.gamepadUseActive = false;
-            renderGamepadHud();
-            return;
-        }
-        handleHotspotClick();
-        state.gamepadUseActive = false;
+    if(!state.gamepadAiming){
+        toast("按住 R2 开启瞄准");
         return;
     }
-    if(state.lensIndex !== step.lens || state.activeTool !== step.type){
-        toast(state.lensIndex !== step.lens ? `先用 Q/E 切到 ${LENSES[step.lens].label}` : `先切到${TOOL_LABELS[step.type]}工具`);
+    const step = currentStep();
+    if(!step || state.gamepadDrag || state.gamepadUseActive) return;
+    if(state.lensIndex !== step.lens){
+        toast(`先用 Q/E 切到 ${LENSES[step.lens].label}`);
         renderGamepadHud();
         return;
     }
+    state.activeTool = step.type;
+    if(step.type === "repair"){
+        state.gamepadUseActive = true;
+        renderGamepadHud();
+        handleHotspotClick();
+        state.gamepadUseActive = false;
+        renderGamepadHud();
+        return;
+    }
+    state.gamepadUseActive = true;
     const point = gamepadAimClientPoint();
     const shapeTrace = step.type === "shape" ? beginShapeTrace(point.x, point.y) : null;
     state.gamepadDrag = {
@@ -6230,8 +6460,7 @@ function finishGamepadUse(){
     renderGamepadHud();
 }
 function updateGamepadAim(dt){
-    const step = currentStep();
-    if(state.active) syncGamepadAimToStep(step);
+    if(!state.gamepadAiming || !state.active) return;
     const axisX = gamepadAxis("ArrowLeft", "ArrowRight");
     const axisY = gamepadAxis("ArrowUp", "ArrowDown");
     if(axisX || axisY){
@@ -6242,11 +6471,11 @@ function updateGamepadAim(dt){
     }
 }
 function updateGamepadUse(dt){
-    if(!state.gamepadUseActive || !state.active) return;
+    if(!state.gamepadUseActive || !state.gamepadAiming || !state.active) return;
     const step = currentStep();
     if(!step || step.type === "repair") return;
-    if(state.lensIndex !== step.lens || state.activeTool !== step.type) return;
-    if(!state.gamepadDrag) beginGamepadUse();
+    if(state.lensIndex !== step.lens) return;
+    state.activeTool = step.type;
     const drag = state.gamepadDrag;
     if(!drag) return;
     const point = gamepadAimClientPoint();
@@ -6326,35 +6555,66 @@ function updateGamepadUse(dt){
     }
 }
 function renderGamepadHud(){
+    syncGamepadFocusClasses();
     const aim = document.getElementById("gamepad-aim");
     if(aim){
         aim.style.left = `${state.gamepadAimX || 50}%`;
         aim.style.top = `${state.gamepadAimY || 50}%`;
         aim.classList.toggle("using", !!state.gamepadUseActive);
     }
+    document.body.classList.toggle("gamepad-aiming", !!state.gamepadAiming);
     const focus = document.getElementById("gamepad-focus-text");
     const action = document.getElementById("gamepad-action-text");
     if(!focus || !action) return;
     if(!isGamepadMode()){
-        focus.textContent = "左摇杆上下选择素体，K(A) 放入镜片。";
-        action.textContent = "玩法内：方向键移动瞄准点，按住 O(R2) 使用工具，Q/E 切镜头。";
+        focus.textContent = "WSAD 或 F/V/C/B 选择素体，K(A) 放入镜片。";
+        action.textContent = "玩法内：O(R2) 开镜，方向键瞄准，U(R1)/K(A) 确认。";
         return;
     }
     const step = currentStep();
-    if(!state.active){
+    if(document.getElementById("reward-modal")?.classList.contains("show")){
+        focus.textContent = "奖励确认：Y / A / R1 领取，B 关闭。";
+        action.textContent = `待收集 ${plateTotal()} 颗成石奖励。`;
+        return;
+    }
+    if(state.gamepadExitConfirmOpen){
+        focus.textContent = "退出确认：当前处理还没有完成。";
+        action.textContent = "K(A) 或 U(R1) 确认退出，L(B) / Esc 取消。";
+        return;
+    }
+    if(isGamepadBagFocus()){
         const gem = selectedGamepadGem();
-        focus.textContent = gem ? `当前选择：${gem.name} × ${countInBag(gem.id)}。W/S 或 1/2 选择，K(A) 开始。` : "素体袋为空。";
-        action.textContent = "3(十字左) 整袋处理，4(十字右) 放入镜片，L(B) 取消当前玩法。";
+        focus.textContent = gem ? `素体选择：${gem.name} × ${countInBag(gem.id)}。WSAD 左摇杆 / FVCB 十字键移动，K(A) 放入。` : "素体袋为空。";
+        action.textContent = `Q(L1) 按数量，U(R1) 按星级；I(Y) 收集奖励${state.active ? "；J(X) 回到玩法" : ""}。`;
         return;
     }
     const lensOk = step && state.lensIndex === step.lens;
-    const toolOk = step && state.activeTool === step.type;
     focus.textContent = step
-        ? `瞄准：${TOOL_LABELS[step.type]} · ${step.title}。当前镜头 ${LENSES[state.lensIndex].label}，工具 ${TOOL_LABELS[state.activeTool]}。`
+        ? `${state.gamepadAiming ? "开镜中" : "待开镜"}：${TOOL_LABELS[step.type]} · ${step.title}。当前镜头 ${LENSES[state.lensIndex].label}。`
         : "当前素体流程已完成。";
     action.textContent = step
-        ? `${lensOk ? "镜头正确" : `Q/E 切到 ${LENSES[step.lens].label}`}；${toolOk ? "工具正确" : `3/4 切到 ${TOOL_LABELS[step.type]}`}；按住 O(R2) 或 K(A) 执行动作。`
-        : "K(A) 收下一个提示，L(B) 退出。";
+        ? `${lensOk ? "镜头正确" : `Q/E 或 F/V 切到 ${LENSES[step.lens].label}`}；O(R2) 开镜，U(R1)/K(A) 确认；J(X) 选素体，I(Y) 收集。`
+        : "K(A) 或 U(R1) 确认，L(B) 退出。";
+}
+function isGamepadExitConfirmOpen(){
+    return !!document.getElementById("gamepad-exit-modal")?.classList.contains("show");
+}
+function openGamepadExitConfirm(){
+    if(!state.active) return;
+    finishGamepadUse();
+    setGamepadAiming(false);
+    state.gamepadExitConfirmOpen = true;
+    document.getElementById("gamepad-exit-modal")?.classList.add("show");
+    renderGamepadHud();
+}
+function closeGamepadExitConfirm(){
+    state.gamepadExitConfirmOpen = false;
+    document.getElementById("gamepad-exit-modal")?.classList.remove("show");
+    renderGamepadHud();
+}
+function confirmGamepadExit(){
+    closeGamepadExitConfirm();
+    exitPlay();
 }
 function handleGamepadKeyDown(e){
     const key = gamepadKeyName(e);
@@ -6363,36 +6623,80 @@ function handleGamepadKeyDown(e){
     e.preventDefault();
     if(!state.gamepadKeys.has(key)) state.gamepadKeys.add(key);
     const firstPress = !e.repeat;
-    if(!firstPress && !["w","s","1","2"].includes(key)) return;
-    if(!state.active){
-        if(key === "w" || key === "1") moveGamepadSelection(-1);
-        if(key === "s" || key === "2") moveGamepadSelection(1);
-        if(key === "k" || key === "d" || key === "4") startGamepadSelectedStone();
-        if(key === "a" || key === "3") startBatchFromBag();
+    const rewardOpen = document.getElementById("reward-modal")?.classList.contains("show");
+    if(rewardOpen){
+        if(firstPress && (key === "i" || key === "k" || key === "u")) handleGamepadRewardKey();
+        if(firstPress && key === "l") closeRewardModal();
+        renderGamepadHud();
+        return;
+    }
+    if(state.gamepadExitConfirmOpen){
+        if(firstPress && (key === "k" || key === "u")) confirmGamepadExit();
+        if(firstPress && key === "l") closeGamepadExitConfirm();
+        return;
+    }
+    const selectionKey = isGamepadSelectionKey(key);
+    if(!firstPress && !selectionKey) return;
+    if(firstPress && key === "i"){
+        handleGamepadRewardKey();
+        return;
+    }
+    if(firstPress && key === "j" && state.active){
+        setGamepadFocus(isGamepadBagFocus() ? "play" : "bag", { toast:true });
+        return;
+    }
+    if(isGamepadBagFocus()){
+        const selectionDir = gamepadSelectionDirForKey(key);
+        if(selectionDir){
+            moveGamepadSelection(selectionDir);
+            return;
+        }
+        if(firstPress && key === "q"){
+            applyGamepadSort("quantity");
+            return;
+        }
+        if(firstPress && key === "u"){
+            applyGamepadSort("rarity");
+            return;
+        }
+        if(firstPress && key === "k"){
+            startGamepadSelectedStone();
+            return;
+        }
+        if(firstPress && key === "l" && state.active){
+            openGamepadExitConfirm();
+            return;
+        }
         return;
     }
     if(key === "l"){
-        exitPlay();
+        openGamepadExitConfirm();
         return;
     }
-    if(key === "q" || key === "1"){
+    if(key === "q" || key === "f"){
         if(setLensIndex(state.lensIndex - 1, true, -1)){ renderPlay(); toast(`切换到 ${LENSES[state.lensIndex].label}`); }
     }
-    if(key === "e" || key === "2"){
+    if(key === "e" || key === "v"){
         if(setLensIndex(state.lensIndex + 1, true, 1)){ renderPlay(); toast(`切换到 ${LENSES[state.lensIndex].label}`); }
     }
-    if(key === "3") cycleToolByDirection(-1);
-    if(key === "4") cycleToolByDirection(1);
-    if(key === "k" || key === "o" || key === "u") beginGamepadUse();
+    if(firstPress && key === "o"){
+        setGamepadAiming(true, true);
+        return;
+    }
+    if(firstPress && (key === "k" || key === "u")) beginGamepadUse();
 }
 function handleGamepadKeyUp(e){
     const key = gamepadKeyName(e);
     if(!GAMEPAD_KEY_SET.has(key)) return;
     state.gamepadKeys.delete(key);
     if(!isGamepadMode()) return;
-    if((key === "k" || key === "o" || key === "u")
+    if(key === "o"){
+        finishGamepadUse();
+        setGamepadAiming(false);
+        return;
+    }
+    if((key === "k" || key === "u")
         && !state.gamepadKeys.has("k")
-        && !state.gamepadKeys.has("o")
         && !state.gamepadKeys.has("u")){
         finishGamepadUse();
     }
@@ -7269,6 +7573,8 @@ function traceMatchesShape(points, shape){
 function completeActiveGem(){
     const active = state.active;
     const gem = gemById(active.gemId);
+    finishGamepadUse();
+    setGamepadAiming(false);
     clearHotspot();
     state.playedTypes.add(active.gemId);
     state.knownTypes.add(active.gemId);
@@ -7277,6 +7583,7 @@ function completeActiveGem(){
     state.active = null;
     state.hotspotRevealKey = null;
     state.lensLockedUntil = 0;
+    state.gamepadFocus = "bag";
     renderMain();
     if(active.meta.continueBatch){
         const nextId = firstUnseenOrFirstBagId();
@@ -7291,7 +7598,11 @@ function completeActiveGem(){
     finishRound("完成一次核心玩法。");
 }
 function finishRound(message){
+    finishGamepadUse();
+    setGamepadAiming(false);
+    closeGamepadExitConfirm();
     document.body.classList.remove("playing");
+    state.gamepadFocus = "bag";
     setMobileBagCollapsed(state.layoutMode === "mobileLandscape");
     document.getElementById("lens-stage").classList.add("idle");
     clearHotspot();
@@ -7374,6 +7685,10 @@ function collectRewards(){
     state.rewards = [];
     state.plate = {};
     state.plateItems = [];
+    state.gamepadFocus = "bag";
+    finishGamepadUse();
+    setGamepadAiming(false);
+    closeGamepadExitConfirm();
     document.body.classList.remove("playing");
     setMobileBagCollapsed(state.layoutMode === "mobileLandscape");
     document.getElementById("lens-stage").classList.add("idle");
@@ -7422,7 +7737,103 @@ function setupRewardListScroll(){
     list.addEventListener("pointerup", stopDrag);
     list.addEventListener("pointercancel", stopDrag);
 }
+function setupMobileBagPan(){
+    const list = document.getElementById("known-list");
+    if(!list) return;
+    let pan = null;
+    list.addEventListener("pointerdown", e=>{
+        if(!isMobileLandscapeMode() || e.button !== 0) return;
+        if(e.target.closest(".sort-btn,.tutorial-help-btn,.mobile-bag-toggle")) return;
+        pan = {
+            id:e.pointerId,
+            startX:e.clientX,
+            startY:e.clientY,
+            startScroll:list.scrollTop,
+            moved:false
+        };
+        state.mobileBagSuppressClick = false;
+        list.setPointerCapture?.(e.pointerId);
+    });
+    list.addEventListener("pointermove", e=>{
+        if(!pan || pan.id !== e.pointerId) return;
+        const dx = e.clientX - pan.startX;
+        const dy = e.clientY - pan.startY;
+        if(!pan.moved && Math.abs(dy) > 6 && Math.abs(dy) > Math.abs(dx)){
+            pan.moved = true;
+            state.mobileBagSuppressClick = true;
+            list.classList.add("dragging");
+        }
+        if(!pan.moved) return;
+        e.preventDefault();
+        list.scrollTop = pan.startScroll - dy;
+    }, { passive:false });
+    const finishPan = e=>{
+        if(!pan || pan.id !== e.pointerId) return;
+        const moved = pan.moved;
+        pan = null;
+        list.classList.remove("dragging");
+        if(list.hasPointerCapture?.(e.pointerId)) list.releasePointerCapture(e.pointerId);
+        if(moved) setTimeout(()=>{ state.mobileBagSuppressClick = false; }, 180);
+    };
+    list.addEventListener("pointerup", finishPan);
+    list.addEventListener("pointercancel", finishPan);
+}
+function setupMobileLensSwipe(){
+    const stage = document.getElementById("lens-stage");
+    if(!stage) return;
+    let swipe = null;
+    const canStartOnTarget = target=>!target.closest?.("button,.hotspot,.lens-dial,.lens-orb,.core-controls,.notebook-card,.plate,.collect-cta,.plate-actions,.tutorial-help-btn");
+    const outsideCenterRange = e=>{
+        const rect = stage.getBoundingClientRect();
+        if(!rect.width || !rect.height) return false;
+        const dx = e.clientX - (rect.left + rect.width / 2);
+        const dy = e.clientY - (rect.top + rect.height / 2);
+        return Math.hypot(dx, dy) > Math.min(rect.width, rect.height) * .34;
+    };
+    stage.addEventListener("pointerdown", e=>{
+        if(!isMobileLandscapeMode() || !state.active || e.button !== 0) return;
+        if(!canStartOnTarget(e.target) || !outsideCenterRange(e)) return;
+        swipe = {
+            id:e.pointerId,
+            startX:e.clientX,
+            startY:e.clientY,
+            lastSwitchY:e.clientY,
+            moved:false
+        };
+        stage.setPointerCapture?.(e.pointerId);
+    });
+    stage.addEventListener("pointermove", e=>{
+        if(!swipe || swipe.id !== e.pointerId) return;
+        const dx = e.clientX - swipe.startX;
+        const dy = e.clientY - swipe.startY;
+        if(!swipe.moved && Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx) * 1.15){
+            swipe.moved = true;
+            stage.classList.add("mobile-lens-dragging");
+        }
+        if(!swipe.moved) return;
+        e.preventDefault();
+        const deltaY = e.clientY - swipe.lastSwitchY;
+        if(Math.abs(deltaY) < 42) return;
+        const dir = deltaY > 0 ? 1 : -1;
+        swipe.lastSwitchY = e.clientY;
+        if(setLensIndex(state.lensIndex + dir, true, dir)){
+            renderPlay();
+            toast(`切换到 ${LENSES[state.lensIndex].label}`);
+        }
+    }, { passive:false });
+    const finishSwipe = e=>{
+        if(!swipe || swipe.id !== e.pointerId) return;
+        swipe = null;
+        stage.classList.remove("mobile-lens-dragging");
+        if(stage.hasPointerCapture?.(e.pointerId)) stage.releasePointerCapture(e.pointerId);
+    };
+    stage.addEventListener("pointerup", finishSwipe);
+    stage.addEventListener("pointercancel", finishSwipe);
+}
 function exitPlay(){
+    finishGamepadUse();
+    setGamepadAiming(false);
+    closeGamepadExitConfirm();
     if(state.active){
         addLog(`${gemById(state.active.gemId).name} 玩法退出，未完成的同类型素体留在袋中。`);
     }
@@ -7430,6 +7841,7 @@ function exitPlay(){
     state.pendingBatch = false;
     state.hotspotRevealKey = null;
     state.lensLockedUntil = 0;
+    state.gamepadFocus = "bag";
     document.body.classList.remove("playing");
     setMobileBagCollapsed(state.layoutMode === "mobileLandscape");
     document.getElementById("lens-stage").classList.add("idle");
@@ -7443,6 +7855,9 @@ function applyDataPack(key){
 }
 function resetDemo(){
     const pack = currentDataPack();
+    finishGamepadUse();
+    setGamepadAiming(false);
+    closeGamepadExitConfirm();
     state.bag = normalizedBag(pack.bag);
     state.knownTypes = new Set(pack.known);
     state.playedTypes = new Set();
@@ -7453,10 +7868,12 @@ function resetDemo(){
     state.pendingBatch = false;
     state.hotspotRevealKey = null;
     state.lensLockedUntil = 0;
+    state.gamepadFocus = "bag";
     document.body.classList.remove("playing");
     setMobileBagCollapsed(state.layoutMode === "mobileLandscape");
     document.getElementById("reward-modal").classList.remove("show");
     document.getElementById("tutorial-modal").classList.remove("show");
+    document.getElementById("gamepad-exit-modal").classList.remove("show");
     document.getElementById("lens-stage").classList.add("idle");
     const mainLog = document.getElementById("main-log");
     if(mainLog) mainLog.innerHTML = "";
@@ -7521,6 +7938,8 @@ document.addEventListener("DOMContentLoaded", ()=>{
     setupLogPanel();
     setupSortControls();
     setupRewardListScroll();
+    setupMobileBagPan();
+    setupMobileLensSwipe();
     const hotspot = document.getElementById("hotspot");
     hotspot.addEventListener("click", handleHotspotClick);
     hotspot.addEventListener("pointerdown", startDefectDrag);
@@ -7541,16 +7960,24 @@ document.addEventListener("DOMContentLoaded", ()=>{
     document.getElementById("reward-modal").addEventListener("click", e=>{
         if(e.target.id === "reward-modal") collectRewards();
     });
-    document.getElementById("tutorial-help-btn").addEventListener("click", ()=>openTutorialModal(0));
+    document.querySelectorAll(".tutorial-help-btn").forEach(btn=>{
+        btn.addEventListener("click", ()=>openTutorialModal(0));
+    });
     document.getElementById("tutorial-close-btn").addEventListener("click", closeTutorialModal);
     document.getElementById("tutorial-prev-btn").addEventListener("click", ()=>turnTutorialPage(-1));
     document.getElementById("tutorial-next-btn").addEventListener("click", ()=>turnTutorialPage(1));
     document.getElementById("tutorial-modal").addEventListener("click", e=>{
         if(e.target.id === "tutorial-modal") closeTutorialModal();
     });
+    document.getElementById("gamepad-exit-modal").addEventListener("click", e=>{
+        if(e.target.id === "gamepad-exit-modal") closeGamepadExitConfirm();
+    });
+    document.getElementById("gamepad-exit-cancel-btn").addEventListener("click", closeGamepadExitConfirm);
+    document.getElementById("gamepad-exit-confirm-btn").addEventListener("click", confirmGamepadExit);
     document.addEventListener("keydown", e=>{
         if(e.key !== "Escape") return;
-        if(document.getElementById("tutorial-modal").classList.contains("show")) closeTutorialModal();
+        if(document.getElementById("gamepad-exit-modal").classList.contains("show")) closeGamepadExitConfirm();
+        else if(document.getElementById("tutorial-modal").classList.contains("show")) closeTutorialModal();
         else if(document.getElementById("reward-modal").classList.contains("show")) collectRewards();
     });
     document.getElementById("collect-btn").addEventListener("click", openRewardModal);
