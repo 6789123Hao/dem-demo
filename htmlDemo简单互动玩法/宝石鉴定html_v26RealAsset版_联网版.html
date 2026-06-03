@@ -1556,7 +1556,7 @@
     }
     .drag-particle-soak{
         width:9px;
-        height:9px;
+        height:7px;
         background:rgba(125,238,224,.82);
         box-shadow:0 0 12px rgba(96,232,220,.48), 0 0 20px rgba(255,250,210,.2);
     }
@@ -1836,13 +1836,90 @@
         stroke-width:18;
     }
     .chamfer-track-progress{
-        fill:none;
-        stroke:rgba(104,236,214,.62);
-        stroke-width:5;
-        stroke-linecap:round;
-        stroke-dasharray:var(--chamfer-progress, 0) 1000;
-        filter:drop-shadow(0 0 9px rgba(100,235,215,.32));
-        transition:stroke-dasharray .24s ease;
+        display:none;
+    }
+    .chamfer-progress-meter{
+        position:absolute;
+        left:var(--chamfer-meter-left);
+        top:var(--chamfer-meter-top);
+        width:var(--chamfer-meter-width);
+        height:9px;
+        transform:translateX(-50%);
+        border-radius:999px;
+        overflow:hidden;
+        background:linear-gradient(180deg, rgba(34,51,44,.72), rgba(18,28,25,.78));
+        border:1px solid rgba(255,232,158,.44);
+        box-shadow:0 4px 12px rgba(14,19,17,.24), 0 0 12px rgba(102,235,214,.16);
+        transition:opacity .24s ease;
+    }
+    .chamfer-progress-meter::before{
+        content:"";
+        position:absolute;
+        inset:1px;
+        border-radius:inherit;
+        background:linear-gradient(90deg, rgba(255,242,176,.15), transparent 36%, rgba(111,240,218,.14));
+        pointer-events:none;
+        z-index:1;
+    }
+    .chamfer-progress-fill{
+        position:absolute;
+        left:0;
+        top:0;
+        bottom:0;
+        width:var(--chamfer-progress-pct, 0%);
+        border-radius:inherit;
+        background:linear-gradient(90deg, rgba(255,223,116,.92), rgba(108,238,215,.92));
+        box-shadow:0 0 12px rgba(108,238,215,.36);
+        transition:width .24s ease;
+    }
+    .chamfer-drag-cue{
+        position:absolute;
+        left:var(--chamfer-cue-left);
+        top:var(--chamfer-cue-top);
+        width:118px;
+        height:34px;
+        transform:translate(-50%, -50%);
+        opacity:0;
+        pointer-events:none;
+        transition:opacity .42s ease;
+        filter:drop-shadow(0 4px 8px rgba(18,28,24,.28));
+    }
+    .chamfer-drag-cue::before,
+    .chamfer-drag-cue::after{
+        content:"";
+        position:absolute;
+        top:50%;
+        width:34px;
+        height:22px;
+        border-radius:999px;
+        border:1px solid rgba(255,232,150,.52);
+        background:linear-gradient(180deg, rgba(35,74,61,.72), rgba(14,40,34,.76));
+        box-shadow:inset 0 1px 0 rgba(255,248,208,.26), 0 0 12px rgba(99,235,214,.18);
+    }
+    .chamfer-drag-cue::before{
+        left:8px;
+        transform:translateY(-50%);
+        clip-path:polygon(70% 12%, 70% 32%, 100% 32%, 100% 68%, 70% 68%, 70% 88%, 0 50%);
+    }
+    .chamfer-drag-cue::after{
+        right:8px;
+        transform:translateY(-50%);
+        clip-path:polygon(30% 12%, 30% 32%, 0 32%, 0 68%, 30% 68%, 30% 88%, 100% 50%);
+    }
+    .chamfer-drag-cue i{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:42px;
+        height:3px;
+        transform:translate(-50%, -50%);
+        border-radius:999px;
+        background:linear-gradient(90deg, transparent, rgba(111,240,218,.7), transparent);
+        box-shadow:0 0 10px rgba(111,240,218,.28);
+    }
+    .chamfer-overlay.lens-ok:not(.has-dragged):not(.completing) .chamfer-drag-cue{
+        animation:chamferDragCueFloat 2.05s ease-in-out .45s infinite;
+        opacity:.92;
     }
     .chamfer-corner path{
         fill:rgba(66,44,23,.42);
@@ -1919,7 +1996,33 @@
         transform:translate(-50%, -50%) rotate(var(--cloth-rot)) translate(var(--cloth-jitter-x, 0px), var(--cloth-jitter-y, 0px));
         transform-origin:50% 50%;
         filter:drop-shadow(0 10px 10px rgba(18,12,8,.28)) drop-shadow(0 0 8px rgba(255,224,142,.22));
-        transition:left .08s linear, top .08s linear, transform .08s linear;
+        transition:transform .08s linear, opacity .28s ease, filter .28s ease;
+    }
+    .chamfer-overlay.lens-wrong .chamfer-cloth{
+        opacity:.78;
+        filter:drop-shadow(0 12px 14px rgba(18,12,8,.24)) drop-shadow(0 0 10px rgba(255,224,142,.14));
+    }
+    .chamfer-overlay.lens-wrong .chamfer-track-svg,
+    .chamfer-overlay.lens-wrong .chamfer-clean-preview-layer,
+    .chamfer-overlay.lens-wrong .chamfer-progress-meter{
+        display:none;
+    }
+    .chamfer-overlay.completing .chamfer-progress-meter{
+        opacity:0;
+    }
+    .chamfer-overlay.completing .chamfer-corner{
+        opacity:0;
+        transition:opacity .28s ease;
+    }
+    .chamfer-overlay.completing .chamfer-track-line{
+        stroke:rgba(123,246,220,.62);
+        stroke-dasharray:0 1;
+        filter:drop-shadow(0 0 12px rgba(112,244,216,.32));
+    }
+    .chamfer-overlay.completing .chamfer-cloth{
+        opacity:0;
+        filter:drop-shadow(0 16px 16px rgba(18,12,8,.18)) drop-shadow(0 0 18px rgba(130,255,220,.34));
+        transition:transform .12s linear, opacity .34s .64s ease, filter .42s ease;
     }
     .chamfer-cloth img{
         width:100%;
@@ -1971,9 +2074,9 @@
         animation:chamferClothSnag .16s steps(2, end) infinite;
         filter:drop-shadow(0 13px 12px rgba(18,12,8,.34)) drop-shadow(0 0 13px rgba(255,204,99,.46));
     }
-    .chamfer-overlay.snagging .chamfer-track-progress{
-        stroke:rgba(255,225,118,.74);
-        filter:drop-shadow(0 0 12px rgba(255,210,92,.42));
+    .chamfer-overlay.snagging .chamfer-progress-fill{
+        background:linear-gradient(90deg, rgba(255,225,118,.96), rgba(120,242,218,.92));
+        box-shadow:0 0 14px rgba(255,210,92,.36);
     }
     .chamfer-overlay.completing::after{
         content:"";
@@ -1996,6 +2099,13 @@
     @keyframes chamferCornerSnag{
         0%{ transform:scale(.96); opacity:.78; }
         100%{ transform:scale(1.12); opacity:1; }
+    }
+    @keyframes chamferDragCueFloat{
+        0%{ opacity:0; transform:translate(-50%, -50%) translateX(0) scale(.96); }
+        22%{ opacity:.9; }
+        45%{ transform:translate(-50%, -50%) translateX(-8px) scale(1); }
+        70%{ opacity:.92; transform:translate(-50%, -50%) translateX(8px) scale(1); }
+        100%{ opacity:0; transform:translate(-50%, -50%) translateX(0) scale(.98); }
     }
     @keyframes chamferDirtPreview{
         0%{ opacity:0; filter:drop-shadow(0 1px 2px rgba(42,32,24,.22)) blur(1px); }
@@ -5650,7 +5760,7 @@ const TOOL_NOTES = {
     clean:"擦净后闪光收纳",
     light:"移动寻光灯找反光点",
     soak:"放入量杯左右摇晃",
-    chamfer:"沿边缘来回磨平尖角"
+    chamfer:"沿宝石边缘来回摩擦直到光滑为止"
 };
 const TOOL_ORDER = ["cut","repair","light","shape","soak","chamfer","clean"];
 const LENS_FREE_TYPES = new Set(["soak"]);
@@ -5682,9 +5792,12 @@ const SOAK_REBOUND = 11;
 const SOAK_TRIAL_GEMS = new Set(["agate", "fluorite"]);
 const CHAMFER_REQUIRED_PASSES = 3;
 const CHAMFER_CLOTH_SRC = "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_chamfer_cloth_A.png";
+const CHAMFER_CLOTH_TRACK_SCALE = 1.08;
+const CHAMFER_CLOTH_IDLE_SCALE = 1.24;
 const CHAMFER_CONFIGS = {
-    pearl:{ rx:.55, ry:.55, start:-105, corners:[-132, -28, 126] },
-    agate:{ rx:.58, ry:.49, start:-116, corners:[-154, -66, 92] }
+    pearl:{ rx:.61, ry:.61, start:-105, corners:[-132, -28, 126] },
+    agate:{ rx:.64, ry:.54, start:-116, corners:[-154, -66, 92] },
+    fluorite_test:{ rx:.62, ry:.62, start:-118, corners:[-148, -36, 106] }
 };
 function clampNumber(value, min, max){ return Math.max(min, Math.min(max, value)); }
 function stepRequiresLens(step){ return !!step && !LENS_FREE_TYPES.has(step.type); }
@@ -5698,14 +5811,15 @@ const SHAPE_TARGETS = ["circle", "triangle", "square"];
 const SHAPE_LABELS = { circle:"圆形", triangle:"三角形", square:"正方形" };
 const SHAPE_MARKS = { circle:"○", triangle:"△", square:"□" };
 const GEM_STEP_INSTRUCTIONS = {
-    pearl:{ repair:"珍珠：瞄准珠层细裂，分段滴入修复精华，让裂缝被柔光填满。", chamfer:"珍珠：切到清洁用镜片后，沿珠缘轨道来回磨过发涩尖角。", clean:"珍珠：用清洁刷轻擦表面雾膜，擦出柔和珠光。" },
-    agate:{ repair:"玛瑙：沿下缘细裂注入精华，先补边缘再让纹带连贯。", soak:"玛瑙：放入量杯浸润，左右轻摇让纹带里的浊气冒泡散开。", chamfer:"玛瑙：切到清洁用镜片后，让砂布贴着纹带边缘来回磨平。", clean:"玛瑙：来回擦开表面灰膜，让红橙纹带重新透亮。" },
+    pearl:{ repair:"珍珠：瞄准珠层细裂，分段滴入修复精华，让裂缝被柔光填满。", chamfer:"珍珠：沿宝石边缘来回摩擦直到光滑为止。", clean:"珍珠：用清洁刷轻擦表面雾膜，擦出柔和珠光。" },
+    agate:{ repair:"玛瑙：沿下缘细裂注入精华，先补边缘再让纹带连贯。", soak:"玛瑙：放入量杯浸润，左右轻摇让纹带里的浊气冒泡散开。", chamfer:"玛瑙：沿宝石边缘来回摩擦直到光滑为止。", clean:"玛瑙：来回擦开表面灰膜，让红橙纹带重新透亮。" },
     garnet:{ repair:"石榴石：对准边缘缺口滴入精华，把缺口亮线补齐。", clean:"石榴石：擦掉深色石面上的灰尘层，让血色反光浮出来。" },
     sunstone:{ repair:"砂金石：把细小缺角补满，保住边缘的金砂闪点。", clean:"砂金石：顺着金砂亮面擦拭，让细闪从污渍下显出来。" },
     catseye:{ repair:"猫眼石：修补猫眼边缘损伤，别让亮线被裂口截断。", clean:"猫眼石：左右擦净瞳线附近的雾层，让猫眼光带变清楚。" },
     jadeite:{ repair:"翡翠：沿边缘细裂注入精华，先让裂纹显影再填平。", clean:"翡翠：擦掉翠面灰膜，保留内部通透的绿色高光。" },
     obsidian:{ cut:"黑曜石：按住石皮长条切两次，把外层暗皮削开。", shape_triangle:"黑曜石：描出三角轮廓，让激光把黑镜面切成尖角。", clean:"黑曜石：擦净黑镜面的灰痕，露出干净反射。" },
     fluorite:{ cut:"萤石：顺着杂层方向切开，把外层混浊带剥掉。", shape_circle:"萤石：描圆定型，让激光把晶体收成圆润球面。", soak:"萤石：把定型后的晶体浸入量杯，左右摇出细小气泡。", clean:"萤石：擦掉表面粉尘，留下清透的荧光感。" },
+    fluorite_test:{ cut:"萤石测试：先切开外层混浊带，用这一颗连续检查完整玩法链路。", light:"萤石测试：移动寻光灯找到隐藏反光点，确认反光反馈。", repair:"萤石测试：沿晶体细裂滴入修复精华，观察裂缝填充。", shape_circle:"萤石测试：描圆定型，让萤石进入可磨平的圆形状态。", soak:"萤石测试：放入量杯浸润，左右摇出气泡但避免碰壁。", chamfer:"萤石测试：沿宝石边缘来回摩擦直到光滑为止。", clean:"萤石测试：最后擦掉表面粉尘，确认全流程收束。" },
     malachite:{ cut:"孔雀石：切两次削掉矿皮，露出里面的孔雀纹。", repair:"孔雀石：沿孔雀纹裂缝注入精华，让纹路重新连上。", shape_square:"孔雀石：描正方轮廓，把纹理压进方形章面。", clean:"孔雀石：擦净石面灰尘，让绿色纹带更分明。" },
     turquoise:{ cut:"绿松石：切两次剥掉泥皮，露出蓝绿色主体。", repair:"绿松石：沿脉络裂隙滴入精华，把断开的纹理补回去。", shape_triangle:"绿松石：描三角轮廓，让激光切出利落尖角。", clean:"绿松石：擦掉泥雾和粉尘，让松石蓝绿更干净。" },
     hetian:{ cut:"和田玉：顺着杂质筋切开，把影响通透的筋带削掉。", shape_circle:"和田玉：描圆定型，把玉面收成温润圆形。", clean:"和田玉：轻擦玉面灰膜，让油润感浮出来。" },
@@ -5717,7 +5831,7 @@ function defaultGemStepInstruction(gem, task){
     if(copy) return copy;
     if(task.type === "light") return `${gem.name}：按住扫光区移动寻光灯，找到最亮的反光点。`;
     if(task.type === "soak") return `${gem.name}：把宝石放入量杯，左右摇晃浸润到气泡散开。`;
-    if(task.type === "chamfer") return `${gem.name}：沿外围轨道拖拽砂布，来回通过尖角直到阻滞消失。`;
+    if(task.type === "chamfer") return `${gem.name}：沿宝石边缘来回摩擦直到光滑为止。`;
     if(task.type === "repair") return `${gem.name}：瞄准裂缝光圈，滴入修复精华填满裂隙。`;
     if(task.type === "clean") return `${gem.name}：按住污渍范围来回擦拭，把脏污层擦掉。`;
     if(task.type === "cut") return `${gem.name}：按住切除长条，顺着角度拖拽削掉外层。`;
@@ -5733,6 +5847,7 @@ const GEM_BLUEPRINTS = [
     { id:"jadeite", name:"翡翠", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b8f0c6 0%, #3d9b63 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/jadeite", tasks:[{type:"repair", title:"边缘细裂", lens:1, face:1, pos:{x:56,y:62}}, {type:"clean", title:"翠面净化", lens:2, face:0, pos:{x:50,y:50}}] },
     { id:"obsidian", name:"黑曜石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6f6b83 0%, #15131f 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/obsidian", tasks:[{type:"cut", title:"石皮切除", lens:0, face:0, pos:{x:58,y:38}, cutHitsRequired:2}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:2, face:1, pos:{x:50,y:50}}, {type:"clean", title:"黑镜净化", lens:1, face:0, pos:{x:52,y:50}}] },
     { id:"fluorite", name:"萤石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 浸润 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #bca7e8 0%, #4f5a7e 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/fluorite", tasks:[{type:"cut", title:"杂层切除", lens:1, face:1, pos:{x:62,y:52}}, {type:"shape", title:"圆形成球", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"soak", title:"量杯浸润", lens:0, face:0, pos:{x:50,y:50}}, {type:"clean", title:"荧光净化", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"fluorite_test", name:"萤石测试", rarity:1, version:"GM·全玩法测试石", kind:"原石", sub:"切除 -> 寻光 -> 修补 -> 定型 -> 浸润 -> 磨平 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #cbb9f2 0%, #5a668f 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/fluorite", tasks:[{type:"cut", title:"测试切除", lens:1, face:1, pos:{x:62,y:52}, cutHitsRequired:2}, {type:"light", title:"测试寻光", lens:0, face:0, pos:{x:50,y:50}, lightTarget:{x:58,y:38}}, {type:"repair", title:"测试裂隙", lens:2, face:1, pos:{x:43,y:56}}, {type:"shape", title:"测试圆形定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"soak", title:"测试量杯浸润", lens:0, face:0, pos:{x:50,y:50}}, {type:"chamfer", title:"测试圆边磨平", lens:0, face:0, pos:{x:50,y:50}}, {type:"clean", title:"测试最终清洁", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"malachite", name:"孔雀石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6ec07f 0%, #1d5a38 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/malachite", tasks:[{type:"cut", title:"矿皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"孔雀纹裂", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"正方定型", targetShape:"square", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"石面净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"turquoise", name:"绿松石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #86dfd0 0%, #2a8f89 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/turquoise", tasks:[{type:"cut", title:"泥皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"脉络裂隙", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"松石净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"hetian", name:"和田玉", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #edf0d5 0%, #a9b484 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/hetian", tasks:[{type:"cut", title:"杂质筋切除", lens:1, face:1, pos:{x:40,y:52}}, {type:"shape", title:"圆润定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:50}}, {type:"clean", title:"玉面净化", lens:0, face:0, pos:{x:52,y:52}}] },
@@ -5747,6 +5862,7 @@ const GEM_VISUALS = {
     jadeite:{ rawClip:"polygon(46% 0, 82% 14%, 100% 48%, 82% 88%, 44% 100%, 8% 78%, 0 36%, 18% 8%)", cutClip:"polygon(48% 6%, 80% 18%, 92% 48%, 78% 84%, 44% 92%, 14% 72%, 8% 38%, 22% 14%)", cutScale:.87, texture:"radial-gradient(circle at 42% 44%, rgba(255,255,255,.24), transparent 28%)" },
     obsidian:{ rawClip:"polygon(50% 0, 92% 22%, 100% 66%, 68% 100%, 18% 86%, 0 42%, 22% 8%)", cutClip:"polygon(50% 6%, 86% 22%, 92% 62%, 66% 92%, 24% 82%, 8% 44%, 24% 16%)", cutScale:.82, texture:"linear-gradient(132deg, rgba(255,255,255,.16), transparent 32%, rgba(0,0,0,.24) 70%)" },
     fluorite:{ rawClip:"polygon(42% 0, 82% 8%, 100% 42%, 88% 82%, 52% 100%, 14% 86%, 0 48%, 16% 10%)", cutClip:"polygon(44% 6%, 80% 12%, 92% 42%, 82% 78%, 52% 92%, 20% 82%, 8% 48%, 20% 16%)", cutScale:.84, texture:"linear-gradient(38deg, rgba(255,255,255,.22), transparent 36%, rgba(138,106,210,.16) 62%)" },
+    fluorite_test:{ rawClip:"polygon(42% 0, 82% 8%, 100% 42%, 88% 82%, 52% 100%, 14% 86%, 0 48%, 16% 10%)", cutClip:"polygon(44% 6%, 80% 12%, 92% 42%, 82% 78%, 52% 92%, 20% 82%, 8% 48%, 20% 16%)", cutScale:.84, texture:"linear-gradient(38deg, rgba(255,255,255,.22), transparent 36%, rgba(138,106,210,.16) 62%)" },
     malachite:{ rawClip:"polygon(40% 0, 78% 6%, 100% 38%, 86% 82%, 48% 100%, 8% 82%, 0 44%, 18% 10%)", cutClip:"polygon(42% 6%, 78% 12%, 92% 40%, 80% 78%, 48% 92%, 16% 78%, 8% 44%, 22% 16%)", cutScale:.84, texture:"repeating-radial-gradient(circle at 50% 52%, rgba(255,255,255,.12) 0 8px, rgba(17,76,45,.18) 9px 18px)" },
     turquoise:{ rawClip:"polygon(44% 0, 86% 12%, 98% 50%, 76% 94%, 30% 96%, 0 58%, 16% 16%)", cutClip:"polygon(46% 8%, 82% 18%, 90% 50%, 72% 86%, 34% 88%, 10% 56%, 22% 20%)", cutScale:.84, texture:"linear-gradient(62deg, transparent 0 42%, rgba(35,80,76,.28) 43% 46%, transparent 47%)" },
     hetian:{ rawClip:"polygon(50% 0, 84% 16%, 98% 52%, 76% 92%, 34% 100%, 2% 66%, 12% 20%)", cutClip:"polygon(50% 8%, 80% 20%, 90% 52%, 70% 86%, 36% 92%, 12% 64%, 20% 24%)", cutScale:.86, texture:"radial-gradient(circle at 48% 40%, rgba(255,255,255,.28), transparent 34%)" },
@@ -5756,9 +5872,9 @@ const GEM_VISUALS = {
 const DEMO_DATA_PACKS = {
     fullCoverage:{
         label:"全量流程验收",
-        note:"每一种素体都有可玩数量，用于完整跑通 12 种宝石。",
-        known:["pearl","agate","garnet","sunstone","catseye","jadeite","obsidian","fluorite","malachite","turquoise","hetian","shoushan"],
-        bag:{ pearl:2, agate:6, garnet:11, sunstone:5, catseye:3, jadeite:8, obsidian:5, fluorite:10, malachite:2, turquoise:9, hetian:1, shoushan:6 }
+        note:"每一种素体都有可玩数量，并额外提供一颗萤石测试石用于完整跑通当前玩法链路。",
+        known:["pearl","agate","garnet","sunstone","catseye","jadeite","obsidian","fluorite","fluorite_test","malachite","turquoise","hetian","shoushan"],
+        bag:{ pearl:2, agate:6, garnet:11, sunstone:5, catseye:3, jadeite:8, obsidian:5, fluorite:10, fluorite_test:1, malachite:2, turquoise:9, hetian:1, shoushan:6 }
     },
     rewardStress:{
         label:"长奖励列表压测",
@@ -6394,6 +6510,7 @@ function buildCoreTasks(gem){
         chamferSnagLevel:0,
         chamferCleanPreview:0,
         chamferCompleting:false,
+        chamferHasDragged:false,
         cutHits:0,
         cutHitsRequired: task.type === "cut" ? (task.cutHitsRequired || 1) : 1,
         dragDistance:0,
@@ -6483,7 +6600,7 @@ function stepHintText(step){
     if(step.type === "repair") return "修补：瞄准裂缝光圈，滴入修复精华填满裂隙。";
     if(step.type === "light") return "寻光：按住扫光区移动寻光灯，找到宝石表面的反光点。";
     if(step.type === "soak") return "浸润：按住量杯左右摇晃，避免石头连续撞到杯壁。";
-    if(step.type === "chamfer") return "磨平：按住砂布沿宝石外围轨道拖拽，来回磨过发涩尖角。";
+    if(step.type === "chamfer") return "磨平：沿宝石边缘来回摩擦直到光滑为止。";
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：这颗需要切 ${step.cutHitsRequired} 次，按住长条并顺着角度拖拽。`;
     if(step.type === "cut") return "切除：按住长条瑕疵，沿相近角度拖拽切除。";
     if(step.type === "shape") return `定型：按住形状特效，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`;
@@ -6530,6 +6647,7 @@ const V24_ENTITY_ASSETS = {
     agate:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/agate",
     obsidian:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/obsidian",
     fluorite:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/fluorite",
+    fluorite_test:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/fluorite",
     garnet:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/garnet",
     sunstone:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/sunstone",
     catseye:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/catseye",
@@ -6542,6 +6660,7 @@ const V24_ENTITY_ASSETS = {
 const COMPLETION_SPIN_ASSETS = {
     garnet:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/garnet/garnet_spin.gif",
     fluorite:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/fluorite/fluorite_spin.gif",
+    fluorite_test:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/fluorite/fluorite_spin.gif",
     turquoise:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems_v24/turquoise/turquoise_spin.gif"
 };
 function completionSpinImageValue(gem, fresh=false){
@@ -6942,6 +7061,13 @@ function soakBubbleMarkup(){
 }
 function degToRad(deg){ return deg * Math.PI / 180; }
 function radToDeg(rad){ return rad * 180 / Math.PI; }
+function unwrapDeg(targetDeg, previousDeg){
+    if(!Number.isFinite(previousDeg)) return targetDeg;
+    let delta = targetDeg - previousDeg;
+    while(delta > 180) delta -= 360;
+    while(delta < -180) delta += 360;
+    return previousDeg + delta;
+}
 function normalizeRad(rad){
     let angle = rad;
     while(angle > Math.PI) angle -= Math.PI * 2;
@@ -7046,8 +7172,8 @@ function chamferCleanPreviewMask(step){
         const rot = radToDeg(corner.angle) + 8;
         return `
             <g transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${rot.toFixed(1)})">
-                <ellipse cx="0" cy="0" rx="27" ry="19" fill="url(#chamferDustMask${index})"/>
-                <ellipse cx="-6" cy="8" rx="18" ry="10" fill="url(#chamferDustMask${index})" opacity=".58"/>
+                <ellipse cx="0" cy="0" rx="33" ry="24" fill="url(#chamferDustMask${index})"/>
+                <ellipse cx="-7" cy="8" rx="23" ry="14" fill="url(#chamferDustMask${index})" opacity=".58"/>
             </g>
         `;
     }).join("");
@@ -7097,6 +7223,7 @@ function registerChamferCornerPass(step, cornerIndex, direction){
 function updateChamferDrag(step, clientX, clientY, dt=16){
     if(!step || step.type !== "chamfer" || step.chamferCompleting) return;
     ensureChamferRuntime(step);
+    step.chamferHasDragged = true;
     const target = projectPointToChamferTrack(step, clientX, clientY);
     if(!target) return;
     const previous = Number.isFinite(step.chamferAngle) ? step.chamferAngle : target.angle;
@@ -7133,12 +7260,12 @@ function updateChamferDrag(step, clientX, clientY, dt=16){
             registerChamferCornerPass(step, index, step.chamferLastDirection);
         }
     });
-    if(chamferAllCornersDone(step)) beginChamferComplete(step);
+    if(chamferAllCornersDone(step)) beginChamferComplete(step, target.angle);
 }
 function renderChamferOverlay(step, gem){
     const overlay = document.getElementById("chamfer-overlay");
     if(!overlay) return;
-    if(!step || step.type !== "chamfer" || (stepRequiresLens(step) && state.lensIndex !== step.lens)){
+    if(!step || step.type !== "chamfer"){
         overlay.className = "chamfer-overlay";
         overlay.innerHTML = "";
         delete overlay.dataset.stepId;
@@ -7148,23 +7275,36 @@ function renderChamferOverlay(step, gem){
     ensureChamferRuntime(step);
     const geometry = chamferTrackGeometry(step);
     if(!geometry) return;
+    const lensOk = !stepRequiresLens(step) || state.lensIndex === step.lens;
     const progress = chamferProgress(step);
     const angle = step.chamferAngle;
-    const cloth = chamferPointAtAngle(geometry, angle);
-    const activeDrag = state.defectDrag?.type === "chamfer" || state.gamepadDrag?.type === "chamfer";
+    const cloth = chamferPointAtAngle(geometry, angle, lensOk ? CHAMFER_CLOTH_TRACK_SCALE : CHAMFER_CLOTH_IDLE_SCALE);
+    const activeDrag = lensOk && (state.defectDrag?.type === "chamfer" || state.gamepadDrag?.type === "chamfer");
+    const hasDragged = !!step.chamferHasDragged || progress > 0;
     const snagging = activeDrag && !step.chamferCompleting && (step.chamferSnagLevel || 0) > 0;
     const jitter = snagging ? Math.min(6, 2 + (step.chamferSnagLevel || 0) * 1.4) : 0;
-    overlay.className = `chamfer-overlay visible ${snagging ? "snagging" : ""} ${step.chamferCompleting ? "completing" : ""}`;
+    overlay.className = `chamfer-overlay visible ${lensOk ? "lens-ok" : "lens-wrong"} ${hasDragged ? "has-dragged" : ""} ${snagging ? "snagging" : ""} ${step.chamferCompleting ? "completing" : ""}`;
     overlay.style.setProperty("--chamfer-progress", `${(progress * 1000).toFixed(1)}`);
+    overlay.style.setProperty("--chamfer-progress-pct", `${(progress * 100).toFixed(1)}%`);
     overlay.style.setProperty("--cloth-x", `${cloth.x.toFixed(1)}px`);
     overlay.style.setProperty("--cloth-y", `${cloth.y.toFixed(1)}px`);
-    overlay.style.setProperty("--cloth-rot", `${(radToDeg(angle) + 90).toFixed(1)}deg`);
+    step.chamferClothRotationDeg = unwrapDeg(radToDeg(angle) + 90, step.chamferClothRotationDeg);
+    overlay.style.setProperty("--cloth-rot", `${step.chamferClothRotationDeg.toFixed(1)}deg`);
     overlay.style.setProperty("--cloth-jitter-x", `${(Math.sin(performance.now() * .13) * jitter).toFixed(1)}px`);
     overlay.style.setProperty("--cloth-jitter-y", `${(Math.cos(performance.now() * .11) * jitter * .55).toFixed(1)}px`);
-    overlay.style.setProperty("--preview-left", `${(geometry.gemLeft + 14).toFixed(1)}px`);
-    overlay.style.setProperty("--preview-top", `${(geometry.gemTop + 14).toFixed(1)}px`);
-    overlay.style.setProperty("--preview-width", `${Math.max(1, geometry.gemWidth - 28).toFixed(1)}px`);
-    overlay.style.setProperty("--preview-height", `${Math.max(1, geometry.gemHeight - 28).toFixed(1)}px`);
+    overlay.style.setProperty("--preview-left", `${(geometry.gemLeft + 8).toFixed(1)}px`);
+    overlay.style.setProperty("--preview-top", `${(geometry.gemTop + 8).toFixed(1)}px`);
+    overlay.style.setProperty("--preview-width", `${Math.max(1, geometry.gemWidth - 16).toFixed(1)}px`);
+    overlay.style.setProperty("--preview-height", `${Math.max(1, geometry.gemHeight - 16).toFixed(1)}px`);
+    overlay.style.setProperty("--chamfer-meter-left", `${geometry.centerX.toFixed(1)}px`);
+    const meterTop = Math.min(
+        geometry.stageHeight - 18,
+        Math.max(geometry.gemTop + geometry.gemHeight + 48, geometry.centerY + geometry.ry * 1.1 + 34)
+    );
+    overlay.style.setProperty("--chamfer-meter-top", `${meterTop.toFixed(1)}px`);
+    overlay.style.setProperty("--chamfer-meter-width", `${Math.max(132, Math.min(240, geometry.gemWidth * .76)).toFixed(1)}px`);
+    overlay.style.setProperty("--chamfer-cue-left", `${cloth.x.toFixed(1)}px`);
+    overlay.style.setProperty("--chamfer-cue-top", `${(cloth.y - 46).toFixed(1)}px`);
     overlay.style.setProperty("--chamfer-preview-mask", chamferCleanPreviewMask(step) || "linear-gradient(transparent, transparent)");
     const corners = step.chamferCorners || [];
     const geometryKey = [
@@ -7195,14 +7335,19 @@ function renderChamferOverlay(step, gem){
         const previewMarkup = corners.some(corner=>corner.done)
             ? `<div class="chamfer-clean-preview-layer" aria-hidden="true"></div>`
             : "";
-        overlay.innerHTML = `
+        const trackMarkup = `
             <svg class="chamfer-track-svg" viewBox="0 0 ${geometry.stageWidth.toFixed(0)} ${geometry.stageHeight.toFixed(0)}" focusable="false" aria-hidden="true">
                 <ellipse class="chamfer-track-glow" cx="${geometry.centerX.toFixed(1)}" cy="${geometry.centerY.toFixed(1)}" rx="${geometry.rx.toFixed(1)}" ry="${geometry.ry.toFixed(1)}" pathLength="1000"></ellipse>
                 <ellipse class="chamfer-track-line" cx="${geometry.centerX.toFixed(1)}" cy="${geometry.centerY.toFixed(1)}" rx="${geometry.rx.toFixed(1)}" ry="${geometry.ry.toFixed(1)}" pathLength="1000"></ellipse>
-                <ellipse class="chamfer-track-progress" cx="${geometry.centerX.toFixed(1)}" cy="${geometry.centerY.toFixed(1)}" rx="${geometry.rx.toFixed(1)}" ry="${geometry.ry.toFixed(1)}" pathLength="1000"></ellipse>
                 ${cornerMarkup}
             </svg>
+        `;
+        const meterMarkup = `<div class="chamfer-progress-meter" aria-hidden="true"><i class="chamfer-progress-fill"></i></div>`;
+        overlay.innerHTML = `
+            ${trackMarkup}
             ${previewMarkup}
+            ${meterMarkup}
+            <div class="chamfer-drag-cue" aria-hidden="true"><i></i></div>
             <span class="chamfer-cloth placeholder" aria-hidden="true">
                 <img src="${CHAMFER_CLOTH_SRC}" alt="" draggable="false" onload="this.parentElement.classList.remove('placeholder')" onerror="this.remove()">
             </span>
@@ -7221,9 +7366,15 @@ function clearChamferOverlay(){
     delete overlay.dataset.stepId;
     delete overlay.dataset.renderKey;
 }
-function beginChamferComplete(step){
+function beginChamferComplete(step, targetAngle=null){
     if(!step || step.type !== "chamfer" || step.chamferCompleting) return;
+    if(Number.isFinite(targetAngle)){
+        step.chamferAngle = normalizeRad(targetAngle);
+        step.chamferClothRotationDeg = unwrapDeg(radToDeg(step.chamferAngle) + 90, step.chamferClothRotationDeg);
+    }
     step.chamferCompleting = true;
+    step.chamferSnagLevel = 0;
+    step.chamferActiveCornerIndex = -1;
     state.defectDrag = null;
     state.gamepadDrag = null;
     state.gamepadUseActive = false;
@@ -7231,7 +7382,7 @@ function beginChamferComplete(step){
     renderPlay();
     setTimeout(()=>{
         if(currentStep()?.id === step.id && !step.done) completeCurrentStep(step);
-    }, 680);
+    }, 1120);
 }
 function renderArchiveNotebook(active, gem){
     const title = document.getElementById("archive-title");
@@ -8232,7 +8383,7 @@ function handleHotspotClick(){
     if(step.type === "cut") toast("按住长条，沿相近角度拖拽切除。");
     if(step.type === "light") toast("按住扫光区移动寻光灯，靠近反光点会出现星芒。");
     if(step.type === "soak") toast("按住量杯左右摇晃，别让石头撞杯壁三次。");
-    if(step.type === "chamfer") toast("按住砂布沿边缘轨道来回拖拽，磨顺发涩尖角。");
+    if(step.type === "chamfer") toast("沿宝石边缘来回摩擦直到光滑为止。");
     if(step.type === "shape") toast(`按住形状，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`);
 }
 function startDefectDrag(e){
