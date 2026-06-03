@@ -58,9 +58,10 @@
     "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_box/tool_slot_side_C.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_clean_C.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_cut_C.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_chamfer_cloth_A.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_light_C.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_repair_C.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_shape_C.png"
   ],
-  "updated": "2026-06-02_bag_and_gamepad_keymap"
+  "updated": "2026-06-03_chamfer_cloth_candidate_as_tool"
 }

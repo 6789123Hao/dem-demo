@@ -1,0 +1,6 @@
+{
+  "base": "C:\\tmp\\dem-demo-git-20260518\\htmlDemo简单互动玩法\\assets\\ui_v26\\ui_tool_sprites\\chamfer_cloth_latest_candidate\\tool_chamfer_cloth_single_corner_expanded_candidate.png",
+  "candidate": "C:\\tmp\\dem-demo-git-20260518\\htmlDemo简单互动玩法\\assets\\ui_v26\\ui_tool_sprites\\chamfer_cloth_latest_candidate\\tool_chamfer_cloth_single_corner_expanded_wider_candidate.png",
+  "preview": "C:\\tmp\\dem-demo-git-20260518\\htmlDemo简单互动玩法\\assets\\ui_v26\\ui_tool_sprites\\chamfer_cloth_latest_candidate\\tool_chamfer_cloth_single_corner_expanded_wider_preview.png",
+  "method": "second local horizontal spread; no image generation; keeps single lifted corner"
+}
