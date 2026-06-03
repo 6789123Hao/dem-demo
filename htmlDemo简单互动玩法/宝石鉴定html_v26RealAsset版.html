@@ -3168,6 +3168,44 @@
         left:76px;
         top:238px;
     }
+    .lens-dial.mode-text{
+        left:20px;
+        bottom:18px;
+        width:198px;
+        height:156px;
+        transform-origin:left bottom;
+    }
+    .lens-dial.mode-text.lens-attention{
+        animation:lensWindowBreath 1.16s ease-in-out infinite;
+    }
+    .lens-dial.mode-text::before{
+        content:"";
+        position:absolute;
+        inset:34px 12px 12px 12px;
+        border-radius:18px;
+        background:linear-gradient(180deg, rgba(255,248,224,.82), rgba(30,76,58,.54));
+        border:1px solid rgba(239,198,96,.38);
+        box-shadow:0 12px 28px rgba(68,43,25,.12);
+    }
+    .lens-dial.mode-text .lens-orb{
+        width:72px;
+        height:72px;
+        transform:scale(.86);
+    }
+    .lens-dial.mode-text .lens-orb-a{
+        left:14px;
+        top:58px;
+    }
+    .lens-dial.mode-text .lens-orb-b{
+        left:62px;
+        top:58px;
+        bottom:auto;
+    }
+    .lens-dial.mode-text .lens-orb-c{
+        left:110px;
+        top:58px;
+        bottom:auto;
+    }
     .lens-orb-a{
         --orb-core:rgba(255,255,246,.92);
         --orb-edge:rgba(196,238,229,.44);
@@ -3799,6 +3837,7 @@
         transform-style:preserve-3d;
         z-index:4;
         pointer-events:none;
+        transition:left .58s cubic-bezier(.18,.78,.22,1), top .58s cubic-bezier(.18,.78,.22,1), width .58s cubic-bezier(.18,.78,.22,1), transform .58s cubic-bezier(.18,.78,.22,1), opacity .42s ease, filter .42s ease;
         background:
             radial-gradient(circle at 37% 27%, rgba(255,255,255,.7), transparent 14%),
             radial-gradient(circle at 52% 48%, rgba(255,255,255,.18), transparent 50%),
@@ -4357,11 +4396,33 @@
     body:not(.layout-mobile-landscape).playing .lens-dial{
         display:block;
     }
-    body.lens-mode-text:not(.layout-mobile-landscape).playing .core-controls{
-        display:grid;
-    }
     body.lens-mode-text:not(.layout-mobile-landscape).playing .lens-dial{
         display:none;
+    }
+    body.lens-mode-text:not(.layout-mobile-landscape).playing .core-controls{
+        display:block;
+        left:20px;
+        right:auto;
+        top:auto;
+        bottom:18px;
+        width:198px;
+        z-index:13;
+    }
+    body.lens-mode-text:not(.layout-mobile-landscape).playing .core-controls.lens-attention .step-box:first-child{
+        animation:lensWindowBreath 1.16s ease-in-out infinite;
+        transform-origin:left bottom;
+    }
+    body.lens-mode-text:not(.layout-mobile-landscape).playing .core-controls .step-box{
+        padding:10px;
+    }
+    body.lens-mode-text:not(.layout-mobile-landscape).playing .core-controls .step-box h3{
+        font-size:16px;
+    }
+    body.lens-mode-text:not(.layout-mobile-landscape).playing .lens-btn{
+        min-height:44px;
+        padding:10px;
+        font-size:15px;
+        font-weight:900;
     }
     body.playing .core-hint{ display:block; }
     .hotspot{ z-index:6; }
@@ -4426,6 +4487,13 @@
         letter-spacing:0;
         box-shadow:0 14px 30px rgba(153,91,26,.24);
     }
+    .right-panel.has-rewards .collect-cta{
+        animation:collectReadyPulse 1.35s ease-in-out infinite;
+    }
+    @keyframes collectReadyPulse{
+        0%,100%{ transform:translateY(0) scale(1); filter:brightness(1); }
+        52%{ transform:translateY(-2px) scale(1.035); filter:brightness(1.18) drop-shadow(0 0 15px rgba(255,224,114,.58)); }
+    }
     .right-panel .plate-actions{
         position:absolute;
         right:30px;
@@ -4461,6 +4529,7 @@
         box-sizing:border-box;
         padding:0;
         margin-top:0;
+        transition:right .72s cubic-bezier(.18,.78,.2,1), bottom .72s cubic-bezier(.18,.78,.2,1), width .72s cubic-bezier(.18,.78,.2,1), height .72s cubic-bezier(.18,.78,.2,1), filter .42s ease, transform .42s ease;
     }
     .plate-gem{
         min-width:34px;
@@ -4478,16 +4547,36 @@
         color:#2b1c0f;
         box-shadow:0 8px 14px rgba(58,37,21,.16);
         transform-origin:center bottom;
-        animation:gemDrop .72s cubic-bezier(.18,.82,.32,1.12) both;
-        animation-delay:var(--delay, 0ms);
+        transform:translate(-50%, -50%) rotate(var(--rest-rot, 0deg)) scale(1);
+        opacity:1;
         background-size:contain !important;
         background-repeat:no-repeat !important;
         background-position:center !important;
+    }
+    .plate-gem.plate-drop-new{
+        animation:gemDrop .82s cubic-bezier(.18,.82,.32,1.12) both;
+        animation-delay:var(--delay, 0ms);
+    }
+    .plate-gem.plate-drop-new.plate-drop-collision{
+        animation-name:gemDrop, plateDropClink;
+        animation-duration:.82s, .36s;
+        animation-timing-function:cubic-bezier(.18,.82,.32,1.12), ease-out;
+        animation-fill-mode:both, both;
+        animation-delay:var(--delay, 0ms), calc(var(--delay, 0ms) + 360ms);
+    }
+    .plate-gem.plate-bump{
+        animation:plateBump .46s cubic-bezier(.2,.86,.22,1.18) both;
+        animation-delay:var(--bump-delay, 0ms);
     }
     .plate-gem.with-image{
         color:transparent;
         box-shadow:none;
         filter:drop-shadow(0 8px 10px rgba(58,37,21,.18));
+    }
+    body.reward-focus .plate-gem:not(.plate-drop-new):not(.plate-bump){
+        animation:none;
+        transform:translate(-50%, -50%) rotate(var(--rest-rot, 0deg)) scale(1);
+        opacity:1;
     }
     .plate-gem-shape-circle{ border-radius:50%; }
     .plate-gem-shape-triangle{
@@ -4499,11 +4588,31 @@
         clip-path:polygon(12% 8%, 88% 8%, 92% 88%, 10% 92%);
     }
     @keyframes gemDrop{
-        0%{ transform:translate(calc(-50% + var(--from-x, -120px)), -250px) rotate(calc(-210deg + var(--drop-rot, 0deg))) scale(.72); opacity:0; }
-        46%{ transform:translate(calc(-50% + 18px), calc(-50% + 12px)) rotate(calc(42deg + var(--drop-rot, 0deg))) scale(1.08); opacity:1; }
-        63%{ transform:translate(calc(-50% - 10px), calc(-50% - 22px)) rotate(calc(-22deg + var(--rest-rot, 0deg))) scale(.96); }
-        78%{ transform:translate(calc(-50% + 7px), calc(-50% + 6px)) rotate(calc(12deg + var(--rest-rot, 0deg))) scale(1.02); }
+        0%{ transform:translate(calc(-50% + var(--drop-start-x, 0px)), calc(-50% + var(--drop-start-y, -240px))) rotate(calc(-160deg + var(--drop-rot, 0deg))) scale(.62); opacity:0; }
+        38%{ opacity:1; transform:translate(calc(-50% + var(--drop-impact-x, 0px)), calc(-50% + var(--drop-impact-y, 0px))) rotate(calc(36deg + var(--drop-rot, 0deg))) scale(1.16); }
+        54%{ transform:translate(calc(-50% + var(--drop-impact-x, 0px)), calc(-50% + var(--drop-impact-y, 0px) - 12px)) rotate(calc(-18deg + var(--rest-rot, 0deg))) scale(.92); }
+        73%{ transform:translate(calc(-50% + var(--drop-bounce-x, var(--drop-scatter-x, 0px))), calc(-50% + var(--drop-bounce-y, var(--drop-scatter-y, 0px)))) rotate(calc(20deg + var(--rest-rot, 0deg))) scale(1.07); }
+        88%{ transform:translate(calc(-50% - var(--drop-recoil-x, 0px)), calc(-50% - var(--drop-recoil-y, 0px))) rotate(calc(-8deg + var(--rest-rot, 0deg))) scale(.98); }
         100%{ transform:translate(-50%, -50%) rotate(var(--rest-rot, 0deg)) scale(1); opacity:1; }
+    }
+    @keyframes gemDropRewardFocus{
+        0%{ transform:translate(calc(-50% + var(--drop-start-x, 0px)), calc(-50% + var(--drop-start-y, -320px))) rotate(calc(-170deg + var(--drop-rot, 0deg))) scale(.52); opacity:0; }
+        36%{ opacity:1; transform:translate(calc(-50% + var(--drop-impact-x, 0px)), calc(-50% + var(--drop-impact-y, 0px))) rotate(calc(46deg + var(--drop-rot, 0deg))) scale(1.28); }
+        52%{ transform:translate(calc(-50% + var(--drop-impact-x, 0px)), calc(-50% + var(--drop-impact-y, 0px) - 16px)) rotate(calc(-28deg + var(--rest-rot, 0deg))) scale(.94); }
+        72%{ transform:translate(calc(-50% + var(--drop-bounce-x, var(--drop-scatter-x, 0px))), calc(-50% + var(--drop-bounce-y, var(--drop-scatter-y, 0px)))) rotate(calc(22deg + var(--rest-rot, 0deg))) scale(1.12); }
+        88%{ transform:translate(calc(-50% - var(--drop-recoil-x, 0px)), calc(-50% - var(--drop-recoil-y, 0px))) rotate(calc(-10deg + var(--rest-rot, 0deg))) scale(.98); }
+        100%{ transform:translate(-50%, -50%) rotate(var(--rest-rot, 0deg)) scale(1); opacity:1; }
+    }
+    @keyframes plateBump{
+        0%{ transform:translate(-50%, -50%) rotate(var(--rest-rot, 0deg)) scale(1); filter:drop-shadow(0 8px 10px rgba(58,37,21,.18)); }
+        24%{ transform:translate(calc(-50% + var(--bump-x, 0px)), calc(-50% + var(--bump-y, 0px))) rotate(calc(var(--rest-rot, 0deg) + var(--bump-rot, 8deg))) scale(1.14); filter:drop-shadow(0 11px 16px rgba(255,221,137,.5)) brightness(1.16); }
+        58%{ transform:translate(calc(-50% + var(--bump-back-x, 0px)), calc(-50% + var(--bump-back-y, 0px))) rotate(calc(var(--rest-rot, 0deg) - var(--bump-rot, 8deg))) scale(.96); }
+        100%{ transform:translate(-50%, -50%) rotate(var(--rest-rot, 0deg)) scale(1); filter:drop-shadow(0 8px 10px rgba(58,37,21,.18)); }
+    }
+    @keyframes plateDropClink{
+        0%{ filter:drop-shadow(0 8px 10px rgba(58,37,21,.18)); }
+        42%{ filter:drop-shadow(0 0 11px rgba(255,226,142,.72)) drop-shadow(0 10px 13px rgba(80,46,19,.28)) brightness(1.18); }
+        100%{ filter:drop-shadow(0 8px 10px rgba(58,37,21,.18)); }
     }
     @keyframes plateDiceRoll{
         0%{ transform:rotate(0deg) scale(1); }
@@ -4882,17 +4991,21 @@
         body:not(.layout-mobile-landscape):not(.layout-gamepad) .collect-cta{
             position:absolute;
             left:auto;
-            right:26px;
-            bottom:calc(var(--desktop-plate-bottom) + var(--desktop-plate-size) + 10px);
-            width:196px;
+            right:24px;
+            top:18px;
+            bottom:auto;
+            width:198px;
             min-width:0;
             margin:0;
             pointer-events:auto;
+            z-index:20;
         }
         body:not(.layout-mobile-landscape):not(.layout-gamepad) .right-panel .plate-actions{
-            right:calc(var(--desktop-plate-size) + 8px);
-            bottom:calc(var(--desktop-plate-bottom) + 118px);
+            right:236px;
+            top:26px;
+            bottom:auto;
             pointer-events:auto;
+            z-index:21;
         }
         body:not(.layout-mobile-landscape):not(.layout-gamepad) .plate{
             left:auto;
@@ -4906,15 +5019,45 @@
         body:not(.layout-mobile-landscape):not(.layout-gamepad) .tutorial-help-plate-btn{
             display:grid;
             place-items:center;
-            right:calc(var(--desktop-plate-size) + 12px);
+            right:286px;
             left:auto;
-            top:auto;
-            bottom:calc(var(--desktop-plate-bottom) + 170px);
+            top:27px;
+            bottom:auto;
             width:36px;
             height:36px;
             font-size:18px;
             pointer-events:auto;
             transform:none;
+            z-index:21;
+        }
+        body.reward-focus:not(.layout-mobile-landscape):not(.layout-gamepad) .lens-viewport{
+            left:18%;
+            top:73%;
+            width:min(76%, 720px);
+            --lens-view-scale:.58;
+            opacity:.72;
+            filter:saturate(.84) brightness(.9);
+        }
+        body.reward-focus:not(.layout-mobile-landscape):not(.layout-gamepad) .lens-stage.idle .idle-copy{
+            opacity:0;
+        }
+        body.reward-focus:not(.layout-mobile-landscape):not(.layout-gamepad) .plate{
+            right:calc(50vw - 470px);
+            bottom:76px;
+            width:calc(var(--desktop-plate-size) + 184px);
+            height:calc(var(--desktop-plate-size) + 184px);
+            filter:drop-shadow(0 34px 42px rgba(41,24,12,.3)) brightness(1.08);
+            z-index:18;
+        }
+        body.reward-focus:not(.layout-mobile-landscape):not(.layout-gamepad) .plate-gem{
+            width:40px;
+            height:40px;
+        }
+        body.reward-focus:not(.layout-mobile-landscape):not(.layout-gamepad) .plate-gem.plate-drop-new{
+            animation-name:gemDropRewardFocus;
+        }
+        body.reward-focus:not(.layout-mobile-landscape):not(.layout-gamepad) .plate-gem.plate-drop-new.plate-drop-collision{
+            animation-name:gemDropRewardFocus, plateDropClink;
         }
     }
     body.v26-real-asset .hotspot-clean::before{
@@ -6036,6 +6179,7 @@ const state = {
     plate:{},
     plateItems:[],
     rewards:[],
+    rewardFocus:false,
     pendingBatch:false,
     active:null,
     lensIndex:0,
@@ -6270,6 +6414,7 @@ function renderMain(){
     document.getElementById("bag-count").textContent = `${bagTotal()}素体`;
     document.getElementById("collect-btn-label").textContent = `收集奖励 × ${plateTotal()}`;
     document.querySelector(".right-panel")?.classList.toggle("has-rewards", plateTotal() > 0);
+    document.body.classList.toggle("reward-focus", !!state.rewardFocus);
     const packSelect = document.getElementById("data-pack-select");
     if(packSelect) packSelect.value = state.dataPackKey;
     const layoutSelect = document.getElementById("layout-select");
@@ -6363,34 +6508,87 @@ function renderPlate(){
         plate.innerHTML = `<div class="empty-state">盘子里还没有成石</div>`;
         return;
     }
+    const plateRect = plate.getBoundingClientRect();
+    const plateWidth = plateRect.width || 304;
+    const plateHeight = plateRect.height || plateWidth;
+    const now = performance.now();
     items.forEach((plateItem, index)=>{
         const id = plateItem.id;
         const gem = gemById(id);
         const shape = rewardShapeForGem(gem);
         const image = plateGemImageValue(gem, shape);
         const item = document.createElement("div");
-        item.className = `plate-gem plate-gem-shape-${shape} ${image ? "with-image" : ""}`;
+        const shouldDrop = plateItem.dropPending && !plateItem.dropStarted;
+        const shouldBump = !shouldDrop && plateItem.collisionPulseUntil && now < plateItem.collisionPulseUntil;
+        item.className = `plate-gem plate-gem-shape-${shape} ${image ? "with-image" : ""} ${plateItem.rewardFocusDrop ? "reward-focus-drop" : ""} ${shouldDrop ? "plate-drop-new" : ""} ${plateItem.dropCollision ? "plate-drop-collision" : ""} ${shouldBump ? "plate-bump" : ""}`;
         item.title = `${gem.name} ${index + 1}`;
         if(image){
             item.style.backgroundImage = image;
         } else {
             item.style.background = gem.color;
         }
-        item.style.setProperty("--delay", `${Math.min(index, 24) * 55}ms`);
-        item.style.setProperty("--from-x", `${plateItem.fromX ?? (index % 2 === 0 ? -140 : 140)}px`);
+        item.style.setProperty("--delay", `${plateItem.dropDelay ?? 0}ms`);
+        item.style.setProperty("--bump-delay", `${plateItem.collisionDelay ?? 0}ms`);
         item.style.setProperty("--drop-rot", `${plateItem.dropRot ?? (Math.random() * 220 - 110)}deg`);
         item.style.setProperty("--rest-rot", `${plateItem.restRot ?? (Math.random() * 26 - 13)}deg`);
         item.style.setProperty("--plate-x", plateItem.x ?? 50);
         item.style.setProperty("--plate-y", plateItem.y ?? 50);
+        item.style.setProperty("--bump-x", `${plateItem.bumpX ?? 0}px`);
+        item.style.setProperty("--bump-y", `${plateItem.bumpY ?? 0}px`);
+        item.style.setProperty("--bump-back-x", `${plateItem.bumpBackX ?? 0}px`);
+        item.style.setProperty("--bump-back-y", `${plateItem.bumpBackY ?? 0}px`);
+        item.style.setProperty("--bump-rot", `${plateItem.bumpRot ?? 8}deg`);
+        if(shouldDrop){
+            applyPlateDropMotionVars(item, plateItem, plateWidth, plateHeight);
+            plateItem.dropStarted = true;
+            const clearDelay = (plateItem.dropDelay ?? 0) + (plateItem.rewardFocusDrop ? 1080 : 920);
+            window.setTimeout(()=>{
+                plateItem.dropPending = false;
+                plateItem.rewardFocusDrop = false;
+                plateItem.dropCollision = false;
+                plateItem.settledAt = performance.now();
+            }, clearDelay);
+        }
         item.textContent = image ? "" : gem.name.slice(0, 1);
         plate.appendChild(item);
     });
+}
+function applyPlateDropMotionVars(element, plateItem, plateWidth, plateHeight){
+    const x = clampNumber(plateItem.x ?? 50, 10, 90);
+    const y = clampNumber(plateItem.y ?? 50, 10, 90);
+    const vecX = (x - 50) / 100 * plateWidth;
+    const vecY = (y - 50) / 100 * plateHeight;
+    const radius = Math.max(1, Math.hypot(vecX, vecY));
+    const unitX = radius > 1 ? vecX / radius : (Math.random() < .5 ? -1 : 1);
+    const unitY = radius > 1 ? vecY / radius : .24;
+    const startX = plateItem.dropStartX ?? ((Math.random() - .5) * plateWidth * .12);
+    const startY = plateItem.dropStartY ?? (-plateHeight * .62);
+    const impactX = plateItem.impactX ?? ((Math.random() - .5) * plateWidth * .08);
+    const impactY = plateItem.impactY ?? ((Math.random() - .5) * plateHeight * .04);
+    const bounceX = plateItem.bounceX ?? (unitX * Math.min(18, Math.max(7, radius * .22)));
+    const bounceY = plateItem.bounceY ?? (unitY * Math.min(16, Math.max(5, radius * .18)) - 8);
+    const recoilX = plateItem.recoilX ?? (unitX * Math.min(6, Math.max(2, radius * .06)));
+    const recoilY = plateItem.recoilY ?? (unitY * Math.min(5, Math.max(1.5, radius * .045)));
+    element.style.setProperty("--drop-start-x", `${(startX - vecX).toFixed(1)}px`);
+    element.style.setProperty("--drop-start-y", `${(startY - vecY).toFixed(1)}px`);
+    element.style.setProperty("--drop-impact-x", `${(impactX - vecX).toFixed(1)}px`);
+    element.style.setProperty("--drop-impact-y", `${(impactY - vecY).toFixed(1)}px`);
+    element.style.setProperty("--drop-bounce-x", `${bounceX.toFixed(1)}px`);
+    element.style.setProperty("--drop-bounce-y", `${bounceY.toFixed(1)}px`);
+    element.style.setProperty("--drop-recoil-x", `${recoilX.toFixed(1)}px`);
+    element.style.setProperty("--drop-recoil-y", `${recoilY.toFixed(1)}px`);
 }
 function plateItemsForRender(){
     if(state.plateItems?.length) return state.plateItems;
     const items = [];
     Object.keys(state.plate).forEach(id=>{
-        for(let i = 0; i < state.plate[id]; i++) items.push(createPlateItem(id, items));
+        for(let i = 0; i < state.plate[id]; i++){
+            const item = createPlateItem(id, items);
+            item.dropPending = false;
+            item.dropStarted = true;
+            item.rewardFocusDrop = false;
+            items.push(item);
+        }
     });
     state.plateItems = items;
     return items;
@@ -6401,9 +6599,13 @@ function createPlateItem(id, existingItems = state.plateItems || []){
         id,
         x:pos.x,
         y:pos.y,
-        fromX:randomPlateDropX(),
+        dropPending:true,
+        dropStarted:false,
+        dropDelay:0,
         dropRot:Math.random() * 220 - 110,
-        restRot:Math.random() * 26 - 13
+        restRot:Math.random() * 26 - 13,
+        collisionPulseUntil:0,
+        settledAt:0
     };
 }
 function randomPlateDropX(){
@@ -6452,12 +6654,96 @@ function circularPlatePositions(count){
     positions.sort((a,b)=>a.y - b.y || a.x - b.x);
     return positions.slice(0, count);
 }
-function addPlateItems(id, amount){
+const PLATE_SAFE_RADIUS = 31;
+const PLATE_COLLISION_DISTANCE = 10.4;
+const PLATE_COLLISION_NEAR_DISTANCE = 14.8;
+function clampPlatePoint(point, safeRadius = PLATE_SAFE_RADIUS){
+    const dx = point.x - 50;
+    const dy = point.y - 50;
+    const dist = Math.hypot(dx, dy);
+    if(dist <= safeRadius || dist < .001) return point;
+    const scale = safeRadius / dist;
+    point.x = 50 + dx * scale;
+    point.y = 50 + dy * scale;
+    return point;
+}
+function preparePlateDropMotion(item, order, rewardFocusDrop){
+    const baseDelay = order * (90 + Math.random() * 90);
+    item.dropDelay = Math.round(baseDelay + Math.random() * 55);
+    item.dropStartX = (Math.random() - .5) * 28;
+    item.dropStartY = rewardFocusDrop ? -360 - order * 10 : -280 - order * 8;
+    item.impactX = (Math.random() - .5) * 18;
+    item.impactY = (Math.random() - .5) * 10;
+    const dx = item.x - 50;
+    const dy = item.y - 50;
+    const dist = Math.max(1, Math.hypot(dx, dy));
+    const ux = dx / dist;
+    const uy = dy / dist;
+    const bounce = 9 + Math.random() * 8;
+    item.bounceX = ux * bounce + (Math.random() - .5) * 4;
+    item.bounceY = uy * (bounce * .72) - (5 + Math.random() * 7);
+    item.recoilX = ux * (2.5 + Math.random() * 3.5);
+    item.recoilY = uy * (1.5 + Math.random() * 3);
+}
+function markPlateCollisionFeedback(item, delay, ux, uy){
+    const now = performance.now();
+    const push = 4 + Math.random() * 3;
+    item.collisionPulseUntil = now + delay + 620;
+    item.collisionDelay = Math.max(0, Math.round(delay));
+    item.bumpX = -ux * push;
+    item.bumpY = -uy * push;
+    item.bumpBackX = ux * (push * .42);
+    item.bumpBackY = uy * (push * .42);
+    item.bumpRot = (Math.random() < .5 ? -1 : 1) * (7 + Math.random() * 7);
+}
+function resolvePlateLandingCollisions(newItem, existingItems, delay){
+    let collisions = 0;
+    existingItems.forEach(other=>{
+        if(!other || other === newItem) return;
+        const dx = newItem.x - (other.x ?? 50);
+        const dy = newItem.y - (other.y ?? 50);
+        const dist = Math.hypot(dx, dy);
+        if(dist >= PLATE_COLLISION_NEAR_DISTANCE) return;
+        const ux = dist > .001 ? dx / dist : Math.cos(Math.random() * Math.PI * 2);
+        const uy = dist > .001 ? dy / dist : Math.sin(Math.random() * Math.PI * 2);
+        const hardOverlap = Math.max(0, PLATE_COLLISION_DISTANCE - dist);
+        const softNudge = Math.max(0, PLATE_COLLISION_NEAR_DISTANCE - dist) * .18;
+        const push = Math.max(.9, hardOverlap + softNudge);
+        newItem.x += ux * push * .62;
+        newItem.y += uy * push * .62;
+        other.x -= ux * push * .38;
+        other.y -= uy * push * .38;
+        clampPlatePoint(newItem);
+        clampPlatePoint(other);
+        markPlateCollisionFeedback(other, delay + 460 + collisions * 70, ux, uy);
+        collisions += 1;
+    });
+    if(collisions){
+        newItem.dropCollision = true;
+        newItem.dropRot += (Math.random() < .5 ? -1 : 1) * (20 + collisions * 8);
+        newItem.bounceX = (newItem.bounceX ?? 0) + (Math.random() < .5 ? -1 : 1) * collisions * 2;
+    }
+    return collisions;
+}
+function addPlateItems(id, amount, options={}){
     if(!state.plateItems) state.plateItems = [];
     for(let i = 0; i < amount; i++){
-        const insertAt = Math.floor(Math.random() * (state.plateItems.length + 1));
-        state.plateItems.splice(insertAt, 0, createPlateItem(id, state.plateItems));
+        const item = createPlateItem(id, state.plateItems);
+        item.rewardFocusDrop = !!options.rewardFocusDrop;
+        preparePlateDropMotion(item, i, item.rewardFocusDrop);
+        resolvePlateLandingCollisions(item, state.plateItems, item.dropDelay);
+        const previousDrop = i > 0 ? state.plateItems[state.plateItems.length - 1] : null;
+        if(previousDrop && Math.random() < .78){
+            item.dropCollision = true;
+            previousDrop.dropCollision = true;
+            item.bounceX += (Math.random() < .5 ? -1 : 1) * (3 + Math.random() * 4);
+            previousDrop.bounceX = (previousDrop.bounceX ?? 0) + (Math.random() < .5 ? -1 : 1) * (2 + Math.random() * 3);
+        }
+        state.plateItems.push(item);
     }
+}
+function clearRewardFocusDropFlags(){
+    state.plateItems?.forEach(item=>{ item.rewardFocusDrop = false; });
 }
 const PLATE_DICE_FACES = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 function rerollPlate(){
@@ -6475,6 +6761,10 @@ function rerollPlate(){
         item.x = pos.x;
         item.y = pos.y;
         item.fromX = randomPlateDropX();
+        item.dropPending = false;
+        item.dropStarted = true;
+        item.rewardFocusDrop = false;
+        item.collisionPulseUntil = 0;
         item.dropRot = Math.random() * 260 - 130;
         item.restRot = Math.random() * 32 - 16;
         placed.push(item);
@@ -6512,7 +6802,7 @@ function releaseTypeToPlate(id, reason){
     if(amount <= 0) return 0;
     state.bag[id] = 0;
     state.plate[id] = (state.plate[id] || 0) + amount;
-    addPlateItems(id, amount);
+    addPlateItems(id, amount, { rewardFocusDrop:state.rewardFocus });
     const gem = gemById(id);
     state.rewards.push({ id, amount, shards:gem.rewardShards * amount, reason });
     state.knownTypes.add(id);
@@ -6651,6 +6941,11 @@ function abandonActiveGem(message){
     addLog(`${gem.name} 未完成，已退出当前处理。${message}`);
 }
 function startCorePlay(id, meta){
+    if(state.rewardFocus){
+        setRewardFocus(false);
+        setTimeout(()=>startCorePlay(id, meta), 540);
+        return;
+    }
     const gem = gemById(id);
     state.active = {
         gemId:id,
@@ -6734,6 +7029,10 @@ function wrongLensHint(step){
     if(step.type === "soak") return `量杯观察需要 ${LENSES[step.lens].label}：切到正确镜片后再摇晃。`;
     if(step.type === "chamfer") return `尖角需要 ${LENSES[step.lens].label}：切到正确镜片后才能看到边缘轨道。`;
     return `镜片不对：请滚动鼠标滚轮翻镜片，切到 ${LENSES[step.lens].label}。`;
+}
+function setRewardFocus(active){
+    state.rewardFocus = !!active;
+    document.body.classList.toggle("reward-focus", state.rewardFocus);
 }
 function escapeHTML(value){
     return String(value ?? "").replace(/[&<>"']/g, char=>({
@@ -8449,6 +8748,9 @@ function completeCurrentStep(step){
             playCompletionCeremony();
             playCompletionSpinIfAvailable(gem, 1880);
             playGemAnimation("gem-collect-exit", 1880);
+            setTimeout(()=>{
+                if(currentStep()?.id === step.id || state.active?.gemId === gem.id) setRewardFocus(true);
+            }, 1080);
             setTimeout(()=>completeActiveGem(), 1840);
         } else {
             completeActiveGem();
@@ -8984,8 +9286,8 @@ function cutHoverStagePoint(step){
     const gemRect = gem?.getBoundingClientRect();
     if(stageRect && gemRect && stageRect.width && gemRect.width){
         return {
-            x:Math.max(52, Math.min(stageRect.width - 52, gemRect.left - stageRect.left + gemRect.width * .76)),
-            y:Math.max(38, Math.min(stageRect.height - 62, gemRect.top - stageRect.top + gemRect.height * .05))
+            x:Math.max(52, Math.min(stageRect.width - 52, gemRect.left - stageRect.left + gemRect.width * 1.04)),
+            y:Math.max(24, Math.min(stageRect.height - 62, gemRect.top - stageRect.top - gemRect.height * .2))
         };
     }
     const rect = stageRect || { width:0, height:0 };
@@ -8994,6 +9296,11 @@ function cutHoverStagePoint(step){
         x:rect.width * (pos.x + 18) / 100,
         y:rect.height * (pos.y - 28) / 100
     };
+}
+function cutUpperSideToolAngle(lineAngleDeg){
+    const candidate = lineAngleDeg - 145;
+    const bodyY = Math.cos(candidate * Math.PI / 180);
+    return bodyY < 0 ? candidate : candidate + 180;
 }
 function cutBladeTipPointFromHandle(handlePoint, angleDeg){
     const distance = 154 * .76 * .9;
@@ -9219,7 +9526,7 @@ function playCutSwipeFx(step, drag, endX, endY){
     toolFx.style.setProperty("--cut-tool-anim-start-y", `${startY.toFixed(1)}px`);
     toolFx.style.setProperty("--cut-tool-anim-end-x", `${finishX.toFixed(1)}px`);
     toolFx.style.setProperty("--cut-tool-anim-end-y", `${finishY.toFixed(1)}px`);
-    toolFx.style.setProperty("--cut-tool-slash-angle", `${(angle + 35).toFixed(1)}deg`);
+    toolFx.style.setProperty("--cut-tool-slash-angle", `${cutUpperSideToolAngle(angle).toFixed(1)}deg`);
     void toolFx.offsetWidth;
     toolFx.classList.add("cut-tool-slashing");
     const fx = document.createElement("div");
@@ -9414,18 +9721,19 @@ function completeActiveGem(){
     state.hotspotRevealKey = null;
     state.lensLockedUntil = 0;
     state.gamepadFocus = "bag";
+    document.body.classList.remove("playing");
+    setMobileBagCollapsed(state.layoutMode === "mobileLandscape");
+    document.getElementById("lens-stage").classList.add("idle");
+    addLog(active.meta.continueBatch ? "本颗核心玩法完成，选择下一颗素体继续。" : "完成一次核心玩法。");
     renderMain();
+    showScreen("screen-main");
+    setTimeout(()=>{
+        if(state.rewardFocus) clearRewardFocusDropFlags();
+    }, 2400);
     if(active.meta.continueBatch){
-        const nextId = firstUnseenOrFirstBagId();
-        if(nextId){
-            setTimeout(()=>startCorePlay(nextId, { source:"batch", continueBatch:true }), 450);
-            return;
-        }
         state.pendingBatch = false;
-        finishRound("整袋素体处理完成。");
         return;
     }
-    finishRound("完成一次核心玩法。");
 }
 function finishRound(message){
     finishGamepadUse();
@@ -9511,6 +9819,7 @@ function collectRewards(){
         closeRewardModal();
         return;
     }
+    setRewardFocus(false);
     addLog(`收集 ${state.rewards.length} 组奖励。`);
     state.rewards = [];
     state.plate = {};
@@ -9675,6 +9984,7 @@ function exitPlay(){
     state.hotspotRevealKey = null;
     state.lensLockedUntil = 0;
     state.gamepadFocus = "bag";
+    setRewardFocus(false);
     document.body.classList.remove("playing");
     setMobileBagCollapsed(state.layoutMode === "mobileLandscape");
     document.getElementById("lens-stage").classList.add("idle");
@@ -9697,12 +10007,14 @@ function resetDemo(){
     state.plate = {};
     state.plateItems = [];
     state.rewards = [];
+    state.rewardFocus = false;
     state.active = null;
     state.pendingBatch = false;
     state.hotspotRevealKey = null;
     state.lensLockedUntil = 0;
     state.gamepadFocus = "bag";
     document.body.classList.remove("playing");
+    document.body.classList.remove("reward-focus");
     setMobileBagCollapsed(state.layoutMode === "mobileLandscape");
     document.getElementById("reward-modal").classList.remove("show");
     document.getElementById("tutorial-modal").classList.remove("show");
