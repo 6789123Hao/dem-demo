@@ -1370,8 +1370,8 @@
     .repair-overlay.drop-active .repair-tool{
         left:var(--repair-tool-left, var(--repair-drop-left, 50%));
         top:var(--repair-tool-top, 10%);
+        opacity:.96;
         animation:repairToolPour .72s cubic-bezier(.16,.88,.26,1) both;
-        transition:none;
     }
     .repair-overlay.targets-visible:not(.drop-active) .repair-tool{
         opacity:.94;
@@ -1421,10 +1421,10 @@
         100%{ opacity:0; transform:translate(-50%, -42%) scale(.58); }
     }
     @keyframes repairToolPour{
-        0%{ opacity:0; transform:translate(-50%, -26%) rotate(calc(180deg + var(--repair-tool-tilt, -8deg))) scale(.78); }
-        20%{ opacity:1; transform:translate(-50%, -9%) rotate(calc(180deg + var(--repair-tool-tilt, -8deg))) scale(.9); }
-        58%{ opacity:1; transform:translate(-50%, -5%) rotate(calc(180deg + var(--repair-tool-tilt, -8deg))) scale(.94); }
-        100%{ opacity:0; transform:translate(-50%, -15%) rotate(calc(180deg + var(--repair-tool-tilt, -8deg))) scale(.84); }
+        0%{ transform:translate(-50%, -9%) rotate(calc(180deg + var(--repair-tool-tilt, -8deg))) scale(.88); }
+        24%{ transform:translate(-50%, -6%) rotate(calc(180deg + var(--repair-tool-tilt, -2deg))) scale(.92); }
+        58%{ transform:translate(-50%, -3%) rotate(calc(180deg + var(--repair-tool-tilt, 3deg))) scale(.94); }
+        100%{ transform:translate(-50%, -9%) rotate(calc(180deg + var(--repair-tool-tilt, -8deg))) scale(.9); }
     }
     @keyframes repairCrackThinShadow{
         0%{ stroke-width:10; opacity:1; }
@@ -1513,19 +1513,6 @@
     .cut-slash-fx.hide-legacy-blade .cut-slash-blade{
         display:none;
     }
-    .cut-active-blade{
-        position:absolute;
-        left:50%;
-        top:50%;
-        width:72px;
-        height:154px;
-        z-index:3;
-        background:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_cut_C.png") center / contain no-repeat;
-        filter:drop-shadow(0 16px 15px rgba(18,12,6,.28)) drop-shadow(0 0 12px rgba(255,238,166,.52));
-        transform-origin:50% 72%;
-        opacity:0;
-        animation:cutActiveBladeMove .86s cubic-bezier(.16,.82,.18,1) both;
-    }
     .cut-tool-fx{
         position:absolute;
         left:var(--cut-tool-x, 50%);
@@ -1535,7 +1522,8 @@
         z-index:8;
         pointer-events:none;
         opacity:.95;
-        transform:translate(-50%, -50%);
+        transform:translate(-50%, -12%) rotate(var(--cut-tool-angle, 42deg)) scale(.9);
+        transform-origin:50% 12%;
         filter:drop-shadow(0 16px 15px rgba(18,12,6,.28)) drop-shadow(0 0 10px rgba(255,238,166,.46));
     }
     .cut-tool-fx::before{
@@ -1543,8 +1531,14 @@
         position:absolute;
         inset:0;
         background:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_cut_C.png") center / contain no-repeat;
-        transform:rotate(var(--cut-tool-angle, 42deg)) scale(.9);
-        transition:transform .12s ease-out, opacity .18s ease;
+        transition:opacity .18s ease;
+    }
+    .cut-tool-fx.cut-tool-slashing{
+        left:0;
+        top:0;
+        z-index:10;
+        opacity:1;
+        animation:cutToolSlashMove .92s cubic-bezier(.16,.82,.18,1) both;
     }
     .cut-slash-fx i{
         position:absolute;
@@ -1570,27 +1564,12 @@
         72%{ opacity:1; transform:translate(calc(var(--slash-length, 240px) - 58px), -112px) rotate(72deg) scale(.94); }
         100%{ opacity:0; transform:translate(calc(var(--slash-length, 240px) - 38px), -118px) rotate(72deg) scale(.9); }
     }
-    @keyframes cutActiveBladeMove{
-        0%{
-            opacity:.96;
-            transform:translate(var(--active-blade-hover-x, -40px), var(--active-blade-hover-y, -120px)) rotate(var(--active-blade-rot, 72deg)) scale(.86);
-        }
-        22%{
-            opacity:1;
-            transform:translate(var(--active-blade-start-x, -40px), var(--active-blade-start-y, -120px)) rotate(var(--active-blade-rot, 72deg)) scale(.94);
-        }
-        62%{
-            opacity:1;
-            transform:translate(var(--active-blade-end-x, 40px), var(--active-blade-end-y, -120px)) rotate(var(--active-blade-rot, 72deg)) scale(.98);
-        }
-        86%{
-            opacity:.98;
-            transform:translate(var(--active-blade-hover-x, -40px), var(--active-blade-hover-y, -120px)) rotate(var(--active-blade-rot, 72deg)) scale(.88);
-        }
-        100%{
-            opacity:0;
-            transform:translate(var(--active-blade-hover-x, -40px), var(--active-blade-hover-y, -120px)) rotate(var(--active-blade-rot, 72deg)) scale(.84);
-        }
+    @keyframes cutToolSlashMove{
+        0%{ transform:translate(var(--cut-tool-anim-hover-x, 50%), var(--cut-tool-anim-hover-y, 20%)) translate(-50%, -12%) rotate(var(--cut-tool-slash-angle, 72deg)) scale(.9); }
+        22%{ transform:translate(var(--cut-tool-anim-start-x, 50%), var(--cut-tool-anim-start-y, 50%)) translate(-50%, -12%) rotate(var(--cut-tool-slash-angle, 72deg)) scale(.96); }
+        62%{ transform:translate(var(--cut-tool-anim-end-x, 58%), var(--cut-tool-anim-end-y, 56%)) translate(-50%, -12%) rotate(var(--cut-tool-slash-angle, 72deg)) scale(.98); }
+        86%{ transform:translate(var(--cut-tool-anim-hover-x, 50%), var(--cut-tool-anim-hover-y, 20%)) translate(-50%, -12%) rotate(var(--cut-tool-slash-angle, 72deg)) scale(.92); }
+        100%{ transform:translate(var(--cut-tool-anim-hover-x, 50%), var(--cut-tool-anim-hover-y, 20%)) translate(-50%, -12%) rotate(var(--cut-tool-slash-angle, 72deg)) scale(.9); }
     }
     @keyframes cutSlashSpark{
         0%{ opacity:0; transform:translate(-50%, -50%) scale(.4); }
@@ -1658,10 +1637,10 @@
     .clean-tool-swing{
         position:absolute;
         left:calc(var(--clean-tool-tip-x, 42px) - 29px);
-        top:calc(var(--clean-tool-tip-y, -46px) - 13px);
+        top:calc(var(--clean-tool-tip-y, -46px) - 148px);
         width:58px;
         height:168px;
-        transform-origin:50% 8%;
+        transform-origin:50% 88%;
         transform:rotate(calc(222deg + var(--clean-lean, 0deg))) scale(.84);
         will-change:transform;
     }
@@ -1686,7 +1665,7 @@
         opacity:.7;
     }
     @keyframes cleanToolSweep{
-        0%{ transform:rotate(calc(211deg + var(--clean-lean, 0deg))) scale(.84); }
+        0%{ transform:rotate(calc(210deg + var(--clean-lean, 0deg))) scale(.84); }
         100%{ transform:rotate(calc(234deg + var(--clean-lean, 0deg))) scale(.84); }
     }
     @keyframes cleanBrushGlow{
@@ -3710,6 +3689,7 @@
         .side-panel{ order:-1; }
     }
     .workbench{
+        position:relative;
         display:grid;
         grid-template-columns:360px minmax(500px, 1fr) 340px;
         grid-template-rows:minmax(560px, calc(100vh - 150px));
@@ -4872,31 +4852,68 @@
         color:rgba(63,45,28,.58);
     }
     @media (min-width:1101px){
-        body:not(.layout-mobile-landscape) .right-panel{
-            padding-bottom:calc(var(--desktop-plate-bottom) + var(--desktop-plate-size) + var(--desktop-plate-gap) + var(--desktop-collect-height) + 18px);
+        body:not(.layout-mobile-landscape):not(.layout-gamepad) .workbench{
+            grid-template-columns:360px minmax(620px, 1fr);
         }
-        body.v26-real-asset:not(.layout-mobile-landscape) .right-panel{
-            padding:26px 22px calc(var(--desktop-plate-bottom) + var(--desktop-plate-size) + var(--desktop-plate-gap) + var(--desktop-collect-height) + 18px);
-        }
-        body:not(.layout-mobile-landscape) .collect-cta{
+        body:not(.layout-mobile-landscape):not(.layout-gamepad) .right-panel{
             position:absolute;
-            left:22px;
-            right:22px;
-            bottom:calc(var(--desktop-plate-bottom) + var(--desktop-plate-size) + var(--desktop-plate-gap));
-            width:auto;
+            right:0;
+            top:0;
+            bottom:0;
+            width:304px;
+            min-height:0;
+            padding:0;
+            background:transparent;
+            border:0;
+            box-shadow:none;
+            pointer-events:none;
+            z-index:12;
+        }
+        body.v26-real-asset:not(.layout-mobile-landscape):not(.layout-gamepad) .right-panel{
+            padding:0;
+            background:transparent;
+            border:0;
+            box-shadow:none;
+        }
+        body:not(.layout-mobile-landscape):not(.layout-gamepad) .right-panel > h2{
+            display:none;
+        }
+        body:not(.layout-mobile-landscape):not(.layout-gamepad) .collect-cta{
+            position:absolute;
+            left:auto;
+            right:26px;
+            bottom:calc(var(--desktop-plate-bottom) + var(--desktop-plate-size) + 10px);
+            width:196px;
+            min-width:0;
             margin:0;
+            pointer-events:auto;
         }
-        body:not(.layout-mobile-landscape) .right-panel .plate-actions{
-            right:32px;
-            bottom:calc(var(--desktop-plate-bottom) + 30px);
+        body:not(.layout-mobile-landscape):not(.layout-gamepad) .right-panel .plate-actions{
+            right:calc(var(--desktop-plate-size) + 8px);
+            bottom:calc(var(--desktop-plate-bottom) + 118px);
+            pointer-events:auto;
         }
-        body:not(.layout-mobile-landscape) .plate{
-            left:50%;
-            right:auto;
+        body:not(.layout-mobile-landscape):not(.layout-gamepad) .plate{
+            left:auto;
+            right:0;
             bottom:var(--desktop-plate-bottom);
             width:var(--desktop-plate-size);
             height:var(--desktop-plate-size);
-            transform:translateX(-50%);
+            transform:none;
+            pointer-events:auto;
+        }
+        body:not(.layout-mobile-landscape):not(.layout-gamepad) .tutorial-help-plate-btn{
+            display:grid;
+            place-items:center;
+            right:calc(var(--desktop-plate-size) + 12px);
+            left:auto;
+            top:auto;
+            bottom:calc(var(--desktop-plate-bottom) + 170px);
+            width:36px;
+            height:36px;
+            font-size:18px;
+            pointer-events:auto;
+            transform:none;
         }
     }
     body.v26-real-asset .hotspot-clean::before{
@@ -6728,21 +6745,24 @@ function escapeHTML(value){
 }
 function formatCoreHintText(text){
     const safe = escapeHTML(text);
+    const actionPattern = /(瞄准|拖拽|点击|松开|放入|按住|摩擦|擦掉|切到|切换|滚动|移动|寻找|收集|修补|清洁|切除|定型|磨平|寻光)/;
     const colonIndex = safe.search(/[：:]/);
     if(colonIndex > 0 && colonIndex < 14){
         const head = safe.slice(0, colonIndex + 1);
         const rest = safe.slice(colonIndex + 1);
-        const actionMatch = rest.match(/^(\s*)(瞄准|沿|用|放入|把|先|按住|来回|擦掉|切到|滚动|移动|寻找|修补|清洁|切除|定型|磨平|寻光)/);
+        const actionMatch = rest.match(actionPattern);
         if(actionMatch){
-            const lead = actionMatch[1];
-            const verb = actionMatch[2];
-            return `<strong>${head}</strong>${lead}<strong>${verb}</strong>${rest.slice(lead.length + verb.length)}`;
+            const index = actionMatch.index || 0;
+            const verb = actionMatch[0];
+            return `${head}${rest.slice(0, index)}<strong>${verb}</strong>${rest.slice(index + verb.length)}`;
         }
-        return `<strong>${head}</strong>${rest}`;
+        return `${head}${rest}`;
     }
-    const firstSpace = safe.indexOf(" ");
-    if(firstSpace > 0 && firstSpace < 10){
-        return `<strong>${safe.slice(0, firstSpace)}</strong>${safe.slice(firstSpace)}`;
+    const actionMatch = safe.match(actionPattern);
+    if(actionMatch){
+        const index = actionMatch.index || 0;
+        const verb = actionMatch[0];
+        return `${safe.slice(0, index)}<strong>${verb}</strong>${safe.slice(index + verb.length)}`;
     }
     return safe;
 }
@@ -8241,6 +8261,7 @@ function renderRepairOverlay(step, visible, targetsVisible=false, pos){
     if(!step || step.type !== "repair" || !visible){
         overlay.className = "repair-overlay";
         overlay.innerHTML = "";
+        delete overlay.dataset.renderKey;
         return;
     }
     if(!pos) pos = defectStagePosition(step);
@@ -8262,34 +8283,42 @@ function renderRepairOverlay(step, visible, targetsVisible=false, pos){
     overlay.style.setProperty("--repair-tool-left", `${activeTarget.x}%`);
     overlay.style.setProperty("--repair-tool-top", `${Math.max(-30, activeTarget.y - 44)}%`);
     overlay.style.setProperty("--repair-tool-tilt", "-8deg");
-    overlay.innerHTML = `
-        <svg class="repair-crack-svg" viewBox="0 0 220 160" focusable="false">
-            <defs>
-                <linearGradient id="repairEssenceGradient" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stop-color="rgba(93,203,255,.96)"></stop>
-                    <stop offset="56%" stop-color="rgba(66,238,198,.97)"></stop>
-                    <stop offset="100%" stop-color="rgba(199,255,238,.96)"></stop>
-                </linearGradient>
-            </defs>
-            <clipPath id="repairCrackGemClip" clipPathUnits="userSpaceOnUse">
-                <ellipse cx="110" cy="82" rx="88" ry="58"></ellipse>
-            </clipPath>
-            <g clip-path="url(#repairCrackGemClip)">
-                <path class="repair-crack-glow" d="${REPAIR_CRACK_PATH}" pathLength="1"></path>
-                <path class="repair-crack-shadow" d="${REPAIR_CRACK_PATH}" pathLength="1"></path>
-                <path class="repair-crack-base" d="${REPAIR_CRACK_PATH}" pathLength="1"></path>
-                <path class="repair-crack-branch" d="${REPAIR_BRANCH_PATH}"></path>
-                <path class="repair-crack-fill" d="${REPAIR_CRACK_PATH}" pathLength="1"></path>
-            </g>
-        </svg>
-        ${targetsVisible ? REPAIR_TARGETS.map((target, index)=>{
+    const renderKey = `${step.id}:${targetsVisible ? "targets" : "hidden"}`;
+    if(overlay.dataset.renderKey !== renderKey){
+        overlay.innerHTML = `
+            <svg class="repair-crack-svg" viewBox="0 0 220 160" focusable="false">
+                <defs>
+                    <linearGradient id="repairEssenceGradient" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="rgba(93,203,255,.96)"></stop>
+                        <stop offset="56%" stop-color="rgba(66,238,198,.97)"></stop>
+                        <stop offset="100%" stop-color="rgba(199,255,238,.96)"></stop>
+                    </linearGradient>
+                </defs>
+                <clipPath id="repairCrackGemClip" clipPathUnits="userSpaceOnUse">
+                    <ellipse cx="110" cy="82" rx="88" ry="58"></ellipse>
+                </clipPath>
+                <g clip-path="url(#repairCrackGemClip)">
+                    <path class="repair-crack-glow" d="${REPAIR_CRACK_PATH}" pathLength="1"></path>
+                    <path class="repair-crack-shadow" d="${REPAIR_CRACK_PATH}" pathLength="1"></path>
+                    <path class="repair-crack-base" d="${REPAIR_CRACK_PATH}" pathLength="1"></path>
+                    <path class="repair-crack-branch" d="${REPAIR_BRANCH_PATH}"></path>
+                    <path class="repair-crack-fill" d="${REPAIR_CRACK_PATH}" pathLength="1"></path>
+                </g>
+            </svg>
+            ${targetsVisible ? REPAIR_TARGETS.map(target=>`<span class="repair-target" style="left:${target.x}%;top:${target.y}%"></span>`).join("") : ""}
+            <span class="repair-tool"></span>
+            <span class="repair-drop"></span>
+        `;
+        overlay.dataset.renderKey = renderKey;
+    }
+    if(targetsVisible){
+        overlay.querySelectorAll(".repair-target").forEach((targetEl, index)=>{
             const done = fill >= REPAIR_COMPLETE_THRESHOLD || index < activeIndex;
             const active = index === activeIndex && fill < REPAIR_COMPLETE_THRESHOLD;
-            return `<span class="repair-target ${done ? "done" : ""} ${active ? "active" : ""}" style="left:${target.x}%;top:${target.y}%"></span>`;
-        }).join("") : ""}
-        <span class="repair-tool"></span>
-        <span class="repair-drop"></span>
-    `;
+            targetEl.classList.toggle("done", done);
+            targetEl.classList.toggle("active", active);
+        });
+    }
     const revealKey = `${step.id}:repair-overlay`;
     if(renderRepairOverlay.revealKey !== revealKey){
         renderRepairOverlay.revealKey = revealKey;
@@ -8351,6 +8380,7 @@ function clearHotspot(){
     if(repairOverlay){
         repairOverlay.className = "repair-overlay";
         repairOverlay.innerHTML = "";
+        delete repairOverlay.dataset.renderKey;
     }
     if(soakOverlay){
         soakOverlay.className = "soak-overlay";
@@ -8973,6 +9003,7 @@ function renderCutToolFx(step, clientX=null, clientY=null){
         fx.className = "cut-tool-fx";
         stage.appendChild(fx);
     }
+    if(fx.classList.contains("cut-tool-slashing")) return;
     const rect = stage.getBoundingClientRect();
     const hover = cutHoverStagePoint(step);
     const hasPointer = Number.isFinite(clientX) && Number.isFinite(clientY);
@@ -9160,39 +9191,34 @@ function playCutSwipeFx(step, drag, endX, endY){
     const slashCenterX = Math.max(42, Math.min(rect.width - 42, centerX));
     const slashCenterY = Math.max(42, Math.min(rect.height - 42, centerY));
     const hover = cutHoverStagePoint(step);
-    const rad = -angle * Math.PI / 180;
-    const toLocalBlade = (x, y)=>{
-        const relX = x - slashCenterX;
-        const relY = y - slashCenterY;
-        return {
-            x:relX * Math.cos(rad) - relY * Math.sin(rad) - 36,
-            y:relX * Math.sin(rad) + relY * Math.cos(rad) - 112
-        };
-    };
-    const hoverLocal = toLocalBlade(hover.x, hover.y);
-    const startLocal = toLocalBlade(startX, startY);
-    const endLocal = toLocalBlade(finishX, finishY);
-    clearCutToolFx();
+    let toolFx = stage.querySelector(".cut-tool-fx");
+    if(!toolFx){
+        toolFx = document.createElement("div");
+        toolFx.className = "cut-tool-fx";
+        stage.appendChild(toolFx);
+    }
+    toolFx.classList.remove("cut-tool-slashing");
+    toolFx.style.setProperty("--cut-tool-anim-hover-x", `${hover.x.toFixed(1)}px`);
+    toolFx.style.setProperty("--cut-tool-anim-hover-y", `${hover.y.toFixed(1)}px`);
+    toolFx.style.setProperty("--cut-tool-anim-start-x", `${startX.toFixed(1)}px`);
+    toolFx.style.setProperty("--cut-tool-anim-start-y", `${startY.toFixed(1)}px`);
+    toolFx.style.setProperty("--cut-tool-anim-end-x", `${finishX.toFixed(1)}px`);
+    toolFx.style.setProperty("--cut-tool-anim-end-y", `${finishY.toFixed(1)}px`);
+    toolFx.style.setProperty("--cut-tool-slash-angle", `${(angle + 90).toFixed(1)}deg`);
+    void toolFx.offsetWidth;
+    toolFx.classList.add("cut-tool-slashing");
     const fx = document.createElement("div");
     fx.className = "cut-slash-fx hide-legacy-blade";
     fx.style.left = `${slashCenterX}px`;
     fx.style.top = `${slashCenterY}px`;
     fx.style.setProperty("--slash-angle", `${angle}deg`);
     fx.style.setProperty("--slash-length", `${length}px`);
-    fx.style.setProperty("--blade-entry-x", `${hoverLocal.x.toFixed(1)}px`);
-    fx.style.setProperty("--blade-entry-y", `${hoverLocal.y.toFixed(1)}px`);
+    fx.style.setProperty("--blade-entry-x", "0px");
+    fx.style.setProperty("--blade-entry-y", "0px");
     fx.style.setProperty("--blade-entry-rot", "72deg");
-    fx.style.setProperty("--active-blade-hover-x", `${hoverLocal.x.toFixed(1)}px`);
-    fx.style.setProperty("--active-blade-hover-y", `${hoverLocal.y.toFixed(1)}px`);
-    fx.style.setProperty("--active-blade-start-x", `${startLocal.x.toFixed(1)}px`);
-    fx.style.setProperty("--active-blade-start-y", `${startLocal.y.toFixed(1)}px`);
-    fx.style.setProperty("--active-blade-end-x", `${endLocal.x.toFixed(1)}px`);
-    fx.style.setProperty("--active-blade-end-y", `${endLocal.y.toFixed(1)}px`);
-    fx.style.setProperty("--active-blade-rot", "72deg");
     fx.innerHTML = `
         <span class="cut-slash-glow"></span>
         <span class="cut-slash-line"></span>
-        <span class="cut-active-blade"></span>
         <span class="cut-slash-blade"></span>
         ${[...Array(6)].map((_, index)=>{
             const offset = (index - 2.5) * 24;
@@ -9203,6 +9229,7 @@ function playCutSwipeFx(step, drag, endX, endY){
     stage.appendChild(fx);
     setTimeout(()=>{
         fx.remove();
+        toolFx.classList.remove("cut-tool-slashing");
         if(currentStep()?.id === step.id && !step.done) renderPlay();
     }, 920);
 }
