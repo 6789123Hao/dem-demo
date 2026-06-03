@@ -1522,8 +1522,8 @@
         z-index:8;
         pointer-events:none;
         opacity:.95;
-        transform:translate(-50%, -12%) rotate(var(--cut-tool-angle, 42deg)) scale(.9);
-        transform-origin:50% 12%;
+        transform:translate(-50%, -88%) rotate(var(--cut-tool-angle, 42deg)) scale(.9);
+        transform-origin:50% 88%;
         filter:drop-shadow(0 16px 15px rgba(18,12,6,.28)) drop-shadow(0 0 10px rgba(255,238,166,.46));
     }
     .cut-tool-fx::before{
@@ -1538,6 +1538,7 @@
         top:0;
         z-index:10;
         opacity:1;
+        transform-origin:50% 12%;
         animation:cutToolSlashMove .92s cubic-bezier(.16,.82,.18,1) both;
     }
     .cut-slash-fx i{
@@ -1565,11 +1566,11 @@
         100%{ opacity:0; transform:translate(calc(var(--slash-length, 240px) - 38px), -118px) rotate(72deg) scale(.9); }
     }
     @keyframes cutToolSlashMove{
-        0%{ transform:translate(var(--cut-tool-anim-hover-x, 50%), var(--cut-tool-anim-hover-y, 20%)) translate(-50%, -12%) rotate(var(--cut-tool-slash-angle, 72deg)) scale(.9); }
+        0%{ transform:translate(var(--cut-tool-anim-tip-x, 50%), var(--cut-tool-anim-tip-y, 20%)) translate(-50%, -12%) rotate(var(--cut-tool-wait-angle, 42deg)) scale(.9); }
         22%{ transform:translate(var(--cut-tool-anim-start-x, 50%), var(--cut-tool-anim-start-y, 50%)) translate(-50%, -12%) rotate(var(--cut-tool-slash-angle, 72deg)) scale(.96); }
         62%{ transform:translate(var(--cut-tool-anim-end-x, 58%), var(--cut-tool-anim-end-y, 56%)) translate(-50%, -12%) rotate(var(--cut-tool-slash-angle, 72deg)) scale(.98); }
-        86%{ transform:translate(var(--cut-tool-anim-hover-x, 50%), var(--cut-tool-anim-hover-y, 20%)) translate(-50%, -12%) rotate(var(--cut-tool-slash-angle, 72deg)) scale(.92); }
-        100%{ transform:translate(var(--cut-tool-anim-hover-x, 50%), var(--cut-tool-anim-hover-y, 20%)) translate(-50%, -12%) rotate(var(--cut-tool-slash-angle, 72deg)) scale(.9); }
+        86%{ transform:translate(var(--cut-tool-anim-tip-x, 50%), var(--cut-tool-anim-tip-y, 20%)) translate(-50%, -12%) rotate(var(--cut-tool-wait-angle, 42deg)) scale(.92); }
+        100%{ transform:translate(var(--cut-tool-anim-tip-x, 50%), var(--cut-tool-anim-tip-y, 20%)) translate(-50%, -12%) rotate(var(--cut-tool-wait-angle, 42deg)) scale(.9); }
     }
     @keyframes cutSlashSpark{
         0%{ opacity:0; transform:translate(-50%, -50%) scale(.4); }
@@ -1636,8 +1637,8 @@
     }
     .clean-tool-swing{
         position:absolute;
-        left:calc(var(--clean-tool-tip-x, 42px) - 29px);
-        top:calc(var(--clean-tool-tip-y, -46px) - 148px);
+        left:47px;
+        top:-232px;
         width:58px;
         height:168px;
         transform-origin:50% 88%;
@@ -2169,11 +2170,11 @@
         100%{ transform:scale(1.12); opacity:1; }
     }
     @keyframes chamferDragCueFloat{
-        0%{ opacity:0; transform:translate(-50%, -50%) translateX(0) scale(.96); }
+        0%{ opacity:0; transform:translate(-50%, -50%) rotate(var(--cloth-rot, 0deg)) translateX(0) scale(.96); }
         22%{ opacity:.9; }
-        45%{ transform:translate(-50%, -50%) translateX(-8px) scale(1); }
-        70%{ opacity:.92; transform:translate(-50%, -50%) translateX(8px) scale(1); }
-        100%{ opacity:0; transform:translate(-50%, -50%) translateX(0) scale(.98); }
+        45%{ transform:translate(-50%, -50%) rotate(var(--cloth-rot, 0deg)) translateX(-8px) scale(1); }
+        70%{ opacity:.92; transform:translate(-50%, -50%) rotate(var(--cloth-rot, 0deg)) translateX(8px) scale(1); }
+        100%{ opacity:0; transform:translate(-50%, -50%) rotate(var(--cloth-rot, 0deg)) translateX(0) scale(.98); }
     }
     @keyframes chamferDirtPreview{
         0%{ opacity:0; filter:drop-shadow(0 1px 2px rgba(42,32,24,.22)) blur(1px); }
@@ -8994,6 +8995,14 @@ function cutHoverStagePoint(step){
         y:rect.height * (pos.y - 28) / 100
     };
 }
+function cutBladeTipPointFromHandle(handlePoint, angleDeg){
+    const distance = 154 * .76 * .9;
+    const rad = angleDeg * Math.PI / 180;
+    return {
+        x:handlePoint.x + Math.sin(rad) * distance,
+        y:handlePoint.y - Math.cos(rad) * distance
+    };
+}
 function renderCutToolFx(step, clientX=null, clientY=null){
     const stage = document.getElementById("lens-stage");
     if(!stage) return;
@@ -9013,6 +9022,7 @@ function renderCutToolFx(step, clientX=null, clientY=null){
     fx.style.setProperty("--cut-tool-x", `${hover.x.toFixed(1)}px`);
     fx.style.setProperty("--cut-tool-y", `${hover.y.toFixed(1)}px`);
     fx.style.setProperty("--cut-tool-angle", `${angle.toFixed(1)}deg`);
+    step.cutToolWaitAngle = angle;
 }
 function clearCutToolFx(){
     document.querySelectorAll(".cut-tool-fx").forEach(el=>el.remove());
@@ -9191,6 +9201,10 @@ function playCutSwipeFx(step, drag, endX, endY){
     const slashCenterX = Math.max(42, Math.min(rect.width - 42, centerX));
     const slashCenterY = Math.max(42, Math.min(rect.height - 42, centerY));
     const hover = cutHoverStagePoint(step);
+    const waitAngle = Number.isFinite(step.cutToolWaitAngle)
+        ? step.cutToolWaitAngle
+        : Math.atan2(finishY - hover.y, finishX - hover.x) * 180 / Math.PI + 90;
+    const suspendedTip = cutBladeTipPointFromHandle(hover, waitAngle);
     let toolFx = stage.querySelector(".cut-tool-fx");
     if(!toolFx){
         toolFx = document.createElement("div");
@@ -9198,13 +9212,14 @@ function playCutSwipeFx(step, drag, endX, endY){
         stage.appendChild(toolFx);
     }
     toolFx.classList.remove("cut-tool-slashing");
-    toolFx.style.setProperty("--cut-tool-anim-hover-x", `${hover.x.toFixed(1)}px`);
-    toolFx.style.setProperty("--cut-tool-anim-hover-y", `${hover.y.toFixed(1)}px`);
+    toolFx.style.setProperty("--cut-tool-anim-tip-x", `${suspendedTip.x.toFixed(1)}px`);
+    toolFx.style.setProperty("--cut-tool-anim-tip-y", `${suspendedTip.y.toFixed(1)}px`);
+    toolFx.style.setProperty("--cut-tool-wait-angle", `${waitAngle.toFixed(1)}deg`);
     toolFx.style.setProperty("--cut-tool-anim-start-x", `${startX.toFixed(1)}px`);
     toolFx.style.setProperty("--cut-tool-anim-start-y", `${startY.toFixed(1)}px`);
     toolFx.style.setProperty("--cut-tool-anim-end-x", `${finishX.toFixed(1)}px`);
     toolFx.style.setProperty("--cut-tool-anim-end-y", `${finishY.toFixed(1)}px`);
-    toolFx.style.setProperty("--cut-tool-slash-angle", `${(angle + 90).toFixed(1)}deg`);
+    toolFx.style.setProperty("--cut-tool-slash-angle", `${(angle + 35).toFixed(1)}deg`);
     void toolFx.offsetWidth;
     toolFx.classList.add("cut-tool-slashing");
     const fx = document.createElement("div");
