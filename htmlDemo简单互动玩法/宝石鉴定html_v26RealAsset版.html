@@ -3957,6 +3957,9 @@
     .gem3d.gem-step-swap{
         animation:gemStepSwap .52s cubic-bezier(.18,.78,.22,1) both;
     }
+    .gem3d.gem-carousel-swap{
+        animation:gemCarouselSwap .74s cubic-bezier(.2,.76,.18,1) both;
+    }
     .gem3d.gem-collect-exit{
         animation:gemCollectExit 1.82s cubic-bezier(.16,.78,.18,1) forwards;
         z-index:12;
@@ -3983,6 +3986,13 @@
         42%{ transform:translate(calc(-50% + 5px), calc(-50% - 5px)) rotate(2deg) scale(1.16); filter:brightness(1.18) drop-shadow(0 34px 30px rgba(52,35,21,.28)); }
         70%{ transform:translate(calc(-50% - 2px), calc(-50% - 3px)) rotate(-1deg) scale(1.1); }
         100%{ transform:translate(-50%, -50%) scale(1.04); filter:brightness(1.08) drop-shadow(0 30px 28px rgba(52,35,21,.24)); }
+    }
+    @keyframes gemCarouselSwap{
+        0%{ opacity:1; transform:translate(-50%, -50%) scale(1.04); filter:drop-shadow(0 26px 24px rgba(52,35,21,.22)); }
+        42%{ opacity:.18; transform:translate(calc(-50% - 46vw), calc(-50% + 12px)) scale(.72); filter:blur(2px) drop-shadow(0 14px 18px rgba(52,35,21,.12)); }
+        43%{ opacity:.16; transform:translate(calc(-50% + 46vw), calc(-50% + 12px)) scale(.72); filter:blur(2px) drop-shadow(0 14px 18px rgba(52,35,21,.12)); }
+        74%{ opacity:1; transform:translate(calc(-50% + 4px), calc(-50% - 3px)) scale(1.1); filter:brightness(1.14) drop-shadow(0 34px 30px rgba(52,35,21,.28)); }
+        100%{ opacity:1; transform:translate(-50%, -50%) scale(1.04); filter:brightness(1.08) drop-shadow(0 30px 28px rgba(52,35,21,.24)); }
     }
     @keyframes gemCollectExit{
         0%{ opacity:1; transform:translate(-50%, -50%) scale(1); filter:brightness(1.08) drop-shadow(0 0 22px rgba(255,244,178,.42)); }
@@ -4385,6 +4395,160 @@
         font-weight:950;
         color:#244f3d;
     }
+    .multi-select-panel{
+        display:none;
+        position:absolute;
+        left:34px;
+        right:34px;
+        top:28px;
+        bottom:28px;
+        z-index:12;
+        grid-template-rows:auto 1fr auto auto;
+        gap:14px;
+        pointer-events:auto;
+        color:#f8edce;
+    }
+    body.layout-multi:not(.playing) .multi-select-panel{ display:grid; }
+    body.layout-multi:not(.playing) .idle-copy{ display:none; }
+    .multi-select-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:14px; }
+    .multi-select-head h2{ margin:0; font-size:24px; letter-spacing:0; }
+    .multi-select-head p{ margin:4px 0 0; color:#dec99f; font-size:14px; line-height:1.55; }
+    .multi-slots{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); align-items:center; gap:18px; min-height:0; }
+    .multi-slot{
+        position:relative;
+        min-height:210px;
+        border:1px solid rgba(231,195,105,.48);
+        border-radius:20px;
+        background:
+            radial-gradient(ellipse at 50% 72%, rgba(238,209,129,.28), transparent 52%),
+            linear-gradient(180deg, rgba(34,79,64,.72), rgba(41,31,23,.58));
+        box-shadow:inset 0 0 0 1px rgba(255,248,208,.12), 0 24px 38px rgba(32,20,13,.24);
+        display:grid;
+        place-items:center;
+        overflow:hidden;
+        transition:transform .22s ease, border-color .22s ease, filter .22s ease;
+    }
+    .multi-slot::after{
+        content:"";
+        position:absolute;
+        left:18%;
+        right:18%;
+        bottom:34px;
+        height:24px;
+        border-radius:50%;
+        background:radial-gradient(ellipse, rgba(255,226,140,.36), rgba(86,55,28,.08) 58%, transparent 70%);
+        filter:blur(1px);
+    }
+    .multi-slot.over{ transform:translateY(-4px); border-color:#ffe28c; filter:brightness(1.12); }
+    .multi-slot.empty .multi-slot-stone{ opacity:.42; filter:saturate(.6); }
+    .stone-card.multi-pointer-dragging{
+        cursor:grabbing;
+        transform:translateX(8px) scale(1.02);
+        border-color:#ffe28c;
+        box-shadow:0 0 22px rgba(255,226,140,.35), 0 14px 26px rgba(33,22,14,.18);
+        opacity:.86;
+    }
+    .multi-slot-index{ position:absolute; left:12px; top:10px; font-size:13px; color:#e7c369; font-weight:900; }
+    .multi-slot-clear{
+        position:absolute;
+        right:10px;
+        top:8px;
+        width:26px;
+        height:26px;
+        border-radius:50%;
+        border:1px solid rgba(255,226,140,.44);
+        background:rgba(28,37,32,.7);
+        color:#ffe9a9;
+        display:grid;
+        place-items:center;
+        cursor:pointer;
+        z-index:2;
+    }
+    .multi-slot-stone{
+        position:relative;
+        z-index:1;
+        width:112px;
+        height:112px;
+        border-radius:30px;
+        background:rgba(255,255,255,.18);
+        background-size:contain !important;
+        background-repeat:no-repeat !important;
+        background-position:center !important;
+        filter:drop-shadow(0 22px 22px rgba(23,17,12,.3));
+    }
+    .multi-slot-name{
+        position:absolute;
+        left:16px;
+        right:16px;
+        bottom:16px;
+        text-align:center;
+        font-weight:900;
+        font-size:16px;
+        color:#fff2c2;
+        z-index:2;
+    }
+    .multi-op-chain,.multi-run-chain{ display:flex; align-items:center; justify-content:center; gap:8px; min-height:46px; }
+    .multi-chain-node{
+        position:relative;
+        min-width:74px;
+        min-height:36px;
+        padding:8px 14px;
+        border-radius:18px 8px 18px 8px;
+        border:1px solid rgba(231,195,105,.46);
+        background:linear-gradient(180deg, rgba(255,245,203,.16), rgba(28,92,78,.4));
+        color:#ffeeb8;
+        font-size:13px;
+        font-weight:900;
+        text-align:center;
+        box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+    .multi-chain-node + .multi-chain-node::before{
+        content:"";
+        position:absolute;
+        left:-14px;
+        top:50%;
+        width:18px;
+        height:10px;
+        transform:translateY(-50%);
+        border-radius:999px;
+        background:
+            radial-gradient(circle at 100% 50%, rgba(255,226,140,.82) 0 3px, transparent 4px),
+            linear-gradient(90deg, rgba(231,195,105,.28), rgba(255,226,140,.72));
+        box-shadow:0 0 10px rgba(255,222,125,.2);
+    }
+    .multi-chain-node.active{ border-color:#ffe28c; box-shadow:0 0 18px rgba(255,220,104,.42), inset 0 0 0 1px rgba(255,255,255,.16); }
+    .multi-chain-node.done{ opacity:.78; filter:saturate(.88); }
+    .multi-chain-skip{
+        position:absolute;
+        right:-8px;
+        top:-8px;
+        min-width:24px;
+        height:24px;
+        border-radius:50%;
+        display:grid;
+        place-items:center;
+        background:#ffe28c;
+        color:#523716;
+        font-size:12px;
+        box-shadow:0 0 16px rgba(255,218,104,.7);
+    }
+    .multi-chain-node.skip-flash .multi-chain-skip{ animation:collectReadyPulse 1.05s ease-in-out infinite; }
+    .multi-start-row{ display:flex; justify-content:center; gap:12px; }
+    .multi-run-chain{
+        display:none;
+        position:absolute;
+        left:50%;
+        bottom:22px;
+        z-index:15;
+        transform:translateX(-50%);
+        padding:8px 12px;
+        border-radius:24px;
+        background:rgba(28,37,32,.62);
+        border:1px solid rgba(231,195,105,.28);
+        backdrop-filter:blur(8px);
+        pointer-events:none;
+    }
+    body.layout-multi.playing .multi-run-chain{ display:flex; }
     body.playing .core-hud,
     body.playing .core-controls{
         display:grid;
@@ -4568,12 +4732,19 @@
         animation:plateBump .46s cubic-bezier(.2,.86,.22,1.18) both;
         animation-delay:var(--bump-delay, 0ms);
     }
+    .plate-gem.plate-physics-live{
+        animation:none !important;
+        will-change:left, top, transform, filter;
+    }
+    .plate-gem.plate-physics-hit{
+        animation:platePhysicsHit .18s ease-out both;
+    }
     .plate-gem.with-image{
         color:transparent;
         box-shadow:none;
         filter:drop-shadow(0 8px 10px rgba(58,37,21,.18));
     }
-    body.reward-focus .plate-gem:not(.plate-drop-new):not(.plate-bump){
+    body.reward-focus .plate-gem:not(.plate-drop-new):not(.plate-bump):not(.plate-physics-hit){
         animation:none;
         transform:translate(-50%, -50%) rotate(var(--rest-rot, 0deg)) scale(1);
         opacity:1;
@@ -4612,6 +4783,11 @@
     @keyframes plateDropClink{
         0%{ filter:drop-shadow(0 8px 10px rgba(58,37,21,.18)); }
         42%{ filter:drop-shadow(0 0 11px rgba(255,226,142,.72)) drop-shadow(0 10px 13px rgba(80,46,19,.28)) brightness(1.18); }
+        100%{ filter:drop-shadow(0 8px 10px rgba(58,37,21,.18)); }
+    }
+    @keyframes platePhysicsHit{
+        0%{ filter:drop-shadow(0 8px 10px rgba(58,37,21,.18)); }
+        45%{ filter:drop-shadow(0 0 13px rgba(255,224,132,.8)) drop-shadow(0 10px 14px rgba(92,54,25,.28)) brightness(1.2); }
         100%{ filter:drop-shadow(0 8px 10px rgba(58,37,21,.18)); }
     }
     @keyframes plateDiceRoll{
@@ -5031,27 +5207,27 @@
             z-index:21;
         }
         body.reward-focus:not(.layout-mobile-landscape):not(.layout-gamepad) .lens-viewport{
-            left:18%;
-            top:73%;
-            width:min(76%, 720px);
-            --lens-view-scale:.58;
-            opacity:.72;
-            filter:saturate(.84) brightness(.9);
+            left:15%;
+            top:77%;
+            width:min(66%, 620px);
+            --lens-view-scale:.46;
+            opacity:.62;
+            filter:saturate(.78) brightness(.86);
         }
         body.reward-focus:not(.layout-mobile-landscape):not(.layout-gamepad) .lens-stage.idle .idle-copy{
             opacity:0;
         }
         body.reward-focus:not(.layout-mobile-landscape):not(.layout-gamepad) .plate{
-            right:calc(50vw - 470px);
-            bottom:76px;
-            width:calc(var(--desktop-plate-size) + 184px);
-            height:calc(var(--desktop-plate-size) + 184px);
+            right:calc(50vw - 500px);
+            bottom:52px;
+            width:calc(var(--desktop-plate-size) + 240px);
+            height:calc(var(--desktop-plate-size) + 240px);
             filter:drop-shadow(0 34px 42px rgba(41,24,12,.3)) brightness(1.08);
             z-index:18;
         }
         body.reward-focus:not(.layout-mobile-landscape):not(.layout-gamepad) .plate-gem{
-            width:40px;
-            height:40px;
+            width:43px;
+            height:43px;
         }
         body.reward-focus:not(.layout-mobile-landscape):not(.layout-gamepad) .plate-gem.plate-drop-new{
             animation-name:gemDropRewardFocus;
@@ -5808,6 +5984,7 @@
                 <div class="demo-actions">
                     <select id="layout-select" class="layout-select" aria-label="窗口比例布局">
                         <option value="desktop">电脑布局</option>
+                        <option value="multi">多开布局</option>
                         <option value="mobileLandscape">手机横屏</option>
                         <option value="gamepad">手柄模拟</option>
                     </select>
@@ -5869,6 +6046,21 @@
                         <h2>镜片位置 / 核心玩法区域</h2>
                         <p>从左侧素体选择拖入镜片，开始单颗鉴定。</p>
                     </div>
+                    <div id="multi-select-panel" class="multi-select-panel" aria-live="polite">
+                        <div class="multi-select-head">
+                            <div>
+                                <h2>多开底座</h2>
+                                <p>最多选择 3 颗素体一起处理；点击左侧素体会自动入座，也可以拖拽替换指定底座。</p>
+                            </div>
+                            <button class="btn ghost" id="multi-autofill-btn" type="button">自动填入</button>
+                        </div>
+                        <div id="multi-slots" class="multi-slots"></div>
+                        <div id="multi-chain" class="multi-op-chain"></div>
+                        <div class="multi-start-row">
+                            <button class="btn primary" id="multi-start-btn" type="button">正式开始</button>
+                            <button class="btn ghost" id="multi-clear-btn" type="button">清空底座</button>
+                        </div>
+                    </div>
                     <div id="gem3d" class="gem3d">
                         <div class="gem-cushion" aria-hidden="true"></div>
                         <div id="gem-core" class="gem-core"></div>
@@ -5884,6 +6076,7 @@
                     <div id="gamepad-aim" class="gamepad-aim" aria-hidden="true"></div>
                     <div id="lens-dial" class="lens-dial" aria-label="镜头选择"></div>
                     <svg id="shape-trace-layer" class="shape-trace-layer" aria-hidden="true"></svg>
+                    <div id="multi-run-chain" class="multi-run-chain" aria-hidden="true"></div>
                     <div class="core-hud">
                         <div class="step-box notebook-card">
                             <div class="notebook-title" id="archive-title">档案：-</div>
@@ -5948,7 +6141,7 @@
                 <span id="collect-btn-label">收集奖励</span>
             </button>
             <div class="plate-actions">
-                <button class="btn ghost organize-plate-btn" id="organize-plate-btn" title="重新撒石头" aria-label="重新撒石头">⚂</button>
+                <button class="btn ghost organize-plate-btn" id="organize-plate-btn" title="重新落下成石" aria-label="重新落下成石">↻</button>
             </div>
             <button class="tutorial-help-btn tutorial-help-plate-btn" id="tutorial-help-plate-btn" type="button" aria-label="打开教程">?</button>
             <div id="plate" class="plate"></div>
@@ -6004,7 +6197,7 @@ const TOOL_LABELS = {
     soak:"浸润",
     chamfer:"磨平"
 };
-const TOOL_ICONS = { cut:"切", repair:"滴", shape:"型", clean:"净", light:"光", soak:"浸", chamfer:"倒" };
+const TOOL_ICONS = { cut:"切", repair:"滴", shape:"型", clean:"净", light:"光", soak:"浸", chamfer:"磨" };
 const TOOL_SPRITES = {
     cut:"assets/ui_v26/ui_tool_sprites/tool_cut_C.png",
     repair:"assets/ui_v26/ui_tool_sprites/tool_repair_C.png",
@@ -6022,7 +6215,7 @@ const TOOL_NOTES = {
     soak:"放入量杯左右摇晃",
     chamfer:"沿宝石边缘来回摩擦直到光滑为止"
 };
-const TOOL_ORDER = ["cut","repair","light","shape","chamfer","clean"];
+const TOOL_ORDER = ["cut","light","repair","shape","chamfer","clean"];
 const FOLLOW_TOOL_TYPES = new Set(["clean","shape","light"]);
 const IDLE_TOOL_TYPES = new Set(["clean","shape","light","cut"]);
 const LENS_FREE_TYPES = new Set();
@@ -6101,12 +6294,12 @@ function defaultGemStepInstruction(gem, task){
     return `${gem.name}：完成当前处理步骤。`;
 }
 const GEM_BLUEPRINTS = [
-    { id:"pearl", name:"珍珠", rarity:3, version:"西西亚·三星成石", kind:"成品宝石", sub:"修补 -> 磨平 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #fff9ef 0%, #d9d3dd 100%)", assetBase:"assets/gems/pearl", tasks:[{type:"repair", title:"珠层细裂", lens:2, face:1, pos:{x:54,y:46}}, {type:"chamfer", title:"珠缘磨平", lens:0, face:1, pos:{x:50,y:50}}, {type:"clean", title:"柔光净化", lens:0, face:1, pos:{x:50,y:54}}] },
-    { id:"agate", name:"玛瑙", rarity:3, version:"长安·三星成石", kind:"成品宝石", sub:"修补 -> 磨平 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", assetBase:"assets/gems/agate", tasks:[{type:"repair", title:"下缘细裂", lens:2, face:2, pos:{x:46,y:64}}, {type:"chamfer", title:"纹带磨平", lens:1, face:1, pos:{x:50,y:50}}, {type:"clean", title:"通透净化", lens:1, face:1, pos:{x:50,y:52}}] },
-    { id:"garnet", name:"石榴石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b85a52 0%, #6d1f23 100%)", assetBase:"assets/gems/garnet", tasks:[{type:"repair", title:"边缘缺口", lens:1, face:2, pos:{x:58,y:42}}, {type:"clean", title:"血色提亮", lens:2, face:0, pos:{x:50,y:50}}] },
-    { id:"sunstone", name:"砂金石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #f1b07c 0%, #9a4f2d 100%)", assetBase:"assets/gems/sunstone", tasks:[{type:"repair", title:"细小缺角", lens:2, face:1, pos:{x:40,y:60}}, {type:"clean", title:"金砂唤亮", lens:0, face:2, pos:{x:50,y:52}}] },
-    { id:"catseye", name:"猫眼石", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #d8f1a8 0%, #7ea042 100%)", assetBase:"assets/gems/catseye", tasks:[{type:"repair", title:"猫眼边缘损伤", lens:2, face:1, pos:{x:56,y:40}}, {type:"clean", title:"瞳线净化", lens:1, face:2, pos:{x:50,y:50}}] },
-    { id:"jadeite", name:"翡翠", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b8f0c6 0%, #3d9b63 100%)", assetBase:"assets/gems/jadeite", tasks:[{type:"repair", title:"边缘细裂", lens:1, face:1, pos:{x:56,y:62}}, {type:"clean", title:"翠面净化", lens:2, face:0, pos:{x:50,y:50}}] },
+    { id:"pearl", name:"珍珠", rarity:3, version:"西西亚·三星成石", kind:"成品宝石", sub:"寻光 -> 修补 -> 磨平 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #fff9ef 0%, #d9d3dd 100%)", assetBase:"assets/gems/pearl", tasks:[{type:"light", title:"珠面寻光", lens:0, face:0, pos:{x:50,y:50}}, {type:"repair", title:"珠层细裂", lens:2, face:1, pos:{x:54,y:46}}, {type:"chamfer", title:"珠缘磨平", lens:0, face:1, pos:{x:50,y:50}}, {type:"clean", title:"柔光净化", lens:0, face:1, pos:{x:50,y:54}}] },
+    { id:"agate", name:"玛瑙", rarity:3, version:"长安·三星成石", kind:"成品宝石", sub:"寻光 -> 修补 -> 磨平 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", assetBase:"assets/gems/agate", tasks:[{type:"light", title:"纹带寻光", lens:1, face:0, pos:{x:50,y:50}}, {type:"repair", title:"下缘细裂", lens:2, face:2, pos:{x:46,y:64}}, {type:"chamfer", title:"纹带磨平", lens:1, face:1, pos:{x:50,y:50}}, {type:"clean", title:"通透净化", lens:1, face:1, pos:{x:50,y:52}}] },
+    { id:"garnet", name:"石榴石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"寻光 -> 修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b85a52 0%, #6d1f23 100%)", assetBase:"assets/gems/garnet", tasks:[{type:"light", title:"血色寻光", lens:1, face:0, pos:{x:50,y:50}}, {type:"repair", title:"边缘缺口", lens:1, face:2, pos:{x:58,y:42}}, {type:"clean", title:"血色提亮", lens:2, face:0, pos:{x:50,y:50}}] },
+    { id:"sunstone", name:"砂金石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"寻光 -> 修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #f1b07c 0%, #9a4f2d 100%)", assetBase:"assets/gems/sunstone", tasks:[{type:"light", title:"金砂寻光", lens:0, face:0, pos:{x:50,y:50}}, {type:"repair", title:"细小缺角", lens:2, face:1, pos:{x:40,y:60}}, {type:"clean", title:"金砂唤亮", lens:0, face:2, pos:{x:50,y:52}}] },
+    { id:"catseye", name:"猫眼石", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"寻光 -> 修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #d8f1a8 0%, #7ea042 100%)", assetBase:"assets/gems/catseye", tasks:[{type:"light", title:"瞳线寻光", lens:1, face:0, pos:{x:50,y:50}}, {type:"repair", title:"猫眼边缘损伤", lens:2, face:1, pos:{x:56,y:40}}, {type:"clean", title:"瞳线净化", lens:1, face:2, pos:{x:50,y:50}}] },
+    { id:"jadeite", name:"翡翠", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"寻光 -> 修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b8f0c6 0%, #3d9b63 100%)", assetBase:"assets/gems/jadeite", tasks:[{type:"light", title:"翠面寻光", lens:2, face:0, pos:{x:50,y:50}}, {type:"repair", title:"边缘细裂", lens:1, face:1, pos:{x:56,y:62}}, {type:"clean", title:"翠面净化", lens:2, face:0, pos:{x:50,y:50}}] },
     { id:"obsidian", name:"黑曜石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6f6b83 0%, #15131f 100%)", assetBase:"assets/gems/obsidian", tasks:[{type:"cut", title:"石皮切除", lens:0, face:0, pos:{x:58,y:38}, cutHitsRequired:2}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:2, face:1, pos:{x:50,y:50}}, {type:"clean", title:"黑镜净化", lens:1, face:0, pos:{x:52,y:50}}] },
     { id:"fluorite", name:"萤石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #bca7e8 0%, #4f5a7e 100%)", assetBase:"assets/gems/fluorite", tasks:[{type:"cut", title:"杂层切除", lens:1, face:1, pos:{x:62,y:52}}, {type:"shape", title:"圆形成球", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"clean", title:"荧光净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"fluorite_test", name:"萤石测试", rarity:1, version:"GM·全玩法测试石", kind:"原石", sub:"切除 -> 寻光 -> 修补 -> 定型 -> 磨平 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #cbb9f2 0%, #5a668f 100%)", assetBase:"assets/gems/fluorite", tasks:[{type:"cut", title:"测试切除", lens:1, face:1, pos:{x:62,y:52}, cutHitsRequired:2}, {type:"light", title:"测试寻光", lens:0, face:0, pos:{x:50,y:50}, lightTarget:{x:58,y:38}}, {type:"repair", title:"测试裂隙", lens:2, face:1, pos:{x:43,y:56}}, {type:"shape", title:"测试圆形定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"chamfer", title:"测试圆边磨平", lens:0, face:0, pos:{x:50,y:50}}, {type:"clean", title:"测试最终清洁", lens:0, face:0, pos:{x:52,y:50}}] },
@@ -6134,7 +6327,7 @@ const GEM_VISUALS = {
 const DEMO_DATA_PACKS = {
     fullCoverage:{
         label:"全量流程验收",
-        note:"每一种素体都有可玩数量，并额外提供一颗萤石测试石用于完整跑通当前玩法链路。",
+        note:"每一种素体都有可玩数量，寻光与磨平已纳入正式步骤说明，并额外提供一颗萤石测试石用于完整跑通当前玩法链路。",
         known:["pearl","agate","garnet","sunstone","catseye","jadeite","obsidian","fluorite","fluorite_test","malachite","turquoise","hetian","shoushan"],
         bag:{ pearl:2, agate:6, garnet:11, sunstone:5, catseye:3, jadeite:8, obsidian:5, fluorite:10, fluorite_test:1, malachite:2, turquoise:9, hetian:1, shoushan:6 }
     },
@@ -6180,6 +6373,10 @@ const state = {
     plateItems:[],
     rewards:[],
     rewardFocus:false,
+    platePhysicsFrame:0,
+    platePhysicsBodies:null,
+    multiSlots:[null, null, null],
+    multiSkipPulseType:null,
     pendingBatch:false,
     active:null,
     lensIndex:0,
@@ -6215,7 +6412,9 @@ const state = {
     gamepadDrag:null,
     gamepadExitConfirmOpen:false,
     toolPointerX:null,
-    toolPointerY:null
+    toolPointerY:null,
+    multiPointerDrag:null,
+    suppressKnownClickUntil:0
 };
 let responsiveLayoutTimer = 0;
 
@@ -6229,9 +6428,10 @@ function applyLayoutMode(mode, options = {}){
         state.layoutManualOverride = true;
         document.body.classList.remove("mobile-portrait-blocked");
     }
-    state.layoutMode = ["desktop","mobileLandscape","gamepad"].includes(mode) ? mode : "desktop";
+    state.layoutMode = ["desktop","multi","mobileLandscape","gamepad"].includes(mode) ? mode : "desktop";
     document.body.classList.toggle("layout-mobile-landscape", state.layoutMode === "mobileLandscape");
     document.body.classList.toggle("layout-gamepad", state.layoutMode === "gamepad");
+    document.body.classList.toggle("layout-multi", state.layoutMode === "multi");
     if(state.layoutMode !== "gamepad"){
         setGamepadAiming(false);
         closeGamepadExitConfirm();
@@ -6240,6 +6440,9 @@ function applyLayoutMode(mode, options = {}){
     }
     const select = document.getElementById("layout-select");
     if(select) select.value = state.layoutMode;
+    if(state.layoutMode === "multi" && !state.active){
+        ensureMultiSlots(true);
+    }
     if(state.layoutMode === "mobileLandscape"){
         setTopbarCollapsed(true);
         setMobileBagCollapsed(true);
@@ -6248,6 +6451,7 @@ function applyLayoutMode(mode, options = {}){
         setMobileBagCollapsed(false);
     }
     if(document.getElementById("known-list")) renderKnownList();
+    renderMultiSelectPanel();
     renderGamepadHud();
 }
 function setTopbarCollapsed(collapsed){
@@ -6410,6 +6614,159 @@ function applyListSort(nextSort){
     }
     renderKnownList();
 }
+function selectedMultiIds(){
+    return (state.multiSlots || []).filter(id=>id && countInBag(id) > 0);
+}
+function ensureMultiSlots(auto=false){
+    if(!Array.isArray(state.multiSlots) || state.multiSlots.length !== 3) state.multiSlots = [null, null, null];
+    state.multiSlots = state.multiSlots.map(id=>id && countInBag(id) > 0 ? id : null);
+    if(auto && !state.multiSlots.some(Boolean)){
+        sortedBagIds().slice(0, 3).forEach((id, index)=>{ state.multiSlots[index] = id; });
+    }
+}
+function addMultiGemToSlot(id, preferredIndex=null){
+    if(countInBag(id) <= 0){ toast("袋内没有这种素体"); return; }
+    ensureMultiSlots();
+    const existingIndex = state.multiSlots.findIndex(slotId=>slotId === id);
+    if(existingIndex >= 0 && preferredIndex == null){
+        toast("这颗素体已经在底座上");
+        return;
+    }
+    if(existingIndex >= 0) state.multiSlots[existingIndex] = null;
+    let slotIndex = Number.isInteger(preferredIndex) ? preferredIndex : state.multiSlots.findIndex(slotId=>!slotId);
+    if(slotIndex < 0) slotIndex = 0;
+    state.multiSlots[slotIndex] = id;
+    renderKnownList();
+    renderMultiSelectPanel();
+}
+function clearMultiSlot(index){
+    ensureMultiSlots();
+    state.multiSlots[index] = null;
+    renderKnownList();
+    renderMultiSelectPanel();
+}
+function clearMultiSlots(){
+    state.multiSlots = [null, null, null];
+    renderKnownList();
+    renderMultiSelectPanel();
+}
+function startMultiPointerDrag(card, gemId, e){
+    if(state.layoutMode !== "multi" || state.active || e.button > 0) return;
+    if(state.multiPointerDrag) return;
+    state.multiPointerDrag = {
+        id:gemId,
+        card,
+        startX:e.clientX,
+        startY:e.clientY,
+        active:false
+    };
+    if(Number.isFinite(e.pointerId)) card.setPointerCapture?.(e.pointerId);
+}
+function updateMultiPointerDrag(e){
+    const drag = state.multiPointerDrag;
+    if(!drag) return;
+    const moved = Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY);
+    if(moved > 10 && !drag.active){
+        drag.active = true;
+        drag.card?.classList.add("multi-pointer-dragging");
+    }
+    if(!drag.active) return;
+    document.querySelectorAll(".multi-slot.over").forEach(slot=>slot.classList.remove("over"));
+    const slot = document.elementFromPoint(e.clientX, e.clientY)?.closest?.(".multi-slot");
+    if(slot) slot.classList.add("over");
+    e.preventDefault();
+}
+function finishMultiPointerDrag(e){
+    const drag = state.multiPointerDrag;
+    if(!drag) return;
+    state.multiPointerDrag = null;
+    drag.card?.classList.remove("multi-pointer-dragging");
+    document.querySelectorAll(".multi-slot.over").forEach(slot=>slot.classList.remove("over"));
+    if(!drag.active) return;
+    const slot = document.elementFromPoint(e.clientX, e.clientY)?.closest?.(".multi-slot");
+    if(slot){
+        addMultiGemToSlot(drag.id, Number(slot.dataset.slot || 0));
+    }
+    state.suppressKnownClickUntil = performance.now() + 360;
+    e.preventDefault();
+    e.stopPropagation();
+}
+function previewMultiPlan(){
+    const ids = selectedMultiIds();
+    return buildMultiPlanFromEntries(ids.map(id=>{
+        const gem = gemById(id);
+        return gem ? { gem, tasks:gem.tasks.filter(task=>task.type !== "soak") } : null;
+    }).filter(Boolean)).chain;
+}
+function multiChainNodeHTML(entry, index, activeIndex=-1, done=false){
+    const skip = entry.omitted > 0 ? `<span class="multi-chain-skip">-${entry.omitted}</span>` : "";
+    const active = index === activeIndex ? " active" : "";
+    const doneClass = done ? " done" : "";
+    const skipFlash = entry.omitted > 0 && entry.skipFlash ? " skip-flash" : "";
+    return `<div class="multi-chain-node${active}${doneClass}${skipFlash}">${TOOL_LABELS[entry.type] || entry.type}${skip}</div>`;
+}
+function renderMultiSelectPanel(){
+    const panel = document.getElementById("multi-select-panel");
+    if(!panel) return;
+    ensureMultiSlots(false);
+    const slots = document.getElementById("multi-slots");
+    const chain = document.getElementById("multi-chain");
+    const start = document.getElementById("multi-start-btn");
+    if(slots){
+        slots.innerHTML = state.multiSlots.map((id, index)=>{
+            const gem = id ? gemById(id) : null;
+            const dotImage = gem ? stoneDotImageValue(gem) : "";
+            const bg = gem ? `background:${gem.color}; ${dotImage ? `background-image:${dotImage}` : ""}` : "";
+            return `
+                <div class="multi-slot ${gem ? "" : "empty"}" data-slot="${index}">
+                    <span class="multi-slot-index">${index + 1}</span>
+                    ${gem ? `<button class="multi-slot-clear" type="button" data-clear-slot="${index}" aria-label="移除${gem.name}">×</button>` : ""}
+                    <div class="multi-slot-stone" style="${bg}"></div>
+                    <div class="multi-slot-name">${gem ? `${gem.name} ×${countInBag(gem.id)}` : "拖入素体"}</div>
+                </div>
+            `;
+        }).join("");
+        slots.querySelectorAll(".multi-slot").forEach(slot=>{
+            const index = Number(slot.dataset.slot || 0);
+            slot.addEventListener("dragover", e=>{ e.preventDefault(); slot.classList.add("over"); });
+            slot.addEventListener("dragleave", ()=>slot.classList.remove("over"));
+            slot.addEventListener("drop", e=>{
+                e.preventDefault();
+                slot.classList.remove("over");
+                let payload = state.dragPayload;
+                try{ payload = JSON.parse(e.dataTransfer.getData("text/plain")) || payload; }catch(err){}
+                if(payload?.type === "known") addMultiGemToSlot(payload.id, index);
+                state.dragPayload = null;
+            });
+        });
+        slots.querySelectorAll("[data-clear-slot]").forEach(btn=>{
+            btn.addEventListener("click", e=>{
+                e.stopPropagation();
+                clearMultiSlot(Number(btn.dataset.clearSlot));
+            });
+        });
+    }
+    const plan = previewMultiPlan();
+    if(chain){
+        chain.innerHTML = plan.length
+            ? plan.map((entry, index)=>multiChainNodeHTML(entry, index)).join("")
+            : `<div class="multi-chain-node">选择宝石后显示操作链</div>`;
+    }
+    if(start) start.disabled = !selectedMultiIds().length || !plan.length;
+}
+function renderMultiRunChain(){
+    const chain = document.getElementById("multi-run-chain");
+    if(!chain) return;
+    if(!state.active || state.active.mode !== "multi"){
+        chain.innerHTML = "";
+        return;
+    }
+    const activeIndex = state.active.stepIndex;
+    chain.innerHTML = (state.active.multiChain || []).map((entry, index)=>multiChainNodeHTML({
+        ...entry,
+        skipFlash:state.multiSkipPulseType === entry.type
+    }, index, activeIndex, index < activeIndex)).join("");
+}
 function renderMain(){
     document.getElementById("bag-count").textContent = `${bagTotal()}素体`;
     document.getElementById("collect-btn-label").textContent = `收集奖励 × ${plateTotal()}`;
@@ -6422,6 +6779,7 @@ function renderMain(){
     const lensModeSelect = document.getElementById("desktop-lens-mode-select");
     if(lensModeSelect) lensModeSelect.value = state.desktopLensMode;
     renderKnownList();
+    renderMultiSelectPanel();
     renderPlate();
     renderCurrentTool();
     renderGamepadHud();
@@ -6459,7 +6817,7 @@ function renderKnownList(){
         const available = countInBag(gem.id) > 0;
         const dotImage = stoneDotImageValue(gem);
         const card = document.createElement("div");
-        const selected = state.layoutMode === "gamepad" && index === state.gamepadSelectionIndex;
+        const selected = (state.layoutMode === "gamepad" && index === state.gamepadSelectionIndex) || (state.layoutMode === "multi" && state.multiSlots?.includes(gem.id));
         card.className = `stone-card ${known ? "" : "locked"} ${available ? "" : "empty"} ${selected ? "gamepad-selected" : ""}`;
         card.dataset.gemId = gem.id;
         const allowDragSelect = known && available && !isMobileLandscapeMode();
@@ -6477,13 +6835,20 @@ function renderKnownList(){
         `;
         if(known && available){
             card.addEventListener("click", e=>{
+                if(performance.now() < (state.suppressKnownClickUntil || 0)){
+                    e.preventDefault();
+                    return;
+                }
                 if(state.mobileBagSuppressClick){
                     e.preventDefault();
                     state.mobileBagSuppressClick = false;
                     return;
                 }
-                startKnownStone(gem.id);
+                if(state.layoutMode === "multi" && !state.active) addMultiGemToSlot(gem.id);
+                else startKnownStone(gem.id);
             });
+            card.addEventListener("pointerdown", e=>startMultiPointerDrag(card, gem.id, e));
+            card.addEventListener("mousedown", e=>startMultiPointerDrag(card, gem.id, e));
             if(allowDragSelect){
                 card.addEventListener("dragstart", e=>{
                     state.dragPayload = { type:"known", id:gem.id };
@@ -6500,6 +6865,11 @@ function stoneDotImageValue(gem){
     const base = V24_ENTITY_ASSETS[gem.id];
     return base ? `url(${base}/raw.png)` : "";
 }
+let plateItemSerial = 0;
+function ensurePlateItemUid(item){
+    if(!item.plateUid) item.plateUid = `plate-item-${++plateItemSerial}`;
+    return item.plateUid;
+}
 function renderPlate(){
     const plate = document.getElementById("plate");
     plate.innerHTML = "";
@@ -6512,15 +6882,20 @@ function renderPlate(){
     const plateWidth = plateRect.width || 304;
     const plateHeight = plateRect.height || plateWidth;
     const now = performance.now();
+    let hasPhysicsLiveItems = false;
     items.forEach((plateItem, index)=>{
         const id = plateItem.id;
         const gem = gemById(id);
         const shape = rewardShapeForGem(gem);
         const image = plateGemImageValue(gem, shape);
         const item = document.createElement("div");
-        const shouldDrop = plateItem.dropPending && !plateItem.dropStarted;
+        const plateUid = ensurePlateItemUid(plateItem);
+        const isPhysicsLive = !!(plateItem.physicsDropPending || plateItem.physicsActive);
+        if(isPhysicsLive) hasPhysicsLiveItems = true;
+        const shouldDrop = plateItem.dropPending && !plateItem.dropStarted && !isPhysicsLive;
         const shouldBump = !shouldDrop && plateItem.collisionPulseUntil && now < plateItem.collisionPulseUntil;
-        item.className = `plate-gem plate-gem-shape-${shape} ${image ? "with-image" : ""} ${plateItem.rewardFocusDrop ? "reward-focus-drop" : ""} ${shouldDrop ? "plate-drop-new" : ""} ${plateItem.dropCollision ? "plate-drop-collision" : ""} ${shouldBump ? "plate-bump" : ""}`;
+        item.className = `plate-gem plate-gem-shape-${shape} ${image ? "with-image" : ""} ${plateItem.rewardFocusDrop ? "reward-focus-drop" : ""} ${shouldDrop ? "plate-drop-new" : ""} ${plateItem.dropCollision ? "plate-drop-collision" : ""} ${shouldBump ? "plate-bump" : ""} ${isPhysicsLive ? "plate-physics-live" : ""}`;
+        item.dataset.plateUid = plateUid;
         item.title = `${gem.name} ${index + 1}`;
         if(image){
             item.style.backgroundImage = image;
@@ -6552,6 +6927,13 @@ function renderPlate(){
         item.textContent = image ? "" : gem.name.slice(0, 1);
         plate.appendChild(item);
     });
+    if(hasPhysicsLiveItems && document.hidden){
+        settleStuckPlatePhysicsDrops();
+        return;
+    }
+    if(hasPhysicsLiveItems && state.platePhysicsQueued && !state.platePhysicsFrame){
+        startPlatePhysicsDrop();
+    }
 }
 function applyPlateDropMotionVars(element, plateItem, plateWidth, plateHeight){
     const x = clampNumber(plateItem.x ?? 50, 10, 90);
@@ -6596,6 +6978,7 @@ function plateItemsForRender(){
 function createPlateItem(id, existingItems = state.plateItems || []){
     const pos = randomPlatePosition(existingItems);
     return {
+        plateUid:`plate-item-${++plateItemSerial}`,
         id,
         x:pos.x,
         y:pos.y,
@@ -6605,6 +6988,10 @@ function createPlateItem(id, existingItems = state.plateItems || []){
         dropRot:Math.random() * 220 - 110,
         restRot:Math.random() * 26 - 13,
         collisionPulseUntil:0,
+        physicsDropPending:false,
+        physicsActive:false,
+        physicsVX:0,
+        physicsVY:0,
         settledAt:0
     };
 }
@@ -6725,60 +7112,365 @@ function resolvePlateLandingCollisions(newItem, existingItems, delay){
     }
     return collisions;
 }
+function primePlatePhysicsDrop(item, order, options={}){
+    const topSpread = options.spreadX ?? 10;
+    const orderGap = Math.min(order, 14);
+    const startDelay = Math.min(.3, orderGap * (options.startGap ?? .032) + Math.random() * .028);
+    const startX = 50 + (Math.random() - .5) * topSpread;
+    const landingX = 50 + (Math.random() - .5) * (options.landingSpreadX ?? 12);
+    const landingY = options.landingY ?? (46 + Math.random() * 8);
+    const fallTimeHint = .18 + Math.random() * .04;
+    const preferredKickAngle = Number.isFinite(options.kickAngle)
+        ? options.kickAngle
+        : Math.random() * Math.PI * 2;
+    item.x = startX;
+    item.y = -12 - orderGap * (options.staggerY ?? .55) - Math.random() * 5;
+    item.physicsVX = (landingX - startX) / fallTimeHint + (Math.random() - .5) * 5;
+    item.physicsVY = options.vy ?? (246 + Math.random() * 72);
+    item.physicsDirectional = false;
+    item.physicsLandingX = landingX;
+    item.physicsLandingY = landingY;
+    item.physicsKickAngle = preferredKickAngle;
+    item.physicsKickSpeed = options.kickSpeed ?? (72 + Math.random() * 30);
+    item.physicsStartDelay = startDelay;
+    item.physicsDropPending = true;
+    item.physicsActive = false;
+    item.dropPending = false;
+    item.dropStarted = true;
+    item.dropCollision = false;
+    item.collisionPulseUntil = 0;
+    item.rewardFocusDrop = false;
+    item.dropRot = Math.random() * 260 - 130;
+    item.restRot = Math.random() * 32 - 16;
+}
+function requestPlatePhysicsDrop(){
+    state.platePhysicsQueued = true;
+    window.setTimeout(()=>{
+        const plate = document.getElementById("plate");
+        const items = state.plateItems || [];
+        const hasMissingDropElement = plate && items.some(item=>{
+            ensurePlateItemUid(item);
+            return (item.physicsDropPending || item.physicsActive) && !plate.querySelector(`[data-plate-uid="${item.plateUid}"]`);
+        });
+        if(hasMissingDropElement) renderPlate();
+        if(document.hidden){
+            settleStuckPlatePhysicsDrops();
+            return;
+        }
+        startPlatePhysicsDrop();
+    }, 0);
+    window.setTimeout(()=>{
+        if(document.hidden) settleStuckPlatePhysicsDrops();
+    }, 120);
+    window.setTimeout(settleStuckPlatePhysicsDrops, 3400);
+}
+function stopPlatePhysicsDrop(){
+    if(state.platePhysicsFrame){
+        cancelAnimationFrame(state.platePhysicsFrame);
+        clearTimeout(state.platePhysicsFrame);
+        state.platePhysicsFrame = 0;
+    }
+    state.platePhysicsBodies = null;
+    state.platePhysicsQueued = false;
+}
+function schedulePlatePhysicsStep(step){
+    return window.setTimeout(()=>step(performance.now()), 16);
+}
+function settleStuckPlatePhysicsDrops(){
+    const items = state.plateItems || [];
+    if(!items.some(item=>item.physicsDropPending || item.physicsActive)) return;
+    stopPlatePhysicsDrop();
+    const placed = [];
+    items.forEach(item=>{
+        if(item.physicsDropPending || item.physicsActive || (item.y ?? 50) < 4){
+            const pos = randomPlatePosition(placed);
+            item.x = pos.x;
+            item.y = pos.y;
+        } else {
+            clampPlatePoint(item, PLATE_SAFE_RADIUS + 2.8);
+        }
+        item.physicsDropPending = false;
+        item.physicsActive = false;
+        item.physicsDirectional = false;
+        item.physicsVX = 0;
+        item.physicsVY = 0;
+        item.settledAt = performance.now();
+        placed.push(item);
+    });
+    renderPlate();
+}
+function pulsePlatePhysicsHit(body){
+    const element = body.element;
+    if(!element) return;
+    const now = performance.now();
+    if(now - (body.lastHitAt || 0) < 90) return;
+    body.lastHitAt = now;
+    element.classList.remove("plate-physics-hit");
+    void element.offsetWidth;
+    element.classList.add("plate-physics-hit");
+    window.setTimeout(()=>element.classList.remove("plate-physics-hit"), 190);
+}
+function startPlatePhysicsDrop(){
+    if(!state.platePhysicsQueued && state.platePhysicsFrame) return;
+    if(document.hidden){
+        settleStuckPlatePhysicsDrops();
+        return;
+    }
+    const plate = document.getElementById("plate");
+    const items = state.plateItems || [];
+    if(!plate || !items.length) return;
+    stopPlatePhysicsDrop();
+    const plateRect = plate.getBoundingClientRect();
+    const sampleGem = plate.querySelector(".plate-gem");
+    const sampleRect = sampleGem?.getBoundingClientRect();
+    const radiusPercent = clampNumber(((sampleRect?.width || 36) / Math.max(1, plateRect.width)) * 50 * 1.08, 4.8, 7.3);
+    const bodies = items.map((item, index)=>{
+        ensurePlateItemUid(item);
+        const element = plate.querySelector(`[data-plate-uid="${item.plateUid}"]`);
+        const isDrop = !!item.physicsDropPending;
+        const directional = !!item.physicsDirectional;
+        item.physicsActive = true;
+        item.dropPending = false;
+        item.dropStarted = true;
+        element?.classList.add("plate-physics-live");
+        return {
+            item,
+            element,
+            x:item.x ?? 50,
+            y:item.y ?? 50,
+            vx:isDrop ? (item.physicsVX ?? 0) : 0,
+            vy:isDrop ? (item.physicsVY ?? 0) : 0,
+            r:radiusPercent,
+            mass:isDrop ? 1 : 1.22,
+            isDrop:isDrop && !directional,
+            landed:!isDrop || directional,
+            started:!isDrop || directional,
+            startDelay:item.physicsStartDelay ?? 0,
+            landingX:item.physicsLandingX ?? (50 + (Math.random() - .5) * 12),
+            landingY:item.physicsLandingY ?? (46 + Math.random() * 8),
+            kickAngle:item.physicsKickAngle ?? Math.random() * Math.PI * 2,
+            kickSpeed:item.physicsKickSpeed ?? (62 + Math.random() * 28),
+            settledFor:0,
+            lastHitAt:0,
+            index
+        };
+    });
+    state.platePhysicsBodies = bodies;
+    let lastTime = performance.now();
+    let elapsed = 0;
+    const gravity = 860;
+    const wallRadius = 39.2 - radiusPercent * .45;
+    const topGate = 50 - wallRadius - radiusPercent * .35;
+    const scatterNearbyOnLanding = body=>{
+        bodies.forEach(other=>{
+            if(other === body || !other.started || !other.landed) return;
+            const dx = other.x - body.x;
+            const dy = other.y - body.y;
+            const dist = Math.hypot(dx, dy);
+            const touchDist = body.r + other.r + 5.2;
+            if(dist >= touchDist) return;
+            const angle = dist > .001 ? Math.atan2(dy, dx) : Math.random() * Math.PI * 2;
+            const nx = Math.cos(angle);
+            const ny = Math.sin(angle);
+            const strength = (touchDist - Math.max(dist, .001)) * 5.8 + 18;
+            other.vx += nx * strength;
+            other.vy += ny * strength;
+            body.vx -= nx * strength * .34;
+            body.vy -= ny * strength * .34;
+            other.settledFor = 0;
+            body.settledFor = 0;
+            pulsePlatePhysicsHit(other);
+        });
+    };
+    const step = now=>{
+        const dt = Math.min(.026, Math.max(.006, (now - lastTime) / 1000));
+        lastTime = now;
+        elapsed += dt;
+        bodies.forEach(body=>{
+            if(body.isDrop && !body.started){
+                if(elapsed < body.startDelay) return;
+                body.started = true;
+            }
+            if(body.isDrop && !body.landed){
+                body.vy += gravity * dt;
+            }
+            body.x += body.vx * dt;
+            body.y += body.vy * dt;
+            if(body.isDrop && !body.landed && body.y >= body.landingY){
+                body.x = body.landingX + (body.x - body.landingX) * .14;
+                body.y = body.landingY;
+                body.landed = true;
+                body.isDrop = false;
+                body.vx = Math.cos(body.kickAngle) * body.kickSpeed + (Math.random() - .5) * 8;
+                body.vy = Math.sin(body.kickAngle) * body.kickSpeed * .66 + (Math.random() - .5) * 6;
+                scatterNearbyOnLanding(body);
+                pulsePlatePhysicsHit(body);
+            }
+            body.vx *= Math.pow(body.landed ? .981 : .993, dt * 60);
+            body.vy *= Math.pow(body.landed ? .981 : .995, dt * 60);
+        });
+        for(let pass = 0; pass < 3; pass++){
+            for(let i = 0; i < bodies.length; i++){
+                for(let j = i + 1; j < bodies.length; j++){
+                    const a = bodies[i];
+                    const b = bodies[j];
+                    if(!a.started || !b.started || !a.landed || !b.landed) continue;
+                    const dx = b.x - a.x;
+                    const dy = b.y - a.y;
+                    const dist = Math.hypot(dx, dy) || .001;
+                    const minDist = a.r + b.r + .34;
+                    if(dist >= minDist) continue;
+                    const nx = dx / dist;
+                    const ny = dy / dist;
+                    const overlap = minDist - dist;
+                    const invA = 1 / a.mass;
+                    const invB = 1 / b.mass;
+                    const invSum = invA + invB;
+                    a.x -= nx * overlap * invA / invSum;
+                    a.y -= ny * overlap * invA / invSum;
+                    b.x += nx * overlap * invB / invSum;
+                    b.y += ny * overlap * invB / invSum;
+                    const rvx = b.vx - a.vx;
+                    const rvy = b.vy - a.vy;
+                    const velAlongNormal = rvx * nx + rvy * ny;
+                    if(velAlongNormal < 0){
+                        const impulse = -(1 + .78) * velAlongNormal / invSum;
+                        a.vx -= impulse * invA * nx;
+                        a.vy -= impulse * invA * ny;
+                        b.vx += impulse * invB * nx;
+                        b.vy += impulse * invB * ny;
+                        const tangentX = -ny;
+                        const tangentY = nx;
+                        const tangentImpulse = (Math.random() - .5) * Math.min(18, Math.abs(impulse) * .24);
+                        a.vx -= tangentX * tangentImpulse * invA;
+                        a.vy -= tangentY * tangentImpulse * invA;
+                        b.vx += tangentX * tangentImpulse * invB;
+                        b.vy += tangentY * tangentImpulse * invB;
+                    } else {
+                        const separationKick = Math.min(18, Math.max(3, overlap * 20));
+                        a.vx -= separationKick * invA * nx;
+                        a.vy -= separationKick * invA * ny;
+                        b.vx += separationKick * invB * nx;
+                        b.vy += separationKick * invB * ny;
+                    }
+                    pulsePlatePhysicsHit(a);
+                    pulsePlatePhysicsHit(b);
+                }
+            }
+        }
+        bodies.forEach(body=>{
+            if(!body.started) return;
+            const dx = body.x - 50;
+            const dy = body.y - 50;
+            const dist = Math.hypot(dx, dy) || .001;
+            if(body.y >= topGate && dist > wallRadius - body.r * .2){
+                const nx = dx / dist;
+                const ny = dy / dist;
+                body.x = 50 + nx * (wallRadius - body.r * .2);
+                body.y = 50 + ny * (wallRadius - body.r * .2);
+                const outwardSpeed = body.vx * nx + body.vy * ny;
+                if(outwardSpeed > 0){
+                    body.vx -= (1 + .52) * outwardSpeed * nx;
+                    body.vy -= (1 + .52) * outwardSpeed * ny;
+                    body.vx += -ny * (Math.random() - .5) * 6;
+                    body.vy += nx * (Math.random() - .5) * 4;
+                    pulsePlatePhysicsHit(body);
+                }
+                body.vx *= .9;
+                body.vy *= .88;
+            }
+            const speed = Math.hypot(body.vx, body.vy);
+            if(elapsed > .36 && body.y > topGate && speed < 3.2){
+                body.settledFor += dt;
+                body.vx *= .84;
+                body.vy *= .82;
+            } else {
+                body.settledFor = 0;
+            }
+            body.item.x = clampNumber(body.x, -20, 120);
+            body.item.y = clampNumber(body.y, -30, 120);
+            body.item.physicsVX = body.vx;
+            body.item.physicsVY = body.vy;
+            if(body.element){
+                body.element.style.setProperty("--plate-x", body.item.x.toFixed(2));
+                body.element.style.setProperty("--plate-y", body.item.y.toFixed(2));
+                body.element.style.setProperty("--rest-rot", `${(body.item.restRot + body.vx * .16).toFixed(1)}deg`);
+            }
+        });
+        const settled = elapsed > .72 && bodies.every(body=>body.settledFor > .22 || elapsed > 2.2);
+        if(!settled && elapsed < 2.42){
+            state.platePhysicsFrame = schedulePlatePhysicsStep(step);
+            return;
+        }
+        bodies.forEach(body=>{
+            clampPlatePoint(body.item, PLATE_SAFE_RADIUS + 2.8);
+            body.item.physicsDropPending = false;
+            body.item.physicsActive = false;
+            body.item.physicsDirectional = false;
+            body.item.physicsVX = 0;
+            body.item.physicsVY = 0;
+            body.item.settledAt = performance.now();
+            if(body.element){
+                body.element.classList.remove("plate-physics-live", "plate-physics-hit");
+                body.element.style.setProperty("--plate-x", body.item.x.toFixed(2));
+                body.element.style.setProperty("--plate-y", body.item.y.toFixed(2));
+                body.element.style.setProperty("--rest-rot", `${body.item.restRot ?? 0}deg`);
+            }
+        });
+        state.platePhysicsFrame = 0;
+        state.platePhysicsBodies = null;
+        state.platePhysicsQueued = false;
+    };
+    state.platePhysicsFrame = schedulePlatePhysicsStep(step);
+}
 function addPlateItems(id, amount, options={}){
     if(!state.plateItems) state.plateItems = [];
+    const pendingBase = state.plateItems.filter(item=>item.physicsDropPending || item.physicsActive).length;
     for(let i = 0; i < amount; i++){
         const item = createPlateItem(id, state.plateItems);
-        item.rewardFocusDrop = !!options.rewardFocusDrop;
-        preparePlateDropMotion(item, i, item.rewardFocusDrop);
-        resolvePlateLandingCollisions(item, state.plateItems, item.dropDelay);
-        const previousDrop = i > 0 ? state.plateItems[state.plateItems.length - 1] : null;
-        if(previousDrop && Math.random() < .78){
-            item.dropCollision = true;
-            previousDrop.dropCollision = true;
-            item.bounceX += (Math.random() < .5 ? -1 : 1) * (3 + Math.random() * 4);
-            previousDrop.bounceX = (previousDrop.bounceX ?? 0) + (Math.random() < .5 ? -1 : 1) * (2 + Math.random() * 3);
-        }
+        const hasDirectedGroup = Number.isFinite(options.originAngle);
+        const dropOptions = {
+            spreadX:options.rewardFocusDrop ? 12 : 10,
+            landingSpreadX:options.rewardFocusDrop ? 11 : 13,
+            staggerY:hasDirectedGroup ? .34 : .48,
+            startGap:hasDirectedGroup ? .025 : .034,
+            kickAngle:hasDirectedGroup ? options.originAngle + (Math.random() - .5) * .42 : undefined,
+            kickSpeed:hasDirectedGroup ? 86 + Math.random() * 28 : (options.rewardFocusDrop ? 82 + Math.random() * 30 : 70 + Math.random() * 28)
+        };
+        primePlatePhysicsDrop(item, pendingBase + i, dropOptions);
         state.plateItems.push(item);
     }
+    requestPlatePhysicsDrop();
 }
 function clearRewardFocusDropFlags(){
     state.plateItems?.forEach(item=>{ item.rewardFocusDrop = false; });
 }
-const PLATE_DICE_FACES = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 function rerollPlate(){
     if(!state.plateItems?.length){
         toast("盘子里还没有成石");
         return;
     }
-    for(let i = state.plateItems.length - 1; i > 0; i--){
+    stopPlatePhysicsDrop();
+    const replayItems = [...state.plateItems];
+    for(let i = replayItems.length - 1; i > 0; i--){
         const j = Math.floor(Math.random() * (i + 1));
-        [state.plateItems[i], state.plateItems[j]] = [state.plateItems[j], state.plateItems[i]];
+        [replayItems[i], replayItems[j]] = [replayItems[j], replayItems[i]];
     }
-    const placed = [];
-    state.plateItems.forEach(item=>{
-        const pos = randomPlatePosition(placed);
-        item.x = pos.x;
-        item.y = pos.y;
-        item.fromX = randomPlateDropX();
-        item.dropPending = false;
-        item.dropStarted = true;
-        item.rewardFocusDrop = false;
-        item.collisionPulseUntil = 0;
-        item.dropRot = Math.random() * 260 - 130;
-        item.restRot = Math.random() * 32 - 16;
-        placed.push(item);
+    replayItems.forEach((item, index)=>{
+        primePlatePhysicsDrop(item, index, { spreadX:12, landingSpreadX:12, staggerY:.44, startGap:.028, kickSpeed:76 + Math.random() * 28 });
     });
+    state.plateItems = replayItems;
     const rerollButton = document.getElementById("organize-plate-btn");
     if(rerollButton){
-        rerollButton.textContent = PLATE_DICE_FACES[Math.floor(Math.random() * PLATE_DICE_FACES.length)];
+        rerollButton.textContent = "↻";
         rerollButton.classList.remove("rolling");
         void rerollButton.offsetWidth;
         rerollButton.classList.add("rolling");
         window.setTimeout(()=>rerollButton.classList.remove("rolling"), 520);
     }
-    addLog("盘子里的成石重新随机撒开。");
+    addLog("盘子里的成石从上方重新落下一次。");
     renderPlate();
+    requestPlatePhysicsDrop();
 }
 function rewardShapeForGem(gem){
     const shapeTask = gem.tasks.find(task=>task.type === "shape");
@@ -6797,12 +7489,12 @@ function firstUnseenOrFirstBagId(){
     const sorted = sortedBagIds();
     return sorted[0] || null;
 }
-function releaseTypeToPlate(id, reason){
+function releaseTypeToPlate(id, reason, options={}){
     const amount = countInBag(id);
     if(amount <= 0) return 0;
     state.bag[id] = 0;
     state.plate[id] = (state.plate[id] || 0) + amount;
-    addPlateItems(id, amount, { rewardFocusDrop:state.rewardFocus });
+    addPlateItems(id, amount, { rewardFocusDrop:state.rewardFocus, ...options });
     const gem = gemById(id);
     state.rewards.push({ id, amount, shards:gem.rewardShards * amount, reason });
     state.knownTypes.add(id);
@@ -6862,6 +7554,7 @@ function completeKnownStoneInBatch(id){
 }
 function shouldInsertLightTask(gem){
     if(gem.kind !== "成品宝石") return false;
+    if(gem.tasks.some(task=>task.type === "light")) return false;
     if(SOAK_TRIAL_GEMS.has(gem.id)) return false;
     if(!state.playedTypes.size) return true;
     return Math.random() < LIGHT_STEP_CHANCE;
@@ -6929,6 +7622,38 @@ function buildCoreTasks(gem){
         cutAngle: task.cutAngle ?? [-32, -18, 22, 34][(GEM_BLUEPRINTS.findIndex(g=>g.id === gem.id) + index) % 4]
     }));
 }
+function buildMultiCorePlan(ids){
+    const selected = ids.map(id=>gemById(id)).filter(Boolean);
+    const perGem = selected.map(gem=>({ gem, tasks:buildCoreTasks(gem) }));
+    return buildMultiPlanFromEntries(perGem);
+}
+function buildMultiPlanFromEntries(perGem){
+    const selected = perGem.map(entry=>entry.gem);
+    const tasks = [];
+    const chain = [];
+    let currentGemId = selected[0]?.id || null;
+    TOOL_ORDER.forEach(type=>{
+        const candidates = perGem.map(entry=>{
+            const task = entry.tasks.find(item=>item.type === type);
+            return task ? { gem:entry.gem, task } : null;
+        }).filter(Boolean);
+        if(!candidates.length) return;
+        const representative = candidates.find(item=>item.gem.id === currentGemId) || candidates[0];
+        const omitted = candidates.filter(item=>item.gem.id !== representative.gem.id);
+        currentGemId = representative.gem.id;
+        const task = {
+            ...representative.task,
+            id:`multi_${type}_${representative.gem.id}_${tasks.length}`,
+            gemId:representative.gem.id,
+            multiOmittedCount:omitted.length,
+            multiOmittedGemIds:omitted.map(item=>item.gem.id),
+            multiOmittedGemNames:omitted.map(item=>item.gem.name)
+        };
+        tasks.push(task);
+        chain.push({ type, gemId:representative.gem.id, omitted:omitted.length });
+    });
+    return { ids:selected.map(gem=>gem.id), tasks, chain };
+}
 function abandonActiveGem(message){
     if(!state.active) return;
     const gem = gemById(state.active.gemId);
@@ -6967,9 +7692,46 @@ function startCorePlay(id, meta){
     renderPlay();
     playGemAnimation("gem-enter", 680);
 }
+function startMultiPlay(){
+    if(state.rewardFocus){
+        setRewardFocus(false);
+        setTimeout(()=>startMultiPlay(), 540);
+        return;
+    }
+    if(state.active){ toast("当前素体处理中"); return; }
+    ensureMultiSlots(false);
+    const ids = selectedMultiIds();
+    if(!ids.length){ toast("先选择要多开的素体"); return; }
+    const plan = buildMultiCorePlan(ids);
+    if(!plan.tasks.length){ toast("这些素体没有可合并的操作"); return; }
+    state.active = {
+        mode:"multi",
+        gemId:plan.tasks[0].gemId,
+        selectedGemIds:plan.ids,
+        multiChain:plan.chain,
+        meta:{ source:"multi", continueBatch:false },
+        tasks:plan.tasks,
+        stepIndex:0,
+        batchAmount:plan.ids.reduce((sum,id)=>sum + countInBag(id), 0)
+    };
+    state.lensIndex = 0;
+    state.activeTool = state.active.tasks[0]?.type || "clean";
+    state.hotspotRevealKey = null;
+    state.lensLockedUntil = 0;
+    state.gamepadFocus = "play";
+    document.body.classList.add("playing");
+    setMobileBagCollapsed(false);
+    document.getElementById("lens-stage").classList.remove("idle");
+    showScreen("screen-main");
+    renderPlay();
+    playGemAnimation("gem-enter", 680);
+    addLog(`多开布局开始：${plan.ids.map(id=>gemById(id).name).join("、")}。`);
+}
 function currentStep(){
     if(!state.active) return null;
-    return state.active.tasks[state.active.stepIndex] || null;
+    const step = state.active.tasks[state.active.stepIndex] || null;
+    if(step?.gemId) state.active.gemId = step.gemId;
+    return step;
 }
 function setLensIndex(nextIndex, shouldFlip=true, flipDir=1){
     if(Date.now() < state.lensLockedUntil){
@@ -7067,7 +7829,10 @@ function formatCoreHintText(text){
     return safe;
 }
 function visualStateForActive(active, step){
-    const tasks = active.tasks;
+    const gemId = step?.gemId || active.gemId;
+    const tasks = active.mode === "multi"
+        ? active.tasks.filter(task=>(task.gemId || active.gemId) === gemId)
+        : active.tasks;
     const hasCut = tasks.some(task=>task.type === "cut");
     const hasRepair = tasks.some(task=>task.type === "repair");
     const cutDone = tasks.some(task=>task.type === "cut" && task.done);
@@ -7313,8 +8078,8 @@ function shortToolNote(step){
 function renderPlay(){
     const active = state.active;
     if(!active) return;
-    const gem = gemById(active.gemId);
     const step = currentStep();
+    const gem = gemById(step?.gemId || active.gemId);
     if(isGamepadMode() && step) state.activeTool = step.type;
     const gem3d = document.getElementById("gem3d");
     const visual = visualStateForActive(active, step);
@@ -7350,6 +8115,7 @@ function renderPlay(){
     if(step?.type !== "spray") clearSprayToolFx();
     syncGamepadAimToStep(step);
     renderHotspot();
+    renderMultiRunChain();
     renderGamepadHud();
 }
 function cleanErasePath(points){
@@ -8167,6 +8933,7 @@ function beginGamepadUse(){
     }
     spawnDragParticle(point.x, point.y, step.type);
     renderGamepadHud();
+    renderMultiRunChain();
 }
 function finishGamepadUse(){
     const drag = state.gamepadDrag;
@@ -8737,9 +9504,20 @@ function beginCleanFinish(step){
 function completeCurrentStep(step){
     if(step.type === "cut" || step.type === "shape") spawnCompletionFragments(step.type);
     if(step.type === "light") playLightFoundFx(step);
+    const previousGemId = state.active?.gemId;
     step.done = true;
+    if(state.active?.mode === "multi" && step.multiOmittedCount > 0){
+        state.multiSkipPulseType = step.type;
+        toast(`${TOOL_LABELS[step.type]} 已合并，省略 ${step.multiOmittedCount} 次`);
+        setTimeout(()=>{
+            if(state.multiSkipPulseType === step.type){
+                state.multiSkipPulseType = null;
+                renderMultiRunChain();
+            }
+        }, 1400);
+    }
     state.active.stepIndex += 1;
-    toast(`完成 ${TOOL_LABELS[step.type]}`);
+    if(!(state.active?.mode === "multi" && step.multiOmittedCount > 0)) toast(`完成 ${TOOL_LABELS[step.type]}`);
     if(state.active.stepIndex >= state.active.tasks.length){
         if(step.type === "clean"){
             const gem = gemById(state.active.gemId);
@@ -8759,7 +9537,7 @@ function completeCurrentStep(step){
         const next = currentStep();
         state.activeTool = next.type;
         renderPlay();
-        playGemAnimation("gem-step-swap", 560);
+        playGemAnimation(state.active.mode === "multi" && next.gemId && next.gemId !== previousGemId ? "gem-carousel-swap" : "gem-step-swap", state.active.mode === "multi" ? 760 : 560);
     }
 }
 function completeCutSwipe(step){
@@ -9709,6 +10487,10 @@ function traceMatchesShape(points, shape){
 }
 function completeActiveGem(){
     const active = state.active;
+    if(active?.mode === "multi"){
+        completeMultiActive(active);
+        return;
+    }
     const gem = gemById(active.gemId);
     finishGamepadUse();
     setGamepadAiming(false);
@@ -9734,6 +10516,31 @@ function completeActiveGem(){
         state.pendingBatch = false;
         return;
     }
+}
+function completeMultiActive(active){
+    finishGamepadUse();
+    setGamepadAiming(false);
+    clearHotspot();
+    const ids = active.selectedGemIds || [];
+    ids.forEach((id, index)=>{
+        state.playedTypes.add(id);
+        state.knownTypes.add(id);
+        const amount = releaseTypeToPlate(id, "多开布局完成后同类型出石", {
+            originAngle:(index / Math.max(1, ids.length)) * Math.PI * 2 - Math.PI / 2,
+            multiThrow:true
+        });
+        if(amount > 0) addLog(`${gemById(id).name} 多开完成，同类型 ${amount} 颗出石到盘子。`);
+    });
+    state.active = null;
+    state.multiSkipPulseType = null;
+    state.hotspotRevealKey = null;
+    state.lensLockedUntil = 0;
+    state.gamepadFocus = "bag";
+    document.body.classList.remove("playing");
+    document.getElementById("lens-stage").classList.add("idle");
+    addLog("多开处理完成：不同宝石从多个方向汇入成石盘。");
+    renderMain();
+    showScreen("screen-main");
 }
 function finishRound(message){
     finishGamepadUse();
@@ -9819,6 +10626,7 @@ function collectRewards(){
         closeRewardModal();
         return;
     }
+    stopPlatePhysicsDrop();
     setRewardFocus(false);
     addLog(`收集 ${state.rewards.length} 组奖励。`);
     state.rewards = [];
@@ -9998,6 +10806,7 @@ function applyDataPack(key){
 }
 function resetDemo(){
     const pack = currentDataPack();
+    stopPlatePhysicsDrop();
     finishGamepadUse();
     setGamepadAiming(false);
     closeGamepadExitConfirm();
@@ -10008,6 +10817,8 @@ function resetDemo(){
     state.plateItems = [];
     state.rewards = [];
     state.rewardFocus = false;
+    state.multiSlots = [null, null, null];
+    state.multiSkipPulseType = null;
     state.active = null;
     state.pendingBatch = false;
     state.hotspotRevealKey = null;
@@ -10053,7 +10864,10 @@ function setupDragDrop(){
     bindDrop(document.getElementById("lens-stage"), payload=>{
         if(!payload) return;
         if(payload.type === "bag") startBatchFromBag();
-        if(payload.type === "known") startKnownStone(payload.id);
+        if(payload.type === "known"){
+            if(state.layoutMode === "multi" && !state.active) addMultiGemToSlot(payload.id);
+            else startKnownStone(payload.id);
+        }
     });
     bindDrop(document.getElementById("batch-drop"), payload=>{
         if(payload && payload.type === "bag") startBatchFromBag();
@@ -10095,6 +10909,14 @@ function setupToolPointerTracking(){
     });
 }
 document.addEventListener("DOMContentLoaded", ()=>{
+    document.addEventListener("visibilitychange", ()=>{
+        if(document.hidden) settleStuckPlatePhysicsDrops();
+    });
+    document.addEventListener("pointermove", updateMultiPointerDrag);
+    document.addEventListener("pointerup", finishMultiPointerDrag);
+    document.addEventListener("pointercancel", finishMultiPointerDrag);
+    document.addEventListener("mousemove", updateMultiPointerDrag);
+    document.addEventListener("mouseup", finishMultiPointerDrag);
     warmupImageCache();
     setupDragDrop();
     setupCoreMouseControls();
@@ -10149,6 +10971,13 @@ document.addEventListener("DOMContentLoaded", ()=>{
     });
     document.getElementById("collect-btn").addEventListener("click", openRewardModal);
     document.getElementById("organize-plate-btn").addEventListener("click", rerollPlate);
+    document.getElementById("multi-start-btn")?.addEventListener("click", startMultiPlay);
+    document.getElementById("multi-autofill-btn")?.addEventListener("click", ()=>{
+        state.multiSlots = [null, null, null];
+        ensureMultiSlots(true);
+        renderMain();
+    });
+    document.getElementById("multi-clear-btn")?.addEventListener("click", clearMultiSlots);
     document.getElementById("topbar-toggle-btn").addEventListener("click", ()=>setTopbarCollapsed(!state.topbarCollapsed));
     document.getElementById("mobile-bag-toggle").addEventListener("click", ()=>setMobileBagCollapsed(!state.mobileBagCollapsed));
     document.getElementById("layout-select").addEventListener("change", e=>{
