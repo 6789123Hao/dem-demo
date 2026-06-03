@@ -1313,8 +1313,8 @@
     }
     .repair-tool{
         position:absolute;
-        left:var(--repair-tool-left, var(--repair-drop-left, 50%));
-        top:var(--repair-tool-top, 10%);
+        left:var(--repair-idle-tool-left, var(--repair-tool-left, var(--repair-drop-left, 50%)));
+        top:var(--repair-idle-tool-top, var(--repair-tool-top, 10%));
         width:50px;
         height:104px;
         transform:translate(-50%, -9%) rotate(calc(180deg + var(--repair-tool-tilt, -8deg))) scale(.88);
@@ -1322,6 +1322,7 @@
         opacity:0;
         background:url("assets/ui_v26/ui_tool_sprites/tool_repair_C.png") center / contain no-repeat;
         filter:drop-shadow(0 12px 12px rgba(16,12,8,.28)) drop-shadow(0 0 10px rgba(109,244,202,.44));
+        transition:left .26s ease-out, top .26s ease-out, opacity .18s ease;
     }
     .repair-drop{
         position:absolute;
@@ -1367,7 +1368,14 @@
         animation:repairEssenceDrop .68s cubic-bezier(.16,.88,.26,1) both;
     }
     .repair-overlay.drop-active .repair-tool{
+        left:var(--repair-tool-left, var(--repair-drop-left, 50%));
+        top:var(--repair-tool-top, 10%);
         animation:repairToolPour .72s cubic-bezier(.16,.88,.26,1) both;
+        transition:none;
+    }
+    .repair-overlay.targets-visible:not(.drop-active) .repair-tool{
+        opacity:.94;
+        filter:drop-shadow(0 12px 12px rgba(16,12,8,.28)) drop-shadow(0 0 13px rgba(109,244,202,.42));
     }
     .repair-overlay.repair-complete .repair-crack-shadow{
         animation:repairCrackThinShadow .9s ease-out both;
@@ -1478,7 +1486,7 @@
         background:linear-gradient(90deg, transparent, rgba(255,255,255,.72), rgba(139,255,217,.5), transparent);
         filter:blur(8px);
         opacity:0;
-        animation:cutSlashLine .5s ease-out both;
+        animation:cutSlashLine .5s ease-out .16s both;
     }
     .cut-slash-line{
         height:5px;
@@ -1488,7 +1496,7 @@
             0 0 22px rgba(113,238,205,.52),
             0 0 34px rgba(255,210,104,.28);
         opacity:0;
-        animation:cutSlashLine .42s cubic-bezier(.14,.8,.26,1) .04s both;
+        animation:cutSlashLine .42s cubic-bezier(.14,.8,.26,1) .2s both;
     }
     .cut-slash-blade{
         position:absolute;
@@ -1500,7 +1508,43 @@
         filter:drop-shadow(0 14px 14px rgba(18,12,6,.28)) drop-shadow(0 0 9px rgba(255,238,166,.52));
         transform-origin:50% 72%;
         opacity:0;
-        animation:cutBladeSlash .48s cubic-bezier(.13,.86,.18,1) both;
+        animation:cutBladeSlash .68s cubic-bezier(.13,.86,.18,1) both;
+    }
+    .cut-slash-fx.hide-legacy-blade .cut-slash-blade{
+        display:none;
+    }
+    .cut-active-blade{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:72px;
+        height:154px;
+        z-index:3;
+        background:url("assets/ui_v26/ui_tool_sprites/tool_cut_C.png") center / contain no-repeat;
+        filter:drop-shadow(0 16px 15px rgba(18,12,6,.28)) drop-shadow(0 0 12px rgba(255,238,166,.52));
+        transform-origin:50% 72%;
+        opacity:0;
+        animation:cutActiveBladeMove .86s cubic-bezier(.16,.82,.18,1) both;
+    }
+    .cut-tool-fx{
+        position:absolute;
+        left:var(--cut-tool-x, 50%);
+        top:var(--cut-tool-y, 50%);
+        width:72px;
+        height:154px;
+        z-index:8;
+        pointer-events:none;
+        opacity:.95;
+        transform:translate(-50%, -50%);
+        filter:drop-shadow(0 16px 15px rgba(18,12,6,.28)) drop-shadow(0 0 10px rgba(255,238,166,.46));
+    }
+    .cut-tool-fx::before{
+        content:"";
+        position:absolute;
+        inset:0;
+        background:url("assets/ui_v26/ui_tool_sprites/tool_cut_C.png") center / contain no-repeat;
+        transform:rotate(var(--cut-tool-angle, 42deg)) scale(.9);
+        transition:transform .12s ease-out, opacity .18s ease;
     }
     .cut-slash-fx i{
         position:absolute;
@@ -1512,7 +1556,7 @@
         background:rgba(255,250,226,.98);
         box-shadow:0 0 12px rgba(255,246,189,.85), 0 0 20px rgba(110,244,208,.44);
         opacity:0;
-        animation:cutSlashSpark .42s ease-out var(--spark-delay, 0ms) both;
+        animation:cutSlashSpark .42s ease-out calc(var(--spark-delay, 0ms) + 180ms) both;
     }
     @keyframes cutSlashLine{
         0%{ opacity:0; transform:translateY(-50%) scaleX(.04); }
@@ -1521,10 +1565,32 @@
         100%{ opacity:0; transform:translateY(-50%) scaleX(1.08); }
     }
     @keyframes cutBladeSlash{
-        0%{ opacity:0; transform:translate(-54px, -88px) rotate(72deg) scale(.82); }
-        14%{ opacity:1; }
-        68%{ opacity:1; transform:translate(calc(var(--slash-length, 240px) - 58px), -112px) rotate(72deg) scale(.94); }
+        0%{ opacity:0; transform:translate(var(--blade-entry-x, -54px), var(--blade-entry-y, -88px)) rotate(var(--blade-entry-rot, 72deg)) scale(.78); }
+        18%{ opacity:1; transform:translate(-54px, -88px) rotate(72deg) scale(.86); }
+        72%{ opacity:1; transform:translate(calc(var(--slash-length, 240px) - 58px), -112px) rotate(72deg) scale(.94); }
         100%{ opacity:0; transform:translate(calc(var(--slash-length, 240px) - 38px), -118px) rotate(72deg) scale(.9); }
+    }
+    @keyframes cutActiveBladeMove{
+        0%{
+            opacity:.96;
+            transform:translate(var(--active-blade-hover-x, -40px), var(--active-blade-hover-y, -120px)) rotate(var(--active-blade-rot, 72deg)) scale(.86);
+        }
+        22%{
+            opacity:1;
+            transform:translate(var(--active-blade-start-x, -40px), var(--active-blade-start-y, -120px)) rotate(var(--active-blade-rot, 72deg)) scale(.94);
+        }
+        62%{
+            opacity:1;
+            transform:translate(var(--active-blade-end-x, 40px), var(--active-blade-end-y, -120px)) rotate(var(--active-blade-rot, 72deg)) scale(.98);
+        }
+        86%{
+            opacity:.98;
+            transform:translate(var(--active-blade-hover-x, -40px), var(--active-blade-hover-y, -120px)) rotate(var(--active-blade-rot, 72deg)) scale(.88);
+        }
+        100%{
+            opacity:0;
+            transform:translate(var(--active-blade-hover-x, -40px), var(--active-blade-hover-y, -120px)) rotate(var(--active-blade-rot, 72deg)) scale(.84);
+        }
     }
     @keyframes cutSlashSpark{
         0%{ opacity:0; transform:translate(-50%, -50%) scale(.4); }
@@ -1583,18 +1649,24 @@
         position:absolute;
         left:var(--clean-tool-x, 50%);
         top:var(--clean-tool-y, 50%);
-        width:78px;
-        height:162px;
+        width:0;
+        height:0;
         z-index:7;
         pointer-events:none;
-        transform:translate(-50%, -88%);
         filter:drop-shadow(0 16px 16px rgba(15,11,7,.28)) drop-shadow(0 0 10px rgba(255,241,184,.44));
     }
     .clean-tool-swing{
         position:absolute;
-        inset:0;
-        transform-origin:50% 88%;
-        animation:cleanToolSweep .32s ease-in-out infinite alternate;
+        left:calc(var(--clean-tool-tip-x, 42px) - 29px);
+        top:calc(var(--clean-tool-tip-y, -46px) - 13px);
+        width:58px;
+        height:168px;
+        transform-origin:50% 8%;
+        transform:rotate(calc(222deg + var(--clean-lean, 0deg))) scale(.84);
+        will-change:transform;
+    }
+    .clean-tool-fx.tool-active .clean-tool-swing{
+        animation:cleanToolSweep .18s ease-in-out infinite alternate;
     }
     .clean-tool-sprite{
         position:absolute;
@@ -1604,18 +1676,18 @@
     .clean-tool-glow{
         position:absolute;
         left:50%;
-        top:16%;
+        top:8%;
         width:58px;
         height:22px;
         border-radius:50%;
         transform:translate(-50%, -50%);
         background:radial-gradient(ellipse, rgba(255,249,219,.72), rgba(115,245,210,.22) 50%, transparent 72%);
         mix-blend-mode:screen;
-        animation:cleanBrushGlow .32s ease-in-out infinite alternate;
+        opacity:.7;
     }
     @keyframes cleanToolSweep{
-        0%{ transform:rotate(calc(168deg + var(--clean-lean, 0deg))); }
-        100%{ transform:rotate(calc(192deg + var(--clean-lean, 0deg))); }
+        0%{ transform:rotate(calc(211deg + var(--clean-lean, 0deg))) scale(.84); }
+        100%{ transform:rotate(calc(234deg + var(--clean-lean, 0deg))) scale(.84); }
     }
     @keyframes cleanBrushGlow{
         0%{ opacity:.34; transform:translate(-50%, -50%) scaleX(.72); }
@@ -1653,6 +1725,15 @@
         background:linear-gradient(90deg, rgba(240,255,255,.98), rgba(96,245,238,.82), rgba(96,245,238,0));
         box-shadow:0 0 10px rgba(92,244,237,.72), 0 0 18px rgba(92,244,237,.32);
         animation:shapeToolBeamPulse .26s ease-in-out infinite alternate;
+        transition:width .16s ease, opacity .16s ease, transform .16s ease, box-shadow .16s ease;
+    }
+    .shape-tool-fx:not(.tool-active) .shape-tool-beam{
+        width:30px;
+        height:2px;
+        opacity:.34;
+        animation:none;
+        transform:rotate(132deg) scaleX(.36);
+        box-shadow:0 0 5px rgba(92,244,237,.28);
     }
     @keyframes shapeToolBeamPulse{
         0%{ opacity:.46; transform:rotate(132deg) scaleX(.74); }
@@ -1707,6 +1788,7 @@
         box-shadow:0 0 36px rgba(255,232,132,.3), inset 0 0 24px rgba(255,255,255,.24);
         mix-blend-mode:screen;
         opacity:var(--light-spot-opacity);
+        transition:opacity .16s ease;
     }
     .light-tool-beam{
         position:absolute;
@@ -1720,6 +1802,7 @@
         background:linear-gradient(90deg, rgba(255,255,236,.62), rgba(255,235,150,.3) 48%, rgba(93,228,220,0));
         filter:blur(.2px);
         opacity:var(--light-beam-opacity);
+        transition:opacity .16s ease;
     }
     .light-tool-beam::before,
     .light-tool-beam::after{
@@ -1765,6 +1848,12 @@
         background:radial-gradient(ellipse, rgba(255,255,230,.96), rgba(255,225,118,.42) 56%, transparent 74%);
         box-shadow:0 0 18px rgba(255,230,132,.68), 0 0 26px rgba(93,228,220,.34);
         mix-blend-mode:screen;
+        opacity:.95;
+        transition:opacity .16s ease, box-shadow .16s ease;
+    }
+    .light-tool-fx:not(.tool-active) .light-tool-lamp::before{
+        opacity:.16;
+        box-shadow:none;
     }
     .light-signal-star,
     .light-found-burst{
@@ -1876,9 +1965,9 @@
         position:absolute;
         left:var(--chamfer-cue-left);
         top:var(--chamfer-cue-top);
-        width:118px;
+        width:148px;
         height:34px;
-        transform:translate(-50%, -50%);
+        transform:translate(-50%, -50%) rotate(var(--cloth-rot, 0deg));
         opacity:0;
         pointer-events:none;
         transition:opacity .42s ease;
@@ -1897,12 +1986,12 @@
         box-shadow:inset 0 1px 0 rgba(255,248,208,.26), 0 0 12px rgba(99,235,214,.18);
     }
     .chamfer-drag-cue::before{
-        left:8px;
+        left:-2px;
         transform:translateY(-50%);
         clip-path:polygon(70% 12%, 70% 32%, 100% 32%, 100% 68%, 70% 68%, 70% 88%, 0 50%);
     }
     .chamfer-drag-cue::after{
-        right:8px;
+        right:-2px;
         transform:translateY(-50%);
         clip-path:polygon(30% 12%, 30% 32%, 0 32%, 0 68%, 30% 68%, 30% 88%, 100% 50%);
     }
@@ -4252,23 +4341,29 @@
     .core-hint{
         position:absolute;
         left:50%;
-        top:14%;
+        top:72px;
         transform:translateX(-50%);
         z-index:12;
         display:none;
-        width:min(360px, 68%);
+        width:min(520px, 76%);
+        min-height:56px;
         margin:0;
-        padding:10px 14px;
+        padding:14px 22px;
         border:1px solid rgba(86,52,31,.16);
         border-radius:8px;
         background:rgba(255,252,246,.72);
         color:#5f5143;
         text-align:center;
-        font-size:13px;
-        line-height:1.5;
+        font-size:16px;
+        line-height:1.58;
+        font-weight:700;
         box-shadow:0 10px 24px rgba(68,43,25,.12);
         backdrop-filter:blur(4px);
         pointer-events:none;
+    }
+    .core-hint strong{
+        font-weight:950;
+        color:#244f3d;
     }
     body.playing .core-hud,
     body.playing .core-controls{
@@ -4454,7 +4549,7 @@
             right:26px;
             bottom:20px;
         }
-        .core-hint{ top:14%; width:min(330px, 76%); }
+        .core-hint{ top:52px; width:min(430px, 78%); }
     }
     body.v26-real-asset{
         --bg:#153f34;
@@ -4623,14 +4718,15 @@
         mix-blend-mode:normal;
     }
     body.v26-real-asset .core-hint{
-        min-height:58px;
-        padding:15px 22px;
+        min-height:70px;
+        padding:18px 30px;
         border:0;
         background:
             linear-gradient(rgba(255,250,235,.5), rgba(255,250,235,.5)),
             var(--v26-hint-bg) center / 100% 100% no-repeat;
         color:#4d3b29;
         box-shadow:none;
+        font-size:17px;
     }
     body.v26-real-asset .lens-viewport::before,
     body.v26-real-asset .lens-viewport::after{
@@ -4723,6 +4819,9 @@
     }
     body.v26-real-asset .current-tool-text span{
         color:rgba(255,242,205,.72);
+    }
+    body.v26-real-asset .current-tool-card{
+        display:none !important;
     }
     body.v26-real-asset .collect-cta{
         border-color:transparent;
@@ -5762,8 +5861,10 @@ const TOOL_NOTES = {
     soak:"放入量杯左右摇晃",
     chamfer:"沿宝石边缘来回摩擦直到光滑为止"
 };
-const TOOL_ORDER = ["cut","repair","light","shape","soak","chamfer","clean"];
-const LENS_FREE_TYPES = new Set(["soak"]);
+const TOOL_ORDER = ["cut","repair","light","shape","chamfer","clean"];
+const FOLLOW_TOOL_TYPES = new Set(["clean","shape","light"]);
+const IDLE_TOOL_TYPES = new Set(["clean","shape","light","cut"]);
+const LENS_FREE_TYPES = new Set();
 const REPAIR_TARGETS = [
     { x:31, y:56, dx:-30, dy:7 },
     { x:50, y:45, dx:0, dy:-6 },
@@ -5789,7 +5890,7 @@ const SOAK_REQUIRED_MS = 2250;
 const SOAK_WALL_HIT_LIMIT = 3;
 const SOAK_WALL_LIMIT = 78;
 const SOAK_REBOUND = 11;
-const SOAK_TRIAL_GEMS = new Set(["agate", "fluorite"]);
+const SOAK_TRIAL_GEMS = new Set();
 const CHAMFER_REQUIRED_PASSES = 3;
 const CHAMFER_CLOTH_SRC = "assets/ui_v26/ui_tool_sprites/tool_chamfer_cloth_A.png";
 const CHAMFER_CLOTH_TRACK_SCALE = 1.08;
@@ -5840,14 +5941,14 @@ function defaultGemStepInstruction(gem, task){
 }
 const GEM_BLUEPRINTS = [
     { id:"pearl", name:"珍珠", rarity:3, version:"西西亚·三星成石", kind:"成品宝石", sub:"修补 -> 磨平 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #fff9ef 0%, #d9d3dd 100%)", assetBase:"assets/gems/pearl", tasks:[{type:"repair", title:"珠层细裂", lens:2, face:1, pos:{x:54,y:46}}, {type:"chamfer", title:"珠缘磨平", lens:0, face:1, pos:{x:50,y:50}}, {type:"clean", title:"柔光净化", lens:0, face:1, pos:{x:50,y:54}}] },
-    { id:"agate", name:"玛瑙", rarity:3, version:"长安·三星成石", kind:"成品宝石", sub:"修补 -> 浸润 -> 磨平 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", assetBase:"assets/gems/agate", tasks:[{type:"repair", title:"下缘细裂", lens:2, face:2, pos:{x:46,y:64}}, {type:"soak", title:"量杯浸润", lens:0, face:1, pos:{x:50,y:50}}, {type:"chamfer", title:"纹带磨平", lens:1, face:1, pos:{x:50,y:50}}, {type:"clean", title:"通透净化", lens:1, face:1, pos:{x:50,y:52}}] },
+    { id:"agate", name:"玛瑙", rarity:3, version:"长安·三星成石", kind:"成品宝石", sub:"修补 -> 磨平 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", assetBase:"assets/gems/agate", tasks:[{type:"repair", title:"下缘细裂", lens:2, face:2, pos:{x:46,y:64}}, {type:"chamfer", title:"纹带磨平", lens:1, face:1, pos:{x:50,y:50}}, {type:"clean", title:"通透净化", lens:1, face:1, pos:{x:50,y:52}}] },
     { id:"garnet", name:"石榴石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b85a52 0%, #6d1f23 100%)", assetBase:"assets/gems/garnet", tasks:[{type:"repair", title:"边缘缺口", lens:1, face:2, pos:{x:58,y:42}}, {type:"clean", title:"血色提亮", lens:2, face:0, pos:{x:50,y:50}}] },
     { id:"sunstone", name:"砂金石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #f1b07c 0%, #9a4f2d 100%)", assetBase:"assets/gems/sunstone", tasks:[{type:"repair", title:"细小缺角", lens:2, face:1, pos:{x:40,y:60}}, {type:"clean", title:"金砂唤亮", lens:0, face:2, pos:{x:50,y:52}}] },
     { id:"catseye", name:"猫眼石", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #d8f1a8 0%, #7ea042 100%)", assetBase:"assets/gems/catseye", tasks:[{type:"repair", title:"猫眼边缘损伤", lens:2, face:1, pos:{x:56,y:40}}, {type:"clean", title:"瞳线净化", lens:1, face:2, pos:{x:50,y:50}}] },
     { id:"jadeite", name:"翡翠", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b8f0c6 0%, #3d9b63 100%)", assetBase:"assets/gems/jadeite", tasks:[{type:"repair", title:"边缘细裂", lens:1, face:1, pos:{x:56,y:62}}, {type:"clean", title:"翠面净化", lens:2, face:0, pos:{x:50,y:50}}] },
     { id:"obsidian", name:"黑曜石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6f6b83 0%, #15131f 100%)", assetBase:"assets/gems/obsidian", tasks:[{type:"cut", title:"石皮切除", lens:0, face:0, pos:{x:58,y:38}, cutHitsRequired:2}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:2, face:1, pos:{x:50,y:50}}, {type:"clean", title:"黑镜净化", lens:1, face:0, pos:{x:52,y:50}}] },
-    { id:"fluorite", name:"萤石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 浸润 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #bca7e8 0%, #4f5a7e 100%)", assetBase:"assets/gems/fluorite", tasks:[{type:"cut", title:"杂层切除", lens:1, face:1, pos:{x:62,y:52}}, {type:"shape", title:"圆形成球", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"soak", title:"量杯浸润", lens:0, face:0, pos:{x:50,y:50}}, {type:"clean", title:"荧光净化", lens:0, face:0, pos:{x:52,y:50}}] },
-    { id:"fluorite_test", name:"萤石测试", rarity:1, version:"GM·全玩法测试石", kind:"原石", sub:"切除 -> 寻光 -> 修补 -> 定型 -> 浸润 -> 磨平 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #cbb9f2 0%, #5a668f 100%)", assetBase:"assets/gems/fluorite", tasks:[{type:"cut", title:"测试切除", lens:1, face:1, pos:{x:62,y:52}, cutHitsRequired:2}, {type:"light", title:"测试寻光", lens:0, face:0, pos:{x:50,y:50}, lightTarget:{x:58,y:38}}, {type:"repair", title:"测试裂隙", lens:2, face:1, pos:{x:43,y:56}}, {type:"shape", title:"测试圆形定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"soak", title:"测试量杯浸润", lens:0, face:0, pos:{x:50,y:50}}, {type:"chamfer", title:"测试圆边磨平", lens:0, face:0, pos:{x:50,y:50}}, {type:"clean", title:"测试最终清洁", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"fluorite", name:"萤石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #bca7e8 0%, #4f5a7e 100%)", assetBase:"assets/gems/fluorite", tasks:[{type:"cut", title:"杂层切除", lens:1, face:1, pos:{x:62,y:52}}, {type:"shape", title:"圆形成球", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"clean", title:"荧光净化", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"fluorite_test", name:"萤石测试", rarity:1, version:"GM·全玩法测试石", kind:"原石", sub:"切除 -> 寻光 -> 修补 -> 定型 -> 磨平 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #cbb9f2 0%, #5a668f 100%)", assetBase:"assets/gems/fluorite", tasks:[{type:"cut", title:"测试切除", lens:1, face:1, pos:{x:62,y:52}, cutHitsRequired:2}, {type:"light", title:"测试寻光", lens:0, face:0, pos:{x:50,y:50}, lightTarget:{x:58,y:38}}, {type:"repair", title:"测试裂隙", lens:2, face:1, pos:{x:43,y:56}}, {type:"shape", title:"测试圆形定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"chamfer", title:"测试圆边磨平", lens:0, face:0, pos:{x:50,y:50}}, {type:"clean", title:"测试最终清洁", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"malachite", name:"孔雀石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6ec07f 0%, #1d5a38 100%)", assetBase:"assets/gems/malachite", tasks:[{type:"cut", title:"矿皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"孔雀纹裂", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"正方定型", targetShape:"square", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"石面净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"turquoise", name:"绿松石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #86dfd0 0%, #2a8f89 100%)", assetBase:"assets/gems/turquoise", tasks:[{type:"cut", title:"泥皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"脉络裂隙", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"松石净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"hetian", name:"和田玉", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #edf0d5 0%, #a9b484 100%)", assetBase:"assets/gems/hetian", tasks:[{type:"cut", title:"杂质筋切除", lens:1, face:1, pos:{x:40,y:52}}, {type:"shape", title:"圆润定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:50}}, {type:"clean", title:"玉面净化", lens:0, face:0, pos:{x:52,y:52}}] },
@@ -5950,7 +6051,9 @@ const state = {
     gamepadUseActive:false,
     gamepadLastTick:0,
     gamepadDrag:null,
-    gamepadExitConfirmOpen:false
+    gamepadExitConfirmOpen:false,
+    toolPointerX:null,
+    toolPointerY:null
 };
 let responsiveLayoutTimer = 0;
 
@@ -6477,7 +6580,7 @@ function tasksWithOptionalLight(gem){
     return tasks;
 }
 function buildCoreTasks(gem){
-    return tasksWithOptionalLight(gem).map((task, index)=>({
+    return tasksWithOptionalLight(gem).filter(task=>task.type !== "soak").map((task, index)=>({
         ...task,
         id:`${gem.id}_${index}`,
         instruction:task.instruction || defaultGemStepInstruction(gem, task),
@@ -6613,6 +6716,35 @@ function wrongLensHint(step){
     if(step.type === "soak") return `量杯观察需要 ${LENSES[step.lens].label}：切到正确镜片后再摇晃。`;
     if(step.type === "chamfer") return `尖角需要 ${LENSES[step.lens].label}：切到正确镜片后才能看到边缘轨道。`;
     return `镜片不对：请滚动鼠标滚轮翻镜片，切到 ${LENSES[step.lens].label}。`;
+}
+function escapeHTML(value){
+    return String(value ?? "").replace(/[&<>"']/g, char=>({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        "\"":"&quot;",
+        "'":"&#39;"
+    }[char]));
+}
+function formatCoreHintText(text){
+    const safe = escapeHTML(text);
+    const colonIndex = safe.search(/[：:]/);
+    if(colonIndex > 0 && colonIndex < 14){
+        const head = safe.slice(0, colonIndex + 1);
+        const rest = safe.slice(colonIndex + 1);
+        const actionMatch = rest.match(/^(\s*)(瞄准|沿|用|放入|把|先|按住|来回|擦掉|切到|滚动|移动|寻找|修补|清洁|切除|定型|磨平|寻光)/);
+        if(actionMatch){
+            const lead = actionMatch[1];
+            const verb = actionMatch[2];
+            return `<strong>${head}</strong>${lead}<strong>${verb}</strong>${rest.slice(lead.length + verb.length)}`;
+        }
+        return `<strong>${head}</strong>${rest}`;
+    }
+    const firstSpace = safe.indexOf(" ");
+    if(firstSpace > 0 && firstSpace < 10){
+        return `<strong>${safe.slice(0, firstSpace)}</strong>${safe.slice(firstSpace)}`;
+    }
+    return safe;
 }
 function visualStateForActive(active, step){
     const tasks = active.tasks;
@@ -6881,9 +7013,11 @@ function renderPlay(){
     gem3d.style.setProperty("--crack-branch-opacity", Math.max(0, .72 - repairProgress * .82));
     gem3d.style.setProperty("--gem-stage-image", stageImageValue(gem, visual));
     renderArchiveNotebook(active, gem);
-    document.querySelector(".core-hint").textContent = step && stepRequiresLens(step) && state.lensIndex !== step.lens
+    const coreHint = document.querySelector(".core-hint");
+    const hintText = step && stepRequiresLens(step) && state.lensIndex !== step.lens
         ? wrongLensHint(step)
         : stepHintText(step);
+    if(coreHint) coreHint.innerHTML = formatCoreHintText(hintText);
     document.getElementById("step-progress").style.width = `${(active.stepIndex / active.tasks.length) * 100}%`;
     document.getElementById("gem-core").style.setProperty("--gem-color", gem.color);
     document.getElementById("lens-stage").style.setProperty("--lens-filter", LENSES[state.lensIndex].filter);
@@ -6892,6 +7026,7 @@ function renderPlay(){
     renderCurrentTool();
     renderChamferOverlay(step, gem, visual);
     renderSoakOverlay(step, gem, visual);
+    renderIdleStepToolFx(step);
     if(step?.type !== "spray") clearSprayToolFx();
     syncGamepadAimToStep(step);
     renderHotspot();
@@ -7304,7 +7439,7 @@ function renderChamferOverlay(step, gem){
     overlay.style.setProperty("--chamfer-meter-top", `${meterTop.toFixed(1)}px`);
     overlay.style.setProperty("--chamfer-meter-width", `${Math.max(132, Math.min(240, geometry.gemWidth * .76)).toFixed(1)}px`);
     overlay.style.setProperty("--chamfer-cue-left", `${cloth.x.toFixed(1)}px`);
-    overlay.style.setProperty("--chamfer-cue-top", `${(cloth.y - 46).toFixed(1)}px`);
+    overlay.style.setProperty("--chamfer-cue-top", `${cloth.y.toFixed(1)}px`);
     overlay.style.setProperty("--chamfer-preview-mask", chamferCleanPreviewMask(step) || "linear-gradient(transparent, transparent)");
     const corners = step.chamferCorners || [];
     const geometryKey = [
@@ -7654,9 +7789,14 @@ function beginGamepadUse(){
     }
     const step = currentStep();
     if(!step || state.gamepadDrag || state.gamepadUseActive) return;
+    if(step.cutAnimating) return;
     if(stepRequiresLens(step) && state.lensIndex !== step.lens){
         toast(`先用 Q/E 切到 ${LENSES[step.lens].label}`);
         renderGamepadHud();
+        return;
+    }
+    if(step.type === "soak"){
+        toast("浸润玩法暂未开放。");
         return;
     }
     state.activeTool = step.type;
@@ -7688,13 +7828,14 @@ function beginGamepadUse(){
     };
     if(step.type === "clean"){
         addCleanErasePoint(step, point.x, point.y);
-        renderCleanToolFx(point.x, point.y, 0);
+        renderCleanToolFx(point.x, point.y, 0, true);
         renderPlay();
     }
-    if(step.type === "shape") renderShapeToolFx(point.x, point.y);
+    if(step.type === "cut") renderCutToolFx(step, point.x, point.y);
+    if(step.type === "shape") renderShapeToolFx(point.x, point.y, true);
     if(step.type === "light"){
         updateLightSearch(step, point.x, point.y, 0);
-        renderLightToolFx(point.x, point.y, step.lightSignal || 0, step);
+        renderLightToolFx(point.x, point.y, step.lightSignal || 0, step, true);
     }
     if(step.type === "soak"){
         if(step.soakPhase !== "complete" && step.soakPhase !== "failed") step.soakPhase = "shake";
@@ -7749,6 +7890,7 @@ function finishGamepadUse(){
             toast(`描边不完整，再顺着${SHAPE_LABELS[step.shapeTarget]}轮廓拖一遍。`);
         }
     }
+    scheduleIdleToolRefresh(step);
     renderGamepadHud();
 }
 function updateGamepadAim(dt){
@@ -7779,14 +7921,10 @@ function updateGamepadUse(dt){
     drag.lastY = point.y;
     drag.points.push({ x:point.x, y:point.y });
     if(step.type === "clean"){
-        const velocityX = dx / Math.max(16, dt);
-        const accelerationX = (velocityX - (drag.velocityX || 0)) / Math.max(16, dt);
-        const leanTarget = clampNumber(velocityX * 10 + accelerationX * 180, -18, 18);
-        drag.cleanBrushLean = (drag.cleanBrushLean || 0) * .58 + leanTarget * .42;
-        drag.velocityX = velocityX;
+        drag.cleanBrushLean = 0;
         addCleanErasePoint(step, point.x, point.y);
         step.dragDistance = Math.min(CLEAN_DISTANCE_REQUIRED, (step.dragDistance || 0) + Math.max(movement, Math.abs(gamepadAxis("ArrowLeft", "ArrowRight")) * dt * .045));
-        renderCleanToolFx(point.x, point.y, drag.cleanBrushLean);
+        renderCleanToolFx(point.x, point.y, 0, true);
         renderPlay();
         if(step.dragDistance >= CLEAN_DISTANCE_REQUIRED){
             state.gamepadDrag = null;
@@ -7795,6 +7933,7 @@ function updateGamepadUse(dt){
         }
     }
     if(step.type === "cut"){
+        renderCutToolFx(step, point.x, point.y);
         const angle = Math.atan2(dy || Math.sin((step.cutAngle || 0) * Math.PI / 180), dx || Math.cos((step.cutAngle || 0) * Math.PI / 180)) * 180 / Math.PI;
         const diff = angleDiff(angle, step.cutAngle || 0);
         const aligned = diff < 52 ? movement : movement * .34;
@@ -7804,17 +7943,23 @@ function updateGamepadUse(dt){
             playCutSwipeFx(step, { startX:drag.startX, startY:drag.startY }, point.x, point.y);
             state.gamepadDrag = null;
             state.gamepadUseActive = false;
-            completeCutSwipe(step);
+            step.cutAnimating = true;
+            setTimeout(()=>{
+                if(currentStep()?.id === step.id && !step.done){
+                    step.cutAnimating = false;
+                    completeCutSwipe(step);
+                }
+            }, 900);
         }
     }
     if(step.type === "shape"){
         updateShapeTrace(drag.shapeTrace, point.x, point.y);
-        renderShapeToolFx(point.x, point.y);
+        renderShapeToolFx(point.x, point.y, true);
         if(movement > 1) spawnDragParticle(point.x, point.y, step.type);
     }
     if(step.type === "light"){
         updateLightSearch(step, point.x, point.y, dt);
-        renderLightToolFx(point.x, point.y, step.lightSignal || 0, step);
+        renderLightToolFx(point.x, point.y, step.lightSignal || 0, step, true);
         renderCurrentTool();
         if((step.lightHold || 0) >= LIGHT_SEARCH_REQUIRED_MS){
             clearLightToolFx();
@@ -8101,6 +8246,10 @@ function renderRepairOverlay(step, visible, targetsVisible=false, pos){
     if(!pos) pos = defectStagePosition(step);
     const fill = Math.min(1, step.repairFill || 0);
     const activeIndex = Math.min(step.repairTargetIndex || 0, REPAIR_TARGETS.length - 1);
+    const settledIndex = Number.isFinite(step.repairToolSettledIndex)
+        ? Math.min(step.repairToolSettledIndex, REPAIR_TARGETS.length - 1)
+        : -1;
+    const settledTarget = settledIndex >= 0 ? REPAIR_TARGETS[settledIndex] : null;
     overlay.className = `repair-overlay visible ${targetsVisible ? "targets-visible" : "targets-hidden"} ${fill >= REPAIR_COMPLETE_THRESHOLD ? "repair-complete" : ""}`;
     overlay.style.left = `${pos.x}%`;
     overlay.style.top = `${pos.y}%`;
@@ -8108,6 +8257,8 @@ function renderRepairOverlay(step, visible, targetsVisible=false, pos){
     const activeTarget = REPAIR_TARGETS[activeIndex];
     overlay.style.setProperty("--repair-drop-left", `${activeTarget.x}%`);
     overlay.style.setProperty("--repair-drop-top", `${activeTarget.y}%`);
+    overlay.style.setProperty("--repair-idle-tool-left", settledTarget ? `${settledTarget.x}%` : "4%");
+    overlay.style.setProperty("--repair-idle-tool-top", settledTarget ? `${Math.max(-30, settledTarget.y - 44)}%` : "-26%");
     overlay.style.setProperty("--repair-tool-left", `${activeTarget.x}%`);
     overlay.style.setProperty("--repair-tool-top", `${Math.max(-30, activeTarget.y - 44)}%`);
     overlay.style.setProperty("--repair-tool-tilt", "-8deg");
@@ -8190,6 +8341,7 @@ function clearHotspot(){
     clearCleanToolFx();
     clearShapeToolFx();
     clearLightToolFx();
+    clearCutToolFx();
     clearSprayToolFx();
     clearChamferOverlay();
     setLensAttention(false);
@@ -8364,6 +8516,7 @@ function handleHotspotClick(){
         const targetIndex = Math.min(step.repairTargetIndex || 0, REPAIR_TARGETS.length - 1);
         step.clicks = (step.clicks || 0) + 1;
         step.repairFill = Math.min(1, (step.repairFill || 0) + REPAIR_FILL_PER_CLICK);
+        step.repairToolSettledIndex = targetIndex;
         step.repairTargetIndex = Math.min(REPAIR_TARGETS.length - 1, targetIndex + 1);
         const complete = step.repairFill >= REPAIR_COMPLETE_THRESHOLD;
         if(complete) step.repairCompleting = true;
@@ -8388,7 +8541,8 @@ function handleHotspotClick(){
 }
 function startDefectDrag(e){
     const step = currentStep();
-    if(!step || !["clean","cut","shape","light","soak","chamfer"].includes(step.type)) return;
+    if(!step || !["clean","cut","shape","light","chamfer"].includes(step.type)) return;
+    if(step.cutAnimating) return;
     if(!canUseCurrentStep(step)) return;
     e.preventDefault();
     e.currentTarget.setPointerCapture?.(e.pointerId);
@@ -8415,12 +8569,13 @@ function startDefectDrag(e){
     if(step.type === "clean"){
         addCleanErasePoint(step, e.clientX, e.clientY);
         renderPlay();
-        renderCleanToolFx(e.clientX, e.clientY, 0);
+        renderCleanToolFx(e.clientX, e.clientY, 0, true);
     }
-    if(step.type === "shape") renderShapeToolFx(e.clientX, e.clientY);
+    if(step.type === "cut") renderCutToolFx(step, e.clientX, e.clientY);
+    if(step.type === "shape") renderShapeToolFx(e.clientX, e.clientY, true);
     if(step.type === "light"){
         updateLightSearch(step, e.clientX, e.clientY, 0);
-        renderLightToolFx(e.clientX, e.clientY, step.lightSignal || 0, step);
+        renderLightToolFx(e.clientX, e.clientY, step.lightSignal || 0, step, true);
         renderCurrentTool();
     }
     if(step.type === "soak"){
@@ -8448,17 +8603,16 @@ function updateDefectDrag(e){
     drag.points.push({ x:e.clientX, y:e.clientY });
     if(step.type === "shape") updateShapeTrace(drag.shapeTrace, e.clientX, e.clientY);
     if(step.type === "clean"){
-        const velocityX = dx / dt;
-        const accelerationX = (velocityX - (drag.velocityX || 0)) / dt;
-        const leanTarget = clampNumber(velocityX * 10 + accelerationX * 180, -18, 18);
-        drag.cleanBrushLean = (drag.cleanBrushLean || 0) * .58 + leanTarget * .42;
-        drag.velocityX = velocityX;
+        drag.cleanBrushLean = 0;
         addCleanErasePoint(step, e.clientX, e.clientY);
-        renderCleanToolFx(e.clientX, e.clientY, drag.cleanBrushLean);
+        renderCleanToolFx(e.clientX, e.clientY, 0, true);
+    }
+    if(step.type === "cut"){
+        renderCutToolFx(step, e.clientX, e.clientY);
     }
     if(step.type === "light"){
         updateLightSearch(step, e.clientX, e.clientY, dt);
-        renderLightToolFx(e.clientX, e.clientY, step.lightSignal || 0, step);
+        renderLightToolFx(e.clientX, e.clientY, step.lightSignal || 0, step, true);
         renderCurrentTool();
         if((step.lightHold || 0) >= LIGHT_SEARCH_REQUIRED_MS){
             state.suppressNextClick = true;
@@ -8498,7 +8652,7 @@ function updateDefectDrag(e){
             return;
         }
     }
-    if(step.type === "shape") renderShapeToolFx(e.clientX, e.clientY);
+    if(step.type === "shape") renderShapeToolFx(e.clientX, e.clientY, true);
     if(drag.distance - drag.lastParticleDistance >= 18){
         spawnDragParticle(e.clientX, e.clientY, step.type);
         drag.lastParticleDistance = drag.distance;
@@ -8713,7 +8867,7 @@ function updateSprayCoverage(step, clientX, clientY, dt){
     step.sprayCoverageCount = countMaskBits(step.sprayMask || 0);
     step.sprayProgress = clampNumber(step.sprayCoverageCount / SPRAY_SECTORS, 0, 1);
 }
-function renderCleanToolFx(clientX, clientY, lean=0){
+function renderCleanToolFx(clientX, clientY, lean=0, active=false){
     const stage = document.getElementById("lens-stage");
     if(!stage) return;
     let fx = stage.querySelector(".clean-tool-fx");
@@ -8723,17 +8877,18 @@ function renderCleanToolFx(clientX, clientY, lean=0){
         fx.innerHTML = `<span class="clean-tool-swing"><span class="clean-tool-glow"></span><span class="clean-tool-sprite"></span></span>`;
         stage.appendChild(fx);
     }
+    fx.classList.toggle("tool-active", !!active);
     const rect = stage.getBoundingClientRect();
     const x = Math.max(50, Math.min(rect.width - 50, clientX - rect.left));
-    const y = Math.max(-24, Math.min(rect.height - 132, clientY - rect.top - 124));
+    const y = Math.max(56, Math.min(rect.height - 42, clientY - rect.top));
     fx.style.setProperty("--clean-tool-x", `${x}px`);
     fx.style.setProperty("--clean-tool-y", `${y}px`);
-    fx.style.setProperty("--clean-lean", `${lean.toFixed(2)}deg`);
+    fx.style.setProperty("--clean-lean", "0deg");
 }
 function clearCleanToolFx(){
     document.querySelectorAll(".clean-tool-fx").forEach(el=>el.remove());
 }
-function renderShapeToolFx(clientX, clientY){
+function renderShapeToolFx(clientX, clientY, active=false){
     const stage = document.getElementById("lens-stage");
     if(!stage) return;
     let fx = stage.querySelector(".shape-tool-fx");
@@ -8743,6 +8898,7 @@ function renderShapeToolFx(clientX, clientY){
         fx.innerHTML = `<span class="shape-tool-beam"></span><span class="shape-tool-sprite"></span>`;
         stage.appendChild(fx);
     }
+    fx.classList.toggle("tool-active", !!active);
     const rect = stage.getBoundingClientRect();
     const x = Math.max(52, Math.min(rect.width - 52, clientX - rect.left));
     const y = Math.max(52, Math.min(rect.height - 32, clientY - rect.top));
@@ -8752,7 +8908,7 @@ function renderShapeToolFx(clientX, clientY){
 function clearShapeToolFx(){
     document.querySelectorAll(".shape-tool-fx").forEach(el=>el.remove());
 }
-function renderLightToolFx(clientX, clientY, signal=0, step=currentStep()){
+function renderLightToolFx(clientX, clientY, signal=0, step=currentStep(), active=false){
     const stage = document.getElementById("lens-stage");
     if(!stage) return;
     let fx = stage.querySelector(".light-tool-fx");
@@ -8762,13 +8918,14 @@ function renderLightToolFx(clientX, clientY, signal=0, step=currentStep()){
         fx.innerHTML = `<span class="light-tool-spot"></span><span class="light-tool-beam"></span><span class="light-tool-lamp"></span><span class="light-signal-star"></span>`;
         stage.appendChild(fx);
     }
+    fx.classList.toggle("tool-active", !!active);
     const rect = stage.getBoundingClientRect();
     const x = Math.max(70, Math.min(rect.width - 70, clientX - rect.left));
     const y = Math.max(88, Math.min(rect.height - 58, clientY - rect.top));
     const sourceX = Math.min(rect.width - 30, x + 172);
     const sourceY = Math.max(42, y - 224);
     const target = gemPointToStagePoint(step?.lightTarget || { x:50, y:50 });
-    const visibleSignal = clampNumber(signal, 0, 1);
+    const visibleSignal = active ? clampNumber(signal, 0, 1) : 0;
     const lightAngle = Math.atan2(y - sourceY, x - sourceX) * 180 / Math.PI;
     const refraction = Math.pow(visibleSignal, 1.35) * .46;
     fx.style.setProperty("--light-tool-x", `${x}px`);
@@ -8781,13 +8938,116 @@ function renderLightToolFx(clientX, clientY, signal=0, step=currentStep()){
     fx.style.setProperty("--light-signal", visibleSignal.toFixed(3));
     fx.style.setProperty("--light-star-scale", (.42 + visibleSignal * .76).toFixed(3));
     fx.style.setProperty("--light-refraction", refraction.toFixed(3));
-    fx.style.setProperty("--light-spot-opacity", (.7 + visibleSignal * .16).toFixed(3));
-    fx.style.setProperty("--light-beam-opacity", (.48 + visibleSignal * .16).toFixed(3));
-    fx.style.setProperty("--light-caustic-opacity", (visibleSignal * .38).toFixed(3));
+    fx.style.setProperty("--light-spot-opacity", active ? (.7 + visibleSignal * .16).toFixed(3) : "0");
+    fx.style.setProperty("--light-beam-opacity", active ? (.48 + visibleSignal * .16).toFixed(3) : "0");
+    fx.style.setProperty("--light-caustic-opacity", active ? (visibleSignal * .38).toFixed(3) : "0");
     fx.style.setProperty("--light-caustic-angle", `${(lightAngle + 18).toFixed(1)}deg`);
 }
 function clearLightToolFx(){
     document.querySelectorAll(".light-tool-fx").forEach(el=>el.remove());
+}
+function cutHoverStagePoint(step){
+    const stage = document.getElementById("lens-stage");
+    const gem = document.getElementById("gem3d");
+    const stageRect = stage?.getBoundingClientRect();
+    const gemRect = gem?.getBoundingClientRect();
+    if(stageRect && gemRect && stageRect.width && gemRect.width){
+        return {
+            x:Math.max(52, Math.min(stageRect.width - 52, gemRect.left - stageRect.left + gemRect.width * .76)),
+            y:Math.max(38, Math.min(stageRect.height - 62, gemRect.top - stageRect.top + gemRect.height * .05))
+        };
+    }
+    const rect = stageRect || { width:0, height:0 };
+    const pos = step ? defectStagePosition(step) : { x:66, y:32 };
+    return {
+        x:rect.width * (pos.x + 18) / 100,
+        y:rect.height * (pos.y - 28) / 100
+    };
+}
+function renderCutToolFx(step, clientX=null, clientY=null){
+    const stage = document.getElementById("lens-stage");
+    if(!stage) return;
+    let fx = stage.querySelector(".cut-tool-fx");
+    if(!fx){
+        fx = document.createElement("div");
+        fx.className = "cut-tool-fx";
+        stage.appendChild(fx);
+    }
+    const rect = stage.getBoundingClientRect();
+    const hover = cutHoverStagePoint(step);
+    const hasPointer = Number.isFinite(clientX) && Number.isFinite(clientY);
+    const targetX = hasPointer ? clientX - rect.left : rect.width * .5;
+    const targetY = hasPointer ? clientY - rect.top : rect.height * .5;
+    const angle = Math.atan2(targetY - hover.y, targetX - hover.x) * 180 / Math.PI + 90;
+    fx.style.setProperty("--cut-tool-x", `${hover.x.toFixed(1)}px`);
+    fx.style.setProperty("--cut-tool-y", `${hover.y.toFixed(1)}px`);
+    fx.style.setProperty("--cut-tool-angle", `${angle.toFixed(1)}deg`);
+}
+function clearCutToolFx(){
+    document.querySelectorAll(".cut-tool-fx").forEach(el=>el.remove());
+}
+function clearFollowToolFx(exceptType=null){
+    if(exceptType !== "clean") clearCleanToolFx();
+    if(exceptType !== "shape") clearShapeToolFx();
+    if(exceptType !== "light") clearLightToolFx();
+    if(exceptType !== "cut") clearCutToolFx();
+}
+function idleToolClientPoint(step){
+    const stage = document.getElementById("lens-stage");
+    const rect = stage?.getBoundingClientRect();
+    if(!step || !rect || !rect.width || !rect.height) return null;
+    const pos = defectStagePosition(step);
+    return {
+        x:rect.left + rect.width * pos.x / 100,
+        y:rect.top + rect.height * pos.y / 100
+    };
+}
+function rememberedToolClientPoint(step){
+    if(Number.isFinite(state.toolPointerX) && Number.isFinite(state.toolPointerY)){
+        return { x:state.toolPointerX, y:state.toolPointerY };
+    }
+    return idleToolClientPoint(step);
+}
+function stepToolIsBeingDragged(step){
+    if(!step) return false;
+    return state.defectDrag?.type === step.type || state.gamepadDrag?.type === step.type;
+}
+function renderIdleStepToolFx(step){
+    if(!step || !IDLE_TOOL_TYPES.has(step.type)){
+        clearFollowToolFx();
+        return;
+    }
+    if(step.done || (step.type === "clean" && step.cleanCompleting) || (step.type === "shape" && step.shapeLaserPending)){
+        clearFollowToolFx();
+        return;
+    }
+    const lensOk = !stepRequiresLens(step) || state.lensIndex === step.lens;
+    if(!lensOk){
+        clearFollowToolFx();
+        return;
+    }
+    if(step.type === "cut"){
+        const point = rememberedToolClientPoint(step);
+        clearFollowToolFx("cut");
+        renderCutToolFx(step, point?.x, point?.y);
+        return;
+    }
+    if(stepToolIsBeingDragged(step)) return;
+    const point = rememberedToolClientPoint(step);
+    if(!point){
+        clearFollowToolFx();
+        return;
+    }
+    clearFollowToolFx(step.type);
+    if(step.type === "clean") renderCleanToolFx(point.x, point.y, step.cleanBrushLean || 0);
+    if(step.type === "shape") renderShapeToolFx(point.x, point.y);
+    if(step.type === "light") renderLightToolFx(point.x, point.y, step.lightSignal || 0, step);
+}
+function scheduleIdleToolRefresh(step){
+    if(!step || !IDLE_TOOL_TYPES.has(step.type)) return;
+    setTimeout(()=>{
+        if(currentStep()?.id === step.id) renderPlay();
+    }, 0);
 }
 function playLightFoundFx(step){
     const stage = document.getElementById("lens-stage");
@@ -8897,15 +9157,42 @@ function playCutSwipeFx(step, drag, endX, endY){
         ? (startY + finishY) / 2
         : rect.height * fallback.y / 100;
     const length = Math.max(178, Math.min(distance * 1.08, Math.min(rect.width, rect.height) * .62));
+    const slashCenterX = Math.max(42, Math.min(rect.width - 42, centerX));
+    const slashCenterY = Math.max(42, Math.min(rect.height - 42, centerY));
+    const hover = cutHoverStagePoint(step);
+    const rad = -angle * Math.PI / 180;
+    const toLocalBlade = (x, y)=>{
+        const relX = x - slashCenterX;
+        const relY = y - slashCenterY;
+        return {
+            x:relX * Math.cos(rad) - relY * Math.sin(rad) - 36,
+            y:relX * Math.sin(rad) + relY * Math.cos(rad) - 112
+        };
+    };
+    const hoverLocal = toLocalBlade(hover.x, hover.y);
+    const startLocal = toLocalBlade(startX, startY);
+    const endLocal = toLocalBlade(finishX, finishY);
+    clearCutToolFx();
     const fx = document.createElement("div");
-    fx.className = "cut-slash-fx";
-    fx.style.left = `${Math.max(42, Math.min(rect.width - 42, centerX))}px`;
-    fx.style.top = `${Math.max(42, Math.min(rect.height - 42, centerY))}px`;
+    fx.className = "cut-slash-fx hide-legacy-blade";
+    fx.style.left = `${slashCenterX}px`;
+    fx.style.top = `${slashCenterY}px`;
     fx.style.setProperty("--slash-angle", `${angle}deg`);
     fx.style.setProperty("--slash-length", `${length}px`);
+    fx.style.setProperty("--blade-entry-x", `${hoverLocal.x.toFixed(1)}px`);
+    fx.style.setProperty("--blade-entry-y", `${hoverLocal.y.toFixed(1)}px`);
+    fx.style.setProperty("--blade-entry-rot", "72deg");
+    fx.style.setProperty("--active-blade-hover-x", `${hoverLocal.x.toFixed(1)}px`);
+    fx.style.setProperty("--active-blade-hover-y", `${hoverLocal.y.toFixed(1)}px`);
+    fx.style.setProperty("--active-blade-start-x", `${startLocal.x.toFixed(1)}px`);
+    fx.style.setProperty("--active-blade-start-y", `${startLocal.y.toFixed(1)}px`);
+    fx.style.setProperty("--active-blade-end-x", `${endLocal.x.toFixed(1)}px`);
+    fx.style.setProperty("--active-blade-end-y", `${endLocal.y.toFixed(1)}px`);
+    fx.style.setProperty("--active-blade-rot", "72deg");
     fx.innerHTML = `
         <span class="cut-slash-glow"></span>
         <span class="cut-slash-line"></span>
+        <span class="cut-active-blade"></span>
         <span class="cut-slash-blade"></span>
         ${[...Array(6)].map((_, index)=>{
             const offset = (index - 2.5) * 24;
@@ -8914,7 +9201,10 @@ function playCutSwipeFx(step, drag, endX, endY){
         }).join("")}
     `;
     stage.appendChild(fx);
-    setTimeout(()=>fx.remove(), 760);
+    setTimeout(()=>{
+        fx.remove();
+        if(currentStep()?.id === step.id && !step.done) renderPlay();
+    }, 920);
 }
 function playShapeLaserStrike(trace, step){
     const stage = document.getElementById("lens-stage");
@@ -8963,6 +9253,7 @@ function finishDefectDrag(e){
     if(drag.type === "shape") clearShapeToolFx();
     if(drag.type === "light") clearLightToolFx();
     if(drag.type === "spray") clearSprayToolFx();
+    if(step.type !== "cut") scheduleIdleToolRefresh(step);
     if(step.type === "cut"){
         const dx = e.clientX - drag.startX;
         const dy = e.clientY - drag.startY;
@@ -8970,7 +9261,13 @@ function finishDefectDrag(e){
         const diff = angleDiff(angle, step.cutAngle || 0);
         if(drag.distance >= 80 && diff <= 24){
             playCutSwipeFx(step, drag, e.clientX, e.clientY);
-            completeCutSwipe(step);
+            step.cutAnimating = true;
+            setTimeout(()=>{
+                if(currentStep()?.id === step.id && !step.done){
+                    step.cutAnimating = false;
+                    completeCutSwipe(step);
+                }
+            }, 900);
         }
         else toast("切除角度不对，要顺着长条方向拖拽。");
         return;
@@ -9240,19 +9537,21 @@ function setupMobileBagPan(){
             startX:e.clientX,
             startY:e.clientY,
             startScroll:list.scrollTop,
-            moved:false
+            moved:false,
+            captured:false
         };
         state.mobileBagSuppressClick = false;
-        list.setPointerCapture?.(e.pointerId);
     });
     list.addEventListener("pointermove", e=>{
         if(!pan || pan.id !== e.pointerId) return;
         const dx = e.clientX - pan.startX;
         const dy = e.clientY - pan.startY;
-        if(!pan.moved && Math.abs(dy) > 6 && Math.abs(dy) > Math.abs(dx)){
+        if(!pan.moved && Math.abs(dy) > 14 && Math.abs(dy) > Math.abs(dx)){
             pan.moved = true;
             state.mobileBagSuppressClick = true;
             list.classList.add("dragging");
+            list.setPointerCapture?.(e.pointerId);
+            pan.captured = true;
         }
         if(!pan.moved) return;
         e.preventDefault();
@@ -9261,9 +9560,10 @@ function setupMobileBagPan(){
     const finishPan = e=>{
         if(!pan || pan.id !== e.pointerId) return;
         const moved = pan.moved;
+        const captured = pan.captured;
         pan = null;
         list.classList.remove("dragging");
-        if(list.hasPointerCapture?.(e.pointerId)) list.releasePointerCapture(e.pointerId);
+        if(captured && list.hasPointerCapture?.(e.pointerId)) list.releasePointerCapture(e.pointerId);
         if(moved) setTimeout(()=>{ state.mobileBagSuppressClick = false; }, 180);
     };
     list.addEventListener("pointerup", finishPan);
@@ -9419,10 +9719,32 @@ function setupCoreMouseControls(){
     });
     document.addEventListener("contextmenu", handleRewardRightClick);
 }
+function setupToolPointerTracking(){
+    const stage = document.getElementById("lens-stage");
+    if(!stage) return;
+    const updatePointer = e=>{
+        if(!state.active) return;
+        state.toolPointerX = e.clientX;
+        state.toolPointerY = e.clientY;
+        const step = currentStep();
+        if(!step || !IDLE_TOOL_TYPES.has(step.type)) return;
+        if(stepToolIsBeingDragged(step)) return;
+        renderIdleStepToolFx(step);
+    };
+    stage.addEventListener("pointermove", updatePointer);
+    stage.addEventListener("pointerenter", updatePointer);
+    stage.addEventListener("pointerleave", ()=>{
+        if(!state.active) return;
+        state.toolPointerX = null;
+        state.toolPointerY = null;
+        renderIdleStepToolFx(currentStep());
+    });
+}
 document.addEventListener("DOMContentLoaded", ()=>{
     warmupImageCache();
     setupDragDrop();
     setupCoreMouseControls();
+    setupToolPointerTracking();
     document.addEventListener("keydown", handleGamepadKeyDown);
     document.addEventListener("keyup", handleGamepadKeyUp);
     requestAnimationFrame(gamepadTick);
