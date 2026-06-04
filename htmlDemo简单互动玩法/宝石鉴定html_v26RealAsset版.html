@@ -59,6 +59,29 @@
     body.mobile-portrait-blocked .mobile-orientation-tip{
         display:grid;
     }
+    body.mobile-portrait-rotated{
+        width:100vw;
+        height:100vh;
+        overflow:hidden;
+    }
+    body.mobile-portrait-rotated .mobile-orientation-tip{
+        display:none !important;
+    }
+    body.mobile-portrait-rotated #screen-main{
+        position:fixed;
+        left:50%;
+        top:50%;
+        width:100vh;
+        height:100vw;
+        min-height:0;
+        padding:10px;
+        overflow:hidden;
+        transform:translate(-50%, -50%) rotate(90deg);
+        transform-origin:center center;
+    }
+    body.mobile-portrait-rotated .workbench{
+        height:calc(100vw - 20px);
+    }
     .mobile-orientation-card{
         width:min(320px, 88vw);
         display:grid;
@@ -1247,6 +1270,12 @@
     .repair-overlay.gem-enter{
         animation:repairOverlayGemEnter .66s cubic-bezier(.16,.88,.24,1.08) both;
     }
+    .repair-overlay.gem-step-swap{
+        animation:repairOverlayStepSwap .52s cubic-bezier(.18,.78,.22,1) both;
+    }
+    .repair-overlay.gem-carousel-swap{
+        animation:repairOverlayCarouselSwap .74s cubic-bezier(.2,.76,.18,1) both;
+    }
     .repair-crack-svg{
         position:absolute;
         inset:0;
@@ -1413,6 +1442,20 @@
         0%{ opacity:0; transform:translate(-76%, -62%) rotate(-18deg) scale(.62); filter:blur(3px); }
         64%{ opacity:1; transform:translate(-48%, -50%) rotate(4deg) scale(1.08); filter:blur(0); }
         100%{ opacity:1; transform:translate(-50%, -50%) rotate(0deg) scale(1); filter:blur(0); }
+    }
+    @keyframes repairOverlayStepSwap{
+        0%{ transform:translate(-50%, -50%) scale(1); filter:blur(0); }
+        18%{ transform:translate(calc(-50% - 5px), calc(-50% + 2px)) rotate(-2deg) scale(1.06); }
+        42%{ transform:translate(calc(-50% + 5px), calc(-50% - 5px)) rotate(2deg) scale(1.16); filter:brightness(1.12); }
+        70%{ transform:translate(calc(-50% - 2px), calc(-50% - 3px)) rotate(-1deg) scale(1.1); }
+        100%{ transform:translate(-50%, -50%) scale(1.04); filter:brightness(1.04); }
+    }
+    @keyframes repairOverlayCarouselSwap{
+        0%{ opacity:1; transform:translate(-50%, -50%) scale(1.04); filter:blur(0); }
+        42%{ opacity:.18; transform:translate(calc(-50% - 46vw), calc(-50% + 12px)) scale(.72); filter:blur(2px); }
+        43%{ opacity:.16; transform:translate(calc(-50% + 46vw), calc(-50% + 12px)) scale(.72); filter:blur(2px); }
+        74%{ opacity:1; transform:translate(calc(-50% + 4px), calc(-50% - 3px)) scale(1.1); filter:brightness(1.1); }
+        100%{ opacity:1; transform:translate(-50%, -50%) scale(1.04); filter:brightness(1.04); }
     }
     @keyframes repairEssenceDrop{
         0%{ opacity:0; transform:translate(-50%, -330%) scale(.56); }
@@ -3052,7 +3095,40 @@
             0 16px 28px rgba(6,26,22,.2);
     }
     .lens-orb.recommended{
+        border-color:rgba(255,226,118,.98);
+        box-shadow:
+            inset 0 0 0 2px rgba(255,255,255,.2),
+            inset 0 -18px 30px rgba(9,42,34,.26),
+            0 0 0 3px rgba(255,218,96,.26),
+            0 0 28px rgba(255,219,92,.56),
+            0 16px 28px rgba(6,26,22,.2);
         animation:lensOrbRecommend 1.18s ease-in-out infinite;
+    }
+    .lens-orb.recommended::before{
+        inset:-11px;
+        border:2px solid rgba(255,226,118,.8);
+        background:
+            radial-gradient(circle, transparent 58%, rgba(255,226,118,.14) 59% 64%, transparent 65%),
+            conic-gradient(from 0deg, transparent 0 42deg, rgba(255,226,118,.65) 43deg 47deg, transparent 48deg 132deg, rgba(255,226,118,.65) 133deg 137deg, transparent 138deg 222deg, rgba(255,226,118,.65) 223deg 227deg, transparent 228deg 312deg, rgba(255,226,118,.65) 313deg 317deg, transparent 318deg);
+        box-shadow:0 0 18px rgba(255,218,96,.34);
+        animation:lensScopeBreath 1.18s ease-in-out infinite;
+    }
+    .lens-orb.recommended::after{
+        inset:-18px;
+        border:0;
+        background:
+            linear-gradient(90deg, transparent calc(50% - 18px), rgba(255,236,142,.85) calc(50% - 17px) calc(50% - 12px), transparent calc(50% - 11px) calc(50% + 11px), rgba(255,236,142,.85) calc(50% + 12px) calc(50% + 17px), transparent calc(50% + 18px)),
+            linear-gradient(0deg, transparent calc(50% - 18px), rgba(255,236,142,.85) calc(50% - 17px) calc(50% - 12px), transparent calc(50% - 11px) calc(50% + 11px), rgba(255,236,142,.85) calc(50% + 12px) calc(50% + 17px), transparent calc(50% + 18px));
+        opacity:.72;
+        animation:lensScopeCrossPulse 1.18s ease-in-out infinite;
+    }
+    @keyframes lensScopeBreath{
+        0%,100%{ transform:scale(.94); opacity:.42; }
+        50%{ transform:scale(1.07); opacity:1; }
+    }
+    @keyframes lensScopeCrossPulse{
+        0%,100%{ transform:scale(.9); opacity:.36; }
+        50%{ transform:scale(1.03); opacity:.86; }
     }
     .lens-dial.mode-wheel{
         left:-22px;
@@ -4407,9 +4483,23 @@
         gap:14px;
         pointer-events:auto;
         color:#f8edce;
+        opacity:1;
+        transform:translateY(0) scale(1);
+        transition:opacity .38s ease, transform .38s ease;
     }
-    body.layout-multi:not(.playing) .multi-select-panel{ display:grid; }
-    body.layout-multi:not(.playing) .idle-copy{ display:none; }
+    body.layout-multi:not(.playing) .multi-select-panel,
+    body.layout-mobile-landscape:not(.playing) .multi-select-panel,
+    body.layout-gamepad:not(.playing) .multi-select-panel{ display:grid; }
+    body.layout-multi.reward-focus:not(.playing) .multi-select-panel,
+    body.layout-mobile-landscape.reward-focus:not(.playing) .multi-select-panel,
+    body.layout-gamepad.reward-focus:not(.playing) .multi-select-panel{
+        opacity:0;
+        transform:translateY(18px) scale(.985);
+        pointer-events:none;
+    }
+    body.layout-multi:not(.playing) .idle-copy,
+    body.layout-mobile-landscape:not(.playing) .idle-copy,
+    body.layout-gamepad:not(.playing) .idle-copy{ display:none; }
     .multi-select-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:14px; }
     .multi-select-head h2{ margin:0; font-size:24px; letter-spacing:0; }
     .multi-select-head p{ margin:4px 0 0; color:#dec99f; font-size:14px; line-height:1.55; }
@@ -4533,7 +4623,28 @@
         box-shadow:0 0 16px rgba(255,218,104,.7);
     }
     .multi-chain-node.skip-flash .multi-chain-skip{ animation:collectReadyPulse 1.05s ease-in-out infinite; }
-    .multi-start-row{ display:flex; justify-content:center; gap:12px; }
+    .multi-start-row{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:12px;
+        margin-top:-2px;
+    }
+    .multi-start-row .btn.primary{
+        min-width:196px;
+        min-height:56px;
+        border-radius:18px;
+        font-size:18px;
+        font-weight:950;
+        letter-spacing:0;
+        box-shadow:0 18px 32px rgba(24,18,10,.26), 0 0 24px rgba(255,226,140,.22);
+    }
+    .multi-start-row .btn.ghost{
+        min-height:46px;
+        padding:10px 18px;
+        border-radius:16px;
+        font-weight:900;
+    }
     .multi-run-chain{
         display:none;
         position:absolute;
@@ -5442,6 +5553,13 @@
         font-size:16px;
         cursor:pointer;
     }
+    body.layout-mobile-landscape .stone-card.gamepad-selected{
+        border-color:#ffd96d;
+        background:
+            linear-gradient(rgba(255,247,207,.88), rgba(255,239,174,.72)),
+            var(--v26-stone-card) center / 100% 100% no-repeat;
+        box-shadow:0 0 0 3px rgba(255,219,96,.24), 0 0 18px rgba(255,215,94,.36), 0 12px 24px rgba(12,54,39,.2);
+    }
     body.layout-mobile-landscape.mobile-bag-collapsed .stone-card{
         position:relative;
         min-height:68px;
@@ -5553,6 +5671,80 @@
         --lens-view-scale:.92;
         --lens-flip-mid-scale:.906;
         touch-action:none;
+    }
+    body.mobile-portrait-rotated.layout-mobile-landscape #screen-main{
+        min-width:0;
+    }
+    body.mobile-portrait-rotated.layout-mobile-landscape .workbench,
+    body.mobile-portrait-rotated.layout-mobile-landscape.mobile-bag-collapsed .workbench{
+        grid-template-columns:108px minmax(0, 1fr);
+        grid-template-rows:calc(100vw - 46px);
+    }
+    body.mobile-portrait-rotated.layout-mobile-landscape .multi-select-panel{
+        left:20px;
+        right:20px;
+        top:18px;
+        bottom:18px;
+        gap:10px;
+    }
+    body.mobile-portrait-rotated.layout-mobile-landscape .multi-select-head h2{
+        font-size:20px;
+    }
+    body.mobile-portrait-rotated.layout-mobile-landscape .multi-select-head p{
+        font-size:12px;
+        line-height:1.35;
+    }
+    body.mobile-portrait-rotated.layout-mobile-landscape .multi-slots{
+        gap:10px;
+    }
+    body.mobile-portrait-rotated.layout-mobile-landscape .multi-slot{
+        min-height:150px;
+        border-radius:16px;
+    }
+    body.mobile-portrait-rotated.layout-mobile-landscape .multi-slot-stone{
+        width:82px;
+        height:82px;
+    }
+    body.mobile-portrait-rotated.layout-mobile-landscape .multi-slot-name{
+        font-size:13px;
+        bottom:10px;
+    }
+    body.mobile-portrait-rotated.layout-mobile-landscape .multi-chain-node{
+        min-width:56px;
+        min-height:30px;
+        padding:6px 9px;
+        font-size:11px;
+    }
+    body.mobile-portrait-rotated.layout-mobile-landscape .multi-start-row .btn.primary{
+        min-width:158px;
+        min-height:48px;
+        font-size:16px;
+    }
+    body.mobile-portrait-rotated.layout-mobile-landscape .multi-start-row .btn.ghost{
+        min-height:42px;
+        padding:8px 14px;
+    }
+    body.mobile-portrait-rotated.layout-mobile-landscape:not(.playing) .plate{
+        width:150px;
+        height:150px;
+        right:6px;
+        bottom:4px;
+        opacity:.84;
+    }
+    body.mobile-portrait-rotated.layout-mobile-landscape:not(.playing) .collect-cta{
+        right:10px;
+        bottom:162px;
+        width:136px;
+        min-height:48px;
+        font-size:15px;
+    }
+    body.mobile-portrait-rotated.layout-mobile-landscape:not(.playing) .right-panel .plate-actions{
+        right:162px;
+        bottom:64px;
+    }
+    body.mobile-portrait-rotated.layout-mobile-landscape:not(.playing) .tutorial-help-plate-btn{
+        right:160px;
+        bottom:110px;
     }
     body.layout-mobile-landscape .lens-stage.mobile-lens-dragging{
         cursor:ns-resize;
@@ -5766,7 +5958,20 @@
         pointer-events:none;
         overflow:hidden;
     }
-    body.layout-gamepad .gamepad-guide{ display:block; }
+    body.layout-gamepad .gamepad-guide{
+        display:block;
+        position:fixed;
+        left:50%;
+        bottom:18px;
+        width:min(520px, 58vw);
+        min-height:0;
+        padding:8px 12px;
+        transform:translateX(-50%);
+        border-radius:999px;
+        background:linear-gradient(90deg, rgba(31,83,61,.9), rgba(83,112,66,.82));
+        color:#fff4c8;
+        pointer-events:none;
+    }
     body.layout-gamepad .current-tool-card{ display:none; }
     body.layout-gamepad .title::after{
         left:170px;
@@ -5795,8 +6000,10 @@
         background:rgba(6,42,32,.18);
         box-shadow:0 10px 20px rgba(8,38,28,.18), inset 0 0 0 1px rgba(255,255,255,.2);
     }
+    body.layout-gamepad .gamepad-guide h3,
+    body.layout-gamepad .gamepad-guide p,
     body.layout-gamepad .gamepad-keymap-panel{
-        display:block;
+        display:none;
     }
     body.layout-gamepad .gamepad-map{
         display:none;
@@ -5829,6 +6036,108 @@
         font-size:12px;
         line-height:1.45;
         text-shadow:0 1px 4px rgba(0,0,0,.24);
+    }
+    body.layout-gamepad .gamepad-status{
+        grid-template-columns:1fr;
+        gap:1px;
+        padding-top:0;
+        border-top:0;
+        font-size:12px;
+        text-align:center;
+    }
+    body.layout-gamepad.playing.gamepad-needs-aim .gamepad-status{
+        animation:gamepadR2Prompt 1.1s ease-in-out infinite;
+    }
+    @keyframes gamepadR2Prompt{
+        0%,100%{ filter:drop-shadow(0 0 0 rgba(255,226,118,0)); }
+        50%{ filter:drop-shadow(0 0 10px rgba(255,226,118,.55)); }
+    }
+    .gamepad-help-btn{
+        display:none;
+        position:absolute;
+        right:106px;
+        bottom:8px;
+        z-index:16;
+        width:42px;
+        height:42px;
+        border-radius:50%;
+        border:1px solid rgba(255,231,164,.78);
+        background:linear-gradient(180deg, rgba(255,248,218,.98), rgba(231,190,93,.94));
+        color:#244c37;
+        font-size:19px;
+        font-weight:1000;
+        box-shadow:0 10px 22px rgba(18,45,32,.2), inset 0 1px 0 rgba(255,255,255,.56);
+        cursor:pointer;
+    }
+    body.layout-gamepad .gamepad-help-btn{
+        display:grid;
+        place-items:center;
+    }
+    body.layout-gamepad .right-panel{
+        padding:0;
+        background:transparent;
+        border:0;
+        box-shadow:none;
+        pointer-events:none;
+        z-index:12;
+    }
+    body.layout-gamepad .right-panel > h2{
+        display:none;
+    }
+    body.layout-gamepad .collect-cta{
+        position:absolute;
+        left:auto;
+        right:24px;
+        top:18px;
+        bottom:auto;
+        width:198px;
+        min-width:0;
+        margin:0;
+        pointer-events:auto;
+        z-index:20;
+    }
+    body.layout-gamepad .right-panel .plate-actions{
+        right:236px;
+        top:26px;
+        bottom:auto;
+        pointer-events:auto;
+        z-index:21;
+    }
+    body.layout-gamepad .tutorial-help-plate-btn{
+        display:grid;
+        place-items:center;
+        right:286px;
+        left:auto;
+        top:27px;
+        bottom:auto;
+        width:36px;
+        height:36px;
+        font-size:18px;
+        pointer-events:auto;
+        transform:none;
+        z-index:21;
+    }
+    body.layout-gamepad .gamepad-help-btn{
+        right:330px;
+        top:27px;
+        bottom:auto;
+        width:36px;
+        height:36px;
+        font-size:17px;
+        pointer-events:auto;
+        z-index:21;
+    }
+    body.layout-gamepad .plate{
+        left:auto;
+        right:0;
+        bottom:var(--desktop-plate-bottom);
+        width:var(--desktop-plate-size);
+        height:var(--desktop-plate-size);
+        transform:none;
+        pointer-events:auto;
+    }
+    body.layout-gamepad.gamepad-focus-play:not(.playing) .multi-start-row .btn.primary{
+        animation:collectReadyPulse 1.16s ease-in-out infinite;
     }
     body.layout-gamepad .layout-select{
         outline:3px solid rgba(248,203,96,.42);
@@ -5967,6 +6276,53 @@
         grid-template-columns:1fr 1fr;
         gap:10px;
     }
+    .gamepad-help-modal{
+        position:fixed;
+        inset:0;
+        z-index:82;
+        display:none;
+        place-items:center;
+        padding:24px;
+        background:rgba(3,18,15,.54);
+    }
+    .gamepad-help-modal.show{ display:grid; }
+    .gamepad-help-dialog{
+        position:relative;
+        width:min(780px, 92vw);
+        max-height:88vh;
+        padding:18px 18px 16px;
+        border:1px solid rgba(255,231,164,.78);
+        border-radius:10px;
+        background:linear-gradient(180deg, rgba(255,248,220,.98), rgba(235,199,118,.93) 46%, rgba(27,86,63,.96));
+        box-shadow:0 24px 54px rgba(0,0,0,.36), inset 0 0 0 1px rgba(255,255,255,.28);
+    }
+    .gamepad-help-dialog h2{
+        margin:0 42px 12px 0;
+        color:#173a2d;
+        font-size:22px;
+    }
+    .gamepad-help-dialog img{
+        display:block;
+        width:100%;
+        max-height:calc(88vh - 92px);
+        object-fit:contain;
+        border-radius:8px;
+        border:1px solid rgba(255,231,164,.48);
+        background:rgba(6,42,32,.16);
+    }
+    .gamepad-help-close{
+        position:absolute;
+        right:14px;
+        top:12px;
+        width:34px;
+        height:34px;
+        border-radius:50%;
+        border:1px solid rgba(255,231,164,.66);
+        background:rgba(255,248,220,.9);
+        color:#214d38;
+        font-weight:1000;
+        cursor:pointer;
+    }
 </style>
 </head>
 <body class="v26-real-asset">
@@ -5983,7 +6339,7 @@
                 <button class="btn ghost play-exit-btn" id="exit-play-btn">退出玩法</button>
                 <div class="demo-actions">
                     <select id="layout-select" class="layout-select" aria-label="窗口比例布局">
-                        <option value="desktop">电脑布局</option>
+                        <option value="desktop">单开布局</option>
                         <option value="multi">多开布局</option>
                         <option value="mobileLandscape">手机横屏</option>
                         <option value="gamepad">手柄模拟</option>
@@ -6052,14 +6408,13 @@
                                 <h2>多开底座</h2>
                                 <p>最多选择 3 颗素体一起处理；点击左侧素体会自动入座，也可以拖拽替换指定底座。</p>
                             </div>
-                            <button class="btn ghost" id="multi-autofill-btn" type="button">自动填入</button>
                         </div>
                         <div id="multi-slots" class="multi-slots"></div>
-                        <div id="multi-chain" class="multi-op-chain"></div>
                         <div class="multi-start-row">
-                            <button class="btn primary" id="multi-start-btn" type="button">正式开始</button>
-                            <button class="btn ghost" id="multi-clear-btn" type="button">清空底座</button>
+                            <button class="btn primary" id="multi-start-btn" type="button">开始修复</button>
+                            <button class="btn ghost" id="multi-autofill-btn" type="button">自动填入</button>
                         </div>
+                        <div id="multi-chain" class="multi-op-chain"></div>
                     </div>
                     <div id="gem3d" class="gem3d">
                         <div class="gem-cushion" aria-hidden="true"></div>
@@ -6143,6 +6498,7 @@
             <div class="plate-actions">
                 <button class="btn ghost organize-plate-btn" id="organize-plate-btn" title="重新落下成石" aria-label="重新落下成石">↻</button>
             </div>
+            <button class="gamepad-help-btn" id="gamepad-help-btn" type="button" aria-label="打开手柄键位图">🎮</button>
             <button class="tutorial-help-btn tutorial-help-plate-btn" id="tutorial-help-plate-btn" type="button" aria-label="打开教程">?</button>
             <div id="plate" class="plate"></div>
         </aside>
@@ -6182,6 +6538,14 @@
             <button class="btn ghost" id="gamepad-exit-cancel-btn" type="button">取消 L(B)</button>
             <button class="btn primary" id="gamepad-exit-confirm-btn" type="button">确认 K(A)/U(R1)</button>
         </div>
+    </div>
+</div>
+
+<div id="gamepad-help-modal" class="gamepad-help-modal" role="dialog" aria-modal="true" aria-labelledby="gamepad-help-title">
+    <div class="gamepad-help-dialog">
+        <button class="gamepad-help-close" id="gamepad-help-close-btn" type="button" aria-label="关闭手柄键位图">×</button>
+        <h2 id="gamepad-help-title">手柄模拟键位</h2>
+        <img src="assets/ui_v26/ui_gamepad_guide/gamepad_keymap_A.png" alt="完整手柄模拟键位图">
     </div>
 </div>
 
@@ -6234,11 +6598,11 @@ const LIGHT_HIT_RADIUS = 16;
 const LIGHT_SIGNAL_RADIUS = 44;
 const LIGHT_STEP_CHANCE = .58;
 const LIGHT_TARGETS = [
-    { x:37, y:39 },
-    { x:58, y:34 },
-    { x:68, y:55 },
-    { x:45, y:66 },
-    { x:52, y:48 }
+    { x:31, y:36 },
+    { x:61, y:27 },
+    { x:73, y:60 },
+    { x:38, y:72 },
+    { x:66, y:42 }
 ];
 const SOAK_REQUIRED_MS = 2250;
 const SOAK_WALL_HIT_LIMIT = 3;
@@ -6302,7 +6666,7 @@ const GEM_BLUEPRINTS = [
     { id:"jadeite", name:"翡翠", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"寻光 -> 修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b8f0c6 0%, #3d9b63 100%)", assetBase:"assets/gems/jadeite", tasks:[{type:"light", title:"翠面寻光", lens:2, face:0, pos:{x:50,y:50}}, {type:"repair", title:"边缘细裂", lens:1, face:1, pos:{x:56,y:62}}, {type:"clean", title:"翠面净化", lens:2, face:0, pos:{x:50,y:50}}] },
     { id:"obsidian", name:"黑曜石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6f6b83 0%, #15131f 100%)", assetBase:"assets/gems/obsidian", tasks:[{type:"cut", title:"石皮切除", lens:0, face:0, pos:{x:58,y:38}, cutHitsRequired:2}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:2, face:1, pos:{x:50,y:50}}, {type:"clean", title:"黑镜净化", lens:1, face:0, pos:{x:52,y:50}}] },
     { id:"fluorite", name:"萤石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #bca7e8 0%, #4f5a7e 100%)", assetBase:"assets/gems/fluorite", tasks:[{type:"cut", title:"杂层切除", lens:1, face:1, pos:{x:62,y:52}}, {type:"shape", title:"圆形成球", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"clean", title:"荧光净化", lens:0, face:0, pos:{x:52,y:50}}] },
-    { id:"fluorite_test", name:"萤石测试", rarity:1, version:"GM·全玩法测试石", kind:"原石", sub:"切除 -> 寻光 -> 修补 -> 定型 -> 磨平 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #cbb9f2 0%, #5a668f 100%)", assetBase:"assets/gems/fluorite", tasks:[{type:"cut", title:"测试切除", lens:1, face:1, pos:{x:62,y:52}, cutHitsRequired:2}, {type:"light", title:"测试寻光", lens:0, face:0, pos:{x:50,y:50}, lightTarget:{x:58,y:38}}, {type:"repair", title:"测试裂隙", lens:2, face:1, pos:{x:43,y:56}}, {type:"shape", title:"测试圆形定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"chamfer", title:"测试圆边磨平", lens:0, face:0, pos:{x:50,y:50}}, {type:"clean", title:"测试最终清洁", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"fluorite_test", name:"萤石测试", rarity:1, version:"GM·全玩法测试石", kind:"原石", sub:"切除 -> 寻光 -> 修补 -> 定型 -> 磨平 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #cbb9f2 0%, #5a668f 100%)", assetBase:"assets/gems/fluorite", tasks:[{type:"cut", title:"测试切除", lens:1, face:1, pos:{x:62,y:52}, cutHitsRequired:2}, {type:"light", title:"测试寻光", lens:0, face:0, pos:{x:50,y:50}, lightTarget:{x:70,y:33}}, {type:"repair", title:"测试裂隙", lens:2, face:1, pos:{x:43,y:56}}, {type:"shape", title:"测试圆形定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"chamfer", title:"测试圆边磨平", lens:0, face:0, pos:{x:50,y:50}}, {type:"clean", title:"测试最终清洁", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"malachite", name:"孔雀石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6ec07f 0%, #1d5a38 100%)", assetBase:"assets/gems/malachite", tasks:[{type:"cut", title:"矿皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"孔雀纹裂", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"正方定型", targetShape:"square", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"石面净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"turquoise", name:"绿松石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #86dfd0 0%, #2a8f89 100%)", assetBase:"assets/gems/turquoise", tasks:[{type:"cut", title:"泥皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"脉络裂隙", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"松石净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"hetian", name:"和田玉", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #edf0d5 0%, #a9b484 100%)", assetBase:"assets/gems/hetian", tasks:[{type:"cut", title:"杂质筋切除", lens:1, face:1, pos:{x:40,y:52}}, {type:"shape", title:"圆润定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:50}}, {type:"clean", title:"玉面净化", lens:0, face:0, pos:{x:52,y:52}}] },
@@ -6382,12 +6746,12 @@ const state = {
     lensIndex:0,
     activeTool:"clean",
     dataPackKey:"fullCoverage",
-    layoutMode:"desktop",
+    layoutMode:"multi",
     layoutManualOverride:false,
     topbarCollapsed:false,
     mobileBagCollapsed:false,
     mobileBagSuppressClick:false,
-    desktopLensMode:"text",
+    desktopLensMode:"wheel",
     listSortKey:"quantity",
     raritySortDir:-1,
     dragPayload:null,
@@ -6411,10 +6775,12 @@ const state = {
     gamepadLastTick:0,
     gamepadDrag:null,
     gamepadExitConfirmOpen:false,
+    gamepadExitConfirmMode:"play",
     toolPointerX:null,
     toolPointerY:null,
     multiPointerDrag:null,
-    suppressKnownClickUntil:0
+    suppressKnownClickUntil:0,
+    rewardFocusRestoreTimer:0
 };
 let responsiveLayoutTimer = 0;
 
@@ -6423,10 +6789,14 @@ function currentDataPack(){ return DEMO_DATA_PACKS[state.dataPackKey] || DEMO_DA
 function isMobileLandscapeMode(){
     return state.layoutMode === "mobileLandscape" || document.body.classList.contains("layout-mobile-landscape");
 }
+function isMultiSelectLayoutMode(){
+    return ["multi", "mobileLandscape", "gamepad"].includes(state.layoutMode);
+}
 function applyLayoutMode(mode, options = {}){
     if(options.manual){
         state.layoutManualOverride = true;
         document.body.classList.remove("mobile-portrait-blocked");
+        document.body.classList.remove("mobile-portrait-rotated");
     }
     state.layoutMode = ["desktop","multi","mobileLandscape","gamepad"].includes(mode) ? mode : "desktop";
     document.body.classList.toggle("layout-mobile-landscape", state.layoutMode === "mobileLandscape");
@@ -6440,7 +6810,7 @@ function applyLayoutMode(mode, options = {}){
     }
     const select = document.getElementById("layout-select");
     if(select) select.value = state.layoutMode;
-    if(state.layoutMode === "multi" && !state.active){
+    if(isMultiSelectLayoutMode() && !state.active){
         ensureMultiSlots(true);
     }
     if(state.layoutMode === "mobileLandscape"){
@@ -6498,7 +6868,8 @@ function isMobileAutoLayoutCandidate(){
     const coarsePointer = (navigator.maxTouchPoints || 0) > 0 || !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
     const minSide = Math.min(window.innerWidth || 0, window.innerHeight || 0);
     const maxSide = Math.max(window.innerWidth || 0, window.innerHeight || 0);
-    return coarsePointer && minSide <= 820 && maxSide <= 1400;
+    const narrowWebView = window.innerWidth < window.innerHeight && minSide <= 820 && maxSide <= 1400 && maxSide / Math.max(1, minSide) >= 1.08;
+    return narrowWebView || (coarsePointer && minSide <= 900 && maxSide <= 1500);
 }
 function isLandscapeViewport(){
     return !!(window.matchMedia && window.matchMedia("(orientation: landscape)").matches) || window.innerWidth > window.innerHeight;
@@ -6507,13 +6878,17 @@ function applyResponsiveLayout(force = false){
     ensureMobileOrientationTip();
     if(state.layoutManualOverride && !force){
         document.body.classList.remove("mobile-portrait-blocked");
+        document.body.classList.remove("mobile-portrait-rotated");
         return;
     }
     const mobileAuto = isMobileAutoLayoutCandidate();
     const landscape = isLandscapeViewport();
-    document.body.classList.toggle("mobile-portrait-blocked", mobileAuto && !landscape);
-    const nextMode = mobileAuto && landscape ? "mobileLandscape" : "desktop";
+    const rotatePortrait = mobileAuto && !landscape;
+    document.body.classList.remove("mobile-portrait-blocked");
+    document.body.classList.toggle("mobile-portrait-rotated", rotatePortrait);
+    const nextMode = mobileAuto ? "mobileLandscape" : (state.layoutMode || "multi");
     if(force || state.layoutMode !== nextMode) applyLayoutMode(nextMode);
+    document.body.classList.toggle("mobile-portrait-rotated", rotatePortrait);
 }
 function queueResponsiveLayout(){
     clearTimeout(responsiveLayoutTimer);
@@ -6629,7 +7004,10 @@ function addMultiGemToSlot(id, preferredIndex=null){
     ensureMultiSlots();
     const existingIndex = state.multiSlots.findIndex(slotId=>slotId === id);
     if(existingIndex >= 0 && preferredIndex == null){
-        toast("这颗素体已经在底座上");
+        state.multiSlots[existingIndex] = null;
+        toast("已取消选择");
+        renderKnownList();
+        renderMultiSelectPanel();
         return;
     }
     if(existingIndex >= 0) state.multiSlots[existingIndex] = null;
@@ -6651,7 +7029,7 @@ function clearMultiSlots(){
     renderMultiSelectPanel();
 }
 function startMultiPointerDrag(card, gemId, e){
-    if(state.layoutMode !== "multi" || state.active || e.button > 0) return;
+    if(!isMultiSelectLayoutMode() || isMobileLandscapeMode() || state.active || e.button > 0) return;
     if(state.multiPointerDrag) return;
     state.multiPointerDrag = {
         id:gemId,
@@ -6817,7 +7195,7 @@ function renderKnownList(){
         const available = countInBag(gem.id) > 0;
         const dotImage = stoneDotImageValue(gem);
         const card = document.createElement("div");
-        const selected = (state.layoutMode === "gamepad" && index === state.gamepadSelectionIndex) || (state.layoutMode === "multi" && state.multiSlots?.includes(gem.id));
+        const selected = (state.layoutMode === "gamepad" && index === state.gamepadSelectionIndex) || (isMultiSelectLayoutMode() && state.multiSlots?.includes(gem.id));
         card.className = `stone-card ${known ? "" : "locked"} ${available ? "" : "empty"} ${selected ? "gamepad-selected" : ""}`;
         card.dataset.gemId = gem.id;
         const allowDragSelect = known && available && !isMobileLandscapeMode();
@@ -6844,7 +7222,7 @@ function renderKnownList(){
                     state.mobileBagSuppressClick = false;
                     return;
                 }
-                if(state.layoutMode === "multi" && !state.active) addMultiGemToSlot(gem.id);
+                if(isMultiSelectLayoutMode() && !state.active) addMultiGemToSlot(gem.id);
                 else startKnownStone(gem.id);
             });
             card.addEventListener("pointerdown", e=>startMultiPointerDrag(card, gem.id, e));
@@ -7198,6 +7576,7 @@ function settleStuckPlatePhysicsDrops(){
         placed.push(item);
     });
     renderPlate();
+    scheduleRewardFocusRestore(1000);
 }
 function pulsePlatePhysicsHit(body){
     const element = body.element;
@@ -7420,6 +7799,7 @@ function startPlatePhysicsDrop(){
         state.platePhysicsFrame = 0;
         state.platePhysicsBodies = null;
         state.platePhysicsQueued = false;
+        scheduleRewardFocusRestore(1000);
     };
     state.platePhysicsFrame = schedulePlatePhysicsStep(step);
 }
@@ -7786,13 +8166,31 @@ function stepHintText(step){
 }
 function wrongLensHint(step){
     if(!stepRequiresLens(step)) return `${TOOL_LABELS[step.type]}不需要切镜片，直接按住操作。`;
-    if(step.type === "repair") return `裂缝还没显影：滚动镜片切到 ${LENSES[step.lens].label}，看清裂缝走向。`;
-    if(step.type === "light") return `反光点需要 ${LENSES[step.lens].label}：切到正确镜片后再扫光。`;
-    if(step.type === "soak") return `量杯观察需要 ${LENSES[step.lens].label}：切到正确镜片后再摇晃。`;
-    if(step.type === "chamfer") return `尖角需要 ${LENSES[step.lens].label}：切到正确镜片后才能看到边缘轨道。`;
-    return `镜片不对：请滚动鼠标滚轮翻镜片，切到 ${LENSES[step.lens].label}。`;
+    if(step.type === "repair") return "裂缝还没显影：请切到正确的镜片，看清裂缝走向。";
+    if(step.type === "light") return "反光点需要正确的镜片：切对后再扫光。";
+    if(step.type === "soak") return "量杯观察需要正确的镜片：切对后再摇晃。";
+    if(step.type === "chamfer") return "尖角需要正确的镜片：切对后才能看到边缘轨道。";
+    return "镜片不对：请滚动鼠标滚轮翻镜片，切到正确的镜片。";
+}
+function clearRewardFocusRestoreTimer(){
+    if(state.rewardFocusRestoreTimer){
+        clearTimeout(state.rewardFocusRestoreTimer);
+        state.rewardFocusRestoreTimer = 0;
+    }
+}
+function scheduleRewardFocusRestore(delay=1000){
+    clearRewardFocusRestoreTimer();
+    if(!state.rewardFocus) return;
+    state.rewardFocusRestoreTimer = window.setTimeout(()=>{
+        state.rewardFocusRestoreTimer = 0;
+        if(state.rewardFocus){
+            setRewardFocus(false);
+            clearRewardFocusDropFlags();
+        }
+    }, delay);
 }
 function setRewardFocus(active){
+    clearRewardFocusRestoreTimer();
     state.rewardFocus = !!active;
     document.body.classList.toggle("reward-focus", state.rewardFocus);
 }
@@ -8639,7 +9037,7 @@ function renderLensButtons(){
             const direction = index >= state.lensIndex ? 1 : -1;
             if(setLensIndex(index, true, direction)){
                 renderPlay();
-                toast(`切换到 ${lens.label}`);
+                toast("已切换镜片");
             }
         });
         grid.appendChild(btn);
@@ -8676,7 +9074,7 @@ function renderLensDial(){
                 const direction = index >= state.lensIndex ? 1 : -1;
                 if(setLensIndex(index, true, direction)){
                     renderPlay();
-                    toast(`切换到 ${LENSES[index].label}`);
+                    toast("已切换镜片");
                 }
             });
         }
@@ -8729,7 +9127,7 @@ function cycleLensByWheel(deltaY){
     const dir = deltaY >= 0 ? 1 : -1;
     if(setLensIndex(state.lensIndex + dir, true, dir)){
         renderPlay();
-        toast(`切换到 ${LENSES[state.lensIndex].label}`);
+        toast("已切换镜片");
     }
 }
 function cycleToolByRightClick(){
@@ -8746,7 +9144,7 @@ function cycleToolByDirection(dir=1){
     toast(`切换到${TOOL_LABELS[next]}工具`);
 }
 const GAMEPAD_KEY_SET = new Set([
-    "w","a","s","d","f","v","c","b","i","j","k","l","q","e","u","o",
+    "w","a","s","d","f","v","c","b","g","h","i","j","k","l","q","e","u","o",
     "ArrowUp","ArrowDown","ArrowLeft","ArrowRight"
 ]);
 function gamepadKeyName(e){
@@ -8756,16 +9154,16 @@ function isGamepadMode(){
     return state.layoutMode === "gamepad";
 }
 function isGamepadBagFocus(){
-    return !state.active || state.gamepadFocus === "bag";
+    return state.gamepadFocus !== "play";
 }
 function syncGamepadFocusClasses(){
     const gamepad = isGamepadMode();
     const bagFocus = gamepad && isGamepadBagFocus();
     document.body.classList.toggle("gamepad-focus-bag", bagFocus);
-    document.body.classList.toggle("gamepad-focus-play", gamepad && !!state.active && !bagFocus);
+    document.body.classList.toggle("gamepad-focus-play", gamepad && !bagFocus);
 }
 function setGamepadFocus(focus, options = {}){
-    const next = !state.active || focus === "bag" ? "bag" : "play";
+    const next = focus === "play" ? "play" : "bag";
     if(next === "bag" && state.gamepadFocus !== "bag"){
         finishGamepadUse();
         setGamepadAiming(false);
@@ -8817,6 +9215,10 @@ function startGamepadSelectedStone(){
         toast("素体袋为空");
         return;
     }
+    if(!state.active && isMultiSelectLayoutMode()){
+        addMultiGemToSlot(gem.id);
+        return;
+    }
     startKnownStone(gem.id);
 }
 function applyGamepadSort(sortKey){
@@ -8835,6 +9237,46 @@ function handleGamepadRewardKey(){
     openRewardModal();
     renderGamepadHud();
 }
+function stageLocalPointToGamepadPercent(point){
+    const stage = document.getElementById("lens-stage");
+    const rect = stage?.getBoundingClientRect();
+    if(!rect || !rect.width || !rect.height || !point) return { x:50, y:50 };
+    return {
+        x:clampNumber(point.x / rect.width * 100, 7, 93),
+        y:clampNumber(point.y / rect.height * 100, 7, 93)
+    };
+}
+function gamepadAimPresetForStep(step){
+    if(!step) return { x:50, y:50 };
+    if(step.type === "cut"){
+        const pos = defectStagePosition(step);
+        const angle = degToRad(step.cutAngle || -22);
+        const lengthX = 13;
+        const lengthY = 9;
+        return {
+            x:clampNumber(pos.x - Math.cos(angle) * lengthX, 7, 93),
+            y:clampNumber(pos.y - Math.sin(angle) * lengthY, 7, 93)
+        };
+    }
+    if(step.type === "chamfer"){
+        ensureChamferRuntime(step);
+        const geometry = chamferTrackGeometry(step);
+        if(geometry){
+            return stageLocalPointToGamepadPercent(chamferPointAtAngle(geometry, step.chamferAngle || 0));
+        }
+    }
+    return defectStagePosition(step);
+}
+function syncGamepadToolPointer(){
+    if(!isGamepadMode() || !state.gamepadAiming || !state.active || isGamepadBagFocus()){
+        state.toolPointerX = null;
+        state.toolPointerY = null;
+        return;
+    }
+    const point = gamepadAimClientPoint();
+    state.toolPointerX = point.x;
+    state.toolPointerY = point.y;
+}
 function syncGamepadAimToStep(step, force=false){
     if(!step){
         state.gamepadAimStepId = null;
@@ -8844,18 +9286,22 @@ function syncGamepadAimToStep(step, force=false){
     }
     if(!force && state.gamepadAimStepId === step.id) return;
     state.gamepadAimStepId = step.id;
-    state.gamepadAimX = 50;
-    state.gamepadAimY = 50;
+    const preset = gamepadAimPresetForStep(step);
+    state.gamepadAimX = preset.x;
+    state.gamepadAimY = preset.y;
 }
 function setGamepadAiming(active, resetCenter=false){
     state.gamepadAiming = !!active;
     if(state.gamepadAiming && resetCenter){
-        state.gamepadAimX = 50;
-        state.gamepadAimY = 50;
+        const preset = gamepadAimPresetForStep(currentStep());
+        state.gamepadAimX = preset.x;
+        state.gamepadAimY = preset.y;
         document.body.classList.remove("gamepad-aiming");
         void document.body.offsetWidth;
     }
+    syncGamepadToolPointer();
     document.body.classList.toggle("gamepad-aiming", state.gamepadAiming);
+    if(state.gamepadAiming) renderIdleStepToolFx(currentStep());
     renderGamepadHud();
 }
 function gamepadAimClientPoint(){
@@ -8877,7 +9323,7 @@ function beginGamepadUse(){
     if(!step || state.gamepadDrag || state.gamepadUseActive) return;
     if(step.cutAnimating) return;
     if(stepRequiresLens(step) && state.lensIndex !== step.lens){
-        toast(`先用 Q/E 切到 ${LENSES[step.lens].label}`);
+        toast("先用 Q/E 切到正确的镜片");
         renderGamepadHud();
         return;
     }
@@ -8989,6 +9435,8 @@ function updateGamepadAim(dt){
         const scale = Math.max(16, dt) / 1000 * speed;
         state.gamepadAimX = clampNumber((state.gamepadAimX || 50) + axisX * scale, 7, 93);
         state.gamepadAimY = clampNumber((state.gamepadAimY || 50) + axisY * scale, 7, 93);
+        syncGamepadToolPointer();
+        renderIdleStepToolFx(currentStep());
     }
 }
 function updateGamepadUse(dt){
@@ -9096,6 +9544,7 @@ function renderGamepadHud(){
     document.body.classList.toggle("gamepad-aiming", !!state.gamepadAiming);
     const focus = document.getElementById("gamepad-focus-text");
     const action = document.getElementById("gamepad-action-text");
+    document.body.classList.toggle("gamepad-needs-aim", isGamepadMode() && !!state.active && state.gamepadFocus !== "bag" && !state.gamepadAiming);
     if(!focus || !action) return;
     if(!isGamepadMode()){
         focus.textContent = "WSAD 或 F/V/C/B 选择素体，K(A) 放入镜片。";
@@ -9115,26 +9564,49 @@ function renderGamepadHud(){
     }
     if(isGamepadBagFocus()){
         const gem = selectedGamepadGem();
-        focus.textContent = gem ? `素体选择：${gem.name} × ${countInBag(gem.id)}。WSAD 左摇杆 / FVCB 十字键移动，K(A) 放入。` : "素体袋为空。";
-        action.textContent = `Q(L1) 按数量，U(R1) 按星级；I(Y) 收集奖励${state.active ? "；J(X) 回到玩法" : ""}。`;
+        focus.textContent = gem ? `素体选择：${gem.name} × ${countInBag(gem.id)}。WSAD 左摇杆 / FVCB 十字键移动，K(A) 选择/取消。` : "素体袋为空。";
+        action.textContent = `Q(L1) 按数量，U(R1) 按星级；J(X) 切到开始修复；H(Start) 开始，G(option) 退出确认；I(Y) 收集奖励${state.active ? "；J(X) 回到玩法" : ""}。`;
+        return;
+    }
+    if(!state.active){
+        const count = selectedMultiIds().length;
+        focus.textContent = `开始修复区域：已选择 ${count}/3 颗素体。`;
+        action.textContent = "K(A) / U(R1) / H(Start) 开始修复；J(X) 返回素体选择；G(option) 退出确认。";
         return;
     }
     const lensOk = step && (!stepRequiresLens(step) || state.lensIndex === step.lens);
     focus.textContent = step
-        ? `${state.gamepadAiming ? "开镜中" : "待开镜"}：${TOOL_LABELS[step.type]} · ${step.title}。当前镜头 ${LENSES[state.lensIndex].label}。`
+        ? `${state.gamepadAiming ? "开镜中" : "待开镜"}：${TOOL_LABELS[step.type]} · ${step.title}。`
         : "当前素体流程已完成。";
     action.textContent = step
-        ? `${lensOk ? (stepRequiresLens(step) ? "镜头正确" : "无需切镜头") : `Q/E 或 F/V 切到 ${LENSES[step.lens].label}`}；O(R2) 开镜，U(R1)/K(A) 确认；J(X) 选素体，I(Y) 收集。`
+        ? `${lensOk ? (stepRequiresLens(step) ? "镜头正确" : "无需切镜头") : "Q/E 或左摇杆上下切到正确的镜片"}；${state.gamepadAiming ? "U(R1)/K(A) 确认" : "按住 O(R2) 后按 U(R1)/K(A)"}；J(X) 选素体，G(option) 退出确认。`
         : "K(A) 或 U(R1) 确认，L(B) 退出。";
 }
 function isGamepadExitConfirmOpen(){
     return !!document.getElementById("gamepad-exit-modal")?.classList.contains("show");
 }
-function openGamepadExitConfirm(){
-    if(!state.active) return;
-    finishGamepadUse();
+function openGamepadExitConfirm(options = {}){
+    const mode = options.mode || (state.active ? "play" : "mode");
+    if(!state.active && mode !== "mode") return;
+    if(state.active) finishGamepadUse();
     setGamepadAiming(false);
     state.gamepadExitConfirmOpen = true;
+    state.gamepadExitConfirmMode = mode;
+    const title = document.getElementById("gamepad-exit-title");
+    const body = document.getElementById("gamepad-exit-body");
+    const confirm = document.getElementById("gamepad-exit-confirm-btn");
+    const cancel = document.getElementById("gamepad-exit-cancel-btn");
+    if(mode === "mode"){
+        if(title) title.textContent = "退出当前模式？";
+        if(body) body.textContent = "当前版本先只接确认接口，不会真的切出手柄模式。";
+        if(confirm) confirm.textContent = "确认 K(A)/U(R1)";
+        if(cancel) cancel.textContent = "取消 L(B)/G(option)";
+    } else {
+        if(title) title.textContent = "退出当前处理？";
+        if(body) body.textContent = "未完成的素体会留在袋中。";
+        if(confirm) confirm.textContent = "确认 K(A)/U(R1)";
+        if(cancel) cancel.textContent = "取消 L(B)";
+    }
     document.getElementById("gamepad-exit-modal")?.classList.add("show");
     renderGamepadHud();
 }
@@ -9144,6 +9616,11 @@ function closeGamepadExitConfirm(){
     renderGamepadHud();
 }
 function confirmGamepadExit(){
+    if(state.gamepadExitConfirmMode === "mode"){
+        closeGamepadExitConfirm();
+        toast("退出当前模式确认接口已触发。");
+        return;
+    }
     closeGamepadExitConfirm();
     exitPlay();
 }
@@ -9163,16 +9640,24 @@ function handleGamepadKeyDown(e){
     }
     if(state.gamepadExitConfirmOpen){
         if(firstPress && (key === "k" || key === "u")) confirmGamepadExit();
-        if(firstPress && key === "l") closeGamepadExitConfirm();
+        if(firstPress && (key === "l" || key === "g")) closeGamepadExitConfirm();
         return;
     }
     const selectionKey = isGamepadSelectionKey(key);
     if(!firstPress && !selectionKey) return;
+    if(firstPress && key === "h"){
+        if(!state.active) startMultiPlay();
+        return;
+    }
+    if(firstPress && key === "g"){
+        openGamepadExitConfirm({ mode: state.active ? "play" : "mode" });
+        return;
+    }
     if(firstPress && key === "i"){
         handleGamepadRewardKey();
         return;
     }
-    if(firstPress && key === "j" && state.active){
+    if(firstPress && key === "j"){
         setGamepadFocus(isGamepadBagFocus() ? "play" : "bag", { toast:true });
         return;
     }
@@ -9204,11 +9689,15 @@ function handleGamepadKeyDown(e){
         openGamepadExitConfirm();
         return;
     }
-    if(key === "q" || key === "f"){
-        if(setLensIndex(state.lensIndex - 1, true, -1)){ renderPlay(); toast(`切换到 ${LENSES[state.lensIndex].label}`); }
+    if(!state.active){
+        if(firstPress && (key === "k" || key === "u")) startMultiPlay();
+        return;
     }
-    if(key === "e" || key === "v"){
-        if(setLensIndex(state.lensIndex + 1, true, 1)){ renderPlay(); toast(`切换到 ${LENSES[state.lensIndex].label}`); }
+    if(key === "q" || key === "f" || key === "w"){
+        if(setLensIndex(state.lensIndex - 1, true, -1)){ renderPlay(); toast("已切换镜片"); }
+    }
+    if(key === "e" || key === "v" || key === "s"){
+        if(setLensIndex(state.lensIndex + 1, true, 1)){ renderPlay(); toast("已切换镜片"); }
     }
     if(firstPress && key === "o"){
         setGamepadAiming(true, true);
@@ -9464,7 +9953,7 @@ function canUseCurrentStep(step){
     if(!step) return;
     if(step.type === "clean" && step.cleanCompleting) return false;
     if(stepRequiresLens(step) && state.lensIndex !== step.lens){
-        toast(step.type === "repair" ? `裂缝需要 ${LENSES[step.lens].label} 显影。` : `镜片不对，需要 ${LENSES[step.lens].label}`);
+        toast(step.type === "repair" ? "裂缝需要正确的镜片显影。" : "镜片不对，需要切到正确的镜片。");
         return false;
     }
     if(state.activeTool !== step.type){
@@ -9557,8 +10046,9 @@ function playGemAnimation(className, duration=420){
     const gem3d = document.getElementById("gem3d");
     if(!gem3d) return;
     gem3d.classList.remove(className);
-    const repairOverlay = className === "gem-enter" ? document.getElementById("repair-overlay") : null;
-    if(repairOverlay?.classList.contains("visible")) repairOverlay.classList.remove(className);
+    const repairOverlayAnimationClasses = ["gem-enter", "gem-step-swap", "gem-carousel-swap"];
+    const repairOverlay = repairOverlayAnimationClasses.includes(className) ? document.getElementById("repair-overlay") : null;
+    if(repairOverlay?.classList.contains("visible")) repairOverlay.classList.remove(...repairOverlayAnimationClasses);
     void gem3d.offsetWidth;
     if(repairOverlay?.classList.contains("visible")){
         void repairOverlay.offsetWidth;
@@ -10611,6 +11101,12 @@ function openTutorialModal(page=0){
 function closeTutorialModal(){
     document.getElementById("tutorial-modal").classList.remove("show");
 }
+function openGamepadHelpModal(){
+    document.getElementById("gamepad-help-modal")?.classList.add("show");
+}
+function closeGamepadHelpModal(){
+    document.getElementById("gamepad-help-modal")?.classList.remove("show");
+}
 function turnTutorialPage(delta){
     state.tutorialPage = clampNumber(state.tutorialPage + delta, 0, TUTORIAL_PAGES.length - 1);
     renderTutorialModal();
@@ -10768,7 +11264,7 @@ function setupMobileLensSwipe(){
         swipe.lastSwitchY = e.clientY;
         if(setLensIndex(state.lensIndex + dir, true, dir)){
             renderPlay();
-            toast(`切换到 ${LENSES[state.lensIndex].label}`);
+            toast("已切换镜片");
         }
     }, { passive:false });
     const finishSwipe = e=>{
@@ -10806,6 +11302,7 @@ function applyDataPack(key){
 }
 function resetDemo(){
     const pack = currentDataPack();
+    clearRewardFocusRestoreTimer();
     stopPlatePhysicsDrop();
     finishGamepadUse();
     setGamepadAiming(false);
@@ -10961,11 +11458,17 @@ document.addEventListener("DOMContentLoaded", ()=>{
     document.getElementById("gamepad-exit-modal").addEventListener("click", e=>{
         if(e.target.id === "gamepad-exit-modal") closeGamepadExitConfirm();
     });
+    document.getElementById("gamepad-help-btn")?.addEventListener("click", openGamepadHelpModal);
+    document.getElementById("gamepad-help-close-btn")?.addEventListener("click", closeGamepadHelpModal);
+    document.getElementById("gamepad-help-modal")?.addEventListener("click", e=>{
+        if(e.target.id === "gamepad-help-modal") closeGamepadHelpModal();
+    });
     document.getElementById("gamepad-exit-cancel-btn").addEventListener("click", closeGamepadExitConfirm);
     document.getElementById("gamepad-exit-confirm-btn").addEventListener("click", confirmGamepadExit);
     document.addEventListener("keydown", e=>{
         if(e.key !== "Escape") return;
         if(document.getElementById("gamepad-exit-modal").classList.contains("show")) closeGamepadExitConfirm();
+        else if(document.getElementById("gamepad-help-modal")?.classList.contains("show")) closeGamepadHelpModal();
         else if(document.getElementById("tutorial-modal").classList.contains("show")) closeTutorialModal();
         else if(document.getElementById("reward-modal").classList.contains("show")) collectRewards();
     });
