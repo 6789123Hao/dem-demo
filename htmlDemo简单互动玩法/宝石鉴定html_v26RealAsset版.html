@@ -6811,7 +6811,7 @@ function applyLayoutMode(mode, options = {}){
     const select = document.getElementById("layout-select");
     if(select) select.value = state.layoutMode;
     if(isMultiSelectLayoutMode() && !state.active){
-        ensureMultiSlots(true);
+        ensureMultiSlots(false);
     }
     if(state.layoutMode === "mobileLandscape"){
         setTopbarCollapsed(true);
