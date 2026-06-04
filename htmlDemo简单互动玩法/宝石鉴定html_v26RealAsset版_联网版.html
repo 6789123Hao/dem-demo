@@ -8242,8 +8242,8 @@ function stepHintText(step){
     if(step.type === "light") return "寻光：按住扫光区移动寻光灯，找到宝石表面的反光点。";
     if(step.type === "soak") return "浸润：按住量杯左右摇晃，避免石头连续撞到杯壁。";
     if(step.type === "chamfer") return "磨平：沿宝石边缘来回摩擦直到光滑为止。";
-    if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：这颗需要切 ${step.cutHitsRequired} 次，按住长条并顺着角度拖拽。`;
-    if(step.type === "cut") return "切除：按住长条瑕疵，沿相近角度拖拽切除。";
+    if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：这颗需要切 ${step.cutHitsRequired} 次，按住长条并顺着角度来回拖拽。`;
+    if(step.type === "cut") return "切除：按住长条瑕疵，沿长条正反方向拖拽切除。";
     if(step.type === "shape") return `定型：按住形状特效，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`;
     return "完成当前宝石。";
 }
@@ -9552,7 +9552,7 @@ function updateGamepadUse(dt){
     if(step.type === "cut"){
         renderCutToolFx(step, point.x, point.y);
         const angle = Math.atan2(dy || Math.sin((step.cutAngle || 0) * Math.PI / 180), dx || Math.cos((step.cutAngle || 0) * Math.PI / 180)) * 180 / Math.PI;
-        const diff = directedAngleDiff(angle, cutTowardGemAngle(step));
+        const diff = cutLineAngleDiff(angle, step.cutAngle || 0);
         const aligned = diff < 44 ? movement : 0;
         drag.cutDistance = (drag.cutDistance || 0) + aligned;
         if(movement > 1) spawnDragParticle(point.x, point.y, step.type);
@@ -9981,11 +9981,13 @@ function playRepairDrop(targetIndex){
     playRepairDrop.timer = setTimeout(()=>overlay.classList.remove("drop-active"), 720);
 }
 function defectStagePosition(step){
-    const scale = step.type === "shape" ? 0.42 : step.type === "light" ? 0.36 : step.type === "soak" ? 0.28 : step.type === "chamfer" ? 0.18 : 0.48;
+    const scale = step.type === "shape" ? 0.42 : step.type === "light" ? 0.36 : step.type === "soak" ? 0.28 : step.type === "chamfer" ? 0.18 : step.type === "cut" ? 0.34 : 0.48;
     const yLift = step.type === "repair" ? 3 : step.type === "clean" ? 3 : step.type === "shape" ? 4 : 0;
+    const x = 50 + (step.pos.x - 50) * scale;
+    const y = 50 + (step.pos.y - 50) * scale - yLift;
     return {
-        x:50 + (step.pos.x - 50) * scale,
-        y:50 + (step.pos.y - 50) * scale - yLift
+        x:step.type === "cut" ? clampNumber(x, 41, 59) : x,
+        y:step.type === "cut" ? clampNumber(y, 39, 61) : y
     };
 }
 function hotspotLabel(step){
@@ -10216,7 +10218,7 @@ function handleHotspotClick(){
         return;
     }
     if(step.type === "clean") toast("按住瑕疵范围来回拖拽擦拭。");
-    if(step.type === "cut") toast("按住长条，沿相近角度拖拽切除。");
+    if(step.type === "cut") toast("按住长条，沿长条正反方向拖拽切除。");
     if(step.type === "light") toast("按住扫光区移动寻光灯，靠近反光点会出现星芒。");
     if(step.type === "soak") toast("按住量杯左右摇晃，别让石头撞杯壁三次。");
     if(step.type === "chamfer") toast("沿宝石边缘来回摩擦直到光滑为止。");
@@ -10667,6 +10669,9 @@ function directedAngleDiff(a, b){
     const diff = Math.abs(normalizeDeg360(a - b));
     return diff > 180 ? 360 - diff : diff;
 }
+function cutLineAngleDiff(a, b){
+    return Math.min(directedAngleDiff(a, b), directedAngleDiff(a, b + 180));
+}
 function cutStageGeometry(step){
     const stage = document.getElementById("lens-stage");
     const gem = document.getElementById("gem3d");
@@ -10695,14 +10700,20 @@ function cutTowardGemAngle(step){
     return oppositeDot > baseDot ? baseAngle + 180 : baseAngle;
 }
 function cutDirectedSwipePath(step, startX, startY, finishX, finishY, rect){
-    const angle = cutTowardGemAngle(step);
+    const baseAngle = step?.cutAngle || 0;
+    const baseRad = baseAngle * Math.PI / 180;
+    const baseUx = Math.cos(baseRad);
+    const baseUy = Math.sin(baseRad);
+    const dragDot = (finishX - startX) * baseUx + (finishY - startY) * baseUy;
+    const angle = dragDot < 0 ? baseAngle + 180 : baseAngle;
     const rad = angle * Math.PI / 180;
     const ux = Math.cos(rad);
     const uy = Math.sin(rad);
     const rawDistance = Math.max(1, Math.hypot(finishX - startX, finishY - startY));
-    const length = Math.max(178, Math.min(rawDistance * 1.08, Math.min(rect.width, rect.height) * .62));
-    const centerX = Math.max(42, Math.min(rect.width - 42, (startX + finishX) / 2));
-    const centerY = Math.max(42, Math.min(rect.height - 42, (startY + finishY) / 2));
+    const geometry = cutStageGeometry(step);
+    const length = Math.max(168, Math.min(rawDistance * 1.04, Math.min(rect.width, rect.height) * .44));
+    const centerX = Math.max(42, Math.min(rect.width - 42, geometry?.defectX ?? (startX + finishX) / 2));
+    const centerY = Math.max(42, Math.min(rect.height - 42, geometry?.defectY ?? (startY + finishY) / 2));
     return {
         angle,
         length,
@@ -11013,7 +11024,7 @@ function finishDefectDrag(e){
         const dx = e.clientX - drag.startX;
         const dy = e.clientY - drag.startY;
         const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-        const diff = directedAngleDiff(angle, cutTowardGemAngle(step));
+        const diff = cutLineAngleDiff(angle, step.cutAngle || 0);
         if(drag.distance >= 80 && diff <= 32){
             playCutSwipeFx(step, drag, e.clientX, e.clientY);
             step.cutAnimating = true;
@@ -11024,7 +11035,7 @@ function finishDefectDrag(e){
                 }
             }, 900);
         }
-        else toast("切除要从外侧朝宝石方向滑。");
+        else toast("顺着切割长条滑动，正反方向都可以。");
         return;
     }
     if(step.type === "light"){
