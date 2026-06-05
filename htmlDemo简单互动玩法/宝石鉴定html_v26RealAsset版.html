@@ -1951,6 +1951,7 @@
         display:none;
     }
     .chamfer-progress-meter{
+        display:none;
         position:absolute;
         left:var(--chamfer-meter-left);
         top:var(--chamfer-meter-top);
@@ -4461,9 +4462,50 @@
         backdrop-filter:blur(4px);
         pointer-events:none;
     }
+    .core-hint-main{
+        display:block;
+    }
     .core-hint strong{
         font-weight:950;
         color:#244f3d;
+    }
+    .core-hint .hint-keyword{
+        display:inline-block;
+        margin:0 2px;
+        color:#1d5a42;
+        font-size:1.34em;
+        line-height:.95;
+        text-shadow:0 1px 0 rgba(255,255,255,.55), 0 0 10px rgba(124,199,165,.22);
+        transform:translateY(1px);
+    }
+    .core-progress{
+        position:relative;
+        display:block;
+        width:min(380px, 78%);
+        height:8px;
+        margin:10px auto 0;
+        border-radius:999px;
+        overflow:hidden;
+        background:rgba(67,48,31,.14);
+        box-shadow:inset 0 0 0 1px rgba(98,64,35,.16), 0 5px 12px rgba(68,43,25,.08);
+    }
+    .core-progress.hidden{ display:none; }
+    .core-progress-fill{
+        display:block;
+        height:100%;
+        width:var(--core-progress-pct, 0%);
+        border-radius:inherit;
+        background:linear-gradient(90deg, #d99d3c, #7cc7a5);
+        transition:width .16s ease;
+    }
+    .core-progress-label{
+        position:absolute;
+        right:0;
+        top:100%;
+        margin-top:2px;
+        font-size:10px;
+        font-weight:900;
+        color:rgba(95,81,67,.72);
     }
     .multi-select-panel{
         display:none;
@@ -6694,7 +6736,7 @@ const DEMO_DATA_PACKS = {
         label:"全量流程验收",
         note:"每一种素体都有可玩数量，寻光与磨平已纳入正式步骤说明，并额外提供一颗萤石测试石用于完整跑通当前玩法链路。",
         known:["pearl","agate","garnet","sunstone","catseye","jadeite","obsidian","fluorite","fluorite_test","malachite","turquoise","hetian","shoushan"],
-        bag:{ pearl:2, agate:6, garnet:11, sunstone:5, catseye:3, jadeite:8, obsidian:5, fluorite:10, fluorite_test:1, malachite:2, turquoise:9, hetian:1, shoushan:6 }
+        bag:{ pearl:2, agate:4, garnet:11, sunstone:5, catseye:6, jadeite:8, obsidian:5, fluorite:10, fluorite_test:1, malachite:2, turquoise:9, hetian:1, shoushan:6 }
     },
     rewardStress:{
         label:"长奖励列表压测",
@@ -8231,6 +8273,90 @@ function formatCoreHintText(text){
     }
     return safe;
 }
+function stepActionHintText(step){
+    if(!step) return "滚动鼠标滚轮翻镜片，点击瑕疵完成当前操作。";
+    if(step.type === "clean") return "清洁：来回拖拽，把表面灰膜擦开。";
+    if(step.type === "repair") return "修补：点击裂缝光圈，修补裂隙。";
+    if(step.type === "light") return "寻光：拖拽寻光灯，寻找宝石表面的反光点。";
+    if(step.type === "chamfer") return "磨平：沿宝石边缘摩擦，直到尖角变得光滑。";
+    if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：拖拽长条瑕疵，分 ${step.cutHitsRequired} 次把多余边缘切开。`;
+    if(step.type === "cut") return "切除：拖拽长条瑕疵，让刀片沿线切开。";
+    if(step.type === "shape") return `定型：描画${SHAPE_LABELS[step.shapeTarget]}轮廓，让宝石形状稳定下来。`;
+    return stepHintText(step);
+}
+function stepHintKeywords(step){
+    if(!step) return [];
+    const map = {
+        light:["拖拽", "寻找"],
+        cut:["拖拽", "切开"],
+        clean:["来回", "擦开"],
+        shape:["描", "画"],
+        repair:["修补", "点击"],
+        chamfer:["摩擦", "光滑"]
+    };
+    return map[step.type] || [];
+}
+function formatActionHintText(text, step){
+    let safe = escapeHTML(text);
+    const keywords = stepHintKeywords(step);
+    if(keywords.length){
+        const colonIndex = safe.indexOf("：");
+        const head = colonIndex >= 0 ? safe.slice(0, colonIndex + 1) : "";
+        let body = colonIndex >= 0 ? safe.slice(colonIndex + 1) : safe;
+        keywords
+            .slice()
+            .sort((a, b)=>b.length - a.length)
+            .forEach(keyword=>{
+                const escaped = escapeHTML(keyword);
+                body = body.split(escaped).join(`<strong class="hint-keyword">${escaped}</strong>`);
+            });
+        return `${head}${body}`;
+    }
+    return formatCoreHintText(text);
+}
+function stepProgressValue(step){
+    if(!step || step.done) return null;
+    if(step.type === "clean") return clampNumber((step.dragDistance || 0) / CLEAN_DISTANCE_REQUIRED, 0, 1);
+    if(step.type === "repair") return clampNumber(step.repairFill || 0, 0, 1);
+    if(step.type === "light") return clampNumber((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS, 0, 1);
+    if(step.type === "chamfer") return clampNumber(chamferProgress(step), 0, 1);
+    if(step.type === "cut"){
+        const required = step.cutHitsRequired || 1;
+        const dragProgress = state.defectDrag?.type === "cut" ? clampNumber((state.defectDrag.distance || 0) / 80, 0, .96) : 0;
+        return clampNumber(((step.cutHits || 0) + dragProgress) / required, 0, 1);
+    }
+    if(step.type === "shape"){
+        const dragProgress = state.defectDrag?.type === "shape" ? clampNumber((state.defectDrag.distance || 0) / 220, 0, .96) : 0;
+        return step.shapeLaserPending ? .96 : dragProgress;
+    }
+    return null;
+}
+function stepProgressLabel(step, value){
+    if(!step || value == null) return "";
+    if(step.type === "chamfer") return `${chamferCompletedCornerCount(step)}/${step.chamferCorners?.length || 3}`;
+    if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `${step.cutHits || 0}/${step.cutHitsRequired}`;
+    return `${Math.round(value * 100)}%`;
+}
+function renderCoreHintMarkup(step, text, showProgress=true){
+    const progress = showProgress ? stepProgressValue(step) : null;
+    const progressClass = progress == null ? "core-progress hidden" : "core-progress";
+    const progressWidth = `${Math.round((progress || 0) * 100)}%`;
+    const label = stepProgressLabel(step, progress);
+    return `<span class="core-hint-main">${formatActionHintText(text, step)}</span><span class="${progressClass}" style="--core-progress-pct:${progressWidth}"><span class="core-progress-fill"></span><span class="core-progress-label">${escapeHTML(label)}</span></span>`;
+}
+function refreshCoreHintProgress(step){
+    const progressEl = document.querySelector(".core-progress");
+    if(!progressEl) return;
+    const progress = stepProgressValue(step);
+    if(progress == null){
+        progressEl.classList.add("hidden");
+        return;
+    }
+    progressEl.classList.remove("hidden");
+    progressEl.style.setProperty("--core-progress-pct", `${Math.round(progress * 100)}%`);
+    const label = progressEl.querySelector(".core-progress-label");
+    if(label) label.textContent = stepProgressLabel(step, progress);
+}
 function visualStateForActive(active, step){
     const gemId = step?.gemId || active.gemId;
     const tasks = active.mode === "multi"
@@ -8502,10 +8628,11 @@ function renderPlay(){
     gem3d.style.setProperty("--gem-stage-image", stageImageValue(gem, visual));
     renderArchiveNotebook(active, gem);
     const coreHint = document.querySelector(".core-hint");
-    const hintText = step && stepRequiresLens(step) && state.lensIndex !== step.lens
+    const lensReady = !(step && stepRequiresLens(step) && state.lensIndex !== step.lens);
+    const hintText = !lensReady
         ? wrongLensHint(step)
-        : stepHintText(step);
-    if(coreHint) coreHint.innerHTML = formatCoreHintText(hintText);
+        : stepActionHintText(step);
+    if(coreHint) coreHint.innerHTML = renderCoreHintMarkup(step, hintText, lensReady);
     document.getElementById("step-progress").style.width = `${(active.stepIndex / active.tasks.length) * 100}%`;
     document.getElementById("gem-core").style.setProperty("--gem-color", gem.color);
     document.getElementById("lens-stage").style.setProperty("--lens-filter", LENSES[state.lensIndex].filter);
@@ -9536,6 +9663,7 @@ function updateGamepadUse(dt){
             state.gamepadUseActive = false;
         }
     }
+    refreshCoreHintProgress(step);
 }
 function renderGamepadHud(){
     syncGamepadFocusClasses();
@@ -9994,7 +10122,33 @@ function beginCleanFinish(step){
     };
     requestAnimationFrame(tick);
 }
+function beginFinalGemCompletion(step){
+    const active = state.active;
+    if(!active || !step || step.finalCeremonyStarted) return;
+    step.finalCeremonyStarted = true;
+    const gem = gemById(step.gemId || active.gemId);
+    state.defectDrag = null;
+    state.gamepadDrag = null;
+    state.gamepadUseActive = false;
+    finishGamepadUse();
+    setGamepadAiming(false);
+    clearFollowToolFx();
+    clearSprayToolFx();
+    clearHotspot();
+    renderPlay();
+    triggerCollectionFlash();
+    playCompletionCeremony();
+    playCompletionSpinIfAvailable(gem, 1880);
+    playGemAnimation("gem-collect-exit", 1880);
+    setTimeout(()=>{
+        if(state.active === active) setRewardFocus(true);
+    }, 1080);
+    setTimeout(()=>{
+        if(state.active === active) completeActiveGem();
+    }, 1840);
+}
 function completeCurrentStep(step){
+    if(!step || step.done || !state.active) return;
     if(step.type === "cut" || step.type === "shape") spawnCompletionFragments(step.type);
     if(step.type === "light") playLightFoundFx(step);
     const previousGemId = state.active?.gemId;
@@ -10012,20 +10166,7 @@ function completeCurrentStep(step){
     state.active.stepIndex += 1;
     if(!(state.active?.mode === "multi" && step.multiOmittedCount > 0)) toast(`完成 ${TOOL_LABELS[step.type]}`);
     if(state.active.stepIndex >= state.active.tasks.length){
-        if(step.type === "clean"){
-            const gem = gemById(state.active.gemId);
-            renderPlay();
-            triggerCollectionFlash();
-            playCompletionCeremony();
-            playCompletionSpinIfAvailable(gem, 1880);
-            playGemAnimation("gem-collect-exit", 1880);
-            setTimeout(()=>{
-                if(currentStep()?.id === step.id || state.active?.gemId === gem.id) setRewardFocus(true);
-            }, 1080);
-            setTimeout(()=>completeActiveGem(), 1840);
-        } else {
-            completeActiveGem();
-        }
+        beginFinalGemCompletion(step);
     } else {
         const next = currentStep();
         state.activeTool = next.type;
@@ -10192,6 +10333,7 @@ function startDefectDrag(e){
         renderPlay();
     }
     spawnDragParticle(e.clientX, e.clientY, step.type);
+    refreshCoreHintProgress(step);
 }
 function updateDefectDrag(e){
     const drag = state.defectDrag;
@@ -10258,6 +10400,7 @@ function updateDefectDrag(e){
         }
     }
     if(step.type === "shape") renderShapeToolFx(e.clientX, e.clientY, true);
+    refreshCoreHintProgress(step);
     if(drag.distance - drag.lastParticleDistance >= 18){
         spawnDragParticle(e.clientX, e.clientY, step.type);
         drag.lastParticleDistance = drag.distance;
