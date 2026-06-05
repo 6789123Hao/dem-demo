@@ -4211,13 +4211,6 @@
             radial-gradient(circle at 78% 64%, rgba(70,72,68,.36) 0 20%, transparent 21%);
         mix-blend-mode:multiply;
     }
-    .gem3d.has-stage-image.step-light.visual-raw .gem-surface,
-    .gem3d.has-stage-image.step-light.visual-raw .gem-surface::before,
-    .gem3d.has-stage-image.step-light.visual-raw .gem-surface::after{
-        opacity:0;
-        background:none;
-        mix-blend-mode:normal;
-    }
     .gem3d.visual-cut .gem-surface{
         opacity:1;
         background:
@@ -4300,12 +4293,6 @@
         background:rgba(96,98,94,.72);
         transform:rotate(-18deg);
         clip-path:polygon(10% 0, 100% 16%, 82% 100%, 0 76%);
-    }
-    .gem3d.has-stage-image.step-cut .gem-surface,
-    .gem3d.has-stage-image.step-cut .gem-surface::before{
-        opacity:0;
-        background:none;
-        mix-blend-mode:normal;
     }
     .gem3d.step-shape .gem-surface{
         opacity:1;
@@ -6174,7 +6161,32 @@
         display:grid;
         place-items:center;
     }
+    body.layout-gamepad .workbench{
+        grid-template-columns:minmax(270px, 300px) minmax(0, 1fr);
+        grid-template-rows:minmax(620px, calc(100vh - 136px));
+        gap:12px;
+    }
+    body.layout-gamepad .bag-panel{
+        grid-column:1;
+        min-width:0;
+    }
+    body.layout-gamepad .center-panel{
+        grid-column:2;
+        min-width:0;
+        min-height:0;
+        z-index:1;
+    }
+    body.layout-gamepad .center-stage{
+        padding:12px;
+    }
+    body.layout-gamepad .lens-stage{
+        --gem-size:248px;
+    }
     body.layout-gamepad .right-panel{
+        position:absolute;
+        inset:0;
+        width:auto;
+        min-height:0;
         padding:0;
         background:transparent;
         border:0;
@@ -6570,14 +6582,27 @@
         min-height:40px;
     }
     body.layout-gamepad .gamepad-guide{
-        left:auto;
-        right:24px;
-        top:86px;
+        left:clamp(392px, calc(50vw - 312px), 480px);
+        right:auto;
+        top:16px;
         bottom:auto;
-        width:198px;
+        width:270px;
+        max-height:72px;
+        padding:7px 12px;
         transform:none;
-        border-radius:14px;
-        text-align:center;
+        border:2px solid rgba(255,204,72,.88);
+        border-radius:7px;
+        background:linear-gradient(180deg, rgba(13,65,50,.86), rgba(13,52,43,.72));
+        box-shadow:inset 0 0 0 1px rgba(255,244,190,.18), 0 8px 18px rgba(7,31,25,.18);
+        text-align:left;
+        overflow:hidden;
+        z-index:35;
+    }
+    body.layout-gamepad .gamepad-status{
+        gap:0;
+        font-size:11px;
+        line-height:1.34;
+        text-align:left;
     }
 </style>
 </head>
@@ -6844,10 +6869,8 @@ const TOOL_NOTES = {
     chamfer:"沿宝石边缘来回摩擦直到光滑为止"
 };
 const TOOL_ORDER = ["cut","light","repair","shape","chamfer","clean"];
-const V27_HIDE_FOLLOW_TOOL_FX = true;
-const V27_SHOW_CUT_TRACKING_TOOL = false;
-const FOLLOW_TOOL_TYPES = new Set();
-const IDLE_TOOL_TYPES = new Set();
+const FOLLOW_TOOL_TYPES = new Set(["clean","shape","light"]);
+const IDLE_TOOL_TYPES = new Set(["clean","shape","light","cut"]);
 const LENS_FREE_TYPES = new Set();
 const REPAIR_TARGETS = [
     { x:31, y:56, dx:-30, dy:7 },
@@ -6859,7 +6882,6 @@ const REPAIR_BRANCH_PATH = "M101 72 L88 64 L82 50 M130 54 L138 39 L150 50 M158 6
 const REPAIR_FILL_PER_CLICK = .32;
 const REPAIR_COMPLETE_THRESHOLD = .8;
 const CLEAN_DISTANCE_REQUIRED = 1260;
-const REWARD_FOCUS_RESTORE_DELAY_MS = 450;
 const LIGHT_SEARCH_REQUIRED_MS = 600;
 const LIGHT_HIT_RADIUS = 24;
 const LIGHT_SIGNAL_RADIUS = 44;
@@ -7149,6 +7171,7 @@ function isLandscapeViewport(){
 }
 function applyResponsiveLayout(force = false){
     ensureMobileOrientationTip();
+    updateMobileUiScale();
     if(state.layoutManualOverride && !force){
         document.body.classList.remove("mobile-portrait-blocked");
         document.body.classList.remove("mobile-portrait-rotated");
@@ -7489,7 +7512,7 @@ function renderKnownList(){
                     <span class="stone-title"><span>${gem.name}</span><span class="stone-rarity">${"★".repeat(gem.rarity)}</span></span>
                     <span class="stone-count">×${countInBag(gem.id)}</span>
                 </div>
-                <div class="stone-meta">${gemSubText(gem)}</div>
+                <div class="stone-meta">${gem.sub}</div>
             </div>
             <span class="pill">${known ? "拖拽→" : "未识别"}</span>
         `;
@@ -7864,7 +7887,7 @@ function settleStuckPlatePhysicsDrops(){
         placed.push(item);
     });
     renderPlate();
-    scheduleRewardFocusRestore(REWARD_FOCUS_RESTORE_DELAY_MS);
+    scheduleRewardFocusRestore(1000);
 }
 function isActiveCompletionCeremonyPending(){
     const active = state.active;
@@ -8152,7 +8175,7 @@ function startPlatePhysicsDrop(){
         state.platePhysicsFrame = 0;
         state.platePhysicsBodies = null;
         state.platePhysicsQueued = false;
-        scheduleRewardFocusRestore(REWARD_FOCUS_RESTORE_DELAY_MS);
+        scheduleRewardFocusRestore(1000);
     };
     state.platePhysicsFrame = schedulePlatePhysicsStep(step);
 }
@@ -8288,11 +8311,7 @@ function completeKnownStoneInBatch(id){
     addLog(`${gem.name} 已知类型自动完成，同类型 ${amount} 颗出石到盘子。`);
     renderMain();
 }
-function hasCutTask(gem){
-    return !!gem?.tasks?.some(task=>task.type === "cut");
-}
 function shouldInsertLightTask(gem){
-    if(!hasCutTask(gem)) return false;
     if(gem.kind !== "成品宝石") return false;
     if(gem.tasks.some(task=>task.type === "light")) return false;
     if(SOAK_TRIAL_GEMS.has(gem.id)) return false;
@@ -8311,66 +8330,8 @@ function makeLightTaskForGem(gem){
         lightTarget:{ ...target }
     };
 }
-const V27_RAW_LIGHT_TARGETS = {
-    obsidian:{ x:64, y:34 },
-    fluorite:{ x:66, y:50 },
-    fluorite_test:{ x:70, y:33 },
-    malachite:{ x:64, y:42 },
-    turquoise:{ x:63, y:42 },
-    hetian:{ x:40, y:50 },
-    shoushan:{ x:55, y:58 }
-};
-function isRawGem(gem){
-    return gem?.kind === "原石";
-}
-function v27RawLightTarget(gem){
-    if(V27_RAW_LIGHT_TARGETS[gem?.id]) return { ...V27_RAW_LIGHT_TARGETS[gem.id] };
-    const index = Math.max(0, GEM_BLUEPRINTS.findIndex(item=>item.id === gem?.id));
-    return { ...LIGHT_TARGETS[index % LIGHT_TARGETS.length] };
-}
-function v27RawStoneTasks(gem){
-    if(!isRawGem(gem)) return null;
-    const originalTasks = gem.tasks
-        .map(task=>({ ...task }))
-        .filter(task=>task.type !== "soak" && task.type !== "clean");
-    const existingLight = originalTasks.find(task=>task.type === "light");
-    const baseTasks = originalTasks.filter(task=>task.type !== "light");
-    const firstCutIndex = baseTasks.findIndex(task=>task.type === "cut");
-    const firstCut = firstCutIndex >= 0 ? baseTasks[firstCutIndex] : null;
-    const lightTarget = existingLight?.lightTarget ? { ...existingLight.lightTarget } : v27RawLightTarget(gem);
-    const lightTask = {
-        ...(existingLight || makeLightTaskForGem(gem)),
-        type:"light",
-        title:existingLight?.title || "原石寻光",
-        lens:existingLight?.lens ?? firstCut?.lens ?? 0,
-        face:existingLight?.face ?? firstCut?.face ?? 0,
-        pos:{ x:50, y:50 },
-        lightTarget
-    };
-    if(!firstCut) return baseTasks;
-    baseTasks[firstCutIndex] = {
-        ...firstCut,
-        pos:{ x:lightTarget.x, y:lightTarget.y },
-        cutAngle:firstCut.cutAngle ?? (lightTarget.x >= 50 ? -22 : 22),
-        lightLinkedTarget:{ ...lightTarget }
-    };
-    baseTasks.splice(firstCutIndex, 0, lightTask);
-    return baseTasks;
-}
-function gemSubText(gem){
-    if(isRawGem(gem)){
-        return v27RawStoneTasks(gem).map(task=>TOOL_LABELS[task.type] || task.title).join(" -> ");
-    }
-    return gem.tasks
-        .filter(task=>task.type !== "soak" && (hasCutTask(gem) || task.type !== "light"))
-        .map(task=>TOOL_LABELS[task.type] || task.title)
-        .join(" -> ");
-}
 function tasksWithOptionalLight(gem){
-    const rawTasks = v27RawStoneTasks(gem);
-    if(rawTasks) return rawTasks;
     const tasks = gem.tasks.map(task=>({ ...task }));
-    if(!tasks.some(task=>task.type === "cut")) return tasks.filter(task=>task.type !== "light");
     if(!shouldInsertLightTask(gem)) return tasks;
     const repairIndex = tasks.findIndex(task=>task.type === "repair");
     const cleanIndex = tasks.findIndex(task=>task.type === "clean");
@@ -8569,8 +8530,8 @@ function stepHintText(step){
     if(step.type === "light") return "寻光：按住扫光区移动寻光灯，找到宝石表面的反光点。";
     if(step.type === "soak") return "浸润：按住量杯左右摇晃，避免石头连续撞到杯壁。";
     if(step.type === "chamfer") return "磨平：沿宝石边缘来回摩擦直到光滑为止。";
-    if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：这颗需要切 ${step.cutHitsRequired} 次，按住长条并顺着角度来回拖拽。`;
-    if(step.type === "cut") return "切除：按住长条瑕疵，沿长条正反方向拖拽切除。";
+    if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：这颗需要切 ${step.cutHitsRequired} 次，按住长条并顺着角度拖拽。`;
+    if(step.type === "cut") return "切除：按住长条瑕疵，沿相近角度拖拽切除。";
     if(step.type === "shape") return `定型：按住形状特效，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`;
     return "完成当前宝石。";
 }
@@ -9966,8 +9927,8 @@ function updateGamepadUse(dt){
     if(step.type === "cut"){
         renderCutToolFx(step, point.x, point.y);
         const angle = Math.atan2(dy || Math.sin((step.cutAngle || 0) * Math.PI / 180), dx || Math.cos((step.cutAngle || 0) * Math.PI / 180)) * 180 / Math.PI;
-        const diff = cutLineAngleDiff(angle, step.cutAngle || 0);
-        const aligned = diff < 44 ? movement : 0;
+        const diff = angleDiff(angle, step.cutAngle || 0);
+        const aligned = diff < 52 ? movement : movement * .34;
         drag.cutDistance = (drag.cutDistance || 0) + aligned;
         if(movement > 1) spawnDragParticle(point.x, point.y, step.type);
         if((drag.cutDistance || 0) >= 105){
@@ -10435,13 +10396,11 @@ function playRepairDrop(targetIndex){
     playRepairDrop.timer = setTimeout(()=>overlay.classList.remove("drop-active"), 720);
 }
 function defectStagePosition(step){
-    const scale = step.type === "shape" ? 0.42 : step.type === "light" ? 0.36 : step.type === "soak" ? 0.28 : step.type === "chamfer" ? 0.18 : step.type === "cut" ? 0.34 : 0.48;
+    const scale = step.type === "shape" ? 0.42 : step.type === "light" ? 0.36 : step.type === "soak" ? 0.28 : step.type === "chamfer" ? 0.18 : 0.48;
     const yLift = step.type === "repair" ? 3 : step.type === "clean" ? 3 : step.type === "shape" ? 4 : 0;
-    const x = 50 + (step.pos.x - 50) * scale;
-    const y = 50 + (step.pos.y - 50) * scale - yLift;
     return {
-        x:step.type === "cut" ? clampNumber(x, 41, 59) : x,
-        y:step.type === "cut" ? clampNumber(y, 39, 61) : y
+        x:50 + (step.pos.x - 50) * scale,
+        y:50 + (step.pos.y - 50) * scale - yLift
     };
 }
 function hotspotLabel(step){
@@ -10685,7 +10644,7 @@ function handleHotspotClick(){
         return;
     }
     if(step.type === "clean") toast("按住瑕疵范围来回拖拽擦拭。");
-    if(step.type === "cut") toast("按住长条，沿长条正反方向拖拽切除。");
+    if(step.type === "cut") toast("按住长条，沿相近角度拖拽切除。");
     if(step.type === "light") toast("按住扫光区移动寻光灯，靠近反光点会出现星芒。");
     if(step.type === "soak") toast("按住量杯左右摇晃，别让石头撞杯壁三次。");
     if(step.type === "chamfer") toast("沿宝石边缘来回摩擦直到光滑为止。");
@@ -11131,77 +11090,9 @@ function cutBladeTipPointFromHandle(handlePoint, angleDeg){
         y:handlePoint.y - Math.cos(rad) * distance
     };
 }
-function normalizeDeg360(deg){
-    return ((deg % 360) + 360) % 360;
-}
-function directedAngleDiff(a, b){
-    const diff = Math.abs(normalizeDeg360(a - b));
-    return diff > 180 ? 360 - diff : diff;
-}
-function cutLineAngleDiff(a, b){
-    return Math.min(directedAngleDiff(a, b), directedAngleDiff(a, b + 180));
-}
-function cutStageGeometry(step){
-    const stage = document.getElementById("lens-stage");
-    const gem = document.getElementById("gem3d");
-    const stageRect = stage?.getBoundingClientRect();
-    const gemRect = gem?.getBoundingClientRect();
-    if(!stageRect || !gemRect || !stageRect.width || !gemRect.width) return null;
-    const pos = defectStagePosition(step);
-    return {
-        stageRect,
-        defectX:stageRect.width * pos.x / 100,
-        defectY:stageRect.height * pos.y / 100,
-        gemCenterX:gemRect.left - stageRect.left + gemRect.width / 2,
-        gemCenterY:gemRect.top - stageRect.top + gemRect.height / 2
-    };
-}
-function cutTowardGemAngle(step){
-    const baseAngle = step?.cutAngle || 0;
-    const geometry = cutStageGeometry(step);
-    if(!geometry) return baseAngle;
-    const toGemX = geometry.gemCenterX - geometry.defectX;
-    const toGemY = geometry.gemCenterY - geometry.defectY;
-    const baseRad = baseAngle * Math.PI / 180;
-    const baseDot = Math.cos(baseRad) * toGemX + Math.sin(baseRad) * toGemY;
-    const oppositeRad = (baseAngle + 180) * Math.PI / 180;
-    const oppositeDot = Math.cos(oppositeRad) * toGemX + Math.sin(oppositeRad) * toGemY;
-    return oppositeDot > baseDot ? baseAngle + 180 : baseAngle;
-}
-function cutDirectedSwipePath(step, startX, startY, finishX, finishY, rect){
-    const baseAngle = step?.cutAngle || 0;
-    const baseRad = baseAngle * Math.PI / 180;
-    const baseUx = Math.cos(baseRad);
-    const baseUy = Math.sin(baseRad);
-    const dragDot = (finishX - startX) * baseUx + (finishY - startY) * baseUy;
-    const angle = dragDot < 0 ? baseAngle + 180 : baseAngle;
-    const rad = angle * Math.PI / 180;
-    const ux = Math.cos(rad);
-    const uy = Math.sin(rad);
-    const rawDistance = Math.max(1, Math.hypot(finishX - startX, finishY - startY));
-    const geometry = cutStageGeometry(step);
-    const length = Math.max(168, Math.min(rawDistance * 1.04, Math.min(rect.width, rect.height) * .44));
-    const centerX = Math.max(42, Math.min(rect.width - 42, geometry?.defectX ?? (startX + finishX) / 2));
-    const centerY = Math.max(42, Math.min(rect.height - 42, geometry?.defectY ?? (startY + finishY) / 2));
-    return {
-        angle,
-        length,
-        startX:centerX - ux * length / 2,
-        startY:centerY - uy * length / 2,
-        finishX:centerX + ux * length / 2,
-        finishY:centerY + uy * length / 2,
-        centerX,
-        centerY
-    };
-}
 function renderCutToolFx(step, clientX=null, clientY=null){
     const stage = document.getElementById("lens-stage");
     if(!stage) return;
-    if(!V27_SHOW_CUT_TRACKING_TOOL){
-        const fx = stage.querySelector(".cut-tool-fx");
-        if(fx && !fx.classList.contains("cut-tool-slashing")) fx.remove();
-        return;
-    }
     let fx = stage.querySelector(".cut-tool-fx");
     if(!fx){
         fx = document.createElement("div");
@@ -11250,10 +11141,6 @@ function stepToolIsBeingDragged(step){
     return state.defectDrag?.type === step.type || state.gamepadDrag?.type === step.type;
 }
 function renderIdleStepToolFx(step){
-    if(V27_HIDE_FOLLOW_TOOL_FX){
-        clearFollowToolFx();
-        return;
-    }
     if(!step || !IDLE_TOOL_TYPES.has(step.type)){
         clearFollowToolFx();
         return;
@@ -11285,7 +11172,6 @@ function renderIdleStepToolFx(step){
     if(step.type === "light") renderLightToolFx(point.x, point.y, step.lightSignal || 0, step);
 }
 function scheduleIdleToolRefresh(step){
-    if(V27_HIDE_FOLLOW_TOOL_FX) return;
     if(!step || !IDLE_TOOL_TYPES.has(step.type)) return;
     setTimeout(()=>{
         if(currentStep()?.id === step.id) renderPlay();
@@ -11387,15 +11273,24 @@ function playCutSwipeFx(step, drag, endX, endY){
     const startY = drag.startY - rect.top;
     const finishX = endX - rect.left;
     const finishY = endY - rect.top;
-    const directedPath = cutDirectedSwipePath(step, startX, startY, finishX, finishY, rect);
-    const angle = directedPath.angle;
-    const length = directedPath.length;
-    const slashCenterX = directedPath.centerX;
-    const slashCenterY = directedPath.centerY;
+    const dx = finishX - startX;
+    const dy = finishY - startY;
+    const distance = Math.max(1, Math.hypot(dx, dy));
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    const fallback = defectStagePosition(step);
+    const centerX = Number.isFinite(finishX)
+        ? (startX + finishX) / 2
+        : rect.width * fallback.x / 100;
+    const centerY = Number.isFinite(finishY)
+        ? (startY + finishY) / 2
+        : rect.height * fallback.y / 100;
+    const length = Math.max(178, Math.min(distance * 1.08, Math.min(rect.width, rect.height) * .62));
+    const slashCenterX = Math.max(42, Math.min(rect.width - 42, centerX));
+    const slashCenterY = Math.max(42, Math.min(rect.height - 42, centerY));
     const hover = cutHoverStagePoint(step);
     const waitAngle = Number.isFinite(step.cutToolWaitAngle)
         ? step.cutToolWaitAngle
-        : Math.atan2(directedPath.finishY - hover.y, directedPath.finishX - hover.x) * 180 / Math.PI + 90;
+        : Math.atan2(finishY - hover.y, finishX - hover.x) * 180 / Math.PI + 90;
     const suspendedTip = cutBladeTipPointFromHandle(hover, waitAngle);
     let toolFx = stage.querySelector(".cut-tool-fx");
     if(!toolFx){
@@ -11407,10 +11302,10 @@ function playCutSwipeFx(step, drag, endX, endY){
     toolFx.style.setProperty("--cut-tool-anim-tip-x", `${suspendedTip.x.toFixed(1)}px`);
     toolFx.style.setProperty("--cut-tool-anim-tip-y", `${suspendedTip.y.toFixed(1)}px`);
     toolFx.style.setProperty("--cut-tool-wait-angle", `${waitAngle.toFixed(1)}deg`);
-    toolFx.style.setProperty("--cut-tool-anim-start-x", `${directedPath.startX.toFixed(1)}px`);
-    toolFx.style.setProperty("--cut-tool-anim-start-y", `${directedPath.startY.toFixed(1)}px`);
-    toolFx.style.setProperty("--cut-tool-anim-end-x", `${directedPath.finishX.toFixed(1)}px`);
-    toolFx.style.setProperty("--cut-tool-anim-end-y", `${directedPath.finishY.toFixed(1)}px`);
+    toolFx.style.setProperty("--cut-tool-anim-start-x", `${startX.toFixed(1)}px`);
+    toolFx.style.setProperty("--cut-tool-anim-start-y", `${startY.toFixed(1)}px`);
+    toolFx.style.setProperty("--cut-tool-anim-end-x", `${finishX.toFixed(1)}px`);
+    toolFx.style.setProperty("--cut-tool-anim-end-y", `${finishY.toFixed(1)}px`);
     toolFx.style.setProperty("--cut-tool-slash-angle", `${cutUpperSideToolAngle(angle).toFixed(1)}deg`);
     void toolFx.offsetWidth;
     toolFx.classList.add("cut-tool-slashing");
@@ -11436,8 +11331,7 @@ function playCutSwipeFx(step, drag, endX, endY){
     stage.appendChild(fx);
     setTimeout(()=>{
         fx.remove();
-        if(V27_SHOW_CUT_TRACKING_TOOL) toolFx.classList.remove("cut-tool-slashing");
-        else toolFx.remove();
+        toolFx.classList.remove("cut-tool-slashing");
         if(currentStep()?.id === step.id && !step.done) renderPlay();
     }, 920);
 }
@@ -11493,8 +11387,8 @@ function finishDefectDrag(e){
         const dx = e.clientX - drag.startX;
         const dy = e.clientY - drag.startY;
         const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-        const diff = cutLineAngleDiff(angle, step.cutAngle || 0);
-        if(drag.distance >= 80 && diff <= 32){
+        const diff = angleDiff(angle, step.cutAngle || 0);
+        if(drag.distance >= 80 && diff <= 24){
             playCutSwipeFx(step, drag, e.clientX, e.clientY);
             step.cutAnimating = true;
             setTimeout(()=>{
@@ -11504,7 +11398,7 @@ function finishDefectDrag(e){
                 }
             }, 900);
         }
-        else toast("顺着切割长条滑动，正反方向都可以。");
+        else toast("切除角度不对，要顺着长条方向拖拽。");
         return;
     }
     if(step.type === "light"){
@@ -12041,7 +11935,6 @@ function setupToolPointerTracking(){
     const stage = document.getElementById("lens-stage");
     if(!stage) return;
     const updatePointer = e=>{
-        if(V27_HIDE_FOLLOW_TOOL_FX) return;
         if(!state.active) return;
         state.toolPointerX = e.clientX;
         state.toolPointerY = e.clientY;

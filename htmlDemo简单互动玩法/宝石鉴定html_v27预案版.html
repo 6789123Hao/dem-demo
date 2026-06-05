@@ -198,17 +198,11 @@
     .btn.primary{ background:linear-gradient(180deg, #f3c36d, #d99d3c); border-color:#af742c; color:#2b1c0f; font-weight:700; }
     .btn.ghost{ background:rgba(255,255,255,.55); }
     .btn:disabled{ opacity:.45; cursor:not-allowed; }
-    .data-pack-select{
-        min-height:42px;
-        min-width:180px;
-        border:1px solid rgba(86,52,31,.22);
-        border-radius:8px;
-        background:#fff9ee;
-        color:var(--ink);
-        padding:0 12px;
-        box-shadow:0 6px 16px rgba(68,43,25,.08);
-    }
-    .layout-select{
+    .data-pack-select,
+    .entry-mode-select,
+    .device-mode-select,
+    .layout-select,
+    .desktop-lens-mode-select{
         min-height:42px;
         min-width:136px;
         border:1px solid rgba(86,52,31,.22);
@@ -218,16 +212,8 @@
         padding:0 12px;
         box-shadow:0 6px 16px rgba(68,43,25,.08);
     }
-    .desktop-lens-mode-select{
-        min-height:42px;
-        min-width:168px;
-        border:1px solid rgba(86,52,31,.22);
-        border-radius:8px;
-        background:#fff9ee;
-        color:var(--ink);
-        padding:0 12px;
-        box-shadow:0 6px 16px rgba(68,43,25,.08);
-    }
+    .data-pack-select{ min-width:180px; }
+    .desktop-lens-mode-select{ min-width:168px; }
     .gm-btn{
         display:inline-flex;
         border-style:dashed;
@@ -4536,24 +4522,28 @@
         transform:translateY(0) scale(1);
         transition:opacity .38s ease, transform .38s ease;
     }
-    body.layout-multi:not(.playing) .multi-select-panel,
-    body.layout-mobile-landscape:not(.playing) .multi-select-panel,
-    body.layout-gamepad:not(.playing) .multi-select-panel{ display:grid; }
-    body.layout-multi.reward-focus:not(.playing) .multi-select-panel,
-    body.layout-mobile-landscape.reward-focus:not(.playing) .multi-select-panel,
-    body.layout-gamepad.reward-focus:not(.playing) .multi-select-panel{
+    body.entry-multi:not(.playing) .multi-select-panel{ display:grid; }
+    body.entry-multi.reward-focus:not(.playing) .multi-select-panel{
         opacity:0;
         transform:translateY(18px) scale(.985);
         pointer-events:none;
     }
-    body.layout-multi:not(.playing) .idle-copy,
-    body.layout-mobile-landscape:not(.playing) .idle-copy,
-    body.layout-gamepad:not(.playing) .idle-copy{ display:none; }
+    body.entry-multi:not(.playing) .idle-copy{ display:none; }
     .multi-select-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:14px; }
     .multi-select-head h2{ margin:0; font-size:24px; letter-spacing:0; }
     .multi-select-head p{ margin:4px 0 0; color:#dec99f; font-size:14px; line-height:1.55; }
-    .multi-slots{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); align-items:center; gap:18px; min-height:0; }
+    .multi-slots{
+        display:grid;
+        grid-template-columns:repeat(3, minmax(0, 1fr));
+        align-items:center;
+        gap:18px;
+        min-height:0;
+        perspective:860px;
+    }
     .multi-slot{
+        --multi-slot-x:0px;
+        --multi-slot-y:0px;
+        --multi-slot-scale:1;
         position:relative;
         min-height:210px;
         border:1px solid rgba(231,195,105,.48);
@@ -4565,7 +4555,27 @@
         display:grid;
         place-items:center;
         overflow:hidden;
-        transition:transform .22s ease, border-color .22s ease, filter .22s ease;
+        transform:translate(var(--multi-slot-x), var(--multi-slot-y)) scale(var(--multi-slot-scale));
+        transition:transform .22s ease, border-color .22s ease, filter .22s ease, opacity .22s ease;
+    }
+    .multi-slot:nth-child(1){
+        --multi-slot-x:34px;
+        --multi-slot-y:-26px;
+        --multi-slot-scale:.88;
+        z-index:1;
+        filter:saturate(.88) brightness(.92);
+    }
+    .multi-slot:nth-child(2){
+        --multi-slot-y:20px;
+        --multi-slot-scale:1.06;
+        z-index:3;
+    }
+    .multi-slot:nth-child(3){
+        --multi-slot-x:-34px;
+        --multi-slot-y:-26px;
+        --multi-slot-scale:.88;
+        z-index:1;
+        filter:saturate(.88) brightness(.92);
     }
     .multi-slot::after{
         content:"";
@@ -4578,7 +4588,11 @@
         background:radial-gradient(ellipse, rgba(255,226,140,.36), rgba(86,55,28,.08) 58%, transparent 70%);
         filter:blur(1px);
     }
-    .multi-slot.over{ transform:translateY(-4px); border-color:#ffe28c; filter:brightness(1.12); }
+    .multi-slot.over{
+        transform:translate(var(--multi-slot-x), calc(var(--multi-slot-y) - 4px)) scale(var(--multi-slot-scale));
+        border-color:#ffe28c;
+        filter:brightness(1.12);
+    }
     .multi-slot.empty .multi-slot-stone{ opacity:.42; filter:saturate(.6); }
     .stone-card.multi-pointer-dragging{
         cursor:grabbing;
@@ -5114,6 +5128,8 @@
         color:rgba(255,244,209,.78);
     }
     body.v26-real-asset .data-pack-select,
+    body.v26-real-asset .entry-mode-select,
+    body.v26-real-asset .device-mode-select,
     body.v26-real-asset .layout-select,
     body.v26-real-asset .desktop-lens-mode-select,
     body.v26-real-asset .btn.ghost{
@@ -5530,9 +5546,13 @@
         padding:34px 44px 30px;
     }
     body.layout-mobile-landscape #screen-main{
+        width:var(--mobile-ui-width, 100vw);
+        height:var(--mobile-ui-height, 100vh);
         padding:8px;
         min-width:960px;
         overflow:hidden;
+        transform:scale(var(--mobile-ui-scale, 1));
+        transform-origin:top left;
     }
     body.layout-mobile-landscape .topbar-toggle-btn{
         top:5px;
@@ -5549,6 +5569,8 @@
     body.layout-mobile-landscape .title::after,
     body.layout-mobile-landscape .btn,
     body.layout-mobile-landscape .data-pack-select,
+    body.layout-mobile-landscape .entry-mode-select,
+    body.layout-mobile-landscape .device-mode-select,
     body.layout-mobile-landscape .layout-select,
     body.layout-mobile-landscape .desktop-lens-mode-select{
         min-height:48px;
@@ -5558,12 +5580,12 @@
     body.layout-mobile-landscape .workbench{
         position:relative;
         grid-template-columns:320px minmax(630px, 1fr);
-        grid-template-rows:calc(100vh - 88px);
+        grid-template-rows:calc(var(--mobile-ui-height, 100vh) - 88px);
         gap:8px;
         transition:grid-template-columns .24s cubic-bezier(.18,.78,.22,1), grid-template-rows .2s ease;
     }
     body.layout-mobile-landscape.topbar-collapsed .workbench{
-        grid-template-rows:calc(100vh - 52px);
+        grid-template-rows:calc(var(--mobile-ui-height, 100vh) - 52px);
     }
     body.layout-mobile-landscape.mobile-bag-collapsed .workbench{
         grid-template-columns:118px minmax(780px, 1fr);
@@ -5629,7 +5651,7 @@
     }
     body.layout-mobile-landscape .stone-list{
         gap:9px;
-        max-height:calc(100vh - 180px);
+        max-height:calc(var(--mobile-ui-height, 100vh) - 180px);
         overflow-x:hidden;
         touch-action:pan-y;
         cursor:grab;
@@ -5644,7 +5666,7 @@
     }
     body.layout-mobile-landscape.mobile-bag-collapsed .stone-list{
         gap:8px;
-        max-height:calc(100vh - 144px);
+        max-height:calc(var(--mobile-ui-height, 100vh) - 144px);
         padding-right:2px;
     }
     body.layout-mobile-landscape .stone-card{
@@ -6174,7 +6196,32 @@
         display:grid;
         place-items:center;
     }
+    body.layout-gamepad .workbench{
+        grid-template-columns:minmax(270px, 300px) minmax(0, 1fr);
+        grid-template-rows:minmax(620px, calc(100vh - 136px));
+        gap:12px;
+    }
+    body.layout-gamepad .bag-panel{
+        grid-column:1;
+        min-width:0;
+    }
+    body.layout-gamepad .center-panel{
+        grid-column:2;
+        min-width:0;
+        min-height:0;
+        z-index:1;
+    }
+    body.layout-gamepad .center-stage{
+        padding:12px;
+    }
+    body.layout-gamepad .lens-stage{
+        --gem-size:248px;
+    }
     body.layout-gamepad .right-panel{
+        position:absolute;
+        inset:0;
+        width:auto;
+        min-height:0;
         padding:0;
         background:transparent;
         border:0;
@@ -6240,7 +6287,8 @@
     body.layout-gamepad.gamepad-focus-play:not(.playing) .multi-start-row .btn.primary{
         animation:collectReadyPulse 1.16s ease-in-out infinite;
     }
-    body.layout-gamepad .layout-select{
+    body.layout-gamepad .entry-mode-select,
+    body.layout-gamepad .device-mode-select{
         outline:3px solid rgba(248,203,96,.42);
     }
     body.layout-gamepad .entry-drag-cue{
@@ -6487,6 +6535,36 @@
     .gm-actions::before{ content:none; }
     body.gm-panel-open .gm-actions{ display:flex; }
     body.gm-panel-open #gm-expand-btn{ display:none; }
+    .gm-field{
+        --gm-select-width:96px;
+        --gm-accent:rgba(239,198,96,.72);
+        --gm-bg-a:rgba(255,248,224,.92);
+        --gm-bg-b:rgba(230,190,96,.82);
+        display:flex;
+        flex-direction:column;
+        gap:3px;
+        flex:0 0 auto;
+    }
+    .gm-field-label{
+        padding-left:3px;
+        color:rgba(255,238,178,.82);
+        font-size:10px;
+        font-weight:950;
+        line-height:1;
+        text-shadow:0 1px 4px rgba(0,0,0,.24);
+        white-space:nowrap;
+    }
+    .gm-field select{
+        width:var(--gm-select-width);
+        min-width:0;
+        border-color:var(--gm-accent);
+        background:linear-gradient(180deg, var(--gm-bg-a), var(--gm-bg-b));
+        box-shadow:inset 0 0 0 1px rgba(255,255,255,.34), 0 8px 15px rgba(8,34,28,.18);
+    }
+    .gm-field-entry{ --gm-select-width:80px; --gm-accent:rgba(255,213,94,.82); --gm-bg-a:rgba(255,249,216,.96); --gm-bg-b:rgba(240,192,82,.88); }
+    .gm-field-device{ --gm-select-width:84px; --gm-accent:rgba(126,231,203,.72); --gm-bg-a:rgba(219,255,242,.94); --gm-bg-b:rgba(94,184,148,.84); }
+    .gm-field-lens{ --gm-select-width:112px; --gm-accent:rgba(138,198,255,.72); --gm-bg-a:rgba(230,246,255,.94); --gm-bg-b:rgba(104,157,214,.82); }
+    .gm-field-pack{ --gm-select-width:100px; --gm-accent:rgba(244,159,117,.72); --gm-bg-a:rgba(255,239,222,.95); --gm-bg-b:rgba(212,132,86,.82); }
     .gm-actions .btn,
     .gm-actions select{
         min-height:38px;
@@ -6495,9 +6573,10 @@
         font-weight:800;
         white-space:nowrap;
     }
-    .gm-actions .data-pack-select{ min-width:166px; }
-    .gm-actions .desktop-lens-mode-select{ min-width:152px; }
-    .gm-actions .layout-select{ min-width:124px; }
+    .gm-actions .data-pack-select,
+    .gm-actions .entry-mode-select,
+    .gm-actions .device-mode-select,
+    .gm-actions .desktop-lens-mode-select{ min-width:0; }
     .gm-actions .gm-btn{ display:inline-flex; align-items:center; }
     @keyframes gmPanelOpen{
         from{ max-width:0; opacity:0; transform:translateX(10px); }
@@ -6551,6 +6630,22 @@
         flex-wrap:wrap;
         justify-content:flex-start;
     }
+    body.layout-mobile-landscape .gm-field{
+        flex-direction:row;
+        align-items:center;
+        gap:5px;
+    }
+    body.layout-mobile-landscape .gm-field-label{
+        width:34px;
+        padding-left:0;
+        text-align:right;
+        font-size:9px;
+    }
+    body.layout-mobile-landscape .gm-field select{
+        min-height:36px;
+        height:36px;
+        font-size:12px;
+    }
     body.layout-mobile-landscape .collect-cta{
         right:10px;
         top:62px;
@@ -6570,14 +6665,27 @@
         min-height:40px;
     }
     body.layout-gamepad .gamepad-guide{
-        left:auto;
-        right:24px;
-        top:86px;
+        left:clamp(392px, calc(50vw - 312px), 480px);
+        right:auto;
+        top:16px;
         bottom:auto;
-        width:198px;
+        width:270px;
+        max-height:72px;
+        padding:7px 12px;
         transform:none;
-        border-radius:14px;
-        text-align:center;
+        border:2px solid rgba(255,204,72,.88);
+        border-radius:7px;
+        background:linear-gradient(180deg, rgba(13,65,50,.86), rgba(13,52,43,.72));
+        box-shadow:inset 0 0 0 1px rgba(255,244,190,.18), 0 8px 18px rgba(7,31,25,.18);
+        text-align:left;
+        overflow:hidden;
+        z-index:35;
+    }
+    body.layout-gamepad .gamepad-status{
+        gap:0;
+        font-size:11px;
+        line-height:1.34;
+        text-align:left;
     }
 </style>
 </head>
@@ -6596,19 +6704,34 @@
             <button class="gamepad-help-btn top-action-icon" id="gamepad-help-btn" type="button" aria-label="打开手柄键位图">🎮</button>
             <button class="btn ghost gm-toggle-btn top-action-btn" id="gm-expand-btn" type="button" aria-expanded="false" aria-controls="gm-panel">GM</button>
             <div class="gm-actions" id="gm-panel" aria-label="GM测试控制，不属于正式玩法">
-                <select id="data-pack-select" class="data-pack-select" aria-label="宝石流程验收数据包"></select>
-                <select id="desktop-lens-mode-select" class="desktop-lens-mode-select" aria-label="电脑镜片显示方式">
-                    <option value="triangle">三镜片三角式</option>
-                    <option value="text">三文字式</option>
-                    <option value="wheel">三镜片轮盘式</option>
-                    <option value="line">三镜片一字式</option>
-                </select>
-                <select id="layout-select" class="layout-select" aria-label="窗口比例布局">
-                    <option value="desktop">单开布局</option>
-                    <option value="multi">多开布局</option>
-                    <option value="mobileLandscape">手机横屏</option>
-                    <option value="gamepad">手柄模拟</option>
-                </select>
+                <label class="gm-field gm-field-pack">
+                    <span class="gm-field-label">宝石量</span>
+                    <select id="data-pack-select" class="data-pack-select" aria-label="宝石量"></select>
+                </label>
+                <label class="gm-field gm-field-lens">
+                    <span class="gm-field-label">镜片交互</span>
+                    <select id="desktop-lens-mode-select" class="desktop-lens-mode-select" aria-label="镜片交互">
+                        <option value="wheel">图片轮盘</option>
+                        <option value="triangle">图片三角</option>
+                        <option value="line">图片数列</option>
+                        <option value="text">文字竖列</option>
+                    </select>
+                </label>
+                <label class="gm-field gm-field-device">
+                    <span class="gm-field-label">操作端</span>
+                    <select id="device-mode-select" class="device-mode-select" aria-label="操作端">
+                        <option value="desktop">电脑</option>
+                        <option value="mobile">手机</option>
+                        <option value="gamepad">PS5</option>
+                    </select>
+                </label>
+                <label class="gm-field gm-field-entry">
+                    <span class="gm-field-label">入口模式</span>
+                    <select id="entry-mode-select" class="entry-mode-select" aria-label="入口模式">
+                        <option value="single">单开</option>
+                        <option value="multi">多开</option>
+                    </select>
+                </label>
                 <button class="btn ghost" id="reset-demo-btn" type="button">重置数据</button>
                 <button class="btn primary gm-btn" id="finish-fast-btn" type="button">完成当前宝石</button>
                 <button class="btn ghost gm-toggle-btn" id="gm-collapse-btn" type="button">GM隐藏</button>
@@ -7013,6 +7136,8 @@ const state = {
     lensIndex:0,
     activeTool:"clean",
     dataPackKey:"fullCoverage",
+    entryMode:"single",
+    deviceMode:"desktop",
     layoutMode:"desktop",
     layoutManualOverride:false,
     topbarCollapsed:false,
@@ -7052,32 +7177,86 @@ const state = {
 };
 let responsiveLayoutTimer = 0;
 
+function updateMobileUiScale(){
+    const scale = clampNumber(Math.min(
+        (window.innerWidth || 960) / 960,
+        (window.innerHeight || 540) / 540
+    ), .5, 1);
+    const width = Math.ceil((window.innerWidth || 960) / scale);
+    const height = Math.ceil((window.innerHeight || 540) / scale);
+    document.body.style.setProperty("--mobile-ui-scale", scale.toFixed(3));
+    document.body.style.setProperty("--mobile-ui-width", `${width}px`);
+    document.body.style.setProperty("--mobile-ui-height", `${height}px`);
+}
+
 function gemById(id){ return GEM_BLUEPRINTS.find(g => g.id === id); }
 function currentDataPack(){ return DEMO_DATA_PACKS[state.dataPackKey] || DEMO_DATA_PACKS.fullCoverage; }
 function isMobileLandscapeMode(){
     return state.layoutMode === "mobileLandscape" || document.body.classList.contains("layout-mobile-landscape");
 }
 function isMultiSelectLayoutMode(){
-    return ["multi", "mobileLandscape", "gamepad"].includes(state.layoutMode);
+    return state.entryMode === "multi";
+}
+function resolvedLayoutMode(){
+    if(state.deviceMode === "mobile") return "mobileLandscape";
+    if(state.deviceMode === "gamepad") return "gamepad";
+    return state.entryMode === "multi" ? "multi" : "desktop";
+}
+function syncGmModeSelects(){
+    const entrySelect = document.getElementById("entry-mode-select");
+    if(entrySelect) entrySelect.value = state.entryMode;
+    const deviceSelect = document.getElementById("device-mode-select");
+    if(deviceSelect) deviceSelect.value = state.deviceMode;
+}
+function applyEntryDeviceMode(options = {}){
+    if(options.manual){
+        state.layoutManualOverride = true;
+        document.body.classList.remove("mobile-portrait-blocked");
+        document.body.classList.remove("mobile-portrait-rotated");
+    }
+    if(options.deviceChanged){
+        state.entryMode = (state.deviceMode === "mobile" || state.deviceMode === "gamepad") ? "multi" : "single";
+    }
+    applyLayoutMode(resolvedLayoutMode(), { ...options, syncControls:false });
 }
 function applyLayoutMode(mode, options = {}){
+    updateMobileUiScale();
     if(options.manual){
         state.layoutManualOverride = true;
         document.body.classList.remove("mobile-portrait-blocked");
         document.body.classList.remove("mobile-portrait-rotated");
     }
     state.layoutMode = ["desktop","multi","mobileLandscape","gamepad"].includes(mode) ? mode : "desktop";
+    if(options.syncControls !== false){
+        if(state.layoutMode === "desktop"){
+            state.deviceMode = "desktop";
+            state.entryMode = "single";
+        } else if(state.layoutMode === "multi"){
+            state.deviceMode = "desktop";
+            state.entryMode = "multi";
+        } else if(state.layoutMode === "mobileLandscape"){
+            state.deviceMode = "mobile";
+            state.entryMode = "multi";
+        } else if(state.layoutMode === "gamepad"){
+            state.deviceMode = "gamepad";
+            state.entryMode = "multi";
+        }
+    }
     document.body.classList.toggle("layout-mobile-landscape", state.layoutMode === "mobileLandscape");
     document.body.classList.toggle("layout-gamepad", state.layoutMode === "gamepad");
     document.body.classList.toggle("layout-multi", state.layoutMode === "multi");
+    document.body.classList.toggle("entry-single", state.entryMode === "single");
+    document.body.classList.toggle("entry-multi", state.entryMode === "multi");
+    document.body.classList.toggle("device-desktop", state.deviceMode === "desktop");
+    document.body.classList.toggle("device-mobile", state.deviceMode === "mobile");
+    document.body.classList.toggle("device-gamepad", state.deviceMode === "gamepad");
     if(state.layoutMode !== "gamepad"){
         setGamepadAiming(false);
         closeGamepadExitConfirm();
     } else {
         state.gamepadFocus = state.active ? "play" : "bag";
     }
-    const select = document.getElementById("layout-select");
-    if(select) select.value = state.layoutMode;
+    syncGmModeSelects();
     if(isMultiSelectLayoutMode() && !state.active){
         ensureMultiSlots(false);
     }
@@ -7149,6 +7328,7 @@ function isLandscapeViewport(){
 }
 function applyResponsiveLayout(force = false){
     ensureMobileOrientationTip();
+    updateMobileUiScale();
     if(state.layoutManualOverride && !force){
         document.body.classList.remove("mobile-portrait-blocked");
         document.body.classList.remove("mobile-portrait-rotated");
@@ -7429,8 +7609,7 @@ function renderMain(){
     document.body.classList.toggle("reward-focus", !!state.rewardFocus);
     const packSelect = document.getElementById("data-pack-select");
     if(packSelect) packSelect.value = state.dataPackKey;
-    const layoutSelect = document.getElementById("layout-select");
-    if(layoutSelect) layoutSelect.value = state.layoutMode;
+    syncGmModeSelects();
     const lensModeSelect = document.getElementById("desktop-lens-mode-select");
     if(lensModeSelect) lensModeSelect.value = state.desktopLensMode;
     document.body.classList.toggle("gm-panel-open", !!state.gmPanelOpen);
@@ -7450,7 +7629,7 @@ function renderDataPackOptions(){
     Object.entries(DEMO_DATA_PACKS).forEach(([key, pack])=>{
         const option = document.createElement("option");
         option.value = key;
-        option.textContent = pack.label;
+        option.textContent = key === "rewardStress" ? "长奖励" : "默认全量";
         select.appendChild(option);
     });
     select.value = state.dataPackKey;
@@ -10182,7 +10361,10 @@ function handleGamepadKeyDown(e){
     const selectionKey = isGamepadSelectionKey(key);
     if(!firstPress && !selectionKey) return;
     if(firstPress && key === "h"){
-        if(!state.active) startMultiPlay();
+        if(!state.active){
+            if(isMultiSelectLayoutMode()) startMultiPlay();
+            else startGamepadSelectedStone();
+        }
         return;
     }
     if(firstPress && key === "g"){
@@ -12145,8 +12327,16 @@ document.addEventListener("DOMContentLoaded", ()=>{
     document.getElementById("multi-clear-btn")?.addEventListener("click", clearMultiSlots);
     document.getElementById("topbar-toggle-btn").addEventListener("click", ()=>setTopbarCollapsed(!state.topbarCollapsed));
     document.getElementById("mobile-bag-toggle").addEventListener("click", ()=>setMobileBagCollapsed(!state.mobileBagCollapsed));
-    document.getElementById("layout-select").addEventListener("change", e=>{
-        applyLayoutMode(e.target.value, { manual:true });
+    document.getElementById("entry-mode-select")?.addEventListener("change", e=>{
+        state.entryMode = e.target.value === "multi" ? "multi" : "single";
+        applyEntryDeviceMode({ manual:true });
+        if(state.active) renderPlay();
+        else renderMain();
+        e.target.blur?.();
+    });
+    document.getElementById("device-mode-select")?.addEventListener("change", e=>{
+        state.deviceMode = ["desktop", "mobile", "gamepad"].includes(e.target.value) ? e.target.value : "desktop";
+        applyEntryDeviceMode({ manual:true, deviceChanged:true });
         if(state.active) renderPlay();
         else renderMain();
         e.target.blur?.();
