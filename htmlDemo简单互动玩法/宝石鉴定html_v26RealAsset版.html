@@ -6364,6 +6364,9 @@
         grid-template-columns:1fr 1fr;
         gap:10px;
     }
+    .ability-exit-result-modal .gamepad-exit-actions{
+        grid-template-columns:1fr;
+    }
     .gamepad-help-modal{
         position:fixed;
         inset:0;
@@ -6411,6 +6414,158 @@
         font-weight:1000;
         cursor:pointer;
     }
+    .top-actions{
+        flex:1 1 auto;
+        min-width:0;
+        display:flex;
+        flex-direction:row-reverse;
+        align-items:center;
+        gap:8px;
+        flex-wrap:nowrap;
+        justify-content:flex-start;
+    }
+    .top-action-btn,
+    .top-action-icon{
+        flex:0 0 auto;
+        position:relative !important;
+        left:auto !important;
+        right:auto !important;
+        top:auto !important;
+        bottom:auto !important;
+        transform:none !important;
+        pointer-events:auto;
+        z-index:2;
+    }
+    .top-action-icon{
+        width:38px;
+        height:38px;
+        min-height:38px;
+        padding:0;
+        display:grid;
+        place-items:center;
+        border-radius:50%;
+        font-size:18px;
+        line-height:1;
+    }
+    .top-actions .gamepad-help-btn{
+        display:none;
+        margin:0;
+    }
+    body.layout-gamepad .top-actions .gamepad-help-btn{
+        display:grid;
+    }
+    .gm-actions{
+        display:none;
+        flex:0 1 auto;
+        min-width:0;
+        max-width:min(860px, calc(100vw - 420px));
+        flex-direction:row-reverse;
+        align-items:center;
+        gap:8px;
+        padding:8px;
+        margin-left:0;
+        border:1px dashed rgba(239,198,96,.48);
+        border-radius:10px;
+        background:rgba(16,54,42,.74);
+        box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);
+        overflow:hidden;
+        animation:gmPanelOpen .22s cubic-bezier(.18,.78,.22,1) both;
+    }
+    .gm-actions::before{ content:none; }
+    body.gm-panel-open .gm-actions{ display:flex; }
+    body.gm-panel-open #gm-expand-btn{ display:none; }
+    .gm-actions .btn,
+    .gm-actions select{
+        min-height:38px;
+        height:38px;
+        font-size:13px;
+        font-weight:800;
+        white-space:nowrap;
+    }
+    .gm-actions .data-pack-select{ min-width:166px; }
+    .gm-actions .desktop-lens-mode-select{ min-width:152px; }
+    .gm-actions .layout-select{ min-width:124px; }
+    .gm-actions .gm-btn{ display:inline-flex; align-items:center; }
+    @keyframes gmPanelOpen{
+        from{ max-width:0; opacity:0; transform:translateX(10px); }
+        to{ opacity:1; transform:translateX(0); }
+    }
+    body.topbar-collapsed .topbar{
+        position:absolute;
+        right:10px;
+        top:8px;
+        left:auto;
+        z-index:34;
+        display:flex;
+        width:auto;
+        min-width:0;
+        margin:0;
+        padding:0;
+        border:0;
+        background:transparent;
+        box-shadow:none;
+        overflow:visible;
+    }
+    body.topbar-collapsed .topbar .title{
+        display:none;
+    }
+    body.topbar-collapsed .top-actions{
+        padding:0;
+        justify-content:flex-start;
+    }
+    body.layout-mobile-landscape .topbar{
+        overflow:visible;
+    }
+    body.layout-mobile-landscape .top-actions{
+        gap:7px;
+    }
+    body.layout-mobile-landscape .top-action-btn{
+        min-height:44px;
+        padding:0 12px;
+        font-size:15px;
+        font-weight:900;
+    }
+    body.layout-mobile-landscape .top-action-icon{
+        width:44px;
+        height:44px;
+        min-height:44px;
+    }
+    body.layout-mobile-landscape .gm-actions{
+        position:absolute;
+        right:0;
+        top:50px;
+        max-width:calc(100vw - 18px);
+        flex-wrap:wrap;
+        justify-content:flex-start;
+    }
+    body.layout-mobile-landscape .collect-cta{
+        right:10px;
+        top:62px;
+        bottom:auto;
+        width:164px;
+        min-height:54px;
+        z-index:23;
+    }
+    body.layout-gamepad .top-action-btn{
+        min-height:40px;
+        padding:0 12px;
+        font-weight:900;
+    }
+    body.layout-gamepad .top-action-icon{
+        width:40px;
+        height:40px;
+        min-height:40px;
+    }
+    body.layout-gamepad .gamepad-guide{
+        left:auto;
+        right:24px;
+        top:86px;
+        bottom:auto;
+        width:198px;
+        transform:none;
+        border-radius:14px;
+        text-align:center;
+    }
 </style>
 </head>
 <body class="v26-real-asset">
@@ -6422,25 +6577,28 @@
             <p>选择宝石素体进入镜片区，按切除、修补、定型、清洁的状态链完成验收。</p>
         </div>
         <div class="top-actions">
-            <div class="gm-actions" aria-label="GM测试控制，不属于正式玩法">
-                <button class="btn primary gm-btn" id="finish-fast-btn">GM一键完成当前</button>
-                <button class="btn ghost play-exit-btn" id="exit-play-btn">退出玩法</button>
-                <div class="demo-actions">
-                    <select id="layout-select" class="layout-select" aria-label="窗口比例布局">
-                        <option value="desktop">单开布局</option>
-                        <option value="multi">多开布局</option>
-                        <option value="mobileLandscape">手机横屏</option>
-                        <option value="gamepad">手柄模拟</option>
-                    </select>
-                    <select id="desktop-lens-mode-select" class="desktop-lens-mode-select" aria-label="电脑镜片显示方式">
-                        <option value="triangle">三镜片三角式</option>
-                        <option value="text">三文字式</option>
-                        <option value="wheel">三镜片轮盘式</option>
-                        <option value="line">三镜片一字式</option>
-                    </select>
-                    <select id="data-pack-select" class="data-pack-select" aria-label="演示数据包"></select>
-                    <button class="btn ghost" id="reset-demo-btn">重置演示数据</button>
-                </div>
+            <button class="btn ghost play-exit-btn top-action-btn" id="exit-play-btn" type="button">退出能力</button>
+            <button class="btn ghost organize-plate-btn top-action-icon" id="organize-plate-btn" type="button" title="重新落下成石" aria-label="重新落下成石">↻</button>
+            <button class="tutorial-help-btn tutorial-help-plate-btn top-action-icon" id="tutorial-help-plate-btn" type="button" aria-label="打开教程">?</button>
+            <button class="gamepad-help-btn top-action-icon" id="gamepad-help-btn" type="button" aria-label="打开手柄键位图">🎮</button>
+            <button class="btn ghost gm-toggle-btn top-action-btn" id="gm-expand-btn" type="button" aria-expanded="false" aria-controls="gm-panel">GM</button>
+            <div class="gm-actions" id="gm-panel" aria-label="GM测试控制，不属于正式玩法">
+                <select id="data-pack-select" class="data-pack-select" aria-label="宝石流程验收数据包"></select>
+                <select id="desktop-lens-mode-select" class="desktop-lens-mode-select" aria-label="电脑镜片显示方式">
+                    <option value="triangle">三镜片三角式</option>
+                    <option value="text">三文字式</option>
+                    <option value="wheel">三镜片轮盘式</option>
+                    <option value="line">三镜片一字式</option>
+                </select>
+                <select id="layout-select" class="layout-select" aria-label="窗口比例布局">
+                    <option value="desktop">单开布局</option>
+                    <option value="multi">多开布局</option>
+                    <option value="mobileLandscape">手机横屏</option>
+                    <option value="gamepad">手柄模拟</option>
+                </select>
+                <button class="btn ghost" id="reset-demo-btn" type="button">重置数据</button>
+                <button class="btn primary gm-btn" id="finish-fast-btn" type="button">完成当前宝石</button>
+                <button class="btn ghost gm-toggle-btn" id="gm-collapse-btn" type="button">GM隐藏</button>
             </div>
         </div>
     </div>
@@ -6583,11 +6741,6 @@
                 <div class="right-click-cue" aria-hidden="true"></div>
                 <span id="collect-btn-label">收集奖励</span>
             </button>
-            <div class="plate-actions">
-                <button class="btn ghost organize-plate-btn" id="organize-plate-btn" title="重新落下成石" aria-label="重新落下成石">↻</button>
-            </div>
-            <button class="gamepad-help-btn" id="gamepad-help-btn" type="button" aria-label="打开手柄键位图">🎮</button>
-            <button class="tutorial-help-btn tutorial-help-plate-btn" id="tutorial-help-plate-btn" type="button" aria-label="打开教程">?</button>
             <div id="plate" class="plate"></div>
         </aside>
     </div>
@@ -6625,6 +6778,16 @@
         <div class="gamepad-exit-actions">
             <button class="btn ghost" id="gamepad-exit-cancel-btn" type="button">取消 L(B)</button>
             <button class="btn primary" id="gamepad-exit-confirm-btn" type="button">确认 K(A)/U(R1)</button>
+        </div>
+    </div>
+</div>
+
+<div id="ability-exit-result-modal" class="gamepad-exit-modal ability-exit-result-modal" role="dialog" aria-modal="true" aria-labelledby="ability-exit-result-title" aria-describedby="ability-exit-result-body">
+    <div class="gamepad-exit-dialog">
+        <h2 id="ability-exit-result-title">假装退了咳咳</h2>
+        <p id="ability-exit-result-body">奖励已自动收集一次，确定后回到准备页面。</p>
+        <div class="gamepad-exit-actions">
+            <button class="btn primary" id="ability-exit-ok-btn" type="button">确定</button>
         </div>
     </div>
 </div>
@@ -6864,6 +7027,7 @@ const state = {
     gamepadDrag:null,
     gamepadExitConfirmOpen:false,
     gamepadExitConfirmMode:"play",
+    gmPanelOpen:false,
     toolPointerX:null,
     toolPointerY:null,
     multiPointerDrag:null,
@@ -6920,6 +7084,11 @@ function setTopbarCollapsed(collapsed){
         btn.textContent = state.topbarCollapsed ? "⌄" : "⌃";
         btn.setAttribute("aria-label", state.topbarCollapsed ? "展开顶部区域" : "收起顶部区域");
     }
+}
+function setGmPanelOpen(open){
+    state.gmPanelOpen = !!open;
+    document.body.classList.toggle("gm-panel-open", state.gmPanelOpen);
+    document.getElementById("gm-expand-btn")?.setAttribute("aria-expanded", state.gmPanelOpen ? "true" : "false");
 }
 function setMobileBagCollapsed(collapsed){
     state.mobileBagCollapsed = !!collapsed;
@@ -7248,6 +7417,11 @@ function renderMain(){
     if(layoutSelect) layoutSelect.value = state.layoutMode;
     const lensModeSelect = document.getElementById("desktop-lens-mode-select");
     if(lensModeSelect) lensModeSelect.value = state.desktopLensMode;
+    document.body.classList.toggle("gm-panel-open", !!state.gmPanelOpen);
+    const gmExpand = document.getElementById("gm-expand-btn");
+    if(gmExpand) gmExpand.setAttribute("aria-expanded", state.gmPanelOpen ? "true" : "false");
+    const exitButton = document.getElementById("exit-play-btn");
+    if(exitButton) exitButton.textContent = state.active ? "退出玩法" : "退出能力";
     renderKnownList();
     renderMultiSelectPanel();
     renderPlate();
@@ -8718,6 +8892,8 @@ function shortToolNote(step){
 function renderPlay(){
     const active = state.active;
     if(!active) return;
+    const exitButton = document.getElementById("exit-play-btn");
+    if(exitButton) exitButton.textContent = "退出玩法";
     const step = currentStep();
     const gem = gemById(step?.gemId || active.gemId);
     if(isGamepadMode() && step) state.activeTool = step.type;
@@ -9830,7 +10006,7 @@ function isGamepadExitConfirmOpen(){
 }
 function openGamepadExitConfirm(options = {}){
     const mode = options.mode || (state.active ? "play" : "mode");
-    if(!state.active && mode !== "mode") return;
+    if(!state.active && !["mode", "ability"].includes(mode)) return;
     if(state.active) finishGamepadUse();
     setGamepadAiming(false);
     state.gamepadExitConfirmOpen = true;
@@ -9839,7 +10015,12 @@ function openGamepadExitConfirm(options = {}){
     const body = document.getElementById("gamepad-exit-body");
     const confirm = document.getElementById("gamepad-exit-confirm-btn");
     const cancel = document.getElementById("gamepad-exit-cancel-btn");
-    if(mode === "mode"){
+    if(mode === "ability"){
+        if(title) title.textContent = "退出能力？";
+        if(body) body.textContent = "会先自动收集一次奖励，然后回到准备页面。";
+        if(confirm) confirm.textContent = "确认退出";
+        if(cancel) cancel.textContent = "取消";
+    } else if(mode === "mode"){
         if(title) title.textContent = "退出当前模式？";
         if(body) body.textContent = "当前版本先只接确认接口，不会真的切出手柄模式。";
         if(confirm) confirm.textContent = "确认 K(A)/U(R1)";
@@ -9859,6 +10040,12 @@ function closeGamepadExitConfirm(){
     renderGamepadHud();
 }
 function confirmGamepadExit(){
+    if(state.gamepadExitConfirmMode === "ability"){
+        closeGamepadExitConfirm();
+        autoCollectRewardsForAbilityExit();
+        openAbilityExitResult();
+        return;
+    }
     if(state.gamepadExitConfirmMode === "mode"){
         closeGamepadExitConfirm();
         toast("退出当前模式确认接口已触发。");
@@ -9866,6 +10053,34 @@ function confirmGamepadExit(){
     }
     closeGamepadExitConfirm();
     exitPlay();
+}
+function autoCollectRewardsForAbilityExit(){
+    if(state.rewards.length){
+        collectRewards();
+        return;
+    }
+    resetPlateCollectFlip();
+    stopPlatePhysicsDrop();
+    setRewardFocus(false);
+    closeRewardModal();
+    state.gamepadFocus = "bag";
+    document.body.classList.remove("playing");
+    setMobileBagCollapsed(state.layoutMode === "mobileLandscape");
+    document.getElementById("lens-stage").classList.add("idle");
+    renderMain();
+    showScreen("screen-main");
+}
+function openAbilityExitResult(){
+    document.getElementById("ability-exit-result-modal")?.classList.add("show");
+}
+function closeAbilityExitResult(){
+    document.getElementById("ability-exit-result-modal")?.classList.remove("show");
+    renderMain();
+    showScreen("screen-main");
+}
+function handleExitButtonClick(){
+    if(state.active) exitPlay();
+    else openGamepadExitConfirm({ mode:"ability" });
 }
 function handleGamepadKeyDown(e){
     const key = gamepadKeyName(e);
@@ -11619,6 +11834,7 @@ function resetDemo(){
     document.getElementById("reward-modal").classList.remove("show");
     document.getElementById("tutorial-modal").classList.remove("show");
     document.getElementById("gamepad-exit-modal").classList.remove("show");
+    document.getElementById("ability-exit-result-modal")?.classList.remove("show");
     document.getElementById("lens-stage").classList.add("idle");
     const mainLog = document.getElementById("main-log");
     if(mainLog) mainLog.innerHTML = "";
@@ -11725,7 +11941,9 @@ document.addEventListener("DOMContentLoaded", ()=>{
     hotspot.addEventListener("pointermove", updateDefectDrag);
     hotspot.addEventListener("pointerup", finishDefectDrag);
     hotspot.addEventListener("pointercancel", finishDefectDrag);
-    document.getElementById("exit-play-btn").addEventListener("click", exitPlay);
+    document.getElementById("exit-play-btn").addEventListener("click", handleExitButtonClick);
+    document.getElementById("gm-expand-btn").addEventListener("click", ()=>setGmPanelOpen(true));
+    document.getElementById("gm-collapse-btn").addEventListener("click", ()=>setGmPanelOpen(false));
     document.getElementById("finish-fast-btn").addEventListener("click", ()=>{
         if(!state.active) return;
         while(state.active && currentStep()){
@@ -11751,6 +11969,10 @@ document.addEventListener("DOMContentLoaded", ()=>{
     document.getElementById("gamepad-exit-modal").addEventListener("click", e=>{
         if(e.target.id === "gamepad-exit-modal") closeGamepadExitConfirm();
     });
+    document.getElementById("ability-exit-ok-btn").addEventListener("click", closeAbilityExitResult);
+    document.getElementById("ability-exit-result-modal").addEventListener("click", e=>{
+        if(e.target.id === "ability-exit-result-modal") closeAbilityExitResult();
+    });
     document.getElementById("gamepad-help-btn")?.addEventListener("click", openGamepadHelpModal);
     document.getElementById("gamepad-help-close-btn")?.addEventListener("click", closeGamepadHelpModal);
     document.getElementById("gamepad-help-modal")?.addEventListener("click", e=>{
@@ -11760,7 +11982,8 @@ document.addEventListener("DOMContentLoaded", ()=>{
     document.getElementById("gamepad-exit-confirm-btn").addEventListener("click", confirmGamepadExit);
     document.addEventListener("keydown", e=>{
         if(e.key !== "Escape") return;
-        if(document.getElementById("gamepad-exit-modal").classList.contains("show")) closeGamepadExitConfirm();
+        if(document.getElementById("ability-exit-result-modal")?.classList.contains("show")) closeAbilityExitResult();
+        else if(document.getElementById("gamepad-exit-modal").classList.contains("show")) closeGamepadExitConfirm();
         else if(document.getElementById("gamepad-help-modal")?.classList.contains("show")) closeGamepadHelpModal();
         else if(document.getElementById("tutorial-modal").classList.contains("show")) closeTutorialModal();
         else if(document.getElementById("reward-modal").classList.contains("show")) collectRewards();
