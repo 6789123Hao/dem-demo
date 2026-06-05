@@ -4861,6 +4861,51 @@
         padding:0;
         margin-top:0;
         transition:right .72s cubic-bezier(.18,.78,.2,1), bottom .72s cubic-bezier(.18,.78,.2,1), width .72s cubic-bezier(.18,.78,.2,1), height .72s cubic-bezier(.18,.78,.2,1), filter .42s ease, transform .42s ease;
+        transform-style:preserve-3d;
+        transform-origin:50% 55%;
+        will-change:transform, filter;
+    }
+    .plate::after{
+        content:"";
+        position:absolute;
+        inset:6%;
+        border-radius:50%;
+        pointer-events:none;
+        opacity:0;
+        z-index:3;
+        background:
+            radial-gradient(circle at 50% 42%, rgba(83,69,56,.95), rgba(42,36,32,.96) 58%, rgba(17,14,14,.98) 100%);
+        box-shadow:inset 0 0 34px rgba(0,0,0,.58), 0 0 22px rgba(255,220,122,.16);
+    }
+    .plate.plate-collect-flip{
+        animation:plateCollectFlip 1.08s cubic-bezier(.18,.82,.22,1) both;
+    }
+    .plate.plate-collect-flip::after{
+        animation:plateCollectBackFace 1.08s cubic-bezier(.18,.82,.22,1) both;
+    }
+    .plate.plate-collect-flip .plate-gem{
+        animation:plateCollectGemVanish 1.08s cubic-bezier(.18,.82,.22,1) both !important;
+    }
+    .plate.plate-collect-empty .plate-gem{
+        opacity:0 !important;
+        visibility:hidden;
+        pointer-events:none;
+    }
+    @keyframes plateCollectFlip{
+        0%{ transform:perspective(900px) rotateX(0deg) scale(1); filter:drop-shadow(0 22px 28px rgba(72,44,25,.2)); }
+        22%{ transform:perspective(900px) rotateX(-88deg) scale(1.035); filter:drop-shadow(0 28px 32px rgba(41,24,12,.24)) brightness(1.08); }
+        50%{ transform:perspective(900px) rotateX(-180deg) scale(1.015); filter:drop-shadow(0 30px 36px rgba(20,14,10,.28)) brightness(.76); }
+        76%{ transform:perspective(900px) rotateX(-274deg) scale(1.035); filter:drop-shadow(0 28px 32px rgba(41,24,12,.24)) brightness(1.08); }
+        100%{ transform:perspective(900px) rotateX(-360deg) scale(1); filter:drop-shadow(0 22px 28px rgba(72,44,25,.2)); }
+    }
+    @keyframes plateCollectBackFace{
+        0%,24%,78%,100%{ opacity:0; }
+        40%,60%{ opacity:.92; }
+    }
+    @keyframes plateCollectGemVanish{
+        0%,44%{ opacity:1; visibility:visible; transform:translate(-50%, -50%) rotate(var(--rest-rot, 0deg)) scale(1); filter:drop-shadow(0 8px 10px rgba(58,37,21,.18)); }
+        50%{ opacity:0; visibility:hidden; transform:translate(-50%, -50%) rotate(var(--rest-rot, 0deg)) scale(.64); filter:drop-shadow(0 0 18px rgba(255,236,160,.72)) brightness(1.22); }
+        100%{ opacity:0; visibility:hidden; transform:translate(-50%, -50%) rotate(var(--rest-rot, 0deg)) scale(.64); }
     }
     .plate-gem{
         min-width:34px;
@@ -7285,6 +7330,12 @@ function renderKnownList(){
                     state.mobileBagSuppressClick = false;
                     return;
                 }
+                if(isPlateDropPresentationActive()){
+                    e.preventDefault();
+                    finishPlateDropPresentation();
+                    startKnownStone(gem.id);
+                    return;
+                }
                 if(isMultiSelectLayoutMode() && !state.active) addMultiGemToSlot(gem.id);
                 else startKnownStone(gem.id);
             });
@@ -7641,6 +7692,70 @@ function settleStuckPlatePhysicsDrops(){
     renderPlate();
     scheduleRewardFocusRestore(REWARD_FOCUS_RESTORE_DELAY_MS);
 }
+function isActiveCompletionCeremonyPending(){
+    const active = state.active;
+    if(!active?.tasks?.length) return false;
+    return active.stepIndex >= active.tasks.length && active.tasks.some(step=>step.finalCeremonyStarted);
+}
+function isPlateDropPresentationActive(){
+    const items = state.plateItems || [];
+    return !!(
+        state.rewardFocus ||
+        state.platePhysicsQueued ||
+        state.platePhysicsFrame ||
+        isActiveCompletionCeremonyPending() ||
+        items.some(item=>item.physicsDropPending || item.physicsActive || item.dropPending || item.rewardFocusDrop)
+    );
+}
+function finishPlateDropPresentation(){
+    if(!isPlateDropPresentationActive()) return false;
+    if(isActiveCompletionCeremonyPending()){
+        completeActiveGem();
+    }
+    const bodyByUid = new Map();
+    (state.platePhysicsBodies || []).forEach(body=>{
+        if(!body?.item) return;
+        ensurePlateItemUid(body.item);
+        bodyByUid.set(body.item.plateUid, body);
+    });
+    stopPlatePhysicsDrop();
+    clearRewardFocusRestoreTimer();
+    setRewardFocus(false);
+    clearRewardFocusDropFlags();
+    const placed = [];
+    const now = performance.now();
+    (state.plateItems || []).forEach(item=>{
+        ensurePlateItemUid(item);
+        const body = bodyByUid.get(item.plateUid);
+        const stillDropping = !!(item.physicsDropPending || item.physicsActive || item.dropPending || item.rewardFocusDrop || (item.y ?? 50) < 4);
+        if(body?.started && body?.landed && Number.isFinite(body.x) && Number.isFinite(body.y)){
+            item.x = body.x;
+            item.y = body.y;
+            clampPlatePoint(item, PLATE_SAFE_RADIUS + 2.8);
+        } else if(stillDropping){
+            const pos = randomPlatePosition(placed);
+            item.x = pos.x;
+            item.y = pos.y;
+        } else {
+            clampPlatePoint(item, PLATE_SAFE_RADIUS + 2.8);
+        }
+        item.physicsDropPending = false;
+        item.physicsActive = false;
+        item.physicsDirectional = false;
+        item.physicsVX = 0;
+        item.physicsVY = 0;
+        item.dropPending = false;
+        item.dropStarted = true;
+        item.rewardFocusDrop = false;
+        item.dropCollision = false;
+        item.collisionPulseUntil = 0;
+        item.settledAt = now;
+        placed.push(item);
+    });
+    renderMain();
+    showScreen("screen-main");
+    return true;
+}
 function pulsePlatePhysicsHit(body){
     const element = body.element;
     if(!element) return;
@@ -7660,6 +7775,7 @@ function startPlatePhysicsDrop(){
     }
     const plate = document.getElementById("plate");
     const items = state.plateItems || [];
+    if(!state.platePhysicsQueued && !items.some(item=>item.physicsDropPending || item.physicsActive)) return;
     if(!plate || !items.length) return;
     stopPlatePhysicsDrop();
     const plateRect = plate.getBoundingClientRect();
@@ -7960,6 +8076,7 @@ function releaseKnownTypesForBatch(){
     return released;
 }
 function startManualFromBag(){
+    if(isPlateDropPresentationActive()) finishPlateDropPresentation();
     if(state.active){ toast("当前素体处理中"); return; }
     const id = firstUnseenOrFirstBagId();
     if(!id){ toast("素体袋为空"); return; }
@@ -7967,6 +8084,7 @@ function startManualFromBag(){
     startCorePlay(id, { source:"bag-one", continueBatch:false });
 }
 function startBatchFromBag(){
+    if(isPlateDropPresentationActive()) finishPlateDropPresentation();
     if(state.active) abandonActiveGem("切换为整袋处理。");
     if(!bagTotal()){ toast("素体袋为空"); return; }
     addLog("倒出很多素体，进入批量处理管道。");
@@ -7981,6 +8099,7 @@ function startBatchFromBag(){
     }
 }
 function startKnownStone(id){
+    if(isPlateDropPresentationActive()) finishPlateDropPresentation();
     if(state.active) abandonActiveGem(`切换到 ${gemById(id).name}。`);
     if(countInBag(id) <= 0){ toast("袋内没有这种素体"); return; }
     addLog(`从背包面板取出 ${gemById(id).name}，放入镜片位置。`);
@@ -8171,11 +8290,7 @@ function abandonActiveGem(message){
     addLog(`${gem.name} 未完成，已退出当前处理。${message}`);
 }
 function startCorePlay(id, meta){
-    if(state.rewardFocus){
-        setRewardFocus(false);
-        setTimeout(()=>startCorePlay(id, meta), 540);
-        return;
-    }
+    if(isPlateDropPresentationActive()) finishPlateDropPresentation();
     const gem = gemById(id);
     state.active = {
         gemId:id,
@@ -8198,11 +8313,7 @@ function startCorePlay(id, meta){
     playGemAnimation("gem-enter", 680);
 }
 function startMultiPlay(){
-    if(state.rewardFocus){
-        setRewardFocus(false);
-        setTimeout(()=>startMultiPlay(), 540);
-        return;
-    }
+    if(isPlateDropPresentationActive()) finishPlateDropPresentation();
     if(state.active){ toast("当前素体处理中"); return; }
     ensureMultiSlots(false);
     const ids = selectedMultiIds();
@@ -11370,9 +11481,30 @@ function openRewardModal(){
     }
     renderRewards();
     document.getElementById("reward-modal").classList.add("show");
+    playPlateCollectFlip();
 }
 function closeRewardModal(){
     document.getElementById("reward-modal").classList.remove("show");
+}
+function playPlateCollectFlip(){
+    const plate = document.getElementById("plate");
+    if(!plate) return;
+    clearTimeout(playPlateCollectFlip.hideTimer);
+    clearTimeout(playPlateCollectFlip.endTimer);
+    plate.classList.remove("plate-collect-flip", "plate-collect-empty");
+    void plate.offsetWidth;
+    plate.classList.add("plate-collect-flip");
+    playPlateCollectFlip.hideTimer = setTimeout(()=>{
+        plate.classList.add("plate-collect-empty");
+    }, 540);
+    playPlateCollectFlip.endTimer = setTimeout(()=>{
+        plate.classList.remove("plate-collect-flip");
+    }, 1120);
+}
+function resetPlateCollectFlip(){
+    clearTimeout(playPlateCollectFlip.hideTimer);
+    clearTimeout(playPlateCollectFlip.endTimer);
+    document.getElementById("plate")?.classList.remove("plate-collect-flip", "plate-collect-empty");
 }
 function renderTutorialModal(){
     const page = TUTORIAL_PAGES[state.tutorialPage] || TUTORIAL_PAGES[0];
@@ -11414,6 +11546,7 @@ function collectRewards(){
         closeRewardModal();
         return;
     }
+    resetPlateCollectFlip();
     stopPlatePhysicsDrop();
     setRewardFocus(false);
     addLog(`收集 ${state.rewards.length} 组奖励。`);
@@ -11439,6 +11572,18 @@ function handleRewardRightClick(e){
     e.preventDefault();
     if(modalOpen) collectRewards();
     else openRewardModal();
+}
+function shouldIgnorePlateDropFastForwardTarget(target){
+    if(!target?.closest) return false;
+    if(target.closest(".stone-card")) return true;
+    if(target.closest("#reward-modal.show, #tutorial-modal.show, #gamepad-exit-modal.show, #gamepad-help-modal.show")) return true;
+    if(target.closest("button, select, input, textarea, a, [role='button'], #main-log")) return true;
+    return false;
+}
+function handlePlateDropFastForwardClick(e){
+    if(e.defaultPrevented || !isPlateDropPresentationActive()) return;
+    if(shouldIgnorePlateDropFastForwardTarget(e.target)) return;
+    finishPlateDropPresentation();
 }
 function setupRewardListScroll(){
     const list = document.getElementById("reward-list");
@@ -11719,6 +11864,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
     setupRewardListScroll();
     setupMobileBagPan();
     setupMobileLensSwipe();
+    document.addEventListener("click", handlePlateDropFastForwardClick);
     const hotspot = document.getElementById("hotspot");
     hotspot.addEventListener("click", handleHotspotClick);
     hotspot.addEventListener("pointerdown", startDefectDrag);
