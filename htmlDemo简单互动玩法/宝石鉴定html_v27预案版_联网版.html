@@ -1200,6 +1200,16 @@
         text-align:center;
         box-shadow:0 8px 16px rgba(0,0,0,.18);
     }
+    .lens-scroll-keyword{
+        display:inline-block;
+        margin:0 2px;
+        color:#76f0c7;
+        font-size:1.22em;
+        line-height:.9;
+        font-weight:1000;
+        text-shadow:0 0 12px rgba(118,240,199,.34), 0 1px 0 rgba(0,0,0,.22);
+        transform:translateY(1px);
+    }
     .lens-scroll-wheel-mark{
         position:absolute;
         left:50%;
@@ -2085,6 +2095,23 @@
         mask-repeat:no-repeat;
         opacity:.96;
     }
+    .chamfer-center-flash{
+        position:absolute;
+        left:var(--chamfer-center-x);
+        top:var(--chamfer-center-y);
+        width:128px;
+        height:128px;
+        border-radius:50%;
+        transform:translate(-50%, -50%) scale(.42);
+        z-index:3;
+        pointer-events:none;
+        background:
+            radial-gradient(circle, rgba(255,251,210,.98) 0 10%, rgba(122,255,221,.74) 24%, rgba(255,226,112,.38) 44%, transparent 70%),
+            radial-gradient(circle, rgba(255,255,255,.7) 0 6%, transparent 20%);
+        box-shadow:0 0 18px rgba(115,250,224,.54), 0 0 34px rgba(255,221,108,.34);
+        mix-blend-mode:screen;
+        animation:chamferCenterFlash .62s cubic-bezier(.16,.86,.2,1) both;
+    }
     .chamfer-cloth{
         position:absolute;
         left:var(--cloth-x);
@@ -2214,6 +2241,11 @@
         0%{ opacity:0; transform:translate(-50%, -50%) scale(.82); }
         35%{ opacity:1; transform:translate(-50%, -50%) scale(1.02); }
         100%{ opacity:0; transform:translate(-50%, -50%) scale(1.16); }
+    }
+    @keyframes chamferCenterFlash{
+        0%{ opacity:0; transform:translate(-50%, -50%) scale(.34); filter:blur(1px); }
+        24%{ opacity:1; transform:translate(-50%, -50%) scale(.9); filter:blur(0); }
+        100%{ opacity:0; transform:translate(-50%, -50%) scale(1.58); filter:blur(1px); }
     }
     .soak-overlay{
         position:absolute;
@@ -6608,8 +6640,19 @@
     body.layout-mobile-landscape .topbar{
         overflow:visible;
     }
+    body.layout-mobile-landscape.topbar-collapsed .topbar{
+        top:58px;
+        right:20px;
+        max-width:calc(var(--mobile-ui-width, 100vw) - 160px);
+    }
+    body.layout-mobile-landscape.topbar-collapsed:not(.mobile-bag-collapsed) .topbar{
+        max-width:calc(var(--mobile-ui-width, 100vw) - 360px);
+    }
     body.layout-mobile-landscape .top-actions{
         gap:7px;
+    }
+    body.layout-mobile-landscape.topbar-collapsed .top-actions{
+        padding:4px 0;
     }
     body.layout-mobile-landscape .top-action-btn{
         min-height:44px;
@@ -6629,6 +6672,11 @@
         max-width:calc(100vw - 18px);
         flex-wrap:wrap;
         justify-content:flex-start;
+    }
+    body.layout-mobile-landscape.topbar-collapsed .gm-actions{
+        top:54px;
+        right:0;
+        max-width:min(620px, calc(var(--mobile-ui-width, 100vw) - 180px));
     }
     body.layout-mobile-landscape .gm-field{
         flex-direction:row;
@@ -6653,6 +6701,9 @@
         width:164px;
         min-height:54px;
         z-index:23;
+    }
+    body.layout-mobile-landscape.topbar-collapsed .collect-cta{
+        top:118px;
     }
     body.layout-gamepad .top-action-btn{
         min-height:40px;
@@ -6809,9 +6860,9 @@
                     <div id="chamfer-overlay" class="chamfer-overlay" aria-hidden="true"></div>
                     <button id="hotspot" class="hotspot" aria-label="当前处理点"></button>
                     <div id="focus-ring" class="focus-ring"></div>
-                    <div id="lens-scroll-cue" class="lens-scroll-cue" aria-label="向下滚轮切换镜头"></div>
+                    <div id="lens-scroll-cue" class="lens-scroll-cue" aria-label="向下滚轮切换镜片"></div>
                     <div id="gamepad-aim" class="gamepad-aim" aria-hidden="true"></div>
-                    <div id="lens-dial" class="lens-dial" aria-label="镜头选择"></div>
+                    <div id="lens-dial" class="lens-dial" aria-label="镜片选择"></div>
                     <svg id="shape-trace-layer" class="shape-trace-layer" aria-hidden="true"></svg>
                     <div id="multi-run-chain" class="multi-run-chain" aria-hidden="true"></div>
                     <div class="core-hud">
@@ -6827,7 +6878,7 @@
                     <p class="core-hint">滚动鼠标滚轮翻镜片，点击瑕疵完成当前操作。</p>
                     <div class="core-controls">
                         <div class="step-box">
-                            <h3>切换镜头</h3>
+                            <h3>切换镜片</h3>
                             <div id="lens-grid" class="lens-grid"></div>
                         </div>
                         <div class="step-box tool-panel">
@@ -7106,8 +7157,8 @@ const TUTORIAL_PAGES = [
         body:"中间 UI 会提示现在要做什么。左上角档案会显示素体名字、类型、出处和当前步骤。"
     },
     {
-        title:"镜头与提示",
-        body:"部分玩法需要切换到正确镜头。完成提示会告诉你当前操作是否有效，以及还差多少进度。"
+        title:"镜片与提示",
+        body:"部分玩法需要切换到正确镜片。完成提示会告诉你当前操作是否有效，以及还差多少进度。"
     },
     {
         title:"成石盘奖励",
@@ -8590,6 +8641,8 @@ function buildCoreTasks(gem){
         chamferLastDirection:0,
         chamferSnagLevel:0,
         chamferCleanPreview:0,
+        chamferCenterPulseUntil:0,
+        chamferCenterPulseToken:0,
         chamferCompleting:false,
         chamferHasDragged:false,
         cutHits:0,
@@ -8754,12 +8807,12 @@ function stepHintText(step){
     return "完成当前宝石。";
 }
 function wrongLensHint(step){
-    if(!stepRequiresLens(step)) return `${TOOL_LABELS[step.type]}不需要切镜片，直接按住操作。`;
-    if(step.type === "repair") return "裂缝还没显影：请切到正确的镜片，看清裂缝走向。";
-    if(step.type === "light") return "反光点需要正确的镜片：切对后再扫光。";
-    if(step.type === "soak") return "量杯观察需要正确的镜片：切对后再摇晃。";
-    if(step.type === "chamfer") return "尖角需要正确的镜片：切对后才能看到边缘轨道。";
-    return "镜片不对：请滚动鼠标滚轮翻镜片，切到正确的镜片。";
+    if(!stepRequiresLens(step)) return `${TOOL_LABELS[step.type]}不需要切换镜片，直接按住操作。`;
+    if(step.type === "repair") return "裂缝未显影：请切换到正确镜片，看清裂缝走向。";
+    if(step.type === "light") return "反光点未显影：请切换到正确镜片，再开始扫光。";
+    if(step.type === "soak") return "量杯观察未显影：请切换到正确镜片，再开始摇晃。";
+    if(step.type === "chamfer") return "边缘尖角未显影：请切换到正确镜片，查看边缘轨道。";
+    return "观察未对准：请切换到正确镜片。";
 }
 function clearRewardFocusRestoreTimer(){
     if(state.rewardFocusRestoreTimer){
@@ -8820,7 +8873,7 @@ function stepActionHintText(step){
     if(step.type === "clean") return "清洁：来回拖拽，把表面灰膜擦开。";
     if(step.type === "repair") return "修补：点击裂缝光圈，修补裂隙。";
     if(step.type === "light") return "寻光：拖拽寻光灯，寻找宝石表面的反光点。";
-    if(step.type === "chamfer") return "磨平：沿宝石边缘摩擦，直到尖角变得光滑。";
+    if(step.type === "chamfer") return "磨平：沿宝石边缘来回摩擦，直到尖角变得光滑。";
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：拖拽长条瑕疵，分 ${step.cutHitsRequired} 次把多余边缘切开。`;
     if(step.type === "cut") return "切除：拖拽长条瑕疵，让刀片沿线切开。";
     if(step.type === "shape") return `定型：描画${SHAPE_LABELS[step.shapeTarget]}轮廓，让宝石形状稳定下来。`;
@@ -8834,13 +8887,20 @@ function stepHintKeywords(step){
         clean:["来回", "擦开"],
         shape:["描", "画"],
         repair:["修补", "点击"],
-        chamfer:["摩擦", "光滑"]
+        chamfer:["来回摩擦", "光滑"]
     };
     return map[step.type] || [];
 }
+function uniqueHintKeywords(keywords, text){
+    const source = String(text ?? "");
+    return [...new Set(keywords)].filter(keyword=>keyword && source.includes(keyword));
+}
 function formatActionHintText(text, step){
     let safe = escapeHTML(text);
-    const keywords = stepHintKeywords(step);
+    const keywords = uniqueHintKeywords([
+        ...stepHintKeywords(step),
+        ...(String(text ?? "").includes("切换") || String(text ?? "").includes("镜片") ? ["切换", "镜片"] : [])
+    ], text);
     if(keywords.length){
         const colonIndex = safe.indexOf("：");
         const head = colonIndex >= 0 ? safe.slice(0, colonIndex + 1) : "";
@@ -9510,6 +9570,8 @@ function registerChamferCornerPass(step, cornerIndex, direction){
     if(corner.passes >= CHAMFER_REQUIRED_PASSES){
         corner.done = true;
         step.chamferCleanPreview = chamferCompletedCornerCount(step);
+        step.chamferCenterPulseUntil = now + 680;
+        step.chamferCenterPulseToken = (step.chamferCenterPulseToken || 0) + 1;
         toast(`尖角磨平 ${step.chamferCleanPreview}/${step.chamferCorners.length}`);
     }
     return true;
@@ -9590,6 +9652,8 @@ function renderChamferOverlay(step, gem){
     overlay.style.setProperty("--preview-top", `${(geometry.gemTop + 8).toFixed(1)}px`);
     overlay.style.setProperty("--preview-width", `${Math.max(1, geometry.gemWidth - 16).toFixed(1)}px`);
     overlay.style.setProperty("--preview-height", `${Math.max(1, geometry.gemHeight - 16).toFixed(1)}px`);
+    overlay.style.setProperty("--chamfer-center-x", `${geometry.centerX.toFixed(1)}px`);
+    overlay.style.setProperty("--chamfer-center-y", `${geometry.centerY.toFixed(1)}px`);
     overlay.style.setProperty("--chamfer-meter-left", `${geometry.centerX.toFixed(1)}px`);
     const meterTop = Math.min(
         geometry.stageHeight - 18,
@@ -9614,7 +9678,8 @@ function renderChamferOverlay(step, gem){
         geometry.gemHeight
     ].map(value=>Math.round(value)).join(":");
     const cornerStateKey = corners.map(corner=>`${corner.passes || 0}${corner.done ? "d" : ""}`).join("|");
-    const renderKey = `${step.id}:${geometryKey}:${cornerStateKey}`;
+    const centerPulseActive = (step.chamferCenterPulseUntil || 0) > performance.now();
+    const renderKey = `${step.id}:${geometryKey}:${cornerStateKey}:${step.chamferCenterPulseToken || 0}:${centerPulseActive ? "p" : ""}`;
     if(overlay.dataset.renderKey !== renderKey){
         const cornerMarkup = corners.map((corner, index)=>{
             const point = chamferPointAtAngle(geometry, corner.angle);
@@ -9629,6 +9694,9 @@ function renderChamferOverlay(step, gem){
         const previewMarkup = corners.some(corner=>corner.done)
             ? `<div class="chamfer-clean-preview-layer" aria-hidden="true"></div>`
             : "";
+        const centerFlashMarkup = centerPulseActive
+            ? `<span class="chamfer-center-flash" aria-hidden="true"></span>`
+            : "";
         const trackMarkup = `
             <svg class="chamfer-track-svg" viewBox="0 0 ${geometry.stageWidth.toFixed(0)} ${geometry.stageHeight.toFixed(0)}" focusable="false" aria-hidden="true">
                 <ellipse class="chamfer-track-glow" cx="${geometry.centerX.toFixed(1)}" cy="${geometry.centerY.toFixed(1)}" rx="${geometry.rx.toFixed(1)}" ry="${geometry.ry.toFixed(1)}" pathLength="1000"></ellipse>
@@ -9640,6 +9708,7 @@ function renderChamferOverlay(step, gem){
         overlay.innerHTML = `
             ${trackMarkup}
             ${previewMarkup}
+            ${centerFlashMarkup}
             ${meterMarkup}
             <div class="chamfer-drag-cue" aria-hidden="true"><i></i></div>
             <span class="chamfer-cloth placeholder" aria-hidden="true">
@@ -9998,7 +10067,7 @@ function beginGamepadUse(){
     if(!step || state.gamepadDrag || state.gamepadUseActive) return;
     if(step.cutAnimating) return;
     if(stepRequiresLens(step) && state.lensIndex !== step.lens){
-        toast("先用 Q/E 切到正确的镜片");
+        toast("先用 Q/E 切换到正确镜片");
         renderGamepadHud();
         return;
     }
@@ -10255,7 +10324,7 @@ function renderGamepadHud(){
         ? `${state.gamepadAiming ? "开镜中" : "待开镜"}：${TOOL_LABELS[step.type]} · ${step.title}。`
         : "当前素体流程已完成。";
     action.textContent = step
-        ? `${lensOk ? (stepRequiresLens(step) ? "镜头正确" : "无需切镜头") : "Q/E 或左摇杆上下切到正确的镜片"}；${state.gamepadAiming ? "U(R1)/K(A) 确认" : "按住 O(R2) 后按 U(R1)/K(A)"}；J(X) 选素体，G(option) 退出确认。`
+        ? `${lensOk ? (stepRequiresLens(step) ? "镜片正确" : "无需切换镜片") : "Q/E 或左摇杆上下切换到正确镜片"}；${state.gamepadAiming ? "U(R1)/K(A) 确认" : "按住 O(R2) 后按 U(R1)/K(A)"}；J(X) 选素体，G(option) 退出确认。`
         : "K(A) 或 U(R1) 确认，L(B) 退出。";
 }
 function isGamepadExitConfirmOpen(){
@@ -10470,8 +10539,8 @@ function renderHotspot(){
             if(step){
                 const gamepadLensWindow = document.body.classList.contains("layout-gamepad");
                 scrollCue.innerHTML = gamepadLensWindow
-                    ? `<span class="lens-scroll-text">Q / E 切换镜头</span><span class="lens-scroll-wheel-mark"></span>`
-                    : `<span class="lens-scroll-text">滚动滚轮翻镜片</span><span class="lens-scroll-wheel-mark"></span>`;
+                    ? `<span class="lens-scroll-text">Q / E <strong class="lens-scroll-keyword">切换</strong><strong class="lens-scroll-keyword">镜片</strong></span><span class="lens-scroll-wheel-mark"></span>`
+                    : `<span class="lens-scroll-text">滚轮 <strong class="lens-scroll-keyword">切换</strong><strong class="lens-scroll-keyword">镜片</strong></span><span class="lens-scroll-wheel-mark"></span>`;
             }
         }
         return;
@@ -10673,7 +10742,7 @@ function canUseCurrentStep(step){
     if(!step) return;
     if(step.type === "clean" && step.cleanCompleting) return false;
     if(stepRequiresLens(step) && state.lensIndex !== step.lens){
-        toast(step.type === "repair" ? "裂缝需要正确的镜片显影。" : "镜片不对，需要切到正确的镜片。");
+        toast(step.type === "repair" ? "裂缝需要正确镜片显影。" : "镜片不对，需要切换到正确镜片。");
         return false;
     }
     if(state.activeTool !== step.type){
