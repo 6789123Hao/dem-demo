@@ -7017,6 +7017,7 @@ const TOOL_NOTES = {
     chamfer:"沿宝石边缘来回摩擦直到光滑为止"
 };
 const TOOL_ORDER = ["cut","light","repair","shape","chamfer","clean"];
+const MULTI_TOOL_ORDER = ["light","cut","repair","shape","chamfer","clean"];
 const V27_HIDE_FOLLOW_TOOL_FX = true;
 const V27_SHOW_CUT_TRACKING_TOOL = false;
 const FOLLOW_TOOL_TYPES = new Set();
@@ -8780,7 +8781,7 @@ function buildMultiPlanFromEntries(perGem){
     const tasks = [];
     const chain = [];
     let currentGemId = selected[0]?.id || null;
-    TOOL_ORDER.forEach(type=>{
+    MULTI_TOOL_ORDER.forEach(type=>{
         const candidates = perGem.map(entry=>{
             const task = entry.tasks.find(item=>item.type === type);
             return task ? { gem:entry.gem, task } : null;
