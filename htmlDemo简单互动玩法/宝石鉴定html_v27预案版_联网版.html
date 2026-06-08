@@ -7034,7 +7034,7 @@ const REPAIR_FILL_PER_CLICK = .32;
 const REPAIR_COMPLETE_THRESHOLD = .8;
 const CLEAN_DISTANCE_REQUIRED = 1260;
 const REWARD_FOCUS_RESTORE_DELAY_MS = 450;
-const LIGHT_SEARCH_REQUIRED_MS = 600;
+const LIGHT_SEARCH_REQUIRED_MS = 300;
 const LIGHT_HIT_RADIUS = 24;
 const LIGHT_SIGNAL_RADIUS = 44;
 const LIGHT_STEP_CHANCE = .58;
@@ -7141,6 +7141,12 @@ const DEMO_DATA_PACKS = {
         note:"每种素体多份，用于检查奖励弹窗长列表滚动和收集。",
         known:["pearl","garnet","sunstone","obsidian","fluorite","malachite","agate","catseye","jadeite","turquoise","hetian","shoushan"],
         bag:{ pearl:10, agate:4, garnet:8, sunstone:3, catseye:12, jadeite:5, obsidian:9, fluorite:2, malachite:11, turquoise:6, hetian:7, shoushan:1 }
+    },
+    fluoriteTestOnly:{
+        label:"萤石测试 x15",
+        note:"只放萤石测试石，用于连续检查完整玩法链路、库存消耗和返还。",
+        known:["fluorite_test"],
+        bag:{ fluorite_test:15 }
     }
 };
 const TUTORIAL_PAGES = [
@@ -7181,6 +7187,7 @@ const state = {
     platePhysicsFrame:0,
     platePhysicsBodies:null,
     multiSlots:[null, null, null],
+    multiReservedBag:{},
     multiSkipPulseType:null,
     pendingBatch:false,
     active:null,
@@ -7301,6 +7308,10 @@ function applyLayoutMode(mode, options = {}){
     document.body.classList.toggle("device-desktop", state.deviceMode === "desktop");
     document.body.classList.toggle("device-mobile", state.deviceMode === "mobile");
     document.body.classList.toggle("device-gamepad", state.deviceMode === "gamepad");
+    if(!isMultiSelectLayoutMode() && !state.active && (state.multiSlots?.some(Boolean) || Object.keys(ensureMultiReservedBag()).length)){
+        returnAllMultiReservations();
+        state.multiSlots = [null, null, null];
+    }
     if(state.layoutMode !== "gamepad"){
         setGamepadAiming(false);
         closeGamepadExitConfirm();
@@ -7423,6 +7434,92 @@ function normalizedBag(bag){
 function bagTotal(){ return Object.values(state.bag).reduce((sum,n)=>sum+n,0); }
 function plateTotal(){ return Object.values(state.plate).reduce((sum,n)=>sum+n,0); }
 function countInBag(id){ return state.bag[id] || 0; }
+function refreshBagViews(){
+    const bagCountEl = document.getElementById("bag-count");
+    if(bagCountEl) bagCountEl.textContent = `${bagTotal()}素体`;
+    ensureMultiSlots(false);
+    renderKnownList();
+    renderMultiSelectPanel();
+    renderGamepadHud();
+}
+function consumeBagStone(id, amount=1){
+    const available = countInBag(id);
+    const requested = Math.max(0, Math.floor(amount || 0));
+    const consumed = Math.min(available, requested);
+    if(consumed <= 0) return 0;
+    state.bag[id] = available - consumed;
+    if(state.bag[id] <= 0) state.bag[id] = 0;
+    return consumed;
+}
+function returnConsumedBag(consumedBag){
+    let returned = 0;
+    Object.entries(consumedBag || {}).forEach(([id, amount])=>{
+        const restored = Math.max(0, Math.floor(amount || 0));
+        if(restored <= 0) return;
+        state.bag[id] = countInBag(id) + restored;
+        returned += restored;
+    });
+    return returned;
+}
+function isActiveCompletionLocked(active){
+    return !!(active?.tasks?.length && active.stepIndex >= active.tasks.length && active.tasks.some(step=>step.finalCeremonyStarted));
+}
+function returnActiveConsumed(active){
+    if(!active || isActiveCompletionLocked(active)) return 0;
+    const returned = returnConsumedBag(active.consumedBag);
+    active.consumedBag = {};
+    if(returned > 0) refreshBagViews();
+    return returned;
+}
+function ensureMultiReservedBag(){
+    if(!state.multiReservedBag || typeof state.multiReservedBag !== "object") state.multiReservedBag = {};
+    return state.multiReservedBag;
+}
+function multiReservedCount(id){
+    return ensureMultiReservedBag()[id] || 0;
+}
+function hasMultiSlotStock(id){
+    return !!id && (countInBag(id) > 0 || multiReservedCount(id) > 0);
+}
+function reserveMultiGem(id){
+    const amount = consumeBagStone(id, countInBag(id));
+    if(amount <= 0) return 0;
+    const reserved = ensureMultiReservedBag();
+    reserved[id] = (reserved[id] || 0) + amount;
+    return amount;
+}
+function returnMultiReservation(id){
+    const reserved = ensureMultiReservedBag();
+    const amount = reserved[id] || 0;
+    if(amount <= 0) return 0;
+    delete reserved[id];
+    return returnConsumedBag({ [id]:amount });
+}
+function clearMultiReservationForSlot(index){
+    const id = state.multiSlots?.[index];
+    if(!id) return 0;
+    return returnMultiReservation(id);
+}
+function takeMultiReservedBagForActive(ids){
+    const reserved = ensureMultiReservedBag();
+    const consumedBag = {};
+    ids.forEach(id=>{
+        const reservedAmount = reserved[id] || 0;
+        if(reservedAmount > 0){
+            consumedBag[id] = (consumedBag[id] || 0) + reservedAmount;
+            delete reserved[id];
+            return;
+        }
+        const consumed = consumeBagStone(id, countInBag(id));
+        if(consumed > 0) consumedBag[id] = (consumedBag[id] || 0) + consumed;
+    });
+    return consumedBag;
+}
+function returnAllMultiReservations(){
+    const returned = returnConsumedBag(ensureMultiReservedBag());
+    state.multiReservedBag = {};
+    return returned;
+}
 function isUnseen(id){ return !state.playedTypes.has(id) && countInBag(id) > 0; }
 function sortedBagIds(){
     return GEM_BLUEPRINTS
@@ -7436,7 +7533,7 @@ function sortedBagIds(){
         });
 }
 function sortedListGems(){
-    return [...GEM_BLUEPRINTS].sort((a,b)=>{
+    return GEM_BLUEPRINTS.filter(gem=>countInBag(gem.id) > 0).sort((a,b)=>{
         if(state.listSortKey === "rarity"){
             if(b.rarity !== a.rarity) return state.raritySortDir * (a.rarity - b.rarity);
             if(countInBag(b.id) !== countInBag(a.id)) return countInBag(b.id) - countInBag(a.id);
@@ -7494,43 +7591,56 @@ function applyListSort(nextSort){
     renderKnownList();
 }
 function selectedMultiIds(){
-    return (state.multiSlots || []).filter(id=>id && countInBag(id) > 0);
+    return (state.multiSlots || []).filter(id=>hasMultiSlotStock(id));
 }
 function ensureMultiSlots(auto=false){
     if(!Array.isArray(state.multiSlots) || state.multiSlots.length !== 3) state.multiSlots = [null, null, null];
-    state.multiSlots = state.multiSlots.map(id=>id && countInBag(id) > 0 ? id : null);
+    state.multiSlots = state.multiSlots.map(id=>hasMultiSlotStock(id) ? id : null);
     if(auto && !state.multiSlots.some(Boolean)){
-        sortedBagIds().slice(0, 3).forEach((id, index)=>{ state.multiSlots[index] = id; });
+        sortedBagIds().slice(0, 3).forEach((id, index)=>addMultiGemToSlot(id, index));
     }
 }
 function addMultiGemToSlot(id, preferredIndex=null){
-    if(countInBag(id) <= 0){ toast("袋内没有这种素体"); return; }
+    if(countInBag(id) <= 0 && multiReservedCount(id) <= 0){ toast("袋内没有这种素体"); return; }
     ensureMultiSlots();
     const existingIndex = state.multiSlots.findIndex(slotId=>slotId === id);
     if(existingIndex >= 0 && preferredIndex == null){
+        clearMultiReservationForSlot(existingIndex);
         state.multiSlots[existingIndex] = null;
         toast("已取消选择");
-        renderKnownList();
-        renderMultiSelectPanel();
+        refreshBagViews();
         return;
     }
-    if(existingIndex >= 0) state.multiSlots[existingIndex] = null;
     let slotIndex = Number.isInteger(preferredIndex) ? preferredIndex : state.multiSlots.findIndex(slotId=>!slotId);
     if(slotIndex < 0) slotIndex = 0;
+    if(existingIndex >= 0){
+        if(existingIndex === slotIndex){
+            renderKnownList();
+            renderMultiSelectPanel();
+            return;
+        }
+        if(state.multiSlots[slotIndex] && state.multiSlots[slotIndex] !== id) clearMultiReservationForSlot(slotIndex);
+        state.multiSlots[existingIndex] = null;
+        state.multiSlots[slotIndex] = id;
+        refreshBagViews();
+        return;
+    }
+    if(state.multiSlots[slotIndex]) clearMultiReservationForSlot(slotIndex);
+    const reserved = reserveMultiGem(id);
+    if(reserved <= 0){ toast("袋内没有这种素体"); refreshBagViews(); return; }
     state.multiSlots[slotIndex] = id;
-    renderKnownList();
-    renderMultiSelectPanel();
+    refreshBagViews();
 }
 function clearMultiSlot(index){
     ensureMultiSlots();
+    clearMultiReservationForSlot(index);
     state.multiSlots[index] = null;
-    renderKnownList();
-    renderMultiSelectPanel();
+    refreshBagViews();
 }
 function clearMultiSlots(){
+    returnAllMultiReservations();
     state.multiSlots = [null, null, null];
-    renderKnownList();
-    renderMultiSelectPanel();
+    refreshBagViews();
 }
 function startMultiPointerDrag(card, gemId, e){
     if(!isMultiSelectLayoutMode() || isMobileLandscapeMode() || state.active || e.button > 0) return;
@@ -7599,12 +7709,13 @@ function renderMultiSelectPanel(){
             const gem = id ? gemById(id) : null;
             const dotImage = gem ? stoneDotImageValue(gem) : "";
             const bg = gem ? `background:${gem.color}; ${dotImage ? `background-image:${dotImage}` : ""}` : "";
+            const slotAmount = gem ? countInBag(gem.id) + multiReservedCount(gem.id) : 0;
             return `
                 <div class="multi-slot ${gem ? "" : "empty"}" data-slot="${index}">
                     <span class="multi-slot-index">${index + 1}</span>
                     ${gem ? `<button class="multi-slot-clear" type="button" data-clear-slot="${index}" aria-label="移除${gem.name}">×</button>` : ""}
                     <div class="multi-slot-stone" style="${bg}"></div>
-                    <div class="multi-slot-name">${gem ? `${gem.name} ×${countInBag(gem.id)}` : "拖入素体"}</div>
+                    <div class="multi-slot-name">${gem ? `${gem.name} ×${slotAmount}` : "拖入素体"}</div>
                 </div>
             `;
         }).join("");
@@ -7680,7 +7791,7 @@ function renderDataPackOptions(){
     Object.entries(DEMO_DATA_PACKS).forEach(([key, pack])=>{
         const option = document.createElement("option");
         option.value = key;
-        option.textContent = key === "rewardStress" ? "长奖励" : "默认全量";
+        option.textContent = pack.label || key;
         select.appendChild(option);
     });
     select.value = state.dataPackKey;
@@ -7702,6 +7813,10 @@ function renderKnownList(){
     });
     const gems = sortedListGems();
     state.gamepadSelectionIndex = clampNumber(state.gamepadSelectionIndex || 0, 0, Math.max(0, gems.length - 1));
+    if(!gems.length){
+        list.innerHTML = `<div class="empty-state">素体袋为空</div>`;
+        return;
+    }
     gems.forEach((gem, index)=>{
         const known = true;
         const available = countInBag(gem.id) > 0;
@@ -8453,11 +8568,16 @@ function firstUnseenOrFirstBagId(){
     return sorted[0] || null;
 }
 function releaseTypeToPlate(id, reason, options={}){
-    const amount = countInBag(id);
+    const fromBag = options.fromBag !== false;
+    const requested = Number.isFinite(options.amount) ? Math.max(0, Math.floor(options.amount)) : countInBag(id);
+    const amount = fromBag ? Math.min(countInBag(id), requested) : requested;
     if(amount <= 0) return 0;
-    state.bag[id] = 0;
+    if(fromBag) state.bag[id] = Math.max(0, countInBag(id) - amount);
     state.plate[id] = (state.plate[id] || 0) + amount;
-    addPlateItems(id, amount, { rewardFocusDrop:state.rewardFocus, ...options });
+    const plateOptions = { ...options };
+    delete plateOptions.amount;
+    delete plateOptions.fromBag;
+    addPlateItems(id, amount, { rewardFocusDrop:state.rewardFocus, ...plateOptions });
     const gem = gemById(id);
     state.rewards.push({ id, amount, shards:gem.rewardShards * amount, reason });
     state.knownTypes.add(id);
@@ -8686,25 +8806,38 @@ function buildMultiPlanFromEntries(perGem){
 }
 function abandonActiveGem(message){
     if(!state.active) return;
+    if(isActiveCompletionLocked(state.active)){
+        finishPlateDropPresentation();
+        return;
+    }
     const gem = gemById(state.active.gemId);
+    const returned = returnActiveConsumed(state.active);
     clearHotspot();
     state.active = null;
     state.pendingBatch = false;
     state.hotspotRevealKey = null;
     state.lensLockedUntil = 0;
     state.gamepadFocus = "bag";
-    addLog(`${gem.name} 未完成，已退出当前处理。${message}`);
+    addLog(`${gem.name} 未完成，已退出当前处理。${returned ? `已返还 ${returned} 颗素体。` : ""}${message}`);
 }
 function startCorePlay(id, meta){
     if(isPlateDropPresentationActive()) finishPlateDropPresentation();
     const gem = gemById(id);
+    const consumed = consumeBagStone(id, countInBag(id));
+    if(consumed <= 0){
+        toast("袋内没有这种素体");
+        refreshBagViews();
+        return false;
+    }
     state.active = {
         gemId:id,
         meta,
         tasks:buildCoreTasks(gem),
         stepIndex:0,
-        batchAmount:countInBag(id)
+        batchAmount:consumed,
+        consumedBag:{ [id]:consumed }
     };
+    refreshBagViews();
     state.lensIndex = 0;
     state.activeTool = state.active.tasks[0]?.type || "clean";
     state.hotspotRevealKey = null;
@@ -8717,6 +8850,7 @@ function startCorePlay(id, meta){
     showScreen("screen-main");
     renderPlay();
     playGemAnimation("gem-enter", 680);
+    return true;
 }
 function startMultiPlay(){
     if(isPlateDropPresentationActive()) finishPlateDropPresentation();
@@ -8726,6 +8860,13 @@ function startMultiPlay(){
     if(!ids.length){ toast("先选择要多开的素体"); return; }
     const plan = buildMultiCorePlan(ids);
     if(!plan.tasks.length){ toast("这些素体没有可合并的操作"); return; }
+    const consumedBag = takeMultiReservedBagForActive(plan.ids);
+    if(Object.keys(consumedBag).length !== plan.ids.length){
+        returnConsumedBag(consumedBag);
+        refreshBagViews();
+        toast("素体数量不足，无法开始多开");
+        return;
+    }
     state.active = {
         mode:"multi",
         gemId:plan.tasks[0].gemId,
@@ -8734,8 +8875,10 @@ function startMultiPlay(){
         meta:{ source:"multi", continueBatch:false },
         tasks:plan.tasks,
         stepIndex:0,
-        batchAmount:plan.ids.reduce((sum,id)=>sum + countInBag(id), 0)
+        batchAmount:Object.values(consumedBag).reduce((sum, amount)=>sum + amount, 0),
+        consumedBag
     };
+    refreshBagViews();
     state.lensIndex = 0;
     state.activeTool = state.active.tasks[0]?.type || "clean";
     state.hotspotRevealKey = null;
@@ -11856,8 +11999,12 @@ function completeActiveGem(){
     clearHotspot();
     state.playedTypes.add(active.gemId);
     state.knownTypes.add(active.gemId);
-    const amount = releaseTypeToPlate(active.gemId, "核心玩法完成后同类型出石");
-    addLog(`${gem.name} 鉴定完成，同类型 ${amount} 颗一起出石到盘子。`);
+    const amount = releaseTypeToPlate(active.gemId, "核心玩法完成后出石", {
+        amount:active.consumedBag?.[active.gemId] || active.batchAmount || 1,
+        fromBag:false
+    });
+    active.consumedBag = {};
+    addLog(`${gem.name} 鉴定完成，${amount} 颗出石到盘子。`);
     state.active = null;
     state.hotspotRevealKey = null;
     state.lensLockedUntil = 0;
@@ -11884,12 +12031,15 @@ function completeMultiActive(active){
     ids.forEach((id, index)=>{
         state.playedTypes.add(id);
         state.knownTypes.add(id);
-        const amount = releaseTypeToPlate(id, "多开布局完成后同类型出石", {
+        const amount = releaseTypeToPlate(id, "多开布局完成后出石", {
+            amount:active.consumedBag?.[id] || 1,
+            fromBag:false,
             originAngle:(index / Math.max(1, ids.length)) * Math.PI * 2 - Math.PI / 2,
             multiThrow:true
         });
-        if(amount > 0) addLog(`${gemById(id).name} 多开完成，同类型 ${amount} 颗出石到盘子。`);
+        if(amount > 0) addLog(`${gemById(id).name} 多开完成，${amount} 颗出石到盘子。`);
     });
+    active.consumedBag = {};
     state.active = null;
     state.multiSkipPulseType = null;
     state.hotspotRevealKey = null;
@@ -12183,8 +12333,10 @@ function exitPlay(){
     finishGamepadUse();
     setGamepadAiming(false);
     closeGamepadExitConfirm();
+    if(isActiveCompletionLocked(state.active)) finishPlateDropPresentation();
     if(state.active){
-        addLog(`${gemById(state.active.gemId).name} 玩法退出，未完成的同类型素体留在袋中。`);
+        const returned = returnActiveConsumed(state.active);
+        addLog(`${gemById(state.active.gemId).name} 玩法退出，未完成素体${returned ? "已返还袋中" : "留在袋中"}。`);
     }
     state.active = null;
     state.pendingBatch = false;
@@ -12218,6 +12370,7 @@ function resetDemo(){
     state.rewards = [];
     state.rewardFocus = false;
     state.multiSlots = [null, null, null];
+    state.multiReservedBag = {};
     state.multiSkipPulseType = null;
     state.active = null;
     state.pendingBatch = false;
@@ -12389,7 +12542,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
     document.getElementById("organize-plate-btn").addEventListener("click", rerollPlate);
     document.getElementById("multi-start-btn")?.addEventListener("click", startMultiPlay);
     document.getElementById("multi-autofill-btn")?.addEventListener("click", ()=>{
-        state.multiSlots = [null, null, null];
+        clearMultiSlots();
         ensureMultiSlots(true);
         renderMain();
     });
