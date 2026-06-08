@@ -1605,11 +1605,10 @@
         100%{ opacity:0; transform:translate(calc(var(--slash-length, 240px) - 38px), -118px) rotate(72deg) scale(.9); }
     }
     @keyframes cutToolSlashMove{
-        0%{ transform:translate(var(--cut-tool-anim-tip-x, 50%), var(--cut-tool-anim-tip-y, 20%)) translate(-50%, -12%) rotate(var(--cut-tool-wait-angle, 42deg)) scale(.9); }
-        22%{ transform:translate(var(--cut-tool-anim-start-x, 50%), var(--cut-tool-anim-start-y, 50%)) translate(-50%, -12%) rotate(var(--cut-tool-slash-angle, 72deg)) scale(.96); }
-        62%{ transform:translate(var(--cut-tool-anim-end-x, 58%), var(--cut-tool-anim-end-y, 56%)) translate(-50%, -12%) rotate(var(--cut-tool-slash-angle, 72deg)) scale(.98); }
-        86%{ transform:translate(var(--cut-tool-anim-tip-x, 50%), var(--cut-tool-anim-tip-y, 20%)) translate(-50%, -12%) rotate(var(--cut-tool-wait-angle, 42deg)) scale(.92); }
-        100%{ transform:translate(var(--cut-tool-anim-tip-x, 50%), var(--cut-tool-anim-tip-y, 20%)) translate(-50%, -12%) rotate(var(--cut-tool-wait-angle, 42deg)) scale(.9); }
+        0%{ opacity:1; transform:translate(var(--cut-tool-anim-tip-x, 50%), var(--cut-tool-anim-tip-y, 20%)) translate(-50%, -12%) rotate(var(--cut-tool-wait-angle, 42deg)) scale(.9); }
+        22%{ opacity:1; transform:translate(var(--cut-tool-anim-start-x, 50%), var(--cut-tool-anim-start-y, 50%)) translate(-50%, -12%) rotate(var(--cut-tool-slash-angle, 72deg)) scale(.96); }
+        66%{ opacity:1; transform:translate(var(--cut-tool-anim-end-x, 58%), var(--cut-tool-anim-end-y, 56%)) translate(-50%, -12%) rotate(var(--cut-tool-slash-angle, 72deg)) scale(.98); }
+        100%{ opacity:0; transform:translate(var(--cut-tool-anim-end-x, 58%), var(--cut-tool-anim-end-y, 56%)) translate(-50%, -12%) rotate(var(--cut-tool-slash-angle, 72deg)) scale(.9); }
     }
     @keyframes cutSlashSpark{
         0%{ opacity:0; transform:translate(-50%, -50%) scale(.4); }
@@ -7035,6 +7034,8 @@ const REPAIR_COMPLETE_THRESHOLD = .8;
 const CLEAN_DISTANCE_REQUIRED = 1260;
 const REWARD_FOCUS_RESTORE_DELAY_MS = 450;
 const LIGHT_SEARCH_REQUIRED_MS = 300;
+const CUT_SWIPE_EXTRA_SHOW_LENGTH = 110;
+const CUT_SWIPE_MIN_SHOW_LENGTH = 238;
 const LIGHT_HIT_RADIUS = 24;
 const LIGHT_SIGNAL_RADIUS = 44;
 const LIGHT_STEP_CHANCE = .58;
@@ -7685,10 +7686,7 @@ function finishMultiPointerDrag(e){
 }
 function previewMultiPlan(){
     const ids = selectedMultiIds();
-    return buildMultiPlanFromEntries(ids.map(id=>{
-        const gem = gemById(id);
-        return gem ? { gem, tasks:gem.tasks.filter(task=>task.type !== "soak") } : null;
-    }).filter(Boolean)).chain;
+    return buildMultiCorePlan(ids).chain;
 }
 function multiChainNodeHTML(entry, index, activeIndex=-1, done=false){
     const skip = entry.omitted > 0 ? `<span class="multi-chain-skip">-${entry.omitted}</span>` : "";
@@ -11156,6 +11154,14 @@ function updateDefectDrag(e){
     }
     if(step.type === "cut"){
         renderCutToolFx(step, e.clientX, e.clientY);
+        const dxFromStart = e.clientX - drag.startX;
+        const dyFromStart = e.clientY - drag.startY;
+        const angle = Math.atan2(dyFromStart, dxFromStart) * 180 / Math.PI;
+        const diff = cutLineAngleDiff(angle, step.cutAngle || 0);
+        if(drag.distance >= 80 && diff <= 32){
+            triggerCutSwipeFromDrag(step, drag, e.clientX, e.clientY);
+            return;
+        }
     }
     if(step.type === "light"){
         updateLightSearch(step, e.clientX, e.clientY, dt);
@@ -11214,6 +11220,21 @@ function updateDefectDrag(e){
             beginCleanFinish(step);
         }
     }
+}
+function triggerCutSwipeFromDrag(step, drag, endX, endY){
+    if(!step || !drag || step.cutAnimating || drag.cutTriggered) return false;
+    drag.cutTriggered = true;
+    state.suppressNextClick = true;
+    state.defectDrag = null;
+    playCutSwipeFx(step, drag, endX, endY);
+    step.cutAnimating = true;
+    setTimeout(()=>{
+        if(currentStep()?.id === step.id && !step.done){
+            step.cutAnimating = false;
+            completeCutSwipe(step);
+        }
+    }, 900);
+    return true;
 }
 function spawnDragParticle(x, y, type){
     const particle = document.createElement("span");
@@ -11574,7 +11595,8 @@ function cutDirectedSwipePath(step, startX, startY, finishX, finishY, rect){
     const uy = Math.sin(rad);
     const rawDistance = Math.max(1, Math.hypot(finishX - startX, finishY - startY));
     const geometry = cutStageGeometry(step);
-    const length = Math.max(168, Math.min(rawDistance * 1.04, Math.min(rect.width, rect.height) * .44));
+    const maxLength = Math.min(rect.width, rect.height) * .58;
+    const length = Math.max(CUT_SWIPE_MIN_SHOW_LENGTH, Math.min(rawDistance + CUT_SWIPE_EXTRA_SHOW_LENGTH, maxLength));
     const centerX = Math.max(42, Math.min(rect.width - 42, geometry?.defectX ?? (startX + finishX) / 2));
     const centerY = Math.max(42, Math.min(rect.height - 42, geometry?.defectY ?? (startY + finishY) / 2));
     return {
@@ -11830,8 +11852,7 @@ function playCutSwipeFx(step, drag, endX, endY){
     stage.appendChild(fx);
     setTimeout(()=>{
         fx.remove();
-        if(V27_SHOW_CUT_TRACKING_TOOL) toolFx.classList.remove("cut-tool-slashing");
-        else toolFx.remove();
+        toolFx.remove();
         if(currentStep()?.id === step.id && !step.done) renderPlay();
     }, 920);
 }
@@ -11884,19 +11905,13 @@ function finishDefectDrag(e){
     if(drag.type === "spray") clearSprayToolFx();
     if(step.type !== "cut") scheduleIdleToolRefresh(step);
     if(step.type === "cut"){
+        if(drag.cutTriggered) return;
         const dx = e.clientX - drag.startX;
         const dy = e.clientY - drag.startY;
         const angle = Math.atan2(dy, dx) * 180 / Math.PI;
         const diff = cutLineAngleDiff(angle, step.cutAngle || 0);
         if(drag.distance >= 80 && diff <= 32){
-            playCutSwipeFx(step, drag, e.clientX, e.clientY);
-            step.cutAnimating = true;
-            setTimeout(()=>{
-                if(currentStep()?.id === step.id && !step.done){
-                    step.cutAnimating = false;
-                    completeCutSwipe(step);
-                }
-            }, 900);
+            triggerCutSwipeFromDrag(step, drag, e.clientX, e.clientY);
         }
         else toast("顺着切割长条滑动，正反方向都可以。");
         return;
