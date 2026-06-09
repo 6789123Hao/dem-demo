@@ -9,7 +9,6 @@
 <link rel="preload" as="image" href="assets/ui_v26/ui_lens_frame/lens_inner_glass_A.png" fetchpriority="high" />
 <link rel="preload" as="image" href="assets/ui_v26/ui_left_inventory/stone_card_frame_A.png" fetchpriority="high" />
 <link rel="preload" as="image" href="assets/ui_v26/ui_left_inventory/stone_card_badge_A.png" fetchpriority="high" />
-<link rel="preload" as="image" href="assets/ui_v26/ui_tool_box/tool_box_frame_C.png" fetchpriority="high" />
 <link rel="preload" as="image" href="assets/ui_v26/ui_reward_plate/reward_plate_base_C.png" fetchpriority="high" />
 <title>宝石鉴定</title>
 <style>
@@ -3015,8 +3014,8 @@
         font-size:20px;
         line-height:1;
     }
-    .tool-grid,.lens-grid{ display:grid; grid-template-columns:1fr; gap:8px; }
-    .tool-btn,.lens-btn{
+    .lens-grid{ display:grid; grid-template-columns:1fr; gap:8px; }
+    .lens-btn{
         border:1px solid rgba(86,52,31,.2);
         border-radius:8px;
         background:#fffaf1;
@@ -3024,7 +3023,7 @@
         cursor:pointer;
         text-align:left;
     }
-    .tool-btn.active,.lens-btn.active{
+    .lens-btn.active{
         border-color:#a96c27;
         background:#ffe8bf;
         font-weight:800;
@@ -3330,138 +3329,6 @@
                 0 16px 30px rgba(6,26,22,.2);
             transform:scale(1.08);
         }
-    }
-    .tool-panel{ display:none; }
-    .current-tool-card{
-        position:relative;
-        display:flex;
-        align-items:center;
-        gap:14px;
-        justify-content:center;
-        flex:1 1 auto;
-        min-height:260px;
-        padding:14px 12px;
-        border:1px solid rgba(86,52,31,.18);
-        border-radius:8px;
-        background:linear-gradient(180deg, rgba(255,252,246,.94), rgba(239,219,188,.82));
-        box-shadow:0 10px 24px rgba(68,43,25,.1);
-        overflow:hidden;
-    }
-    .current-tool-card::before{
-        content:"";
-        position:absolute;
-        left:8px;
-        right:8px;
-        top:8px;
-        height:calc(100% - 16px);
-        border-radius:7px;
-        background:linear-gradient(180deg, #8a5f3c, #4c3423);
-        display:grid;
-        place-items:center;
-        color:#ffe8bf;
-        font-weight:900;
-        letter-spacing:0;
-        box-shadow:inset 0 -5px 10px rgba(0,0,0,.16), 0 10px 18px rgba(72,44,25,.18);
-        transform:translateY(0);
-        transition:transform .44s cubic-bezier(.18,.82,.32,1), opacity .28s ease;
-        z-index:3;
-    }
-    body.playing .current-tool-card::before{
-        transform:translateY(calc(-100% - 14px));
-        opacity:.18;
-    }
-    .current-tool-icon{
-        position:relative;
-        z-index:2;
-        width:176px;
-        height:min(100%, 318px);
-        min-height:236px;
-        border-radius:18px;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        overflow:hidden;
-        font-size:34px;
-        font-weight:900;
-        color:#fff8e8;
-        background:linear-gradient(180deg, #6d4a32, #3f2a1d);
-        box-shadow:inset 0 0 0 3px rgba(255,255,255,.18), 0 10px 16px rgba(68,43,25,.16);
-    }
-    .tool-wheel{
-        display:flex;
-        flex-direction:row;
-        align-items:center;
-        justify-content:center;
-        gap:8px;
-        width:246px;
-        transition:transform .34s ease;
-    }
-    .tool-wheel-item{
-        flex:0 0 auto;
-        width:64px;
-        height:190px;
-        border-radius:18px;
-        display:grid;
-        place-items:center;
-        background:rgba(255,248,226,.13);
-        box-shadow:inset 0 0 0 2px rgba(255,255,255,.14);
-        color:#fff4d1;
-        font-size:28px;
-        font-weight:900;
-        opacity:.5;
-        transform:scale(.82);
-    }
-    .tool-wheel-item.active{
-        width:84px;
-        height:258px;
-        opacity:1;
-        transform:scale(1);
-        background:rgba(255,232,191,.2);
-    }
-    .tool-sprite{
-        width:100%;
-        height:100%;
-        object-fit:contain;
-        pointer-events:none;
-        filter:drop-shadow(0 10px 12px rgba(0,0,0,.34));
-    }
-    .tool-wheel-item:not(.active) .tool-sprite{
-        opacity:.68;
-        transform:scale(.9);
-    }
-    .tool-wheel-item.sprite-missing::after{
-        content:attr(data-fallback);
-    }
-    .current-tool-text{
-        position:relative;
-        z-index:2;
-        min-width:96px;
-    }
-    .current-tool-text strong{ display:block; font-size:18px; }
-    .current-tool-text span{ display:block; color:var(--muted); font-size:12px; margin-top:4px; }
-    .current-tool-card.tool-switching .current-tool-text{
-        animation:toolTextFade .28s ease both;
-    }
-    .current-tool-card.tool-switching .tool-wheel{
-        animation:toolWheelRoll .42s cubic-bezier(.18,.82,.32,1) both;
-    }
-    .current-tool-card.tool-switching.roll-left .tool-wheel{
-        animation-name:toolWheelRollLeft;
-    }
-    @keyframes toolTextFade{
-        0%{ opacity:.15; transform:translateY(4px); }
-        48%{ opacity:0; transform:translateY(-3px); }
-        100%{ opacity:1; transform:translateX(0); }
-    }
-    @keyframes toolWheelRoll{
-        0%{ transform:translateX(58px); }
-        54%{ transform:translateX(-14px); }
-        100%{ transform:translateX(0); }
-    }
-    @keyframes toolWheelRollLeft{
-        0%{ transform:translateX(-58px); }
-        54%{ transform:translateX(14px); }
-        100%{ transform:translateX(0); }
     }
     .progress{
         height:10px;
@@ -4817,37 +4684,6 @@
         --desktop-collect-height:58px;
         padding-bottom:382px;
     }
-    body:not(.layout-mobile-landscape) .current-tool-card{
-        flex:0 0 auto;
-        width:258px;
-        min-height:318px;
-        align-self:center;
-        flex-direction:column;
-        gap:8px;
-        padding:12px 10px 14px;
-    }
-    body:not(.layout-mobile-landscape) .current-tool-icon{
-        width:150px;
-        height:236px;
-        min-height:218px;
-    }
-    body:not(.layout-mobile-landscape) .tool-wheel{
-        width:218px;
-        gap:4px;
-    }
-    body:not(.layout-mobile-landscape) .tool-wheel-item{
-        width:54px;
-        height:166px;
-        border-radius:15px;
-    }
-    body:not(.layout-mobile-landscape) .tool-wheel-item.active{
-        width:76px;
-        height:228px;
-    }
-    body:not(.layout-mobile-landscape) .current-tool-text{
-        min-width:0;
-        text-align:center;
-    }
     .reward-dock{
         margin-top:72px;
         display:grid;
@@ -5085,8 +4921,6 @@
         --v26-stone-badge:url("assets/ui_v26/ui_left_inventory/stone_card_badge_A.png");
         --v26-lens-ring:url("assets/ui_v26/ui_lens_frame/lens_outer_ring_A.png");
         --v26-lens-glass:url("assets/ui_v26/ui_lens_frame/lens_inner_glass_A.png");
-        --v26-tool-box:url("assets/ui_v26/ui_tool_box/tool_box_frame_C.png");
-        --v26-tool-slot:url("assets/ui_v26/ui_tool_box/tool_slot_active_C.png");
         --v26-reward-plate:url("assets/ui_v26/ui_reward_plate/reward_plate_base_C.png");
         --v26-notebook:url("assets/ui_v26/ui_center_notebook/notebook_page_C.png");
         --v26-lens-controls:url("assets/ui_v26/ui_lens_controls/lens_button_panel_C.png");
@@ -5304,49 +5138,6 @@
         padding:26px 22px 382px;
         border-color:rgba(164,118,55,.36);
         background:linear-gradient(180deg, rgba(255,248,230,.94), rgba(230,217,190,.88));
-    }
-    body.v26-real-asset .current-tool-card{
-        border-color:transparent;
-        background:
-            linear-gradient(rgba(45,34,25,.08), rgba(45,34,25,.08)),
-            var(--v26-tool-box) center / 100% 100% no-repeat;
-        box-shadow:none;
-    }
-    body.v26-real-asset .current-tool-card::before{
-        content:"工具待命";
-        background:linear-gradient(180deg, #806044, #3d2a1f);
-        color:#ffe4a7;
-        box-shadow:inset 0 -7px 12px rgba(0,0,0,.2), 0 14px 24px rgba(34,22,15,.24);
-    }
-    body.v26-real-asset.playing .current-tool-card::before{
-        transform:translateY(calc(-100% - 14px));
-        opacity:.08;
-    }
-    body.v26-real-asset .current-tool-icon{
-        background:
-            var(--v26-tool-slot) center / 100% 100% no-repeat,
-            linear-gradient(180deg, #634830, #2c3f36);
-        box-shadow:none;
-    }
-    body.v26-real-asset .tool-wheel-item:not(.active){
-        background:url("assets/ui_v26/ui_tool_box/tool_slot_side_C.png") center / 100% 100% no-repeat;
-        box-shadow:none;
-    }
-    body.v26-real-asset .tool-wheel-item.active{
-        background:rgba(255,225,154,.08);
-    }
-    body.v26-real-asset .current-tool-text{
-        display:none;
-    }
-    body.v26-real-asset .current-tool-text strong{
-        font-size:18px;
-        line-height:1.2;
-    }
-    body.v26-real-asset .current-tool-text span{
-        color:rgba(255,242,205,.72);
-    }
-    body.v26-real-asset .current-tool-card{
-        display:none !important;
     }
     body.v26-real-asset .collect-cta{
         border-color:transparent;
@@ -5978,19 +5769,6 @@
         pointer-events:none;
     }
     body.layout-mobile-landscape .right-panel h2{ display:none; }
-    body.layout-mobile-landscape .current-tool-card{
-        position:absolute;
-        right:0;
-        top:0;
-        width:210px;
-        min-height:240px;
-        pointer-events:auto;
-    }
-    body.layout-mobile-landscape .current-tool-icon{
-        width:138px;
-        min-height:200px;
-        height:210px;
-    }
     body.layout-mobile-landscape .collect-cta{
         position:absolute;
         right:24px;
@@ -6126,7 +5904,6 @@
         color:#fff4c8;
         pointer-events:none;
     }
-    body.layout-gamepad .current-tool-card{ display:none; }
     body.layout-gamepad .title::after{
         left:170px;
         opacity:.34;
@@ -6880,10 +6657,6 @@
                             <h3>切换镜片</h3>
                             <div id="lens-grid" class="lens-grid"></div>
                         </div>
-                        <div class="step-box tool-panel">
-                            <h3>手选工具</h3>
-                            <div id="tool-grid" class="tool-grid"></div>
-                        </div>
                     </div>
                 </div>
                 <div id="batch-drop" class="batch-pipe">
@@ -6896,7 +6669,7 @@
         </main>
 
         <aside class="panel right-panel">
-            <h2>工具与宝石</h2>
+            <h2>成石盘</h2>
             <div id="gamepad-guide" class="gamepad-guide" aria-live="polite">
                 <h3>手柄模拟键位</h3>
                 <p>X 在素体选择与玩法之间往返；R2 开镜，方向键瞄准；R1 或 A 确认落刀/落刷。</p>
@@ -6914,13 +6687,6 @@
                 <div class="gamepad-status">
                     <span id="gamepad-focus-text">WSAD 或 F/V/C/B 选择素体，K(A) 放入镜片。</span>
                     <span id="gamepad-action-text">Y 收集奖励，X 切换素体选择/玩法。</span>
-                </div>
-            </div>
-            <div id="current-tool-card" class="current-tool-card">
-                <div id="current-tool-icon" class="current-tool-icon">-</div>
-                <div class="current-tool-text">
-                    <strong id="current-tool-name">等待工具</strong>
-                    <span id="current-tool-note">进入玩法后显示当前步骤工具</span>
                 </div>
             </div>
             <button class="btn primary collect-cta" id="collect-btn">
@@ -6998,7 +6764,6 @@ const TOOL_LABELS = {
     soak:"浸润",
     chamfer:"磨平"
 };
-const TOOL_ICONS = { cut:"切", repair:"滴", shape:"型", clean:"净", light:"光", soak:"浸", chamfer:"磨" };
 const TOOL_SPRITES = {
     cut:"assets/ui_v26/ui_tool_sprites/tool_cut_C.png",
     repair:"assets/ui_v26/ui_tool_sprites/tool_repair_C.png",
@@ -7007,16 +6772,7 @@ const TOOL_SPRITES = {
     light:"assets/ui_v26/ui_tool_sprites/tool_light_C.png",
     chamfer:"assets/ui_v26/ui_tool_sprites/tool_chamfer_cloth_A.png"
 };
-const TOOL_NOTES = {
-    cut:"沿灰色石皮拖拽切开",
-    repair:"瞄准裂缝滴入修复精华",
-    shape:"描摹目标轮廓定型",
-    clean:"擦净后闪光收纳",
-    light:"移动寻光灯找反光点",
-    soak:"放入量杯左右摇晃",
-    chamfer:"沿宝石边缘来回摩擦直到光滑为止"
-};
-const TOOL_ORDER = ["cut","light","repair","shape","chamfer","clean"];
+// v27 removed manual tool buttons and the tool wheel; restore from v26 RealAsset if needed.
 const MULTI_TOOL_ORDER = ["light","cut","repair","shape","chamfer","clean"];
 const V27_HIDE_FOLLOW_TOOL_FX = true;
 const V27_SHOW_CUT_TRACKING_TOOL = false;
@@ -7781,7 +7537,6 @@ function renderMain(){
     renderKnownList();
     renderMultiSelectPanel();
     renderPlate();
-    renderCurrentTool();
     renderGamepadHud();
 }
 function renderDataPackOptions(){
@@ -9167,9 +8922,6 @@ const V26_UI_PRELOAD_ASSETS = [
     "assets/ui_v26/ui_lens_frame/lens_inner_glass_A.png",
     "assets/ui_v26/ui_lens_frame/lens_filter_transmit_B.png",
     "assets/ui_v26/ui_lens_frame/lens_filter_crack_C.png",
-    "assets/ui_v26/ui_tool_box/tool_box_frame_C.png",
-    "assets/ui_v26/ui_tool_box/tool_slot_active_C.png",
-    "assets/ui_v26/ui_tool_box/tool_slot_side_C.png",
     ...Object.values(TOOL_SPRITES),
     "assets/ui_v26/ui_reward_plate/reward_plate_base_C.png",
     "assets/ui_v26/ui_center_notebook/notebook_page_C.png",
@@ -9292,62 +9044,6 @@ function applyGemVisualVars(gem3d, gem){
     gem3d.style.setProperty("--completion-spin-image", completionSpinImageValue(gem));
     gem3d.classList.add(`gem-${gem.id}`);
 }
-function renderCurrentTool(){
-    const card = document.getElementById("current-tool-card");
-    const icon = document.getElementById("current-tool-icon");
-    const name = document.getElementById("current-tool-name");
-    const note = document.getElementById("current-tool-note");
-    if(!icon || !name || !note) return;
-    const step = currentStep();
-    const type = step?.type || state.activeTool || "clean";
-    if(card && card.dataset.toolType && card.dataset.toolType !== type){
-        const order = TOOL_ORDER;
-        const prevIndex = order.indexOf(card.dataset.toolType);
-        const nextIndex = order.indexOf(type);
-        const dir = prevIndex >= 0 && nextIndex >= 0 && ((nextIndex - prevIndex + order.length) % order.length) > order.length / 2 ? "roll-left" : "";
-        card.classList.remove("tool-switching", "roll-left");
-        void card.offsetWidth;
-        if(dir) card.classList.add(dir);
-        card.classList.add("tool-switching");
-        clearTimeout(renderCurrentTool.swapTimer);
-        renderCurrentTool.swapTimer = setTimeout(()=>card.classList.remove("tool-switching", "roll-left"), 440);
-    }
-    if(card) card.dataset.toolType = type;
-    icon.innerHTML = toolWheelMarkup(type);
-    name.textContent = step ? TOOL_LABELS[type] : "工具箱";
-    note.textContent = step ? shortToolNote(step) : "待机";
-}
-function toolWheelMarkup(type){
-    const order = TOOL_ORDER;
-    const index = Math.max(0, order.indexOf(type));
-    const prev = order[(index - 1 + order.length) % order.length];
-    const next = order[(index + 1) % order.length];
-    return `
-        <div class="tool-wheel">
-            ${toolWheelItemMarkup(prev, false)}
-            ${toolWheelItemMarkup(type, true)}
-            ${toolWheelItemMarkup(next, false)}
-        </div>
-    `;
-}
-function toolWheelItemMarkup(type, active){
-    const sprite = TOOL_SPRITES[type];
-    const label = TOOL_LABELS[type] || type;
-    const content = sprite
-        ? `<img class="tool-sprite" src="${sprite}" alt="${label}" onerror="this.closest('.tool-wheel-item')?.classList.add('sprite-missing');this.remove();">`
-        : (TOOL_ICONS[type] || "-");
-    return `<span class="tool-wheel-item ${active ? "active" : ""}" data-fallback="${TOOL_ICONS[type] || "-"}">${content}</span>`;
-}
-function shortToolNote(step){
-    if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `${step.cutHits || 0}/${step.cutHitsRequired}`;
-    if(step.type === "repair") return `${Math.min(100, Math.round((step.repairFill || 0) * 100))}%`;
-    if(step.type === "clean") return `${Math.min(100, Math.round((step.dragDistance || 0) / CLEAN_DISTANCE_REQUIRED * 100))}%`;
-    if(step.type === "light") return `${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`;
-    if(step.type === "soak") return `${Math.min(100, Math.round((step.soakProgress || 0) / SOAK_REQUIRED_MS * 100))}%`;
-    if(step.type === "chamfer") return `${chamferCompletedCornerCount(step)}/${step.chamferCorners?.length || 3}`;
-    if(step.type === "shape") return SHAPE_MARKS[step.shapeTarget] || "描边";
-    return step.title || "";
-}
 function renderPlay(){
     const active = state.active;
     if(!active) return;
@@ -9355,7 +9051,7 @@ function renderPlay(){
     if(exitButton) exitButton.textContent = "退出玩法";
     const step = currentStep();
     const gem = gemById(step?.gemId || active.gemId);
-    if(isGamepadMode() && step) state.activeTool = step.type;
+    if(step) state.activeTool = step.type;
     const gem3d = document.getElementById("gem3d");
     const visual = visualStateForActive(active, step);
     const stepClass = step ? `step-${step.type}` : "";
@@ -9383,8 +9079,6 @@ function renderPlay(){
     document.getElementById("gem-core").style.setProperty("--gem-color", gem.color);
     document.getElementById("lens-stage").style.setProperty("--lens-filter", LENSES[state.lensIndex].filter);
     renderLensButtons();
-    renderToolButtons();
-    renderCurrentTool();
     renderChamferOverlay(step, gem, visual);
     renderSoakOverlay(step, gem, visual);
     renderIdleStepToolFx(step);
@@ -9993,21 +9687,6 @@ function setLensAttention(active){
     document.querySelector(".core-controls")?.classList.toggle("lens-attention", !!active);
     document.getElementById("lens-dial")?.classList.toggle("lens-attention", !!active);
 }
-function renderToolButtons(){
-    const grid = document.getElementById("tool-grid");
-    grid.innerHTML = "";
-    TOOL_ORDER.forEach(type=>{
-        const btn = document.createElement("button");
-        btn.className = `tool-btn ${state.activeTool === type ? "active" : ""}`;
-        btn.textContent = TOOL_LABELS[type];
-        btn.addEventListener("click", ()=>{
-            state.activeTool = type;
-            renderPlay();
-            toast(`切换到${TOOL_LABELS[type]}工具`);
-        });
-        grid.appendChild(btn);
-    });
-}
 function cycleLensByWheel(deltaY){
     if(!state.active) return;
     const dir = deltaY >= 0 ? 1 : -1;
@@ -10015,19 +9694,6 @@ function cycleLensByWheel(deltaY){
         renderPlay();
         toast("已切换镜片");
     }
-}
-function cycleToolByRightClick(){
-    if(!state.active) return;
-    cycleToolByDirection(1);
-}
-function cycleToolByDirection(dir=1){
-    if(!state.active) return;
-    const order = TOOL_ORDER;
-    const current = order.indexOf(state.activeTool);
-    const next = order[(current + dir + order.length) % order.length];
-    state.activeTool = next;
-    renderPlay();
-    toast(`切换到${TOOL_LABELS[next]}工具`);
 }
 const GAMEPAD_KEY_SET = new Set([
     "w","a","s","d","f","v","c","b","g","h","i","j","k","l","q","e","u","o",
@@ -10381,7 +10047,6 @@ function updateGamepadUse(dt){
     if(step.type === "light"){
         updateLightSearch(step, point.x, point.y, dt);
         renderLightToolFx(point.x, point.y, step.lightSignal || 0, step, true);
-        renderCurrentTool();
         if((step.lightHold || 0) >= LIGHT_SEARCH_REQUIRED_MS){
             clearLightToolFx();
             state.gamepadDrag = null;
@@ -10882,13 +10547,10 @@ function clearHotspot(){
 }
 function canUseCurrentStep(step){
     if(!step) return;
+    state.activeTool = step.type;
     if(step.type === "clean" && step.cleanCompleting) return false;
     if(stepRequiresLens(step) && state.lensIndex !== step.lens){
         toast(step.type === "repair" ? "裂缝需要正确镜片显影。" : "镜片不对，需要切换到正确镜片。");
-        return false;
-    }
-    if(state.activeTool !== step.type){
-        toast(`工具不对，需要${TOOL_LABELS[step.type]}`);
         return false;
     }
     return true;
@@ -11121,7 +10783,6 @@ function startDefectDrag(e){
     if(step.type === "light"){
         updateLightSearch(step, e.clientX, e.clientY, 0);
         renderLightToolFx(e.clientX, e.clientY, step.lightSignal || 0, step, true);
-        renderCurrentTool();
     }
     if(step.type === "soak"){
         if(step.soakPhase !== "complete" && step.soakPhase !== "failed") step.soakPhase = "shake";
@@ -11167,7 +10828,6 @@ function updateDefectDrag(e){
     if(step.type === "light"){
         updateLightSearch(step, e.clientX, e.clientY, dt);
         renderLightToolFx(e.clientX, e.clientY, step.lightSignal || 0, step, true);
-        renderCurrentTool();
         if((step.lightHold || 0) >= LIGHT_SEARCH_REQUIRED_MS){
             state.suppressNextClick = true;
             state.defectDrag = null;
@@ -11179,7 +10839,6 @@ function updateDefectDrag(e){
     if(step.type === "soak"){
         updateSoakShake(step, dx, dy, dt);
         renderPlay();
-        renderCurrentTool();
         if(step.soakPhase === "failed"){
             state.suppressNextClick = true;
             state.defectDrag = null;
