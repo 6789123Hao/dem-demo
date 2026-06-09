@@ -6,7 +6,7 @@
 
 当前主线：`v27预案版`
 
-最近已推送提交：`409daaa Polish v27 lens and chamfer hints`
+最近已推送提交：`64c4f64 Remove manual tool controls from v27`
 
 当前线上入口：根目录 `play.html` 已跳转到 `htmlDemo简单互动玩法/宝石鉴定html_v27预案版_联网版.html`。
 
@@ -15,6 +15,7 @@
 - 本地开发版：`htmlDemo简单互动玩法/宝石鉴定html_v27预案版.html`
 - 联网外发版：`htmlDemo简单互动玩法/宝石鉴定html_v27预案版_联网版.html`
 - 旧 v26 文件仍保留作参考，但当前试玩、GM 调试和 `play.html` 都应以 v27 为准。
+- v27 已删除手选工具按钮和工具轮，工具只跟随当前步骤自动切换；未来如果要复原手动工具 UI，回 `v26RealAsset` 版参考。
 - 修改 HTML 后要同步联网版；联网版所有 `assets/` 必须替换为 GitHub raw 前缀：
   `https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/`
 
@@ -191,7 +192,7 @@
 
 交互规则：
 
-- 手柄模式不提供切工具入口，工具跟随当前步骤自动切换。
+- 所有模式都不提供切工具入口，工具跟随当前步骤自动切换。
 - 素材选择阶段：`WSAD` 和 `F/V/C/B` 都能选择素体。
 - 素材选择阶段：`L1/R1` 用作排序选择按钮。
 - `R2(O)` 按住才显示瞄准靶，瞄准靶每次从画面中心出现，松开消失。
