@@ -227,6 +227,7 @@
         pointer-events:none;
     }
     body.playing .entry-drag-cue{ display:none; }
+    body.bag-empty .entry-drag-cue{ display:none; }
     .drag-link-arrow{
         position:absolute;
         left:0;
@@ -7576,6 +7577,7 @@ function renderKnownList(){
         }
     });
     const gems = sortedListGems();
+    document.body.classList.toggle("bag-empty", !gems.length);
     state.gamepadSelectionIndex = clampNumber(state.gamepadSelectionIndex || 0, 0, Math.max(0, gems.length - 1));
     if(!gems.length){
         list.innerHTML = `<div class="empty-state">素体袋为空</div>`;
