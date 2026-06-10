@@ -6737,7 +6737,7 @@
 <div id="ability-exit-result-modal" class="gamepad-exit-modal ability-exit-result-modal" role="dialog" aria-modal="true" aria-labelledby="ability-exit-result-title" aria-describedby="ability-exit-result-body">
     <div class="gamepad-exit-dialog">
         <h2 id="ability-exit-result-title">假装退了咳咳</h2>
-        <p id="ability-exit-result-body">奖励已自动收集一次，确定后回到准备页面。</p>
+        <p id="ability-exit-result-body">奖励已自动收集一次，确定后回到大世界。</p>
         <div class="gamepad-exit-actions">
             <button class="btn primary" id="ability-exit-ok-btn" type="button">确定</button>
         </div>
@@ -7012,6 +7012,11 @@ function isMobileLandscapeMode(){
 }
 function isMultiSelectLayoutMode(){
     return state.entryMode === "multi";
+}
+const MULTI_SLOT_FILL_ORDER = [1, 0, 2];
+function multiSlotDisplayNumber(index){
+    const orderIndex = MULTI_SLOT_FILL_ORDER.indexOf(index);
+    return orderIndex >= 0 ? orderIndex + 1 : index + 1;
 }
 function resolvedLayoutMode(){
     if(state.deviceMode === "mobile") return "mobileLandscape";
@@ -7349,13 +7354,16 @@ function applyListSort(nextSort){
     renderKnownList();
 }
 function selectedMultiIds(){
-    return (state.multiSlots || []).filter(id=>hasMultiSlotStock(id));
+    ensureMultiSlots(false);
+    return MULTI_SLOT_FILL_ORDER
+        .map(index=>state.multiSlots[index])
+        .filter(id=>hasMultiSlotStock(id));
 }
 function ensureMultiSlots(auto=false){
     if(!Array.isArray(state.multiSlots) || state.multiSlots.length !== 3) state.multiSlots = [null, null, null];
     state.multiSlots = state.multiSlots.map(id=>hasMultiSlotStock(id) ? id : null);
     if(auto && !state.multiSlots.some(Boolean)){
-        sortedBagIds().slice(0, 3).forEach((id, index)=>addMultiGemToSlot(id, index));
+        sortedBagIds().slice(0, 3).forEach((id, index)=>addMultiGemToSlot(id, MULTI_SLOT_FILL_ORDER[index] ?? index));
     }
 }
 function addMultiGemToSlot(id, preferredIndex=null){
@@ -7369,8 +7377,10 @@ function addMultiGemToSlot(id, preferredIndex=null){
         refreshBagViews();
         return;
     }
-    let slotIndex = Number.isInteger(preferredIndex) ? preferredIndex : state.multiSlots.findIndex(slotId=>!slotId);
-    if(slotIndex < 0) slotIndex = 0;
+    let slotIndex = Number.isInteger(preferredIndex)
+        ? preferredIndex
+        : MULTI_SLOT_FILL_ORDER.find(index=>!state.multiSlots[index]);
+    if(!Number.isInteger(slotIndex) || slotIndex < 0) slotIndex = MULTI_SLOT_FILL_ORDER[0] ?? 0;
     if(existingIndex >= 0){
         if(existingIndex === slotIndex){
             renderKnownList();
@@ -7467,7 +7477,7 @@ function renderMultiSelectPanel(){
             const slotAmount = gem ? countInBag(gem.id) + multiReservedCount(gem.id) : 0;
             return `
                 <div class="multi-slot ${gem ? "" : "empty"}" data-slot="${index}">
-                    <span class="multi-slot-index">${index + 1}</span>
+                    <span class="multi-slot-index">${multiSlotDisplayNumber(index)}</span>
                     ${gem ? `<button class="multi-slot-clear" type="button" data-clear-slot="${index}" aria-label="移除${gem.name}">×</button>` : ""}
                     <div class="multi-slot-stone" style="${bg}"></div>
                     <div class="multi-slot-name">${gem ? `${gem.name} ×${slotAmount}` : "拖入素体"}</div>
@@ -10150,7 +10160,7 @@ function openGamepadExitConfirm(options = {}){
     const cancel = document.getElementById("gamepad-exit-cancel-btn");
     if(mode === "ability"){
         if(title) title.textContent = "退出能力？";
-        if(body) body.textContent = "会先自动收集一次奖励，然后回到准备页面。";
+        if(body) body.textContent = "会先自动收集一次奖励，然后回到大世界。";
         if(confirm) confirm.textContent = "确认退出";
         if(cancel) cancel.textContent = "取消";
     } else if(mode === "mode"){
@@ -12067,6 +12077,12 @@ function resetDemo(){
     renderMain();
     showScreen("screen-main");
 }
+function resetDemoAfterEntryModeChange(previousEntryMode){
+    if(previousEntryMode === state.entryMode) return false;
+    resetDemo();
+    toast(state.entryMode === "multi" ? "已重置数据并切换到多开" : "已重置数据并切换到单开");
+    return true;
+}
 function setupDragDrop(){
     const bag = document.getElementById("bag");
     bag.addEventListener("dragstart", e=>{
@@ -12225,17 +12241,23 @@ document.addEventListener("DOMContentLoaded", ()=>{
     document.getElementById("topbar-toggle-btn").addEventListener("click", ()=>setTopbarCollapsed(!state.topbarCollapsed));
     document.getElementById("mobile-bag-toggle").addEventListener("click", ()=>setMobileBagCollapsed(!state.mobileBagCollapsed));
     document.getElementById("entry-mode-select")?.addEventListener("change", e=>{
+        const previousEntryMode = state.entryMode;
         state.entryMode = e.target.value === "multi" ? "multi" : "single";
         applyEntryDeviceMode({ manual:true });
-        if(state.active) renderPlay();
-        else renderMain();
+        if(!resetDemoAfterEntryModeChange(previousEntryMode)){
+            if(state.active) renderPlay();
+            else renderMain();
+        }
         e.target.blur?.();
     });
     document.getElementById("device-mode-select")?.addEventListener("change", e=>{
+        const previousEntryMode = state.entryMode;
         state.deviceMode = ["desktop", "mobile", "gamepad"].includes(e.target.value) ? e.target.value : "desktop";
         applyEntryDeviceMode({ manual:true, deviceChanged:true });
-        if(state.active) renderPlay();
-        else renderMain();
+        if(!resetDemoAfterEntryModeChange(previousEntryMode)){
+            if(state.active) renderPlay();
+            else renderMain();
+        }
         e.target.blur?.();
     });
     document.getElementById("desktop-lens-mode-select").addEventListener("change", e=>applyDesktopLensMode(e.target.value));
