@@ -888,6 +888,32 @@
         text-shadow:0 2px 10px rgba(70,46,23,.3), 0 0 14px rgba(255,225,120,.3);
         pointer-events:none;
     }
+    .hotspot-polish{
+        width:334px;
+        height:334px;
+        border:0;
+        border-radius:50%;
+        background:transparent;
+        box-shadow:none;
+        color:transparent;
+        cursor:pointer;
+    }
+    .hotspot-polish::before{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:286px;
+        height:236px;
+        transform:translate(-50%, -50%);
+        border-radius:50%;
+        background:radial-gradient(ellipse at 50% 50%, rgba(255,239,165,.08), transparent 68%);
+        box-shadow:inset 0 0 30px rgba(255,255,255,.05), 0 0 0 12px rgba(210,155,69,.04);
+        animation:polishHotspotGlow 1.4s ease-in-out infinite;
+        pointer-events:none;
+    }
+    .hotspot-polish::after{ display:none; }
+    .focus-ring-polish{ display:none !important; }
     .hotspot-swirl{
         width:318px;
         height:254px;
@@ -2159,6 +2185,130 @@
     .chamfer-cloth.placeholder img{
         display:none;
     }
+    .polish-overlay{
+        position:absolute;
+        inset:0;
+        z-index:5;
+        display:none;
+        pointer-events:none;
+    }
+    .polish-overlay.visible{ display:block; }
+    .polish-rough-point{
+        position:absolute;
+        left:var(--polish-x);
+        top:var(--polish-y);
+        width:72px;
+        height:72px;
+        transform:translate(-50%, -50%);
+        pointer-events:none;
+        filter:drop-shadow(0 6px 10px rgba(26,18,10,.22));
+    }
+    .polish-rough-point i,
+    .polish-rough-point b{
+        position:absolute;
+        left:50%;
+        top:50%;
+        transform:translate(-50%, -50%);
+        border-radius:50%;
+        pointer-events:none;
+    }
+    .polish-rough-point i{
+        width:30px;
+        height:24px;
+        opacity:var(--polish-rough-opacity, 1);
+        background:
+            radial-gradient(circle at 34% 34%, rgba(255,248,214,.78), transparent 21%),
+            radial-gradient(circle at 62% 62%, rgba(86,62,38,.48), transparent 28%),
+            repeating-linear-gradient(28deg, rgba(93,62,36,.5) 0 2px, rgba(240,212,151,.4) 2px 4px, transparent 4px 7px);
+        box-shadow:0 0 0 5px rgba(108,76,42,.15), inset 0 0 10px rgba(54,33,18,.28);
+        transition:opacity .1s linear, transform .16s ease, filter .16s ease;
+    }
+    .polish-rough-point b{
+        width:68px;
+        height:68px;
+        border:2px solid rgba(255,239,158,var(--polish-ring-opacity, .78));
+        box-shadow:0 0 0 7px rgba(255,215,112,.10), 0 0 18px rgba(97,236,214,.18), inset 0 0 14px rgba(255,245,196,.12);
+        transform:translate(-50%, -50%) scale(var(--polish-ring-scale, 1));
+        transition:transform .1s linear, opacity .12s linear, border-color .12s linear;
+    }
+    .polish-rough-point.active b{ animation:polishRingGuide .78s ease-in-out infinite; }
+    .polish-rough-point.done i{
+        opacity:0;
+        transform:translate(-50%, -50%) scale(.42);
+        filter:blur(2px);
+    }
+    .polish-rough-point.done b{
+        opacity:.34;
+        border-color:rgba(116,248,220,.72);
+        box-shadow:0 0 16px rgba(105,240,218,.35);
+    }
+    .polish-tool-fx{
+        position:absolute;
+        left:var(--polish-tool-x, 50%);
+        top:var(--polish-tool-y, 50%);
+        width:92px;
+        height:60px;
+        z-index:8;
+        transform:translate(-18px, -48px) rotate(-18deg);
+        transform-origin:24px 44px;
+        pointer-events:none;
+        filter:drop-shadow(0 10px 12px rgba(25,16,8,.26));
+    }
+    .polish-tool-body{
+        position:absolute;
+        left:22px;
+        top:25px;
+        width:58px;
+        height:17px;
+        border-radius:999px;
+        background:linear-gradient(90deg, #5e4530, #c99a4f 44%, #f0cd7a 58%, #59402c);
+        box-shadow:inset 0 2px 2px rgba(255,255,255,.38), inset 0 -2px 4px rgba(41,25,13,.28);
+    }
+    .polish-tool-body::after{
+        content:"";
+        position:absolute;
+        right:-10px;
+        top:50%;
+        width:18px;
+        height:12px;
+        border-radius:6px;
+        transform:translateY(-50%);
+        background:linear-gradient(90deg, #2a211a, #6b5137);
+    }
+    .polish-tool-head{
+        position:absolute;
+        left:3px;
+        top:16px;
+        width:36px;
+        height:36px;
+        border-radius:50%;
+        background:
+            radial-gradient(circle at 50% 50%, rgba(255,255,240,.96) 0 10%, transparent 11%),
+            conic-gradient(from 0deg, #f6e9c8, #9f9172 20%, #f6e9c8 36%, #7d735e 52%, #f6e9c8 68%, #8a7c62 84%, #f6e9c8);
+        border:3px solid rgba(78,65,43,.72);
+        box-shadow:0 0 0 4px rgba(255,230,148,.12), 0 0 18px rgba(112,238,218,.24);
+        animation:polishToolSpin .38s linear infinite paused;
+    }
+    .polish-tool-fx.tool-active .polish-tool-head{ animation-play-state:running; }
+    .polish-tool-spark{
+        position:absolute;
+        left:9px;
+        top:22px;
+        width:42px;
+        height:28px;
+        border-radius:50%;
+        background:radial-gradient(ellipse at 34% 50%, rgba(255,236,148,.72), transparent 58%);
+        opacity:.34;
+        mix-blend-mode:screen;
+        animation:polishSparkPulse .2s ease-in-out infinite alternate;
+    }
+    @keyframes polishHotspotGlow{
+        0%,100%{ opacity:.42; transform:translate(-50%, -50%) scale(.98); }
+        50%{ opacity:.76; transform:translate(-50%, -50%) scale(1.03); }
+    }
+    @keyframes polishRingGuide{ 0%,100%{ opacity:.72; } 50%{ opacity:1; } }
+    @keyframes polishToolSpin{ to{ transform:rotate(360deg); } }
+    @keyframes polishSparkPulse{ to{ opacity:.72; transform:translateX(-5px) scale(1.08); } }
     .chamfer-cloth.placeholder::before,
     .chamfer-cloth.placeholder::after{
         content:"";
@@ -6523,7 +6673,7 @@
     <div class="topbar">
         <div class="title">
             <h1>宝石素体鉴定台</h1>
-            <p>选择宝石素体进入镜片区，按切除、修补、定型、清洁的状态链完成验收。</p>
+            <p>选择宝石素体进入镜片区，按切除、修补、定型、抛光、清洁的状态链完成验收。</p>
         </div>
         <div class="top-actions">
             <button class="btn ghost play-exit-btn top-action-btn" id="exit-play-btn" type="button">退出能力</button>
@@ -6635,6 +6785,7 @@
                     <div id="repair-overlay" class="repair-overlay" aria-hidden="true"></div>
                     <div id="soak-overlay" class="soak-overlay" aria-hidden="true"></div>
                     <div id="chamfer-overlay" class="chamfer-overlay" aria-hidden="true"></div>
+                    <div id="polish-overlay" class="polish-overlay" aria-hidden="true"></div>
                     <button id="hotspot" class="hotspot" aria-label="当前处理点"></button>
                     <div id="focus-ring" class="focus-ring"></div>
                     <div id="lens-scroll-cue" class="lens-scroll-cue" aria-label="向下滚轮切换镜片"></div>
@@ -6763,7 +6914,8 @@ const TOOL_LABELS = {
     shape:"定型",
     light:"寻光",
     soak:"浸润",
-    chamfer:"磨平"
+    chamfer:"磨平",
+    polish:"抛光"
 };
 const TOOL_SPRITES = {
     cut:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_cut_C.png",
@@ -6771,10 +6923,11 @@ const TOOL_SPRITES = {
     shape:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_shape_C.png",
     clean:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_clean_C.png",
     light:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_light_C.png",
-    chamfer:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_chamfer_cloth_A.png"
+    chamfer:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_chamfer_cloth_A.png",
+    polish:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_chamfer_cloth_A.png"
 };
 // v27 removed manual tool buttons and the tool wheel; restore from v26 RealAsset if needed.
-const MULTI_TOOL_ORDER = ["light","cut","repair","shape","chamfer","clean"];
+const MULTI_TOOL_ORDER = ["light","cut","repair","shape","polish","clean"];
 const V27_HIDE_FOLLOW_TOOL_FX = true;
 const V27_SHOW_CUT_TRACKING_TOOL = false;
 const FOLLOW_TOOL_TYPES = new Set();
@@ -6809,6 +6962,17 @@ const SOAK_WALL_HIT_LIMIT = 3;
 const SOAK_WALL_LIMIT = 78;
 const SOAK_REBOUND = 11;
 const SOAK_TRIAL_GEMS = new Set();
+const POLISH_HOLD_REQUIRED_MS = 900;
+const POLISH_HOLD_RADIUS = 16;
+const POLISH_DEFAULT_POINTS = [
+    { x:38, y:42 },
+    { x:64, y:59 }
+];
+const POLISH_GEM_POINTS = {
+    pearl:[{ x:38, y:42 }, { x:63, y:59 }],
+    agate:[{ x:35, y:58 }, { x:66, y:43 }],
+    fluorite_test:[{ x:39, y:39 }, { x:65, y:62 }]
+};
 const CHAMFER_REQUIRED_PASSES = 3;
 const CHAMFER_CLOTH_SRC = "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_chamfer_cloth_A.png";
 const CHAMFER_CLOTH_TRACK_SCALE = 1.08;
@@ -6830,15 +6994,15 @@ const SHAPE_TARGETS = ["circle", "triangle", "square"];
 const SHAPE_LABELS = { circle:"圆形", triangle:"三角形", square:"正方形" };
 const SHAPE_MARKS = { circle:"○", triangle:"△", square:"□" };
 const GEM_STEP_INSTRUCTIONS = {
-    pearl:{ repair:"珍珠：瞄准珠层细裂，分段滴入修复精华，让裂缝被柔光填满。", chamfer:"珍珠：沿宝石边缘来回摩擦直到光滑为止。", clean:"珍珠：用清洁刷轻擦表面雾膜，擦出柔和珠光。" },
-    agate:{ repair:"玛瑙：沿下缘细裂注入精华，先补边缘再让纹带连贯。", soak:"玛瑙：放入量杯浸润，左右轻摇让纹带里的浊气冒泡散开。", chamfer:"玛瑙：沿宝石边缘来回摩擦直到光滑为止。", clean:"玛瑙：来回擦开表面灰膜，让红橙纹带重新透亮。" },
+    pearl:{ repair:"珍珠：瞄准珠层细裂，分段滴入修复精华，让裂缝被柔光填满。", polish:"珍珠：长按两处珠缘毛糙点，逐步抛出柔光。", chamfer:"珍珠：沿宝石边缘来回摩擦直到光滑为止。", clean:"珍珠：用清洁刷轻擦表面雾膜，擦出柔和珠光。" },
+    agate:{ repair:"玛瑙：沿下缘细裂注入精华，先补边缘再让纹带连贯。", soak:"玛瑙：放入量杯浸润，左右轻摇让纹带里的浊气冒泡散开。", polish:"玛瑙：长按两处纹带毛糙点，抛亮边缘浊斑。", chamfer:"玛瑙：沿宝石边缘来回摩擦直到光滑为止。", clean:"玛瑙：来回擦开表面灰膜，让红橙纹带重新透亮。" },
     garnet:{ repair:"石榴石：对准边缘缺口滴入精华，把缺口亮线补齐。", clean:"石榴石：擦掉深色石面上的灰尘层，让血色反光浮出来。" },
     sunstone:{ repair:"砂金石：把细小缺角补满，保住边缘的金砂闪点。", clean:"砂金石：顺着金砂亮面擦拭，让细闪从污渍下显出来。" },
     catseye:{ repair:"猫眼石：修补猫眼边缘损伤，别让亮线被裂口截断。", clean:"猫眼石：左右擦净瞳线附近的雾层，让猫眼光带变清楚。" },
     jadeite:{ repair:"翡翠：沿边缘细裂注入精华，先让裂纹显影再填平。", clean:"翡翠：擦掉翠面灰膜，保留内部通透的绿色高光。" },
     obsidian:{ cut:"黑曜石：按住石皮长条切两次，把外层暗皮削开。", shape_triangle:"黑曜石：描出三角轮廓，让激光把黑镜面切成尖角。", clean:"黑曜石：擦净黑镜面的灰痕，露出干净反射。" },
     fluorite:{ cut:"萤石：顺着杂层方向切开，把外层混浊带剥掉。", shape_circle:"萤石：描圆定型，让激光把晶体收成圆润球面。", soak:"萤石：把定型后的晶体浸入量杯，左右摇出细小气泡。", clean:"萤石：擦掉表面粉尘，留下清透的荧光感。" },
-    fluorite_test:{ cut:"萤石测试：先切开外层混浊带，用这一颗连续检查完整玩法链路。", light:"萤石测试：移动寻光灯找到隐藏反光点，确认反光反馈。", repair:"萤石测试：沿晶体细裂滴入修复精华，观察裂缝填充。", shape_circle:"萤石测试：描圆定型，让萤石进入可磨平的圆形状态。", soak:"萤石测试：放入量杯浸润，左右摇出气泡但避免碰壁。", chamfer:"萤石测试：沿宝石边缘来回摩擦直到光滑为止。", clean:"萤石测试：最后擦掉表面粉尘，确认全流程收束。" },
+    fluorite_test:{ cut:"萤石测试：先切开外层混浊带，用这一颗连续检查完整玩法链路。", light:"萤石测试：移动寻光灯找到隐藏反光点，确认反光反馈。", repair:"萤石测试：沿晶体细裂滴入修复精华，观察裂缝填充。", shape_circle:"萤石测试：描圆定型，让萤石进入可抛光的圆形状态。", soak:"萤石测试：放入量杯浸润，左右摇出气泡但避免碰壁。", polish:"萤石测试：长按两个毛糙点，检查独立抛光进度。", chamfer:"萤石测试：沿宝石边缘来回摩擦直到光滑为止。", clean:"萤石测试：最后擦掉表面粉尘，确认全流程收束。" },
     malachite:{ cut:"孔雀石：切两次削掉矿皮，露出里面的孔雀纹。", repair:"孔雀石：沿孔雀纹裂缝注入精华，让纹路重新连上。", shape_square:"孔雀石：描正方轮廓，把纹理压进方形章面。", clean:"孔雀石：擦净石面灰尘，让绿色纹带更分明。" },
     turquoise:{ cut:"绿松石：切两次剥掉泥皮，露出蓝绿色主体。", repair:"绿松石：沿脉络裂隙滴入精华，把断开的纹理补回去。", shape_triangle:"绿松石：描三角轮廓，让激光切出利落尖角。", clean:"绿松石：擦掉泥雾和粉尘，让松石蓝绿更干净。" },
     hetian:{ cut:"和田玉：顺着杂质筋切开，把影响通透的筋带削掉。", shape_circle:"和田玉：描圆定型，把玉面收成温润圆形。", clean:"和田玉：轻擦玉面灰膜，让油润感浮出来。" },
@@ -6850,6 +7014,7 @@ function defaultGemStepInstruction(gem, task){
     if(copy) return copy;
     if(task.type === "light") return `${gem.name}：按住扫光区移动寻光灯，找到最亮的反光点。`;
     if(task.type === "soak") return `${gem.name}：把宝石放入量杯，左右摇晃浸润到气泡散开。`;
+    if(task.type === "polish") return `${gem.name}：长按两个毛糙点，光圈收缩时保持按住完成抛光。`;
     if(task.type === "chamfer") return `${gem.name}：沿宝石边缘来回摩擦直到光滑为止。`;
     if(task.type === "repair") return `${gem.name}：瞄准裂缝光圈，滴入修复精华填满裂隙。`;
     if(task.type === "clean") return `${gem.name}：按住污渍范围来回擦拭，把脏污层擦掉。`;
@@ -6858,15 +7023,15 @@ function defaultGemStepInstruction(gem, task){
     return `${gem.name}：完成当前处理步骤。`;
 }
 const GEM_BLUEPRINTS = [
-    { id:"pearl", name:"珍珠", rarity:3, version:"西西亚·三星成石", kind:"成品宝石", sub:"寻光 -> 修补 -> 磨平 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #fff9ef 0%, #d9d3dd 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/pearl", tasks:[{type:"light", title:"珠面寻光", lens:0, face:0, pos:{x:50,y:50}}, {type:"repair", title:"珠层细裂", lens:2, face:1, pos:{x:54,y:46}}, {type:"chamfer", title:"珠缘磨平", lens:0, face:1, pos:{x:50,y:50}}, {type:"clean", title:"柔光净化", lens:0, face:1, pos:{x:50,y:54}}] },
-    { id:"agate", name:"玛瑙", rarity:3, version:"长安·三星成石", kind:"成品宝石", sub:"寻光 -> 修补 -> 磨平 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/agate", tasks:[{type:"light", title:"纹带寻光", lens:1, face:0, pos:{x:50,y:50}}, {type:"repair", title:"下缘细裂", lens:2, face:2, pos:{x:46,y:64}}, {type:"chamfer", title:"纹带磨平", lens:1, face:1, pos:{x:50,y:50}}, {type:"clean", title:"通透净化", lens:1, face:1, pos:{x:50,y:52}}] },
+    { id:"pearl", name:"珍珠", rarity:3, version:"西西亚·三星成石", kind:"成品宝石", sub:"寻光 -> 修补 -> 抛光 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #fff9ef 0%, #d9d3dd 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/pearl", tasks:[{type:"light", title:"珠面寻光", lens:0, face:0, pos:{x:50,y:50}}, {type:"repair", title:"珠层细裂", lens:2, face:1, pos:{x:54,y:46}}, {type:"polish", title:"珠缘抛光", lens:0, face:1, pos:{x:50,y:50}, polishPoints:[{x:38,y:42},{x:63,y:59}]}, {type:"clean", title:"柔光净化", lens:0, face:1, pos:{x:50,y:54}}] },
+    { id:"agate", name:"玛瑙", rarity:3, version:"长安·三星成石", kind:"成品宝石", sub:"寻光 -> 修补 -> 抛光 -> 清洁", rewardShards:6, color:"linear-gradient(135deg, #f6c59d 0%, #b85f49 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/agate", tasks:[{type:"light", title:"纹带寻光", lens:1, face:0, pos:{x:50,y:50}}, {type:"repair", title:"下缘细裂", lens:2, face:2, pos:{x:46,y:64}}, {type:"polish", title:"纹带抛光", lens:1, face:1, pos:{x:50,y:50}, polishPoints:[{x:35,y:58},{x:66,y:43}]}, {type:"clean", title:"通透净化", lens:1, face:1, pos:{x:50,y:52}}] },
     { id:"garnet", name:"石榴石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"寻光 -> 修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b85a52 0%, #6d1f23 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/garnet", tasks:[{type:"light", title:"血色寻光", lens:1, face:0, pos:{x:50,y:50}}, {type:"repair", title:"边缘缺口", lens:1, face:2, pos:{x:58,y:42}}, {type:"clean", title:"血色提亮", lens:2, face:0, pos:{x:50,y:50}}] },
     { id:"sunstone", name:"砂金石", rarity:2, version:"西西亚·二星成石", kind:"成品宝石", sub:"寻光 -> 修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #f1b07c 0%, #9a4f2d 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/sunstone", tasks:[{type:"light", title:"金砂寻光", lens:0, face:0, pos:{x:50,y:50}}, {type:"repair", title:"细小缺角", lens:2, face:1, pos:{x:40,y:60}}, {type:"clean", title:"金砂唤亮", lens:0, face:2, pos:{x:50,y:52}}] },
     { id:"catseye", name:"猫眼石", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"寻光 -> 修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #d8f1a8 0%, #7ea042 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/catseye", tasks:[{type:"light", title:"瞳线寻光", lens:1, face:0, pos:{x:50,y:50}}, {type:"repair", title:"猫眼边缘损伤", lens:2, face:1, pos:{x:56,y:40}}, {type:"clean", title:"瞳线净化", lens:1, face:2, pos:{x:50,y:50}}] },
     { id:"jadeite", name:"翡翠", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"寻光 -> 修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b8f0c6 0%, #3d9b63 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/jadeite", tasks:[{type:"light", title:"翠面寻光", lens:2, face:0, pos:{x:50,y:50}}, {type:"repair", title:"边缘细裂", lens:1, face:1, pos:{x:56,y:62}}, {type:"clean", title:"翠面净化", lens:2, face:0, pos:{x:50,y:50}}] },
     { id:"obsidian", name:"黑曜石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6f6b83 0%, #15131f 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/obsidian", tasks:[{type:"cut", title:"石皮切除", lens:0, face:0, pos:{x:58,y:38}, cutHitsRequired:2}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:2, face:1, pos:{x:50,y:50}}, {type:"clean", title:"黑镜净化", lens:1, face:0, pos:{x:52,y:50}}] },
     { id:"fluorite", name:"萤石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #bca7e8 0%, #4f5a7e 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/fluorite", tasks:[{type:"cut", title:"杂层切除", lens:1, face:1, pos:{x:62,y:52}}, {type:"shape", title:"圆形成球", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"clean", title:"荧光净化", lens:0, face:0, pos:{x:52,y:50}}] },
-    { id:"fluorite_test", name:"萤石测试", rarity:1, version:"GM·全玩法测试石", kind:"原石", sub:"切除 -> 寻光 -> 修补 -> 定型 -> 磨平 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #cbb9f2 0%, #5a668f 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/fluorite", tasks:[{type:"cut", title:"测试切除", lens:1, face:1, pos:{x:62,y:52}, cutHitsRequired:2}, {type:"light", title:"测试寻光", lens:0, face:0, pos:{x:50,y:50}, lightTarget:{x:70,y:33}}, {type:"repair", title:"测试裂隙", lens:2, face:1, pos:{x:43,y:56}}, {type:"shape", title:"测试圆形定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"chamfer", title:"测试圆边磨平", lens:0, face:0, pos:{x:50,y:50}}, {type:"clean", title:"测试最终清洁", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"fluorite_test", name:"萤石测试", rarity:1, version:"GM·全玩法测试石", kind:"原石", sub:"切除 -> 寻光 -> 修补 -> 定型 -> 抛光 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #cbb9f2 0%, #5a668f 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/fluorite", tasks:[{type:"cut", title:"测试切除", lens:1, face:1, pos:{x:62,y:52}, cutHitsRequired:2}, {type:"light", title:"测试寻光", lens:0, face:0, pos:{x:50,y:50}, lightTarget:{x:70,y:33}}, {type:"repair", title:"测试裂隙", lens:2, face:1, pos:{x:43,y:56}}, {type:"shape", title:"测试圆形定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"polish", title:"测试双点抛光", lens:0, face:0, pos:{x:50,y:50}, polishPoints:[{x:39,y:39},{x:65,y:62}]}, {type:"clean", title:"测试最终清洁", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"malachite", name:"孔雀石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6ec07f 0%, #1d5a38 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/malachite", tasks:[{type:"cut", title:"矿皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"孔雀纹裂", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"正方定型", targetShape:"square", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"石面净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"turquoise", name:"绿松石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #86dfd0 0%, #2a8f89 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/turquoise", tasks:[{type:"cut", title:"泥皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"脉络裂隙", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"松石净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"hetian", name:"和田玉", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #edf0d5 0%, #a9b484 100%)", assetBase:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/gems/hetian", tasks:[{type:"cut", title:"杂质筋切除", lens:1, face:1, pos:{x:40,y:52}}, {type:"shape", title:"圆润定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:50}}, {type:"clean", title:"玉面净化", lens:0, face:0, pos:{x:52,y:52}}] },
@@ -6891,7 +7056,7 @@ const GEM_VISUALS = {
 const DEMO_DATA_PACKS = {
     fullCoverage:{
         label:"全量流程验收",
-        note:"每一种素体都有可玩数量，寻光与磨平已纳入正式步骤说明，并额外提供一颗萤石测试石用于完整跑通当前玩法链路。",
+        note:"每一种素体都有可玩数量，寻光与抛光已纳入正式步骤说明，并额外提供一颗萤石测试石用于完整跑通当前玩法链路。",
         known:["pearl","agate","garnet","sunstone","catseye","jadeite","obsidian","fluorite","fluorite_test","malachite","turquoise","hetian","shoushan"],
         bag:{ pearl:2, agate:4, garnet:11, sunstone:5, catseye:6, jadeite:8, obsidian:5, fluorite:10, fluorite_test:1, malachite:2, turquoise:9, hetian:1, shoushan:6 }
     },
@@ -8494,7 +8659,16 @@ function tasksWithOptionalLight(gem){
     tasks.splice(insertAt, 0, makeLightTaskForGem(gem));
     return tasks;
 }
-function buildCoreTasks(gem){
+function makePolishSpots(gemId, task={}){
+    const points = task.polishPoints || POLISH_GEM_POINTS[gemId] || POLISH_DEFAULT_POINTS;
+    return points.slice(0, 2).map((point, index)=>({
+        id:index,
+        x:clampNumber(point.x, 8, 92),
+        y:clampNumber(point.y, 8, 92),
+        hold:0,
+        done:false
+    }));
+}function buildCoreTasks(gem){
     return tasksWithOptionalLight(gem).filter(task=>task.type !== "soak").map((task, index)=>({
         ...task,
         id:`${gem.id}_${index}`,
@@ -8507,6 +8681,9 @@ function buildCoreTasks(gem){
         lightHold:0,
         lightSignal:0,
         lightTarget:task.type === "light" ? (task.lightTarget || LIGHT_TARGETS[index % LIGHT_TARGETS.length]) : null,
+        polishSpots:task.type === "polish" ? makePolishSpots(gem.id, task) : [],
+        polishActiveSpotIndex:0,
+        polishCompleting:false,
         soakPhase:task.type === "soak" ? "intro" : null,
         soakProgress:0,
         soakHits:0,
@@ -8695,6 +8872,7 @@ function stepStatusText(step){
     if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / CLEAN_DISTANCE_REQUIRED * 100))}%`;
     if(step.type === "repair") return `${base} · 精华填充 ${Math.min(100, Math.round((step.repairFill || 0) * 100))}%`;
     if(step.type === "light") return `${base} · 反光锁定 ${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`;
+    if(step.type === "polish") return `${base} · 毛糙点 ${polishCompletedSpotCount(step)}/${step.polishSpots?.length || 2} · ${Math.round(polishProgress(step) * 100)}%`;
     if(step.type === "soak") return `${base} · 浸润摇晃 ${Math.min(100, Math.round((step.soakProgress || 0) / SOAK_REQUIRED_MS * 100))}% · 碰壁 ${step.soakHits || 0}/${SOAK_WALL_HIT_LIMIT}`;
     if(step.type === "chamfer") return `${base} · 尖角 ${chamferCompletedCornerCount(step)}/${step.chamferCorners?.length || 3} · 通过 ${Math.round(chamferProgress(step) * 100)}%`;
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `${base} · 切除 ${step.cutHits || 0}/${step.cutHitsRequired}`;
@@ -8708,6 +8886,7 @@ function stepHintText(step){
     if(step.type === "clean") return "清洁：按住范围圈，在瑕疵上来回拖拽擦除。";
     if(step.type === "repair") return "修补：瞄准裂缝光圈，滴入修复精华填满裂隙。";
     if(step.type === "light") return "寻光：按住扫光区移动寻光灯，找到宝石表面的反光点。";
+    if(step.type === "polish") return "抛光：长按光圈内的两个毛糙点；松手不会倒退，两个点独立完成。";
     if(step.type === "soak") return "浸润：按住量杯左右摇晃，避免石头连续撞到杯壁。";
     if(step.type === "chamfer") return "磨平：沿宝石边缘来回摩擦直到光滑为止。";
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `切除：这颗需要切 ${step.cutHitsRequired} 次，按住长条并顺着角度来回拖拽。`;
@@ -8719,6 +8898,7 @@ function wrongLensHint(step){
     if(!stepRequiresLens(step)) return `${TOOL_LABELS[step.type]}不需要切换镜片，直接按住操作。`;
     if(step.type === "repair") return "裂缝未显影：请切换到正确镜片，看清裂缝走向。";
     if(step.type === "light") return "反光点未显影：请切换到正确镜片，再开始扫光。";
+    if(step.type === "polish") return "毛糙点未显影：请切换到正确镜片，再长按抛光。";
     if(step.type === "soak") return "量杯观察未显影：请切换到正确镜片，再开始摇晃。";
     if(step.type === "chamfer") return "边缘尖角未显影：请切换到正确镜片，查看边缘轨道。";
     return "观察未对准：请切换到正确镜片。";
@@ -8796,6 +8976,7 @@ function stepHintKeywords(step){
         clean:["来回", "擦开"],
         shape:["描", "画"],
         repair:["修补", "点击"],
+        polish:["长按", "毛糙点"],
         chamfer:["来回摩擦", "光滑"]
     };
     return map[step.type] || [];
@@ -8830,6 +9011,7 @@ function stepProgressValue(step){
     if(step.type === "clean") return clampNumber((step.dragDistance || 0) / CLEAN_DISTANCE_REQUIRED, 0, 1);
     if(step.type === "repair") return clampNumber(step.repairFill || 0, 0, 1);
     if(step.type === "light") return clampNumber((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS, 0, 1);
+    if(step.type === "polish") return clampNumber(polishProgress(step), 0, 1);
     if(step.type === "chamfer") return clampNumber(chamferProgress(step), 0, 1);
     if(step.type === "cut"){
         const required = step.cutHitsRequired || 1;
@@ -8845,6 +9027,7 @@ function stepProgressValue(step){
 function stepProgressLabel(step, value){
     if(!step || value == null) return "";
     if(step.type === "chamfer") return `${chamferCompletedCornerCount(step)}/${step.chamferCorners?.length || 3}`;
+    if(step.type === "polish") return `${polishCompletedSpotCount(step)}/${step.polishSpots?.length || 2}`;
     if(step.type === "cut" && (step.cutHitsRequired || 1) > 1) return `${step.cutHits || 0}/${step.cutHitsRequired}`;
     return `${Math.round(value * 100)}%`;
 }
@@ -9091,7 +9274,7 @@ function renderPlay(){
     document.getElementById("gem-core").style.setProperty("--gem-color", gem.color);
     document.getElementById("lens-stage").style.setProperty("--lens-filter", LENSES[state.lensIndex].filter);
     renderLensButtons();
-    renderChamferOverlay(step, gem, visual);
+    renderChamferOverlay(step, gem, visual);    renderPolishOverlay(step, gem, visual);
     renderSoakOverlay(step, gem, visual);
     renderIdleStepToolFx(step);
     if(step?.type !== "spray") clearSprayToolFx();
@@ -9286,6 +9469,168 @@ function makeChamferCorners(gemId){
         lastDirection:0,
         lastPassAt:0
     }));
+}
+function ensurePolishRuntime(step){
+    if(!step || step.type !== "polish") return;
+    const gemId = step.gemId || state.active?.gemId;
+    if(!Array.isArray(step.polishSpots) || !step.polishSpots.length){
+        step.polishSpots = makePolishSpots(gemId, step);
+    }
+    const next = nextPolishSpotIndex(step);
+    if(!Number.isFinite(step.polishActiveSpotIndex) || step.polishSpots[step.polishActiveSpotIndex]?.done){
+        step.polishActiveSpotIndex = next >= 0 ? next : 0;
+    }
+}
+function polishProgress(step){
+    if(!step || step.type !== "polish") return 0;
+    ensurePolishRuntime(step);
+    const spots = step.polishSpots || [];
+    const total = Math.max(1, spots.length * POLISH_HOLD_REQUIRED_MS);
+    const held = spots.reduce((sum, spot)=>sum + Math.min(POLISH_HOLD_REQUIRED_MS, spot.hold || 0), 0);
+    return clampNumber(held / total, 0, 1);
+}
+function polishCompletedSpotCount(step){
+    ensurePolishRuntime(step);
+    return (step?.polishSpots || []).filter(spot=>spot.done).length;
+}
+function polishAllSpotsDone(step){
+    ensurePolishRuntime(step);
+    const spots = step?.polishSpots || [];
+    return !!spots.length && spots.every(spot=>spot.done);
+}
+function nextPolishSpotIndex(step){
+    const spots = step?.polishSpots || [];
+    return spots.findIndex(spot=>!spot.done);
+}
+function polishSpotIndexFromPointer(step, clientX, clientY){
+    ensurePolishRuntime(step);
+    const point = cleanErasePointFromPointer(clientX, clientY);
+    let bestIndex = -1;
+    let bestDistance = Infinity;
+    (step.polishSpots || []).forEach((spot, index)=>{
+        if(spot.done) return;
+        const distance = Math.hypot(point.x - spot.x, point.y - spot.y);
+        if(distance < bestDistance){
+            bestDistance = distance;
+            bestIndex = index;
+        }
+    });
+    return bestDistance <= POLISH_HOLD_RADIUS ? bestIndex : -1;
+}
+function updatePolishHold(step, drag, dt=16){
+    if(!step || step.type !== "polish" || step.polishCompleting || !drag) return;
+    ensurePolishRuntime(step);
+    if(!Number.isFinite(drag.polishSpotIndex) || step.polishSpots[drag.polishSpotIndex]?.done){
+        drag.polishSpotIndex = nextPolishSpotIndex(step);
+    }
+    const spot = step.polishSpots?.[drag.polishSpotIndex];
+    if(!spot || spot.done) return;
+    const point = cleanErasePointFromPointer(drag.lastX, drag.lastY);
+    const distance = Math.hypot(point.x - spot.x, point.y - spot.y);
+    drag.polishInRange = distance <= POLISH_HOLD_RADIUS;
+    step.polishActiveSpotIndex = drag.polishSpotIndex;
+    if(!drag.polishInRange) return;
+    const before = spot.hold || 0;
+    spot.hold = Math.min(POLISH_HOLD_REQUIRED_MS, before + Math.max(0, dt));
+    if(before < POLISH_HOLD_REQUIRED_MS && spot.hold >= POLISH_HOLD_REQUIRED_MS){
+        spot.done = true;
+        playPolishSpotDoneFx(spot);
+        const next = nextPolishSpotIndex(step);
+        step.polishActiveSpotIndex = next >= 0 ? next : drag.polishSpotIndex;
+        drag.polishSpotIndex = step.polishActiveSpotIndex;
+        toast(`毛糙点抛光 ${polishCompletedSpotCount(step)}/${step.polishSpots.length}`);
+    }
+    if(polishAllSpotsDone(step)) beginPolishComplete(step);
+}
+function beginPolishHoldLoop(pointerId){
+    const tick = now=>{
+        const drag = state.defectDrag;
+        const step = currentStep();
+        if(!drag || drag.type !== "polish" || drag.pointerId !== pointerId || !step || step.type !== "polish" || step.done) return;
+        const dt = Math.max(16, Math.min(80, now - (drag.polishLastTick || now)));
+        drag.polishLastTick = now;
+        updatePolishHold(step, drag, dt);
+        renderPolishToolFx(drag.lastX, drag.lastY, true);
+        renderPolishOverlay(step);
+        refreshCoreHintProgress(step);
+        if(state.defectDrag === drag && currentStep()?.id === step.id && !step.done) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+}
+function renderPolishOverlay(step){
+    const overlay = document.getElementById("polish-overlay");
+    if(!overlay) return;
+    if(!step || step.type !== "polish"){
+        overlay.className = "polish-overlay";
+        overlay.innerHTML = "";
+        return;
+    }
+    ensurePolishRuntime(step);
+    const lensOk = !stepRequiresLens(step) || state.lensIndex === step.lens;
+    if(!lensOk){
+        overlay.className = "polish-overlay";
+        overlay.innerHTML = "";
+        return;
+    }
+    const activeIndex = Number.isFinite(step.polishActiveSpotIndex) ? step.polishActiveSpotIndex : nextPolishSpotIndex(step);
+    overlay.className = `polish-overlay visible ${step.polishCompleting ? "completing" : ""}`;
+    overlay.innerHTML = (step.polishSpots || []).map((spot, index)=>{
+        const point = gemPointToStagePoint(spot);
+        const progress = clampNumber((spot.hold || 0) / POLISH_HOLD_REQUIRED_MS, 0, 1);
+        const ringScale = (1.26 - progress * .54).toFixed(3);
+        const roughOpacity = Math.max(.05, 1 - progress * .96).toFixed(3);
+        const ringOpacity = (spot.done ? .34 : .88 - progress * .28).toFixed(3);
+        const active = index === activeIndex && !spot.done;
+        return `<span class="polish-rough-point ${active ? "active" : ""} ${spot.done ? "done" : ""}" style="--polish-x:${point.x.toFixed(1)}px;--polish-y:${point.y.toFixed(1)}px;--polish-ring-scale:${ringScale};--polish-rough-opacity:${roughOpacity};--polish-ring-opacity:${ringOpacity}"><b></b><i></i></span>`;
+    }).join("");
+}
+function clearPolishOverlay(){
+    const overlay = document.getElementById("polish-overlay");
+    if(!overlay) return;
+    overlay.className = "polish-overlay";
+    overlay.innerHTML = "";
+}
+function renderPolishToolFx(clientX, clientY, active=false){
+    const stage = document.getElementById("lens-stage");
+    if(!stage) return;
+    let fx = stage.querySelector(".polish-tool-fx");
+    if(!fx){
+        fx = document.createElement("div");
+        fx.className = "polish-tool-fx";
+        fx.innerHTML = `<span class="polish-tool-body"></span><span class="polish-tool-head"></span><span class="polish-tool-spark"></span>`;
+        stage.appendChild(fx);
+    }
+    const rect = stage.getBoundingClientRect();
+    fx.style.setProperty("--polish-tool-x", `${(clientX - rect.left).toFixed(1)}px`);
+    fx.style.setProperty("--polish-tool-y", `${(clientY - rect.top).toFixed(1)}px`);
+    fx.classList.toggle("tool-active", !!active);
+}
+function clearPolishToolFx(){
+    document.querySelectorAll(".polish-tool-fx").forEach(el=>el.remove());
+}
+function playPolishSpotDoneFx(spot){
+    const stage = document.getElementById("lens-stage");
+    if(!stage || !spot) return;
+    const point = gemPointToStagePoint(spot);
+    const burst = document.createElement("span");
+    burst.className = "light-found-burst";
+    burst.style.setProperty("--light-star-x", `${point.x}px`);
+    burst.style.setProperty("--light-star-y", `${point.y}px`);
+    stage.appendChild(burst);
+    setTimeout(()=>burst.remove(), 720);
+}
+function beginPolishComplete(step){
+    if(!step || step.type !== "polish" || step.polishCompleting) return;
+    step.polishCompleting = true;
+    state.defectDrag = null;
+    state.gamepadDrag = null;
+    state.gamepadUseActive = false;
+    clearPolishToolFx();
+    renderPolishOverlay(step);
+    toast("抛光完成");
+    setTimeout(()=>{
+        if(currentStep()?.id === step.id && !step.done) completeCurrentStep(step);
+    }, 520);
 }
 function ensureChamferRuntime(step){
     if(!step || step.type !== "chamfer") return;
@@ -10505,6 +10850,7 @@ function playRepairDrop(targetIndex){
     playRepairDrop.timer = setTimeout(()=>overlay.classList.remove("drop-active"), 720);
 }
 function defectStagePosition(step){
+    if(step.type === "polish") return { x:50, y:50 };
     const scale = step.type === "shape" ? 0.42 : step.type === "light" ? 0.36 : step.type === "soak" ? 0.28 : step.type === "chamfer" ? 0.18 : step.type === "cut" ? 0.34 : 0.48;
     const yLift = step.type === "repair" ? 3 : step.type === "clean" ? 3 : step.type === "shape" ? 4 : 0;
     const x = 50 + (step.pos.x - 50) * scale;
@@ -10521,6 +10867,7 @@ function hotspotLabel(step){
     if(step.type === "light") return "寻光";
     if(step.type === "soak") return "摇晃";
     if(step.type === "chamfer") return "磨平";
+    if(step.type === "polish") return "";
     if(step.type === "shape") return "描边";
     return "";
 }
@@ -10531,12 +10878,15 @@ function clearHotspot(){
     const repairOverlay = document.getElementById("repair-overlay");
     const soakOverlay = document.getElementById("soak-overlay");
     const chamferOverlay = document.getElementById("chamfer-overlay");
+    const polishOverlay = document.getElementById("polish-overlay");
     clearCleanToolFx();
     clearShapeToolFx();
     clearLightToolFx();
     clearCutToolFx();
     clearSprayToolFx();
+    clearPolishToolFx();
     clearChamferOverlay();
+    clearPolishOverlay();
     setLensAttention(false);
     if(spot) spot.style.display = "none";
     if(ring) ring.style.display = "none";
@@ -10556,11 +10906,16 @@ function clearHotspot(){
         chamferOverlay.innerHTML = "";
         delete chamferOverlay.dataset.stepId;
     }
+    if(polishOverlay){
+        polishOverlay.className = "polish-overlay";
+        polishOverlay.innerHTML = "";
+    }
 }
 function canUseCurrentStep(step){
     if(!step) return;
     state.activeTool = step.type;
     if(step.type === "clean" && step.cleanCompleting) return false;
+    if(step.type === "polish" && step.polishCompleting) return false;
     if(stepRequiresLens(step) && state.lensIndex !== step.lens){
         toast(step.type === "repair" ? "裂缝需要正确镜片显影。" : "镜片不对，需要切换到正确镜片。");
         return false;
@@ -10756,13 +11111,22 @@ function handleHotspotClick(){
     if(step.type === "light") toast("按住扫光区移动寻光灯，靠近反光点会出现星芒。");
     if(step.type === "soak") toast("按住量杯左右摇晃，别让石头撞杯壁三次。");
     if(step.type === "chamfer") toast("沿宝石边缘来回摩擦直到光滑为止。");
+    if(step.type === "polish") toast("按住收缩光圈内的两个毛糙点，松手不会倒退。");
     if(step.type === "shape") toast(`按住形状，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`);
 }
 function startDefectDrag(e){
     const step = currentStep();
-    if(!step || !["clean","cut","shape","light","chamfer"].includes(step.type)) return;
+    if(!step || !["clean","cut","shape","light","chamfer","polish"].includes(step.type)) return;
     if(step.cutAnimating) return;
     if(!canUseCurrentStep(step)) return;
+    let polishSpotIndex = -1;
+    if(step.type === "polish"){
+        polishSpotIndex = polishSpotIndexFromPointer(step, e.clientX, e.clientY);
+        if(polishSpotIndex < 0){
+            toast("按住光圈内的毛糙点。");
+            return;
+        }
+    }
     e.preventDefault();
     e.currentTarget.setPointerCapture?.(e.pointerId);
     const shapeTrace = step.type === "shape" ? beginShapeTrace(e.clientX, e.clientY) : null;
@@ -10783,7 +11147,9 @@ function startDefectDrag(e){
         distance:0,
         lastParticleDistance:0,
         points:[{ x:e.clientX, y:e.clientY }],
-        shapeTrace
+        shapeTrace,
+        polishSpotIndex,
+        polishLastTick:now
     };
     if(step.type === "clean"){
         addCleanErasePoint(step, e.clientX, e.clientY);
@@ -10803,6 +11169,12 @@ function startDefectDrag(e){
     if(step.type === "chamfer"){
         updateChamferDrag(step, e.clientX, e.clientY, 0);
         renderPlay();
+    }
+    if(step.type === "polish"){
+        step.polishActiveSpotIndex = polishSpotIndex;
+        renderPolishToolFx(e.clientX, e.clientY, true);
+        renderPolishOverlay(step);
+        beginPolishHoldLoop(e.pointerId);
     }
     spawnDragParticle(e.clientX, e.clientY, step.type);
     refreshCoreHintProgress(step);
@@ -10872,6 +11244,15 @@ function updateDefectDrag(e){
         updateChamferDrag(step, e.clientX, e.clientY, dt);
         renderPlay();
         if(step.chamferCompleting){
+            state.suppressNextClick = true;
+            state.defectDrag = null;
+            return;
+        }
+    }
+    if(step.type === "polish"){
+        renderPolishToolFx(e.clientX, e.clientY, true);
+        renderPolishOverlay(step);
+        if(step.polishCompleting){
             state.suppressNextClick = true;
             state.defectDrag = null;
             return;
@@ -11316,6 +11697,7 @@ function clearFollowToolFx(exceptType=null){
     if(exceptType !== "shape") clearShapeToolFx();
     if(exceptType !== "light") clearLightToolFx();
     if(exceptType !== "cut") clearCutToolFx();
+    if(exceptType !== "polish") clearPolishToolFx();
 }
 function idleToolClientPoint(step){
     const stage = document.getElementById("lens-stage");
@@ -11574,6 +11956,7 @@ function finishDefectDrag(e){
     if(drag.type === "clean") clearCleanToolFx();
     if(drag.type === "shape") clearShapeToolFx();
     if(drag.type === "light") clearLightToolFx();
+    if(drag.type === "polish") clearPolishToolFx();
     if(drag.type === "spray") clearSprayToolFx();
     if(step.type !== "cut") scheduleIdleToolRefresh(step);
     if(step.type === "cut"){
@@ -11605,6 +11988,11 @@ function finishDefectDrag(e){
         step.chamferSnagLevel = 0;
         renderPlay();
         toast(`磨平 ${Math.round(chamferProgress(step) * 100)}%`);
+        return;
+    }
+    if(step.type === "polish"){
+        renderPolishOverlay(step);
+        toast(`抛光 ${Math.round(polishProgress(step) * 100)}%`);
         return;
     }
     if(step.type === "shape"){
