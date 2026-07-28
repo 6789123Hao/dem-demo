@@ -5885,9 +5885,18 @@
         display:none;
     }
     body.layout-mobile-landscape.playing .core-controls{
+        display:none;
+    }
+    body.layout-mobile-landscape.playing .lens-dial{
         display:block;
     }
-    body.layout-mobile-landscape.playing .core-controls.lens-attention .step-box:first-child{
+    body.lens-mode-text.layout-mobile-landscape.playing .lens-dial{
+        display:none;
+    }
+    body.lens-mode-text.layout-mobile-landscape.playing .core-controls{
+        display:block;
+    }
+    body.lens-mode-text.layout-mobile-landscape.playing .core-controls.lens-attention .step-box:first-child{
         animation:lensWindowBreath 1.16s ease-in-out infinite;
         transform-origin:left bottom;
     }
@@ -7202,7 +7211,7 @@ function applyEntryDeviceMode(options = {}){
         document.body.classList.remove("mobile-portrait-rotated");
     }
     if(options.deviceChanged){
-        state.entryMode = (state.deviceMode === "mobile" || state.deviceMode === "gamepad") ? "multi" : "single";
+        state.entryMode = state.deviceMode === "gamepad" ? "multi" : "single";
     }
     applyLayoutMode(resolvedLayoutMode(), { ...options, syncControls:false });
 }
@@ -7223,7 +7232,7 @@ function applyLayoutMode(mode, options = {}){
             state.entryMode = "multi";
         } else if(state.layoutMode === "mobileLandscape"){
             state.deviceMode = "mobile";
-            state.entryMode = "multi";
+            state.entryMode = "single";
         } else if(state.layoutMode === "gamepad"){
             state.deviceMode = "gamepad";
             state.entryMode = "multi";
@@ -7348,7 +7357,7 @@ function installResponsiveLayoutListeners(){
 }
 function applyDesktopLensMode(mode){
     const validModes = ["triangle", "text", "wheel", "line"];
-    state.desktopLensMode = validModes.includes(mode) ? mode : "triangle";
+    state.desktopLensMode = validModes.includes(mode) ? mode : "wheel";
     validModes.forEach(key=>document.body.classList.toggle(`lens-mode-${key}`, state.desktopLensMode === key));
     const select = document.getElementById("desktop-lens-mode-select");
     if(select) select.value = state.desktopLensMode;
@@ -9984,7 +9993,7 @@ function renderLensButtons(){
 function renderLensDial(){
     const dial = document.getElementById("lens-dial");
     if(!dial) return;
-    const mode = state.desktopLensMode || "triangle";
+    const mode = state.desktopLensMode || "wheel";
     const attention = dial.classList.contains("lens-attention");
     const shouldRoll = mode === "wheel" && state.lensWheelRollToken && dial.dataset.rollToken !== String(state.lensWheelRollToken);
     const rollClass = shouldRoll ? (state.lensWheelRollDir >= 0 ? "roll-forward" : "roll-back") : "";
