@@ -9,7 +9,8 @@
 <link rel="preload" as="image" href="https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_frame/lens_inner_glass_A.png" fetchpriority="high" />
 <link rel="preload" as="image" href="https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_left_inventory/stone_card_frame_A.png" fetchpriority="high" />
 <link rel="preload" as="image" href="https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_left_inventory/stone_card_badge_A.png" fetchpriority="high" />
-<link rel="preload" as="image" href="https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_reward_plate/reward_plate_base_C.png" fetchpriority="high" />
+<link rel="preload" as="image" href="https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_reward_plate/reward_plate_45deg_D.png" fetchpriority="high" />
+<link rel="preload" as="image" href="https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_center_stage/center_stage_foreground_long_v3.png" />
 <title>宝石鉴定</title>
 <style>
     :root{
@@ -398,7 +399,7 @@
         border-radius:8px;
         padding:10px;
         display:grid;
-        grid-template-columns:34px 1fr auto;
+        grid-template-columns:34px minmax(0, 1fr);
         gap:10px;
         align-items:center;
         cursor:grab;
@@ -3902,11 +3903,68 @@
         content:"";
         position:absolute;
         inset:0;
-        z-index:0;
+        z-index:1;
         pointer-events:none;
         background:
             radial-gradient(circle at 50% 45%, rgba(255,255,255,.38), transparent 44%),
             linear-gradient(90deg, rgba(255,255,255,.18), transparent 28%, transparent 72%, rgba(80,130,142,.08));
+    }
+    .gem-backdrop{
+        position:absolute;
+        inset:0;
+        z-index:0;
+        pointer-events:none;
+        background:
+            radial-gradient(circle at 50% 43%, rgba(75,190,141,.3), transparent 42%),
+            linear-gradient(180deg, #185f49, #082e27);
+    }
+    .lens-mask-rig{
+        position:absolute;
+        inset:0;
+        z-index:4;
+        pointer-events:none;
+        transform:translate3d(0, 0, 0);
+        transition:transform .78s cubic-bezier(.2,.76,.18,1);
+        will-change:transform;
+    }
+    .lens-mask-surface{
+        position:absolute;
+        inset:0;
+        z-index:5;
+        overflow:visible;
+        pointer-events:none;
+        --lens-mask-fill:#a8e39a;
+        --lens-mask-edge:#5fae79;
+        background:none;
+        box-shadow:none;
+        transform:translate3d(0, 0, 0);
+        transition:transform .78s cubic-bezier(.2,.76,.18,1);
+        will-change:transform;
+    }
+    .lens-mask-surface::before{
+        content:"";
+        position:absolute;
+        inset:0;
+        z-index:1;
+        pointer-events:none;
+        background:
+            repeating-linear-gradient(90deg, rgba(255,255,255,.055) 0 1px, transparent 1px 44px),
+            radial-gradient(circle at 50% 50%, transparent 0 41.8%, rgba(236,255,224,.5) 42.2%, var(--lens-mask-edge) 42.8%, var(--lens-mask-fill) 43.6% 100%);
+    }
+    .lens-mask-surface::after{
+        content:"";
+        position:absolute;
+        left:calc(100% - 1px);
+        top:-60%;
+        z-index:0;
+        width:0;
+        height:220%;
+        background:
+            linear-gradient(90deg, rgba(255,255,255,.035), transparent 26%),
+            repeating-linear-gradient(90deg, rgba(255,255,255,.055) 0 1px, transparent 1px 44px),
+            var(--lens-mask-fill);
+        transition:width .26s cubic-bezier(.2,.72,.24,1);
+        will-change:width;
     }
     .lens-stage.idle{
         border:2px dashed rgba(86,52,31,.34);
@@ -3931,6 +3989,112 @@
         pointer-events:none;
     }
     .idle-copy h2{ margin:0 0 8px; color:var(--ink); }
+    .lens-carousel{
+        position:absolute;
+        inset:0;
+        z-index:4;
+        pointer-events:none;
+        overflow:hidden;
+        transition:opacity .42s ease, filter .42s ease;
+    }
+    .lens-disc{
+        position:absolute;
+        left:50%;
+        top:44.444%;
+        width:min(88%, 940px);
+        height:auto;
+        aspect-ratio:1 / 1;
+        border-radius:50%;
+        border:5px solid rgba(48,73,172,.84);
+        transform:translate(-50%, -50%) scale(var(--lens-view-scale, 1));
+        transform-origin:50% 50%;
+        opacity:0;
+        visibility:hidden;
+        background:
+            radial-gradient(circle at 36% 27%, rgba(255,255,255,.54), transparent 15%),
+            linear-gradient(128deg, transparent 0 42%, rgba(255,255,255,.2) 43% 45%, transparent 46%),
+            var(--disc-filter, rgba(127,223,255,.22)),
+            radial-gradient(circle at 50% 48%, rgba(228,251,255,.45), rgba(79,158,196,.18) 66%, rgba(24,58,125,.16) 100%);
+        box-shadow:
+            inset 0 0 70px rgba(255,255,255,.32),
+            inset 0 0 0 10px rgba(255,255,255,.1),
+            0 0 0 2px rgba(255,255,255,.58),
+            0 0 0 8px rgba(31,52,144,.18),
+            0 24px 64px rgba(16,43,96,.2);
+        mix-blend-mode:multiply;
+        will-change:left, top, transform, opacity;
+    }
+    .lens-disc::before{
+        content:"";
+        position:absolute;
+        inset:12px;
+        border-radius:50%;
+        border:2px solid rgba(235,247,255,.58);
+        box-shadow:inset 0 0 26px rgba(17,47,105,.16), 0 0 0 1px rgba(19,42,100,.2);
+    }
+    .lens-disc::after{
+        content:attr(data-lens-key);
+        position:absolute;
+        right:13%;
+        bottom:12%;
+        width:34px;
+        height:34px;
+        display:grid;
+        place-items:center;
+        border-radius:50%;
+        border:2px solid rgba(255,242,190,.78);
+        background:rgba(25,56,111,.82);
+        color:#fff4c8;
+        font:700 16px/1 Georgia, serif;
+        box-shadow:0 4px 12px rgba(0,0,0,.24);
+    }
+    .lens-disc[data-slot="0"]{
+        left:50%;
+        top:44.444%;
+        transform:translate(-50%, -50%) scale(var(--lens-view-scale, 1));
+        opacity:1;
+        visibility:visible;
+        filter:none;
+        z-index:3;
+    }
+    .lens-disc.lens-enter-down,
+    .lens-disc.lens-exit-down,
+    .lens-disc.lens-enter-up,
+    .lens-disc.lens-exit-up{
+        visibility:visible;
+    }
+    .lens-disc.lens-enter-down{
+        animation:lensEnterDown .62s cubic-bezier(.18,.78,.2,1) both;
+    }
+    .lens-disc.lens-exit-down{
+        animation:lensExitDown .62s cubic-bezier(.18,.78,.2,1) both;
+    }
+    .lens-disc.lens-enter-up{
+        animation:lensEnterUp .62s cubic-bezier(.18,.78,.2,1) both;
+    }
+    .lens-disc.lens-exit-up{
+        animation:lensExitUp .62s cubic-bezier(.18,.78,.2,1) both;
+    }
+    @keyframes lensEnterDown{
+        0%{ left:10%; top:-72%; transform:translate(-50%, -50%) scale(calc(var(--lens-view-scale, 1) * .88)); opacity:0; }
+        18%{ opacity:.76; }
+        100%{ left:50%; top:44.444%; transform:translate(-50%, -50%) scale(var(--lens-view-scale, 1)); opacity:1; }
+    }
+    @keyframes lensExitDown{
+        0%{ left:50%; top:44.444%; transform:translate(-50%, -50%) scale(var(--lens-view-scale, 1)); opacity:1; }
+        82%{ opacity:.76; }
+        100%{ left:10%; top:172%; transform:translate(-50%, -50%) scale(calc(var(--lens-view-scale, 1) * .88)); opacity:0; }
+    }
+    @keyframes lensEnterUp{
+        0%{ left:10%; top:172%; transform:translate(-50%, -50%) scale(calc(var(--lens-view-scale, 1) * .88)); opacity:0; }
+        18%{ opacity:.76; }
+        100%{ left:50%; top:44.444%; transform:translate(-50%, -50%) scale(var(--lens-view-scale, 1)); opacity:1; }
+    }
+    @keyframes lensExitUp{
+        0%{ left:50%; top:44.444%; transform:translate(-50%, -50%) scale(var(--lens-view-scale, 1)); opacity:1; }
+        82%{ opacity:.76; }
+        100%{ left:10%; top:-72%; transform:translate(-50%, -50%) scale(calc(var(--lens-view-scale, 1) * .88)); opacity:0; }
+    }
     .lens-viewport{
         position:absolute;
         left:50%;
@@ -3939,57 +4103,32 @@
         height:auto;
         aspect-ratio:1 / 1;
         border-radius:50%;
-        transform:translate(-50%, -50%) rotateX(0deg) scale(var(--lens-view-scale, 1));
-        transform-style:preserve-3d;
-        z-index:4;
+        transform:translate(-50%, -50%) scale(var(--lens-view-scale, 1));
+        z-index:6;
         pointer-events:none;
         transition:left .58s cubic-bezier(.18,.78,.22,1), top .58s cubic-bezier(.18,.78,.22,1), width .58s cubic-bezier(.18,.78,.22,1), transform .58s cubic-bezier(.18,.78,.22,1), opacity .42s ease, filter .42s ease;
-        background:
-            radial-gradient(circle at 37% 27%, rgba(255,255,255,.7), transparent 14%),
-            radial-gradient(circle at 52% 48%, rgba(255,255,255,.18), transparent 50%),
-            radial-gradient(circle at 50% 50%, transparent 0 61%, rgba(255,255,255,.28) 62%, rgba(41,55,129,.12) 69%, transparent 70%),
-            var(--lens-filter, rgba(127,223,255,.22));
-        border:8px solid rgba(47,67,196,.82);
+        border:10px solid rgba(47,67,196,.82);
+        background:radial-gradient(circle at 50% 50%, transparent 0 65%, rgba(255,255,255,.2) 66%, rgba(41,55,129,.16) 71%, transparent 72%);
         box-shadow:
-            inset 0 0 90px rgba(255,255,255,.46),
-            inset 0 0 0 18px rgba(255,255,255,.1),
-            inset 0 0 0 28px rgba(47,67,196,.08),
+            inset 0 0 0 3px rgba(255,255,255,.44),
+            inset 0 0 0 22px rgba(47,67,196,.08),
             0 0 0 2px rgba(255,255,255,.5),
             0 0 0 11px rgba(33,43,142,.18),
             0 32px 72px rgba(34,58,118,.16);
-        mix-blend-mode:multiply;
     }
-    .lens-viewport::before,
-    .lens-viewport::after{
-        content:"";
-        position:absolute;
-        border-radius:50%;
-        pointer-events:none;
+    .lens-stage.lens-shifting .lens-viewport{
+        filter:brightness(1.08);
     }
-    .lens-viewport::before{
-        inset:20px;
-        border:1px solid rgba(255,255,255,.54);
-        box-shadow:
-            inset 0 0 0 10px rgba(255,255,255,.08),
-            inset 0 0 42px rgba(20,42,96,.1);
-        background:
-            linear-gradient(128deg, transparent 0 42%, rgba(255,255,255,.16) 43% 45%, transparent 46%),
-            radial-gradient(circle at 35% 28%, rgba(255,255,255,.2), transparent 34%);
-    }
-    .lens-viewport::after{
-        inset:11%;
-        border-left:2px solid rgba(255,255,255,.36);
-        border-top:1px solid rgba(255,255,255,.28);
-        transform:rotate(-18deg);
-        opacity:.45;
-    }
-    .lens-stage.lens-flip .lens-viewport{
-        animation:lensFlip .48s cubic-bezier(.2,.82,.24,1) both;
-    }
-    @keyframes lensFlip{
-        0%{ transform:translate(-50%, -50%) rotateX(0deg) scale(var(--lens-view-scale, 1)); filter:saturate(1); }
-        45%{ transform:translate(-50%, -50%) rotateX(calc(var(--lens-flip-dir, 1) * 82deg)) scale(var(--lens-flip-mid-scale, .985)); filter:saturate(.72) brightness(1.12); }
-        100%{ transform:translate(-50%, -50%) rotateX(0deg) scale(var(--lens-view-scale, 1)); filter:saturate(1); }
+    @media (prefers-reduced-motion:reduce){
+        .lens-mask-rig,
+        .lens-mask-surface::after,
+        .lens-disc.lens-enter-down,
+        .lens-disc.lens-exit-down,
+        .lens-disc.lens-enter-up,
+        .lens-disc.lens-exit-up{ animation-duration:.01ms; }
+        .lens-mask-rig,
+        .lens-mask-surface,
+        .lens-mask-surface::after{ transition-duration:.01ms; }
     }
     .batch-pipe{
         display:none;
@@ -4017,6 +4156,7 @@
         z-index:3;
     }
     .gem-cushion{
+        display:none;
         position:absolute;
         left:50%;
         top:88%;
@@ -4885,16 +5025,16 @@
         bottom:64px;
         min-height:0;
         height:auto;
-        aspect-ratio:1 / 1;
-        border-radius:999px;
+        aspect-ratio:45 / 28;
+        border-radius:0;
         display:block;
-        overflow:hidden;
+        overflow:visible;
         box-sizing:border-box;
         padding:0;
         margin-top:0;
         transition:right .72s cubic-bezier(.18,.78,.2,1), bottom .72s cubic-bezier(.18,.78,.2,1), width .72s cubic-bezier(.18,.78,.2,1), height .72s cubic-bezier(.18,.78,.2,1), filter .42s ease, transform .42s ease;
         transform-style:preserve-3d;
-        transform-origin:50% 55%;
+        transform-origin:50% 58%;
         will-change:transform, filter;
     }
     .plate::after{
@@ -4944,8 +5084,9 @@
         width:34px;
         height:34px;
         position:absolute;
+        z-index:2;
         left:calc(var(--plate-x, 50) * 1%);
-        top:calc(var(--plate-y, 50) * 1%);
+        top:calc(var(--plate-y, 42) * 1%);
         border-radius:50%;
         padding:0;
         display:flex;
@@ -4955,11 +5096,25 @@
         color:#2b1c0f;
         box-shadow:0 8px 14px rgba(58,37,21,.16);
         transform-origin:center bottom;
-        transform:translate(-50%, -50%) rotate(var(--rest-rot, 0deg)) scale(1);
+        transform:translate(-50%, -50%) rotate(var(--rest-rot, 0deg)) scale(var(--pile-scale, 1));
         opacity:1;
         background-size:contain !important;
         background-repeat:no-repeat !important;
         background-position:center !important;
+    }
+    .plate-gem.plate-piled:not(.plate-physics-live){
+        transition:left .34s cubic-bezier(.2,.78,.22,1), top .34s cubic-bezier(.2,.78,.22,1), transform .34s ease;
+    }
+    .plate-gem.plate-spilling{
+        z-index:560 !important;
+        transition:none !important;
+        will-change:left, top, opacity, transform;
+    }
+    .plate-gem.plate-gem-fallen{
+        opacity:0 !important;
+        visibility:hidden;
+        pointer-events:none;
+        transition:none !important;
     }
     .plate-gem.plate-drop-new{
         animation:gemDrop .82s cubic-bezier(.18,.82,.32,1.12) both;
@@ -5072,7 +5227,7 @@
         --v26-stone-badge:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_left_inventory/stone_card_badge_A.png");
         --v26-lens-ring:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_frame/lens_outer_ring_A.png");
         --v26-lens-glass:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_frame/lens_inner_glass_A.png");
-        --v26-reward-plate:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_reward_plate/reward_plate_base_C.png");
+        --v26-reward-plate:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_reward_plate/reward_plate_45deg_D.png");
         --v26-notebook:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_center_notebook/notebook_page_C.png");
         --v26-lens-controls:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_controls/lens_button_panel_C.png");
         --v26-lens-btn:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_controls/lens_button_idle_C.png");
@@ -5081,7 +5236,7 @@
         --v26-reward-modal:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_reward_modal/reward_modal_frame_C.png");
         --v26-mouse-wheel:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_hint_layer/mouse_wheel_icon_A.png");
         --v26-mouse-right:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_hint_layer/mouse_right_icon_A.png");
-        --v26-center-bg:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_center_stage/center_stage_bg_A.png");
+        --v26-center-long:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_center_stage/center_stage_foreground_long_v3.png");
         --v26-center-glow:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_center_stage/center_stage_inner_glow_A.png");
         --v26-stage-base:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_center_stage/center_stage_bottom_base_C.png");
         --v26-hint-bg:url("https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_hint_layer/hint_toast_bg_A.png");
@@ -5199,12 +5354,33 @@
         border-color:rgba(204,163,78,.42);
     }
     body.v26-real-asset .lens-stage{
-        background:
-            radial-gradient(ellipse at 50% 64%, rgba(219,168,69,.25) 0 18%, transparent 46%),
-            radial-gradient(circle at 50% 44%, rgba(94,222,166,.28), transparent 39%),
-            linear-gradient(90deg, rgba(255,226,128,.08), transparent 24%, transparent 76%, rgba(50,145,108,.12)),
-            linear-gradient(180deg, rgba(23,77,58,.98), rgba(7,35,30,.98));
+        background:#082f27;
         border-color:rgba(207,166,81,.46);
+    }
+    body.v26-real-asset .gem-backdrop{
+        background:
+            linear-gradient(180deg, rgba(8,67,48,.5), rgba(2,30,26,.72)),
+            var(--v26-center-glow) center / cover no-repeat,
+            linear-gradient(180deg, #175f47, #062d27);
+    }
+    body.v26-real-asset .lens-mask-surface{
+        --lens-mask-fill:#a8df91;
+        --lens-mask-edge:#5caa70;
+    }
+    body.v26-real-asset .lens-mask-surface::before{
+        inset:0 auto 0 0;
+        width:242.857%;
+        background:var(--v26-center-long) left top / 100% 100% no-repeat;
+        -webkit-mask-image:none;
+        mask-image:none;
+        filter:brightness(.86) saturate(.9) contrast(1.04);
+        transition:filter .34s ease;
+    }
+    body.v26-real-asset.reward-focus .lens-mask-surface::before{
+        filter:brightness(.7) saturate(.84) contrast(1.08);
+    }
+    body.v26-real-asset .lens-mask-surface::after{
+        display:none;
     }
     body.v26-real-asset .idle-copy{
         color:rgba(255,246,210,.84);
@@ -5213,19 +5389,32 @@
     body.v26-real-asset .idle-copy h2{
         color:#ffe8a6;
     }
+    body.v26-real-asset .lens-disc{
+        border-color:rgba(226,192,104,.92);
+        background:
+            radial-gradient(circle at 36% 27%, rgba(255,255,255,.42), transparent 16%),
+            linear-gradient(128deg, transparent 0 42%, rgba(255,255,255,.18) 43% 45%, transparent 46%),
+            var(--disc-filter, rgba(127,223,255,.18)),
+            var(--v26-lens-glass) center / 100% 100% no-repeat;
+        box-shadow:
+            inset 0 0 62px rgba(255,255,255,.18),
+            inset 0 0 0 4px rgba(255,240,181,.18),
+            0 0 0 3px rgba(63,47,25,.28),
+            0 22px 54px rgba(0,0,0,.24);
+        mix-blend-mode:normal;
+    }
+    body.v26-real-asset .lens-disc::before{
+        border-color:rgba(255,240,187,.46);
+        box-shadow:inset 0 0 24px rgba(26,75,58,.16), 0 0 0 1px rgba(70,49,22,.32);
+    }
     body.v26-real-asset .lens-viewport{
-        width:min(124%, 1320px);
-        top:50%;
+        width:85.714%;
+        top:44.444%;
         border:0;
         background:
             var(--v26-lens-ring) center / 100% 100% no-repeat,
-            var(--v26-lens-glass) center / 72% 72% no-repeat,
-            radial-gradient(circle at 50% 50%, transparent 0 57%, rgba(80,68,35,.05) 58% 70%, transparent 71%),
-            var(--lens-filter, rgba(127,223,255,.18));
-        box-shadow:
-            inset 0 0 90px rgba(255,255,255,.25),
-            0 34px 84px rgba(33,58,52,.16);
-        mix-blend-mode:normal;
+            radial-gradient(circle at 50% 50%, transparent 0 57%, rgba(80,68,35,.05) 58% 70%, transparent 71%);
+        box-shadow:0 34px 84px rgba(33,58,52,.16);
     }
     body.v26-real-asset .core-hint{
         min-height:70px;
@@ -5330,10 +5519,19 @@
         background:var(--v26-reward-plate) center / 100% 100% no-repeat;
         filter:drop-shadow(0 22px 28px rgba(72,44,25,.2));
     }
+    body.v26-real-asset .plate::before{
+        content:"";
+        position:absolute;
+        inset:0;
+        z-index:500;
+        pointer-events:none;
+        background:var(--v26-reward-plate) center / 100% 100% no-repeat;
+        clip-path:inset(56% 0 0 0);
+    }
     body.v26-real-asset .plate .empty-state{
         position:absolute;
         left:50%;
-        top:50%;
+        top:42%;
         width:70%;
         transform:translate(-50%, -50%);
         color:rgba(63,45,28,.58);
@@ -5389,7 +5587,7 @@
             right:0;
             bottom:var(--desktop-plate-bottom);
             width:var(--desktop-plate-size);
-            height:var(--desktop-plate-size);
+            height:auto;
             transform:none;
             pointer-events:auto;
         }
@@ -5407,13 +5605,17 @@
             transform:none;
             z-index:21;
         }
-        body.reward-focus:not(.layout-mobile-landscape):not(.layout-gamepad) .lens-viewport{
-            left:15%;
-            top:77%;
-            width:min(66%, 620px);
-            --lens-view-scale:.46;
-            opacity:.62;
-            filter:saturate(.78) brightness(.86);
+        body.reward-mask-extended:not(.layout-mobile-landscape):not(.layout-gamepad) .lens-mask-rig{
+            z-index:16;
+        }
+        body.reward-mask-extended:not(.layout-mobile-landscape):not(.layout-gamepad) .lens-mask-surface::after{
+            width:142%;
+        }
+        body.reward-mask-exited:not(.layout-mobile-landscape):not(.layout-gamepad) .lens-mask-rig{
+            transform:translate3d(-120%, 0, 0);
+        }
+        body.reward-mask-returning:not(.layout-mobile-landscape):not(.layout-gamepad) .lens-mask-rig{
+            transition-duration:.68s;
         }
         body.reward-focus:not(.layout-mobile-landscape):not(.layout-gamepad) .lens-stage.idle .idle-copy{
             opacity:0;
@@ -5422,7 +5624,7 @@
             right:calc(50vw - 500px);
             bottom:52px;
             width:calc(var(--desktop-plate-size) + 240px);
-            height:calc(var(--desktop-plate-size) + 240px);
+            height:auto;
             filter:drop-shadow(0 34px 42px rgba(41,24,12,.3)) brightness(1.08);
             z-index:18;
         }
@@ -5437,6 +5639,49 @@
             animation-name:gemDropRewardFocus, plateDropClink;
         }
     }
+    .reward-tyndall{
+        position:absolute;left:0;right:0;top:0;height:52%;z-index:17;
+        overflow:hidden;pointer-events:none;opacity:0;visibility:hidden;
+        -webkit-mask-image:linear-gradient(180deg,#000 0 32%,rgba(0,0,0,.86) 48%,rgba(0,0,0,.28) 76%,transparent 100%);
+        mask-image:linear-gradient(180deg,#000 0 32%,rgba(0,0,0,.86) 48%,rgba(0,0,0,.28) 76%,transparent 100%);
+        transition:opacity .3s ease,visibility 0s linear .3s
+    }
+    body.reward-tyndall-active .reward-tyndall{opacity:1;visibility:visible;transition:opacity .32s ease,visibility 0s}
+    body.reward-tyndall-fading .reward-tyndall{opacity:0;visibility:visible;transition:opacity .42s ease}
+    body.reward-tyndall-cut .reward-tyndall{opacity:0!important;visibility:hidden!important;transition:none!important}
+    .reward-tyndall-beam{
+        position:absolute;left:50%;top:0;width:min(58%,500px);height:100%;
+        transform:translateX(-50%);transform-origin:50% 0;
+        clip-path:polygon(44% 0,56% 0,94% 100%,6% 100%);
+        background:linear-gradient(90deg,transparent 0 5%,rgba(225,255,220,.05) 18%,rgba(244,255,221,.24) 46%,rgba(255,249,194,.32) 52%,rgba(225,255,220,.13) 76%,transparent 95%),linear-gradient(180deg,rgba(255,255,225,.42),rgba(226,255,211,.16) 42%,rgba(255,235,159,.1) 78%,transparent);
+        filter:blur(.6px) drop-shadow(0 0 22px rgba(236,255,205,.22));mix-blend-mode:screen;
+        animation:rewardTyndallBreathe 1.5s ease-in-out infinite;
+    }
+    .reward-tyndall-beam::before,.reward-tyndall-beam::after{
+        content:"";position:absolute;inset:0;clip-path:polygon(47% 0,51% 0,68% 100%,35% 100%);
+        background:linear-gradient(180deg,rgba(255,255,232,.5),rgba(232,255,220,.16) 62%,transparent);
+    }
+    .reward-tyndall-beam::after{clip-path:polygon(53% 0,56% 0,82% 100%,60% 100%);opacity:.55}
+    .reward-tyndall-source{
+        position:absolute;left:50%;top:1.5%;width:118px;height:8px;transform:translateX(-50%);
+        border-radius:50%;background:rgba(255,255,224,.64);
+        box-shadow:0 0 12px rgba(255,255,220,.9),0 0 34px rgba(232,255,201,.64);mix-blend-mode:screen;
+    }
+    .reward-tyndall-dust{position:absolute;inset:0}
+    .reward-tyndall-dust i{
+        position:absolute;left:calc(50% + var(--dust-x));top:var(--dust-y);
+        width:var(--dust-size);height:calc(var(--dust-size)*.45);border-radius:1px;
+        background:rgba(255,252,204,.92);box-shadow:0 0 5px rgba(243,255,207,.9);
+        opacity:0;transform:rotate(var(--dust-rot));
+        animation:rewardTyndallDust var(--dust-duration) ease-in-out var(--dust-delay) infinite;
+    }
+    @keyframes rewardTyndallBreathe{0%,100%{opacity:.76}50%{opacity:1}}
+    @keyframes rewardTyndallDust{
+        0%{opacity:0;transform:translate3d(-8px,-24px,0) rotate(var(--dust-rot))}
+        18%{opacity:.9}72%{opacity:.56}
+        100%{opacity:0;transform:translate3d(14px,58px,0) rotate(calc(var(--dust-rot) + 24deg))}
+    }
+    @media (max-width:1100px){.reward-tyndall-beam{width:min(62%,460px)}.reward-tyndall-source{top:1.5%}}
     body.v26-real-asset .hotspot-clean::before{
         background:none;
     }
@@ -5822,7 +6067,7 @@
     }
     body.mobile-portrait-rotated.layout-mobile-landscape:not(.playing) .plate{
         width:150px;
-        height:150px;
+        height:auto;
         right:6px;
         bottom:4px;
         opacity:.84;
@@ -5953,7 +6198,7 @@
         right:0;
         bottom:0;
         width:238px;
-        height:238px;
+        height:auto;
         pointer-events:auto;
     }
     body.layout-mobile-landscape .plate-gem{
@@ -6016,7 +6261,7 @@
         }
         body.layout-mobile-landscape .plate{
             width:212px;
-            height:212px;
+            height:auto;
         }
         body.layout-mobile-landscape .collect-cta{
             right:18px;
@@ -6248,7 +6493,7 @@
         right:0;
         bottom:var(--desktop-plate-bottom);
         width:var(--desktop-plate-size);
-        height:var(--desktop-plate-size);
+        height:auto;
         transform:none;
         pointer-events:auto;
     }
@@ -6742,6 +6987,27 @@
     </div>
 
     <div class="workbench">
+        <div id="reward-tyndall" class="reward-tyndall" aria-hidden="true">
+            <div class="reward-tyndall-beam"></div>
+            <div class="reward-tyndall-source"></div>
+            <div class="reward-tyndall-dust">
+                <i style="--dust-x:-180px;--dust-y:31%;--dust-size:4px;--dust-rot:12deg;--dust-duration:1.7s;--dust-delay:-.2s"></i>
+                <i style="--dust-x:-132px;--dust-y:43%;--dust-size:3px;--dust-rot:-18deg;--dust-duration:2.1s;--dust-delay:-1.1s"></i>
+                <i style="--dust-x:-94px;--dust-y:56%;--dust-size:5px;--dust-rot:24deg;--dust-duration:1.9s;--dust-delay:-.7s"></i>
+                <i style="--dust-x:-48px;--dust-y:37%;--dust-size:3px;--dust-rot:8deg;--dust-duration:2.3s;--dust-delay:-1.5s"></i>
+                <i style="--dust-x:-18px;--dust-y:66%;--dust-size:4px;--dust-rot:-12deg;--dust-duration:1.8s;--dust-delay:-.9s"></i>
+                <i style="--dust-x:24px;--dust-y:48%;--dust-size:5px;--dust-rot:16deg;--dust-duration:2s;--dust-delay:-.3s"></i>
+                <i style="--dust-x:61px;--dust-y:72%;--dust-size:3px;--dust-rot:-28deg;--dust-duration:2.2s;--dust-delay:-1.3s"></i>
+                <i style="--dust-x:98px;--dust-y:39%;--dust-size:4px;--dust-rot:20deg;--dust-duration:1.75s;--dust-delay:-.55s"></i>
+                <i style="--dust-x:136px;--dust-y:58%;--dust-size:5px;--dust-rot:-8deg;--dust-duration:2.35s;--dust-delay:-1.7s"></i>
+                <i style="--dust-x:174px;--dust-y:69%;--dust-size:3px;--dust-rot:14deg;--dust-duration:1.85s;--dust-delay:-1s"></i>
+                <i style="--dust-x:-152px;--dust-y:76%;--dust-size:4px;--dust-rot:-20deg;--dust-duration:2.15s;--dust-delay:-.4s"></i>
+                <i style="--dust-x:-72px;--dust-y:82%;--dust-size:3px;--dust-rot:27deg;--dust-duration:1.65s;--dust-delay:-1.2s"></i>
+                <i style="--dust-x:8px;--dust-y:29%;--dust-size:4px;--dust-rot:-14deg;--dust-duration:2.25s;--dust-delay:-.8s"></i>
+                <i style="--dust-x:82px;--dust-y:87%;--dust-size:3px;--dust-rot:11deg;--dust-duration:1.95s;--dust-delay:-1.45s"></i>
+                <i style="--dust-x:154px;--dust-y:33%;--dust-size:4px;--dust-rot:-23deg;--dust-duration:2.05s;--dust-delay:-.65s"></i>
+            </div>
+        </div>
         <aside class="panel bag-panel">
             <h2>素体袋</h2>
             <div id="bag" class="bag" draggable="true" aria-label="素体袋">
@@ -6767,6 +7033,7 @@
         <main class="panel center-panel">
             <div class="center-stage">
                 <div id="lens-stage" class="lens-stage idle">
+                    <div class="gem-backdrop" aria-hidden="true"></div>
                     <div class="idle-copy">
                         <h2>镜片位置 / 核心玩法区域</h2>
                         <p>从左侧素体选择拖入镜片，开始单颗鉴定。</p>
@@ -6790,7 +7057,18 @@
                         <div id="gem-core" class="gem-core"></div>
                         <div class="gem-surface"></div>
                     </div>
-                    <div id="lens-viewport" class="lens-viewport" aria-hidden="true"></div>
+                    <div id="lens-mask-rig" class="lens-mask-rig" aria-hidden="true">
+                        <div id="lens-carousel" class="lens-carousel">
+                            <div class="lens-disc" data-lens-index="0" data-copy="0" data-lens-key="A" data-slot="0"></div>
+                            <div class="lens-disc" data-lens-index="1" data-copy="0" data-lens-key="B" data-slot="hidden"></div>
+                            <div class="lens-disc" data-lens-index="2" data-copy="0" data-lens-key="C" data-slot="hidden"></div>
+                            <div class="lens-disc" data-lens-index="0" data-copy="1" data-lens-key="A" data-slot="hidden"></div>
+                            <div class="lens-disc" data-lens-index="1" data-copy="1" data-lens-key="B" data-slot="hidden"></div>
+                            <div class="lens-disc" data-lens-index="2" data-copy="1" data-lens-key="C" data-slot="hidden"></div>
+                        </div>
+                        <div class="lens-mask-surface"></div>
+                        <div id="lens-viewport" class="lens-viewport"></div>
+                    </div>
                     <div id="repair-overlay" class="repair-overlay" aria-hidden="true"></div>
                     <div id="soak-overlay" class="soak-overlay" aria-hidden="true"></div>
                     <div id="chamfer-overlay" class="chamfer-overlay" aria-hidden="true"></div>
@@ -6806,7 +7084,6 @@
                         <div class="step-box notebook-card">
                             <div class="notebook-title" id="archive-title">档案：-</div>
                             <div class="notebook-line"><span class="notebook-label">类型：</span><span id="archive-type">-</span></div>
-                            <div class="notebook-line"><span class="notebook-label">出处：</span><span id="archive-origin">-</span></div>
                             <div class="notebook-line"><span class="notebook-label">当前步骤：</span></div>
                             <div class="notebook-steps" id="archive-steps"></div>
                             <div class="progress"><div id="step-progress"></div></div>
@@ -6936,7 +7213,9 @@ const TOOL_SPRITES = {
     polish:"https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_tool_sprites/tool_chamfer_cloth_A.png"
 };
 // v27 removed manual tool buttons and the tool wheel; restore from v26 RealAsset if needed.
-const MULTI_TOOL_ORDER = ["light","cut","repair","shape","polish","clean"];
+const HIDDEN_TOOL_TYPES = new Set(["light"]);
+const MULTI_TOOL_ORDER = ["cut","repair","shape","polish","clean"];
+function isToolTypeHidden(type){ return HIDDEN_TOOL_TYPES.has(type); }
 const V27_HIDE_FOLLOW_TOOL_FX = true;
 const V27_SHOW_CUT_TRACKING_TOOL = false;
 const FOLLOW_TOOL_TYPES = new Set();
@@ -7065,7 +7344,7 @@ const GEM_VISUALS = {
 const DEMO_DATA_PACKS = {
     fullCoverage:{
         label:"全量流程验收",
-        note:"每一种素体都有可玩数量，寻光与抛光已纳入正式步骤说明，并额外提供一颗萤石测试石用于完整跑通当前玩法链路。",
+        note:"每一种素体都有可玩数量，抛光已纳入正式步骤说明，并额外提供一颗萤石测试石用于完整跑通当前玩法链路。",
         known:["pearl","agate","garnet","sunstone","catseye","jadeite","obsidian","fluorite","fluorite_test","malachite","turquoise","hetian","shoushan"],
         bag:{ pearl:2, agate:4, garnet:11, sunstone:5, catseye:6, jadeite:8, obsidian:5, fluorite:10, fluorite_test:1, malachite:2, turquoise:9, hetian:1, shoushan:6 }
     },
@@ -7363,6 +7642,7 @@ function applyDesktopLensMode(mode){
     if(select) select.value = state.desktopLensMode;
     renderLensDial();
     renderLensButtons();
+    renderLensCarousel();
 }
 function normalizedBag(bag){
     const result = {};
@@ -7776,7 +8056,6 @@ function renderKnownList(){
                 </div>
                 <div class="stone-meta">${gemSubText(gem)}</div>
             </div>
-            <span class="pill">${known ? "拖拽→" : "未识别"}</span>
         `;
         if(known && available){
             card.addEventListener("click", e=>{
@@ -7846,6 +8125,8 @@ function renderPlate(){
         const shouldDrop = plateItem.dropPending && !plateItem.dropStarted && !isPhysicsLive;
         const shouldBump = !shouldDrop && plateItem.collisionPulseUntil && now < plateItem.collisionPulseUntil;
         item.className = `plate-gem plate-gem-shape-${shape} ${image ? "with-image" : ""} ${plateItem.rewardFocusDrop ? "reward-focus-drop" : ""} ${shouldDrop ? "plate-drop-new" : ""} ${plateItem.dropCollision ? "plate-drop-collision" : ""} ${shouldBump ? "plate-bump" : ""} ${isPhysicsLive ? "plate-physics-live" : ""}`;
+        item.classList.toggle("plate-piled", Number.isFinite(plateItem.pileLevel));
+        item.classList.toggle("plate-gem-fallen", !!plateItem.fallenOut);
         item.dataset.plateUid = plateUid;
         item.title = `${gem.name} ${index + 1}`;
         if(image){
@@ -7858,7 +8139,10 @@ function renderPlate(){
         item.style.setProperty("--drop-rot", `${plateItem.dropRot ?? (Math.random() * 220 - 110)}deg`);
         item.style.setProperty("--rest-rot", `${plateItem.restRot ?? (Math.random() * 26 - 13)}deg`);
         item.style.setProperty("--plate-x", plateItem.x ?? 50);
-        item.style.setProperty("--plate-y", plateItem.y ?? 50);
+        item.style.setProperty("--plate-y", plateItem.y ?? PLATE_CENTER_Y);
+        item.style.setProperty("--pile-scale", plateItem.pileScale ?? 1);
+        item.style.zIndex = String(plateItem.physicsDropPending && plateItem.physicsFromLensTop ? 540 : (plateItem.pileZ ?? (20 + Math.round((plateItem.y ?? PLATE_CENTER_Y) * 2))));
+        if(plateItem.physicsDropPending && plateItem.physicsFromLensTop) item.style.opacity = "0";
         item.style.setProperty("--bump-x", `${plateItem.bumpX ?? 0}px`);
         item.style.setProperty("--bump-y", `${plateItem.bumpY ?? 0}px`);
         item.style.setProperty("--bump-back-x", `${plateItem.bumpBackX ?? 0}px`);
@@ -7887,10 +8171,10 @@ function renderPlate(){
     }
 }
 function applyPlateDropMotionVars(element, plateItem, plateWidth, plateHeight){
-    const x = clampNumber(plateItem.x ?? 50, 10, 90);
-    const y = clampNumber(plateItem.y ?? 50, 10, 90);
-    const vecX = (x - 50) / 100 * plateWidth;
-    const vecY = (y - 50) / 100 * plateHeight;
+    const x = clampNumber(plateItem.x ?? PLATE_CENTER_X, 10, 90);
+    const y = clampNumber(plateItem.y ?? PLATE_CENTER_Y, 4, 80);
+    const vecX = (x - PLATE_CENTER_X) / 100 * plateWidth;
+    const vecY = (y - PLATE_CENTER_Y) / 100 * plateHeight;
     const radius = Math.max(1, Math.hypot(vecX, vecY));
     const unitX = radius > 1 ? vecX / radius : (Math.random() < .5 ? -1 : 1);
     const unitY = radius > 1 ? vecY / radius : .24;
@@ -7949,60 +8233,144 @@ function createPlateItem(id, existingItems = state.plateItems || []){
 function randomPlateDropX(){
     return (Math.random() < .5 ? -1 : 1) * (110 + Math.random() * 110);
 }
+const PLATE_CENTER_X = 50;
+const PLATE_CENTER_Y = 42;
+const PLATE_SURFACE_RADIUS_X = 28;
+const PLATE_SURFACE_RADIUS_Y = 22;
+const PLATE_SAFE_RADIUS_X = 23;
+const PLATE_SAFE_RADIUS_Y = 15.5;
+const PLATE_SCREEN_Y_SCALE = 28 / 45;
+const PLATE_COLLISION_DISTANCE = 10.4;
+const PLATE_PILE_START_COUNT = 16;
+const PLATE_VISIBLE_CAPACITY = 30;
+const PLATE_PILE_ROWS = [8, 7, 6, 5, 4];
+function clearPlatePileState(item){
+    item.pileLevel = null;
+    item.pileScale = 1;
+    item.pileZ = null;
+}
+function platePileSlots(count){
+    const slots = [];
+    let remaining = Math.min(count, PLATE_VISIBLE_CAPACITY);
+    PLATE_PILE_ROWS.forEach((capacity, row)=>{
+        if(remaining <= 0) return;
+        const fill = Math.min(capacity, remaining);
+        const stepX = 5.7;
+        const startX = PLATE_CENTER_X - (fill - 1) * stepX * .5;
+        for(let col = 0; col < fill; col++){
+            const serial = slots.length + 1;
+            slots.push({
+                x:startX + col * stepX + ((serial * 37) % 7 - 3) * .12,
+                y:49 - row * 5.45 + ((serial * 19) % 5 - 2) * .1,
+                level:row,
+                scale:1 - row * .018
+            });
+        }
+        remaining -= fill;
+    });
+    return slots;
+}
+function applyPlatePileLayout(items = state.plateItems || [], plate = document.getElementById("plate")){
+    const visibleCount = Math.min(items.length, PLATE_VISIBLE_CAPACITY);
+    const usePile = visibleCount >= PLATE_PILE_START_COUNT;
+    const slots = usePile ? platePileSlots(visibleCount) : [];
+    items.forEach((item, index)=>{
+        const element = plate?.querySelector('[data-plate-uid="' + ensurePlateItemUid(item) + '"]');
+        if(index >= PLATE_VISIBLE_CAPACITY){
+            item.fallenOut = true;
+            clearPlatePileState(item);
+            element?.classList.remove("plate-piled", "plate-spilling");
+            element?.classList.add("plate-gem-fallen");
+            return;
+        }
+        item.fallenOut = false;
+        if(usePile){
+            const slot = slots[index];
+            item.x = slot.x;
+            item.y = slot.y;
+            item.pileLevel = slot.level;
+            item.pileScale = slot.scale;
+            item.pileZ = 110 + Math.round(slot.y * 3) + index % 3;
+            element?.classList.add("plate-piled");
+            element?.style.setProperty("--pile-scale", item.pileScale.toFixed(3));
+        } else {
+            clearPlatePileState(item);
+            element?.classList.remove("plate-piled");
+            clampPlatePoint(item);
+        }
+        element?.classList.remove("plate-gem-fallen", "plate-spilling");
+        if(element){
+            element.style.setProperty("--plate-x", item.x.toFixed(2));
+            element.style.setProperty("--plate-y", item.y.toFixed(2));
+            element.style.zIndex = String(item.pileZ ?? (20 + Math.round(item.y * 2)));
+        }
+    });
+}
+const PLATE_COLLISION_NEAR_DISTANCE = 14.8;
+function plateMetricDelta(ax, ay, bx, by){
+    return {
+        dx:ax - bx,
+        dy:(ay - by) * PLATE_SCREEN_Y_SCALE
+    };
+}
 function randomPlatePosition(existingItems = []){
     const attempts = existingItems.length > 34 ? 12 : 42;
-    const safeRadius = 31;
     let best = null;
     let bestScore = -Infinity;
     for(let i = 0; i < attempts; i++){
-        const radius = Math.sqrt(Math.random()) * safeRadius;
+        const radius = Math.sqrt(Math.random());
         const angle = Math.random() * Math.PI * 2;
         const point = {
-            x:50 + Math.cos(angle) * radius,
-            y:50 + Math.sin(angle) * radius
+            x:PLATE_CENTER_X + Math.cos(angle) * PLATE_SAFE_RADIUS_X * radius,
+            y:PLATE_CENTER_Y + Math.sin(angle) * PLATE_SAFE_RADIUS_Y * radius
         };
         const nearest = existingItems.length
-            ? Math.min(...existingItems.map(item=>Math.hypot(point.x - (item.x ?? 50), point.y - (item.y ?? 50))))
-            : safeRadius;
-        const edgeComfort = safeRadius - Math.hypot(point.x - 50, point.y - 50);
-        const score = nearest + edgeComfort * .08;
+            ? Math.min(...existingItems.map(item=>{
+                const delta = plateMetricDelta(point.x, point.y, item.x ?? PLATE_CENTER_X, item.y ?? PLATE_CENTER_Y);
+                return Math.hypot(delta.dx, delta.dy);
+            }))
+            : PLATE_SAFE_RADIUS_X;
+        const edgeComfort = 1 - Math.hypot(
+            (point.x - PLATE_CENTER_X) / PLATE_SAFE_RADIUS_X,
+            (point.y - PLATE_CENTER_Y) / PLATE_SAFE_RADIUS_Y
+        );
+        const score = nearest + edgeComfort * 2.4;
         if(score > bestScore){
             best = point;
             bestScore = score;
         }
     }
-    return best || { x:50, y:50 };
+    return best || { x:PLATE_CENTER_X, y:PLATE_CENTER_Y };
 }
 function circularPlatePositions(count){
-    if(count <= 1) return [{ x:50, y:50 }];
+    if(count <= 1) return [{ x:PLATE_CENTER_X, y:PLATE_CENTER_Y }];
     const positions = [];
-    const safeRadius = 31;
     let rings = 1;
     while(1 + rings * 6 + Math.max(0, rings - 1) * 6 < count && rings < 5) rings += 1;
-    const rowGap = (safeRadius * 2) / Math.max(4, rings * 2 + 2);
+    const rowGapX = (PLATE_SAFE_RADIUS_X * 2) / Math.max(4, rings * 2 + 2);
+    const rowGapY = rowGapX / PLATE_SCREEN_Y_SCALE;
     for(let row = -rings; row <= rings; row++){
-        const y = 50 + row * rowGap;
-        const xSpan = Math.sqrt(Math.max(0, safeRadius * safeRadius - (y - 50) * (y - 50)));
-        const cells = Math.max(1, Math.floor((xSpan * 2) / rowGap));
+        const y = PLATE_CENTER_Y + row * rowGapY;
+        const normalizedY = (y - PLATE_CENTER_Y) / PLATE_SAFE_RADIUS_Y;
+        if(Math.abs(normalizedY) > 1) continue;
+        const xSpan = PLATE_SAFE_RADIUS_X * Math.sqrt(Math.max(0, 1 - normalizedY * normalizedY));
+        const cells = Math.max(1, Math.floor((xSpan * 2) / rowGapX));
         for(let col = 0; col < cells; col++){
-            const x = cells === 1 ? 50 : 50 - xSpan + (xSpan * 2) * (col / (cells - 1));
+            const x = cells === 1 ? PLATE_CENTER_X : PLATE_CENTER_X - xSpan + (xSpan * 2) * (col / (cells - 1));
             positions.push({ x, y });
         }
     }
     positions.sort((a,b)=>a.y - b.y || a.x - b.x);
     return positions.slice(0, count);
 }
-const PLATE_SAFE_RADIUS = 31;
-const PLATE_COLLISION_DISTANCE = 10.4;
-const PLATE_COLLISION_NEAR_DISTANCE = 14.8;
-function clampPlatePoint(point, safeRadius = PLATE_SAFE_RADIUS){
-    const dx = point.x - 50;
-    const dy = point.y - 50;
-    const dist = Math.hypot(dx, dy);
-    if(dist <= safeRadius || dist < .001) return point;
-    const scale = safeRadius / dist;
-    point.x = 50 + dx * scale;
-    point.y = 50 + dy * scale;
+function clampPlatePoint(point){
+    if(point.fallenOut) return point;
+    const dx = point.x - PLATE_CENTER_X;
+    const dy = point.y - PLATE_CENTER_Y;
+    const normalized = Math.hypot(dx / PLATE_SAFE_RADIUS_X, dy / PLATE_SAFE_RADIUS_Y);
+    if(normalized <= 1 || normalized < .001) return point;
+    point.x = PLATE_CENTER_X + dx / normalized;
+    point.y = PLATE_CENTER_Y + dy / normalized;
     return point;
 }
 function preparePlateDropMotion(item, order, rewardFocusDrop){
@@ -8012,11 +8380,10 @@ function preparePlateDropMotion(item, order, rewardFocusDrop){
     item.dropStartY = rewardFocusDrop ? -360 - order * 10 : -280 - order * 8;
     item.impactX = (Math.random() - .5) * 18;
     item.impactY = (Math.random() - .5) * 10;
-    const dx = item.x - 50;
-    const dy = item.y - 50;
-    const dist = Math.max(1, Math.hypot(dx, dy));
-    const ux = dx / dist;
-    const uy = dy / dist;
+    const delta = plateMetricDelta(item.x, item.y, PLATE_CENTER_X, PLATE_CENTER_Y);
+    const dist = Math.max(1, Math.hypot(delta.dx, delta.dy));
+    const ux = delta.dx / dist;
+    const uy = delta.dy / dist;
     const bounce = 9 + Math.random() * 8;
     item.bounceX = ux * bounce + (Math.random() - .5) * 4;
     item.bounceY = uy * (bounce * .72) - (5 + Math.random() * 7);
@@ -8038,19 +8405,18 @@ function resolvePlateLandingCollisions(newItem, existingItems, delay){
     let collisions = 0;
     existingItems.forEach(other=>{
         if(!other || other === newItem) return;
-        const dx = newItem.x - (other.x ?? 50);
-        const dy = newItem.y - (other.y ?? 50);
-        const dist = Math.hypot(dx, dy);
+        const delta = plateMetricDelta(newItem.x, newItem.y, other.x ?? PLATE_CENTER_X, other.y ?? PLATE_CENTER_Y);
+        const dist = Math.hypot(delta.dx, delta.dy);
         if(dist >= PLATE_COLLISION_NEAR_DISTANCE) return;
-        const ux = dist > .001 ? dx / dist : Math.cos(Math.random() * Math.PI * 2);
-        const uy = dist > .001 ? dy / dist : Math.sin(Math.random() * Math.PI * 2);
+        const ux = dist > .001 ? delta.dx / dist : Math.cos(Math.random() * Math.PI * 2);
+        const uy = dist > .001 ? delta.dy / dist : Math.sin(Math.random() * Math.PI * 2);
         const hardOverlap = Math.max(0, PLATE_COLLISION_DISTANCE - dist);
         const softNudge = Math.max(0, PLATE_COLLISION_NEAR_DISTANCE - dist) * .18;
         const push = Math.max(.9, hardOverlap + softNudge);
         newItem.x += ux * push * .62;
-        newItem.y += uy * push * .62;
+        newItem.y += uy * push * .62 / PLATE_SCREEN_Y_SCALE;
         other.x -= ux * push * .38;
-        other.y -= uy * push * .38;
+        other.y -= uy * push * .38 / PLATE_SCREEN_Y_SCALE;
         clampPlatePoint(newItem);
         clampPlatePoint(other);
         markPlateCollisionFeedback(other, delay + 460 + collisions * 70, ux, uy);
@@ -8064,32 +8430,36 @@ function resolvePlateLandingCollisions(newItem, existingItems, delay){
     return collisions;
 }
 function primePlatePhysicsDrop(item, order, options={}){
+    const fromLensTop = !!options.fromLensTop;
     const topSpread = options.spreadX ?? 10;
     const orderGap = Math.min(order, 14);
     const startDelay = Math.min(.3, orderGap * (options.startGap ?? .032) + Math.random() * .028);
-    const startX = 50 + (Math.random() - .5) * topSpread;
-    const landingX = 50 + (Math.random() - .5) * (options.landingSpreadX ?? 12);
-    const landingY = options.landingY ?? (46 + Math.random() * 8);
-    const fallTimeHint = .18 + Math.random() * .04;
+    const startX = PLATE_CENTER_X + (Math.random() - .5) * topSpread;
+    const landingX = PLATE_CENTER_X + (Math.random() - .5) * (options.landingSpreadX ?? 12);
+    const landingY = options.landingY ?? (PLATE_CENTER_Y - 2 + Math.random() * 4);
+    const fallTimeHint = fromLensTop ? .62 + Math.random() * .08 : .18 + Math.random() * .04;
     const preferredKickAngle = Number.isFinite(options.kickAngle)
         ? options.kickAngle
         : Math.random() * Math.PI * 2;
     item.x = startX;
-    item.y = -12 - orderGap * (options.staggerY ?? .55) - Math.random() * 5;
+    item.y = fromLensTop ? -48 - Math.random() * 2 : -12 - orderGap * (options.staggerY ?? .55) - Math.random() * 5;
     item.physicsVX = (landingX - startX) / fallTimeHint + (Math.random() - .5) * 5;
-    item.physicsVY = options.vy ?? (246 + Math.random() * 72);
+    item.physicsVY = options.vy ?? (fromLensTop ? 18 + Math.random() * 12 : 246 + Math.random() * 72);
     item.physicsDirectional = false;
     item.physicsLandingX = landingX;
     item.physicsLandingY = landingY;
     item.physicsKickAngle = preferredKickAngle;
     item.physicsKickSpeed = options.kickSpeed ?? (72 + Math.random() * 30);
     item.physicsStartDelay = startDelay;
+    item.physicsFromLensTop = fromLensTop;
     item.physicsDropPending = true;
     item.physicsActive = false;
     item.dropPending = false;
     item.dropStarted = true;
     item.dropCollision = false;
     item.collisionPulseUntil = 0;
+    item.fallenOut = false;
+    clearPlatePileState(item);
     item.rewardFocusDrop = false;
     item.dropRot = Math.random() * 260 - 130;
     item.restRot = Math.random() * 32 - 16;
@@ -8113,7 +8483,7 @@ function requestPlatePhysicsDrop(){
     window.setTimeout(()=>{
         if(document.hidden) settleStuckPlatePhysicsDrops();
     }, 120);
-    window.setTimeout(settleStuckPlatePhysicsDrops, 3400);
+    window.setTimeout(settleStuckPlatePhysicsDrops, 4600);
 }
 function stopPlatePhysicsDrop(){
     if(state.platePhysicsFrame){
@@ -8138,7 +8508,7 @@ function settleStuckPlatePhysicsDrops(){
             item.x = pos.x;
             item.y = pos.y;
         } else {
-            clampPlatePoint(item, PLATE_SAFE_RADIUS + 2.8);
+            clampPlatePoint(item);
         }
         item.physicsDropPending = false;
         item.physicsActive = false;
@@ -8148,6 +8518,7 @@ function settleStuckPlatePhysicsDrops(){
         item.settledAt = performance.now();
         placed.push(item);
     });
+    applyPlatePileLayout(items);
     renderPlate();
     scheduleRewardFocusRestore(REWARD_FOCUS_RESTORE_DELAY_MS);
 }
@@ -8168,6 +8539,7 @@ function isPlateDropPresentationActive(){
 }
 function finishPlateDropPresentation(){
     if(!isPlateDropPresentationActive()) return false;
+    hideRewardTyndall(true);
     if(isActiveCompletionCeremonyPending()){
         completeActiveGem();
     }
@@ -8190,13 +8562,13 @@ function finishPlateDropPresentation(){
         if(body?.started && body?.landed && Number.isFinite(body.x) && Number.isFinite(body.y)){
             item.x = body.x;
             item.y = body.y;
-            clampPlatePoint(item, PLATE_SAFE_RADIUS + 2.8);
+            clampPlatePoint(item);
         } else if(stillDropping){
             const pos = randomPlatePosition(placed);
             item.x = pos.x;
             item.y = pos.y;
         } else {
-            clampPlatePoint(item, PLATE_SAFE_RADIUS + 2.8);
+            clampPlatePoint(item);
         }
         item.physicsDropPending = false;
         item.physicsActive = false;
@@ -8211,6 +8583,7 @@ function finishPlateDropPresentation(){
         item.settledAt = now;
         placed.push(item);
     });
+    applyPlatePileLayout(state.plateItems || []);
     renderMain();
     showScreen("screen-main");
     return true;
@@ -8238,58 +8611,89 @@ function startPlatePhysicsDrop(){
     if(!plate || !items.length) return;
     stopPlatePhysicsDrop();
     const plateRect = plate.getBoundingClientRect();
+    const plateWidth = plateRect.width || 304;
+    const plateHeight = plateRect.height || plateWidth * PLATE_SCREEN_Y_SCALE;
     const sampleGem = plate.querySelector(".plate-gem");
     const sampleRect = sampleGem?.getBoundingClientRect();
-    const radiusPercent = clampNumber(((sampleRect?.width || 36) / Math.max(1, plateRect.width)) * 50 * 1.08, 4.8, 7.3);
+    const radiusPx = clampNumber((sampleRect?.width || 36) * .54, 15, 30);
+    const stageRect = document.getElementById("lens-stage")?.getBoundingClientRect();
+    const stageEntryY = stageRect ? stageRect.top - plateRect.top + radiusPx * 1.35 : -plateHeight * .46;
+    const toX = value=>value / 100 * plateWidth;
+    const toY = value=>value / 100 * plateHeight;
+    const toPercentX = value=>value / Math.max(1, plateWidth) * 100;
+    const toPercentY = value=>value / Math.max(1, plateHeight) * 100;
     const bodies = items.map((item, index)=>{
+        if(item.fallenOut && !item.physicsDropPending) return null;
         ensurePlateItemUid(item);
         const element = plate.querySelector(`[data-plate-uid="${item.plateUid}"]`);
         const isDrop = !!item.physicsDropPending;
         const directional = !!item.physicsDirectional;
+        const fromLensTop = isDrop && !!item.physicsFromLensTop;
         item.physicsActive = true;
         item.dropPending = false;
         item.dropStarted = true;
         element?.classList.add("plate-physics-live");
+        if(element && fromLensTop){
+            element.style.opacity = "0";
+            element.style.zIndex = "540";
+        }
         return {
             item,
             element,
-            x:item.x ?? 50,
-            y:item.y ?? 50,
-            vx:isDrop ? (item.physicsVX ?? 0) : 0,
-            vy:isDrop ? (item.physicsVY ?? 0) : 0,
-            r:radiusPercent,
+            x:toX(item.x ?? PLATE_CENTER_X),
+            y:fromLensTop ? stageEntryY + (index % 3) * radiusPx * .18 : toY(item.y ?? PLATE_CENTER_Y),
+            vx:isDrop ? toX(item.physicsVX ?? 0) : 0,
+            vy:isDrop ? toY(item.physicsVY ?? 0) : 0,
+            r:radiusPx,
             mass:isDrop ? 1 : 1.22,
             isDrop:isDrop && !directional,
+            fromLensTop,
             landed:!isDrop || directional,
             started:!isDrop || directional,
             startDelay:item.physicsStartDelay ?? 0,
-            landingX:item.physicsLandingX ?? (50 + (Math.random() - .5) * 12),
-            landingY:item.physicsLandingY ?? (46 + Math.random() * 8),
+            landingX:toX(item.physicsLandingX ?? (PLATE_CENTER_X + (Math.random() - .5) * 12)),
+            landingY:toY(item.physicsLandingY ?? (PLATE_CENTER_Y - 2 + Math.random() * 4)),
             kickAngle:item.physicsKickAngle ?? Math.random() * Math.PI * 2,
-            kickSpeed:item.physicsKickSpeed ?? (62 + Math.random() * 28),
+            kickSpeed:toX(item.physicsKickSpeed ?? (62 + Math.random() * 28)),
             settledFor:0,
             lastHitAt:0,
+            shouldOverflow:index >= PLATE_VISIBLE_CAPACITY,
+            pileLevel:Number.isFinite(item.pileLevel) ? item.pileLevel : null,
+            spilling:false,
+            fallen:false,
+            spillAt:Infinity,
+            spillSide:index % 2 ? 1 : -1,
+            opacity:1,
             index
         };
-    });
+    }).filter(Boolean);
     state.platePhysicsBodies = bodies;
     let lastTime = performance.now();
     let elapsed = 0;
-    const gravity = 860;
-    const wallRadius = 39.2 - radiusPercent * .45;
-    const topGate = 50 - wallRadius - radiusPercent * .35;
+    const gravity = plateHeight * 8.6;
+    const centerX = toX(PLATE_CENTER_X);
+    const centerY = toY(PLATE_CENTER_Y);
+    const wallRadiusX = Math.max(radiusPx + 3, toX(PLATE_SURFACE_RADIUS_X) - radiusPx * .55);
+    const wallRadiusY = Math.max(radiusPx + 3, toY(PLATE_SURFACE_RADIUS_Y) - radiusPx * .55);
     const scatterNearbyOnLanding = body=>{
         bodies.forEach(other=>{
             if(other === body || !other.started || !other.landed) return;
             const dx = other.x - body.x;
             const dy = other.y - body.y;
             const dist = Math.hypot(dx, dy);
-            const touchDist = body.r + other.r + 5.2;
+            const touchDist = body.r + other.r + plateWidth * .018;
             if(dist >= touchDist) return;
             const angle = dist > .001 ? Math.atan2(dy, dx) : Math.random() * Math.PI * 2;
             const nx = Math.cos(angle);
             const ny = Math.sin(angle);
-            const strength = (touchDist - Math.max(dist, .001)) * 5.8 + 18;
+            if(Number.isFinite(other.pileLevel)){
+                body.vx -= nx * plateWidth * .08;
+                body.vy -= ny * plateWidth * .05;
+                body.settledFor = 0;
+                pulsePlatePhysicsHit(other);
+                return;
+            }
+            const strength = (touchDist - Math.max(dist, .001)) * 5.2 + plateWidth * .055;
             other.vx += nx * strength;
             other.vy += ny * strength;
             body.vx -= nx * strength * .34;
@@ -8307,10 +8711,20 @@ function startPlatePhysicsDrop(){
             if(body.isDrop && !body.started){
                 if(elapsed < body.startDelay) return;
                 body.started = true;
+                if(body.element) body.element.style.opacity = "1";
             }
-            if(body.isDrop && !body.landed){
-                body.vy += gravity * dt;
+            if(body.spilling){
+                body.vy += gravity * .62 * dt;
+                body.x += body.vx * dt;
+                body.y += body.vy * dt;
+                body.vx *= Math.pow(.992, dt * 60);
+                if(body.y > plateHeight + body.r * 6.5){
+                    body.fallen = true;
+                    body.item.fallenOut = true;
+                }
+                return;
             }
+            if(body.isDrop && !body.landed) body.vy += (body.fromLensTop ? plateHeight * 4.2 : gravity) * dt;
             body.x += body.vx * dt;
             body.y += body.vy * dt;
             if(body.isDrop && !body.landed && body.y >= body.landingY){
@@ -8318,25 +8732,55 @@ function startPlatePhysicsDrop(){
                 body.y = body.landingY;
                 body.landed = true;
                 body.isDrop = false;
-                body.vx = Math.cos(body.kickAngle) * body.kickSpeed + (Math.random() - .5) * 8;
-                body.vy = Math.sin(body.kickAngle) * body.kickSpeed * .66 + (Math.random() - .5) * 6;
+                body.vx = Math.cos(body.kickAngle) * body.kickSpeed + (Math.random() - .5) * plateWidth * .025;
+                body.vy = Math.sin(body.kickAngle) * body.kickSpeed * .66 + (Math.random() - .5) * plateWidth * .02;
                 scatterNearbyOnLanding(body);
                 pulsePlatePhysicsHit(body);
+                if(body.shouldOverflow) body.spillAt = elapsed + .18 + Math.random() * .18;
             }
-            body.vx *= Math.pow(body.landed ? .981 : .993, dt * 60);
-            body.vy *= Math.pow(body.landed ? .981 : .995, dt * 60);
+            if(body.shouldOverflow && body.landed && !body.spilling && elapsed >= body.spillAt){
+                body.spilling = true;
+                body.settledFor = 0;
+                body.vx = body.spillSide * plateWidth * (.3 + Math.random() * .08);
+                body.vy = plateHeight * (.28 + Math.random() * .1);
+                body.element?.classList.add("plate-spilling");
+                body.element?.classList.remove("plate-physics-hit");
+            }
+            body.vx *= Math.pow(body.landed ? .978 : .993, dt * 60);
+            body.vy *= Math.pow(body.landed ? .978 : .995, dt * 60);
         });
         for(let pass = 0; pass < 3; pass++){
             for(let i = 0; i < bodies.length; i++){
                 for(let j = i + 1; j < bodies.length; j++){
                     const a = bodies[i];
                     const b = bodies[j];
-                    if(!a.started || !b.started || !a.landed || !b.landed) continue;
+                    if(!a.started || !b.started || !a.landed || !b.landed || a.spilling || b.spilling || a.fallen || b.fallen) continue;
+                    if(Number.isFinite(a.pileLevel) && Number.isFinite(b.pileLevel)) continue;
                     const dx = b.x - a.x;
                     const dy = b.y - a.y;
                     const dist = Math.hypot(dx, dy) || .001;
-                    const minDist = a.r + b.r + .34;
+                    const minDist = a.r + b.r + 1;
                     if(dist >= minDist) continue;
+                    const aPiled = Number.isFinite(a.pileLevel);
+                    const bPiled = Number.isFinite(b.pileLevel);
+                    if(aPiled || bPiled){
+                        const staticBody = aPiled ? a : b;
+                        const movingBody = aPiled ? b : a;
+                        const direction = movingBody === b ? 1 : -1;
+                        const staticNx = dx / dist * direction;
+                        const staticNy = dy / dist * direction;
+                        const staticOverlap = minDist - dist;
+                        movingBody.x += staticNx * staticOverlap;
+                        movingBody.y += staticNy * staticOverlap;
+                        const towardPile = movingBody.vx * staticNx + movingBody.vy * staticNy;
+                        if(towardPile < 0){
+                            movingBody.vx -= (1 + .38) * towardPile * staticNx;
+                            movingBody.vy -= (1 + .38) * towardPile * staticNy;
+                        }
+                        movingBody.settledFor = 0;
+                        pulsePlatePhysicsHit(staticBody);
+                        continue;
+                    }
                     const nx = dx / dist;
                     const ny = dy / dist;
                     const overlap = minDist - dist;
@@ -8351,20 +8795,20 @@ function startPlatePhysicsDrop(){
                     const rvy = b.vy - a.vy;
                     const velAlongNormal = rvx * nx + rvy * ny;
                     if(velAlongNormal < 0){
-                        const impulse = -(1 + .78) * velAlongNormal / invSum;
+                        const impulse = -(1 + .64) * velAlongNormal / invSum;
                         a.vx -= impulse * invA * nx;
                         a.vy -= impulse * invA * ny;
                         b.vx += impulse * invB * nx;
                         b.vy += impulse * invB * ny;
                         const tangentX = -ny;
                         const tangentY = nx;
-                        const tangentImpulse = (Math.random() - .5) * Math.min(18, Math.abs(impulse) * .24);
+                        const tangentImpulse = (Math.random() - .5) * Math.min(plateWidth * .035, Math.abs(impulse) * .2);
                         a.vx -= tangentX * tangentImpulse * invA;
                         a.vy -= tangentY * tangentImpulse * invA;
                         b.vx += tangentX * tangentImpulse * invB;
                         b.vy += tangentY * tangentImpulse * invB;
                     } else {
-                        const separationKick = Math.min(18, Math.max(3, overlap * 20));
+                        const separationKick = Math.min(plateWidth * .045, Math.max(plateWidth * .01, overlap * 10));
                         a.vx -= separationKick * invA * nx;
                         a.vy -= separationKick * invA * ny;
                         b.vx += separationKick * invB * nx;
@@ -8377,63 +8821,101 @@ function startPlatePhysicsDrop(){
         }
         bodies.forEach(body=>{
             if(!body.started) return;
-            const dx = body.x - 50;
-            const dy = body.y - 50;
-            const dist = Math.hypot(dx, dy) || .001;
-            if(body.y >= topGate && dist > wallRadius - body.r * .2){
-                const nx = dx / dist;
-                const ny = dy / dist;
-                body.x = 50 + nx * (wallRadius - body.r * .2);
-                body.y = 50 + ny * (wallRadius - body.r * .2);
+            if(!body.landed){
+                body.item.x = clampNumber(toPercentX(body.x), -20, 120);
+                body.item.y = clampNumber(toPercentY(body.y), -80, 120);
+                body.item.physicsVX = toPercentX(body.vx);
+                body.item.physicsVY = toPercentY(body.vy);
+                if(body.element){
+                    body.element.style.setProperty("--plate-x", body.item.x.toFixed(2));
+                    body.element.style.setProperty("--plate-y", body.item.y.toFixed(2));
+                    body.element.style.setProperty("--rest-rot", `${(body.item.restRot + elapsed * 190).toFixed(1)}deg`);
+                    body.element.style.opacity = "1";
+                    body.element.style.zIndex = "540";
+                }
+                return;
+            }
+            if(body.spilling || body.fallen){
+                body.item.x = clampNumber(toPercentX(body.x), -80, 180);
+                body.item.y = clampNumber(toPercentY(body.y), -30, 260);
+                body.item.physicsVX = toPercentX(body.vx);
+                body.item.physicsVY = toPercentY(body.vy);
+                const fade = clampNumber((body.y - plateHeight * .7) / Math.max(1, plateHeight * .78), 0, 1);
+                if(body.element){
+                    body.element.style.setProperty("--plate-x", body.item.x.toFixed(2));
+                    body.element.style.setProperty("--plate-y", body.item.y.toFixed(2));
+                    body.element.style.opacity = String(1 - fade);
+                    body.element.style.zIndex = "560";
+                    if(body.fallen) body.element.classList.add("plate-gem-fallen");
+                }
+                return;
+            }
+            const dx = body.x - centerX;
+            const dy = body.y - centerY;
+            const normalized = Math.hypot(dx / wallRadiusX, dy / wallRadiusY) || .001;
+            if(normalized > 1){
+                body.x = centerX + dx / normalized;
+                body.y = centerY + dy / normalized;
+                let nx = (body.x - centerX) / (wallRadiusX * wallRadiusX);
+                let ny = (body.y - centerY) / (wallRadiusY * wallRadiusY);
+                const normalLength = Math.hypot(nx, ny) || 1;
+                nx /= normalLength;
+                ny /= normalLength;
                 const outwardSpeed = body.vx * nx + body.vy * ny;
                 if(outwardSpeed > 0){
-                    body.vx -= (1 + .52) * outwardSpeed * nx;
-                    body.vy -= (1 + .52) * outwardSpeed * ny;
-                    body.vx += -ny * (Math.random() - .5) * 6;
-                    body.vy += nx * (Math.random() - .5) * 4;
+                    body.vx -= (1 + .48) * outwardSpeed * nx;
+                    body.vy -= (1 + .48) * outwardSpeed * ny;
+                    body.vx += -ny * (Math.random() - .5) * plateWidth * .016;
+                    body.vy += nx * (Math.random() - .5) * plateWidth * .012;
                     pulsePlatePhysicsHit(body);
                 }
-                body.vx *= .9;
-                body.vy *= .88;
+                body.vx *= .88;
+                body.vy *= .86;
             }
             const speed = Math.hypot(body.vx, body.vy);
-            if(elapsed > .36 && body.y > topGate && speed < 3.2){
+            if(elapsed > .36 && speed < plateWidth * .012){
                 body.settledFor += dt;
-                body.vx *= .84;
-                body.vy *= .82;
+                body.vx *= .82;
+                body.vy *= .8;
             } else {
                 body.settledFor = 0;
             }
-            body.item.x = clampNumber(body.x, -20, 120);
-            body.item.y = clampNumber(body.y, -30, 120);
-            body.item.physicsVX = body.vx;
-            body.item.physicsVY = body.vy;
+            body.item.x = clampNumber(toPercentX(body.x), -20, 120);
+            body.item.y = clampNumber(toPercentY(body.y), -30, 120);
+            body.item.physicsVX = toPercentX(body.vx);
+            body.item.physicsVY = toPercentY(body.vy);
             if(body.element){
                 body.element.style.setProperty("--plate-x", body.item.x.toFixed(2));
                 body.element.style.setProperty("--plate-y", body.item.y.toFixed(2));
-                body.element.style.setProperty("--rest-rot", `${(body.item.restRot + body.vx * .16).toFixed(1)}deg`);
+                body.element.style.setProperty("--rest-rot", `${(body.item.restRot + toPercentX(body.vx) * .16).toFixed(1)}deg`);
+                body.element.style.zIndex = String(20 + Math.round(body.item.y * 2));
             }
         });
-        const settled = elapsed > .72 && bodies.every(body=>body.settledFor > .22 || elapsed > 2.2);
-        if(!settled && elapsed < 2.42){
+        const settled = elapsed > .72 && bodies.every(body=>body.fallen || body.settledFor > .22 || elapsed > 3.35);
+        if(!settled && elapsed < 3.6){
             state.platePhysicsFrame = schedulePlatePhysicsStep(step);
             return;
         }
         bodies.forEach(body=>{
-            clampPlatePoint(body.item, PLATE_SAFE_RADIUS + 2.8);
+            if(body.shouldOverflow) body.item.fallenOut = true;
+            else clampPlatePoint(body.item);
             body.item.physicsDropPending = false;
             body.item.physicsActive = false;
             body.item.physicsDirectional = false;
+            body.item.physicsFromLensTop = false;
             body.item.physicsVX = 0;
             body.item.physicsVY = 0;
             body.item.settledAt = performance.now();
             if(body.element){
                 body.element.classList.remove("plate-physics-live", "plate-physics-hit");
+                if(body.shouldOverflow) body.element.classList.add("plate-gem-fallen");
                 body.element.style.setProperty("--plate-x", body.item.x.toFixed(2));
                 body.element.style.setProperty("--plate-y", body.item.y.toFixed(2));
                 body.element.style.setProperty("--rest-rot", `${body.item.restRot ?? 0}deg`);
+                body.element.style.zIndex = String(20 + Math.round(body.item.y * 2));
             }
         });
+        applyPlatePileLayout(items, plate);
         state.platePhysicsFrame = 0;
         state.platePhysicsBodies = null;
         state.platePhysicsQueued = false;
@@ -8450,6 +8932,7 @@ function addPlateItems(id, amount, options={}){
         const dropOptions = {
             spreadX:options.rewardFocusDrop ? 12 : 10,
             landingSpreadX:options.rewardFocusDrop ? 11 : 13,
+            fromLensTop:!!options.rewardFocusDrop,
             staggerY:hasDirectedGroup ? .34 : .48,
             startGap:hasDirectedGroup ? .025 : .034,
             kickAngle:hasDirectedGroup ? options.originAngle + (Math.random() - .5) * .42 : undefined,
@@ -8582,6 +9065,7 @@ function hasCutTask(gem){
     return !!gem?.tasks?.some(task=>task.type === "cut");
 }
 function shouldInsertLightTask(gem){
+    if(isToolTypeHidden("light")) return false;
     if(!hasCutTask(gem)) return false;
     if(gem.kind !== "成品宝石") return false;
     if(gem.tasks.some(task=>task.type === "light")) return false;
@@ -8620,47 +9104,25 @@ function v27RawLightTarget(gem){
 }
 function v27RawStoneTasks(gem){
     if(!isRawGem(gem)) return null;
-    const originalTasks = gem.tasks
+    return gem.tasks
         .map(task=>({ ...task }))
-        .filter(task=>task.type !== "soak" && task.type !== "clean");
-    const existingLight = originalTasks.find(task=>task.type === "light");
-    const baseTasks = originalTasks.filter(task=>task.type !== "light");
-    const firstCutIndex = baseTasks.findIndex(task=>task.type === "cut");
-    const firstCut = firstCutIndex >= 0 ? baseTasks[firstCutIndex] : null;
-    const lightTarget = existingLight?.lightTarget ? { ...existingLight.lightTarget } : v27RawLightTarget(gem);
-    const lightTask = {
-        ...(existingLight || makeLightTaskForGem(gem)),
-        type:"light",
-        title:existingLight?.title || "原石寻光",
-        lens:existingLight?.lens ?? firstCut?.lens ?? 0,
-        face:existingLight?.face ?? firstCut?.face ?? 0,
-        pos:{ x:50, y:50 },
-        lightTarget
-    };
-    if(!firstCut) return baseTasks;
-    baseTasks[firstCutIndex] = {
-        ...firstCut,
-        pos:{ x:lightTarget.x, y:lightTarget.y },
-        cutAngle:firstCut.cutAngle ?? (lightTarget.x >= 50 ? -22 : 22),
-        lightLinkedTarget:{ ...lightTarget }
-    };
-    baseTasks.splice(firstCutIndex, 0, lightTask);
-    return baseTasks;
+        .filter(task=>task.type !== "soak" && task.type !== "clean" && !isToolTypeHidden(task.type));
 }
 function gemSubText(gem){
-    if(isRawGem(gem)){
-        return v27RawStoneTasks(gem).map(task=>TOOL_LABELS[task.type] || task.title).join(" -> ");
-    }
-    return gem.tasks
-        .filter(task=>task.type !== "soak" && (hasCutTask(gem) || task.type !== "light"))
+    const tasks = isRawGem(gem) ? v27RawStoneTasks(gem) : gem.tasks;
+    return tasks
+        .filter(task=>task.type !== "soak" && !isToolTypeHidden(task.type))
         .map(task=>TOOL_LABELS[task.type] || task.title)
         .join(" -> ");
 }
 function tasksWithOptionalLight(gem){
     const rawTasks = v27RawStoneTasks(gem);
     if(rawTasks) return rawTasks;
-    const tasks = gem.tasks.map(task=>({ ...task }));
-    if(!tasks.some(task=>task.type === "cut")) return tasks.filter(task=>task.type !== "light");
+    const tasks = gem.tasks
+        .map(task=>({ ...task }))
+        .filter(task=>!isToolTypeHidden(task.type));
+    if(isToolTypeHidden("light")) return tasks;
+    if(!tasks.some(task=>task.type === "cut")) return tasks;
     if(!shouldInsertLightTask(gem)) return tasks;
     const repairIndex = tasks.findIndex(task=>task.type === "repair");
     const cleanIndex = tasks.findIndex(task=>task.type === "clean");
@@ -8678,7 +9140,7 @@ function makePolishSpots(gemId, task={}){
         done:false
     }));
 }function buildCoreTasks(gem){
-    return tasksWithOptionalLight(gem).filter(task=>task.type !== "soak").map((task, index)=>({
+    return tasksWithOptionalLight(gem).filter(task=>task.type !== "soak" && !isToolTypeHidden(task.type)).map((task, index)=>({
         ...task,
         id:`${gem.id}_${index}`,
         instruction:task.instruction || defaultGemStepInstruction(gem, task),
@@ -8850,6 +9312,27 @@ function currentStep(){
     if(step?.gemId) state.active.gemId = step.gemId;
     return step;
 }
+function renderLensCarousel(){
+    const stage = document.getElementById("lens-stage");
+    const carousel = document.getElementById("lens-carousel");
+    if(!stage || !carousel) return;
+    const discs = [...carousel.querySelectorAll(".lens-disc")];
+    discs.forEach((disc)=>{
+        const index = Number(disc.dataset.lensIndex);
+        const lens = LENSES[index];
+        if(!lens) return;
+        disc.dataset.lensKey = lens.key;
+        disc.style.setProperty("--disc-filter", lens.filter);
+        disc.setAttribute("aria-label", lens.label);
+    });
+    if(stage.classList.contains("lens-shifting")) return;
+    discs.forEach((disc)=>{
+        disc.classList.remove("lens-enter-down", "lens-exit-down", "lens-enter-up", "lens-exit-up");
+        disc.dataset.slot = "hidden";
+    });
+    const activeDisc = carousel.querySelector(`.lens-disc[data-lens-index="${state.lensIndex}"][data-copy="0"]`);
+    if(activeDisc) activeDisc.dataset.slot = "0";
+}
 function setLensIndex(nextIndex, shouldFlip=true, flipDir=1){
     if(Date.now() < state.lensLockedUntil){
         return false;
@@ -8862,19 +9345,43 @@ function setLensIndex(nextIndex, shouldFlip=true, flipDir=1){
         state.lensWheelFromIndex = previous;
         state.lensWheelRollDir = flipDir >= 0 ? 1 : -1;
         state.lensWheelRollToken += 1;
-        if(shouldFlip) playLensFlip(flipDir);
+        if(shouldFlip) playLensSwap(previous, next, flipDir);
+        else renderLensCarousel();
     }
     return true;
 }
-function playLensFlip(direction=1){
+function playLensSwap(previousIndex, nextIndex, direction=1){
     const stage = document.getElementById("lens-stage");
-    if(!stage) return;
-    stage.style.setProperty("--lens-flip-dir", direction >= 0 ? 1 : -1);
-    stage.classList.remove("lens-flip");
-    void stage.offsetWidth;
-    stage.classList.add("lens-flip");
-    clearTimeout(playLensFlip.timer);
-    playLensFlip.timer = setTimeout(()=>stage.classList.remove("lens-flip"), 520);
+    const carousel = document.getElementById("lens-carousel");
+    if(!stage || !carousel) return;
+    const discs = [...carousel.querySelectorAll(".lens-disc")];
+    clearTimeout(playLensSwap.timer);
+    stage.classList.remove("lens-shifting");
+    discs.forEach((disc)=>{
+        disc.classList.remove("lens-enter-down", "lens-exit-down", "lens-enter-up", "lens-exit-up");
+        disc.dataset.slot = "hidden";
+    });
+    const outgoing = carousel.querySelector(`.lens-disc[data-lens-index="${previousIndex}"][data-copy="0"]`);
+    const incoming = carousel.querySelector(`.lens-disc[data-lens-index="${nextIndex}"][data-copy="1"]`);
+    if(!outgoing || !incoming){
+        renderLensCarousel();
+        return;
+    }
+    outgoing.dataset.slot = "0";
+    void carousel.offsetWidth;
+    const moveDown = direction > 0;
+    stage.classList.add("lens-shifting");
+    state.lensLockedUntil = Math.max(state.lensLockedUntil, Date.now() + 640);
+    outgoing.classList.add(moveDown ? "lens-exit-down" : "lens-exit-up");
+    incoming.classList.add(moveDown ? "lens-enter-down" : "lens-enter-up");
+    playLensSwap.timer = setTimeout(()=>{
+        stage.classList.remove("lens-shifting");
+        discs.forEach((disc)=>{
+            disc.dataset.slot = "hidden";
+            disc.classList.remove("lens-enter-down", "lens-exit-down", "lens-enter-up", "lens-exit-up");
+        });
+        renderLensCarousel();
+    }, 640);
 }
 function stepStatusText(step){
     const base = `${TOOL_LABELS[step.type]} · ${step.title}`;
@@ -8912,6 +9419,35 @@ function wrongLensHint(step){
     if(step.type === "chamfer") return "边缘尖角未显影：请切换到正确镜片，查看边缘轨道。";
     return "观察未对准：请切换到正确镜片。";
 }
+function startRewardTyndall(){
+    clearTimeout(hideRewardTyndall.timer);
+    const body = document.body;
+    const tyndall = document.getElementById("reward-tyndall");
+    const lensStage = document.getElementById("lens-stage");
+    if(tyndall && lensStage && tyndall.parentElement !== lensStage) lensStage.appendChild(tyndall);
+    body.classList.remove("reward-tyndall-fading", "reward-tyndall-cut");
+    void tyndall?.offsetWidth;
+    body.classList.add("reward-tyndall-active");
+}
+function fadeRewardTyndall(){
+    const body = document.body;
+    if(!body.classList.contains("reward-tyndall-active") && !body.classList.contains("reward-tyndall-fading")) return;
+    clearTimeout(hideRewardTyndall.timer);
+    body.classList.remove("reward-tyndall-active", "reward-tyndall-cut");
+    body.classList.add("reward-tyndall-fading");
+    hideRewardTyndall.timer = window.setTimeout(()=>body.classList.remove("reward-tyndall-fading"), 460);
+}
+function hideRewardTyndall(immediate=false){
+    if(!immediate){
+        fadeRewardTyndall();
+        return;
+    }
+    clearTimeout(hideRewardTyndall.timer);
+    const body = document.body;
+    body.classList.remove("reward-tyndall-active", "reward-tyndall-fading");
+    body.classList.add("reward-tyndall-cut");
+    hideRewardTyndall.timer = window.setTimeout(()=>body.classList.remove("reward-tyndall-cut"), 80);
+}
 function clearRewardFocusRestoreTimer(){
     if(state.rewardFocusRestoreTimer){
         clearTimeout(state.rewardFocusRestoreTimer);
@@ -8921,6 +9457,7 @@ function clearRewardFocusRestoreTimer(){
 function scheduleRewardFocusRestore(delay=1000){
     clearRewardFocusRestoreTimer();
     if(!state.rewardFocus) return;
+    fadeRewardTyndall();
     state.rewardFocusRestoreTimer = window.setTimeout(()=>{
         state.rewardFocusRestoreTimer = 0;
         if(state.rewardFocus){
@@ -8933,6 +9470,39 @@ function setRewardFocus(active){
     clearRewardFocusRestoreTimer();
     state.rewardFocus = !!active;
     document.body.classList.toggle("reward-focus", state.rewardFocus);
+    if(state.rewardFocus) startRewardTyndall();
+    else if(!document.body.classList.contains("reward-tyndall-cut")) fadeRewardTyndall();
+    syncRewardMaskMotion(state.rewardFocus);
+}
+function resetRewardMaskMotion(){
+    clearTimeout(syncRewardMaskMotion.exitTimer);
+    clearTimeout(syncRewardMaskMotion.collapseTimer);
+    document.body.classList.remove("reward-mask-extended", "reward-mask-exited", "reward-mask-returning");
+    hideRewardTyndall(true);
+}
+function syncRewardMaskMotion(active){
+    clearTimeout(syncRewardMaskMotion.exitTimer);
+    clearTimeout(syncRewardMaskMotion.collapseTimer);
+    const body = document.body;
+    if(active){
+        body.classList.remove("reward-mask-returning", "reward-mask-exited");
+        body.classList.add("reward-mask-extended");
+        void document.getElementById("lens-mask-rig")?.offsetWidth;
+        syncRewardMaskMotion.exitTimer = window.setTimeout(()=>{
+            if(state.rewardFocus) body.classList.add("reward-mask-exited");
+        }, 240);
+        return;
+    }
+    const shouldReturn = body.classList.contains("reward-mask-extended") || body.classList.contains("reward-mask-exited");
+    body.classList.remove("reward-mask-exited");
+    if(!shouldReturn){
+        body.classList.remove("reward-mask-extended", "reward-mask-returning");
+        return;
+    }
+    body.classList.add("reward-mask-returning");
+    syncRewardMaskMotion.collapseTimer = window.setTimeout(()=>{
+        body.classList.remove("reward-mask-extended", "reward-mask-returning");
+    }, 720);
 }
 function escapeHTML(value){
     return String(value ?? "").replace(/[&<>"']/g, char=>({
@@ -9127,7 +9697,7 @@ const V26_UI_PRELOAD_ASSETS = [
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_frame/lens_filter_transmit_B.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_frame/lens_filter_crack_C.png",
     ...Object.values(TOOL_SPRITES),
-    "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_reward_plate/reward_plate_base_C.png",
+    "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_reward_plate/reward_plate_45deg_D.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_center_notebook/notebook_page_C.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_controls/lens_button_panel_C.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_lens_controls/lens_button_idle_C.png",
@@ -9140,7 +9710,7 @@ const V26_UI_PRELOAD_ASSETS = [
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_hint_layer/mouse_wheel_icon_A.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_hint_layer/mouse_right_icon_A.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_hint_layer/hint_toast_bg_A.png",
-    "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_center_stage/center_stage_bg_A.png",
+    "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_center_stage/center_stage_foreground_long_v3.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_center_stage/center_stage_inner_glow_A.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_center_stage/center_stage_bottom_base_C.png",
     "https://raw.githubusercontent.com/6789123Hao/dem-demo/main/htmlDemo%E7%AE%80%E5%8D%95%E4%BA%92%E5%8A%A8%E7%8E%A9%E6%B3%95/assets/ui_v26/ui_defect_fx/defect_cut_strip_C.png",
@@ -9281,7 +9851,7 @@ function renderPlay(){
     if(coreHint) coreHint.innerHTML = renderCoreHintMarkup(step, hintText, lensReady);
     document.getElementById("step-progress").style.width = `${(active.stepIndex / active.tasks.length) * 100}%`;
     document.getElementById("gem-core").style.setProperty("--gem-color", gem.color);
-    document.getElementById("lens-stage").style.setProperty("--lens-filter", LENSES[state.lensIndex].filter);
+    renderLensCarousel();
     renderLensButtons();
     renderChamferOverlay(step, gem, visual);    renderPolishOverlay(step, gem, visual);
     renderSoakOverlay(step, gem, visual);
@@ -9952,12 +10522,10 @@ function beginChamferComplete(step, targetAngle=null){
 function renderArchiveNotebook(active, gem){
     const title = document.getElementById("archive-title");
     const type = document.getElementById("archive-type");
-    const origin = document.getElementById("archive-origin");
     const steps = document.getElementById("archive-steps");
-    if(!title || !type || !origin || !steps) return;
+    if(!title || !type || !steps) return;
     title.textContent = `档案：${gem.name}`;
     type.textContent = `${"★".repeat(gem.rarity)} ${gem.kind}`;
-    origin.textContent = gem.version.split("·")[0] || "-";
     steps.innerHTML = active.tasks.map((task, index)=>{
         const activeClass = index === active.stepIndex ? " active" : "";
         const doneMark = task.done ? "✓ " : "";
@@ -10751,7 +11319,7 @@ function renderHotspot(){
     const revealKey = `${step.id}:${step.lens}:${step.type}`;
     if(state.hotspotRevealKey !== revealKey){
         state.hotspotRevealKey = revealKey;
-        state.lensLockedUntil = Date.now() + 300;
+        state.lensLockedUntil = Math.max(state.lensLockedUntil, Date.now() + 300);
         spot.classList.remove("hotspot-reveal");
         void spot.offsetWidth;
         spot.classList.add("hotspot-reveal");
@@ -12281,7 +12849,7 @@ function shouldIgnorePlateDropFastForwardTarget(target){
     return false;
 }
 function handlePlateDropFastForwardClick(e){
-    if(e.defaultPrevented || !isPlateDropPresentationActive()) return;
+    if(e.defaultPrevented || e.button !== 0 || !isPlateDropPresentationActive()) return;
     if(shouldIgnorePlateDropFastForwardTarget(e.target)) return;
     finishPlateDropPresentation();
 }
@@ -12453,6 +13021,7 @@ function resetDemo(){
     state.plateItems = [];
     state.rewards = [];
     state.rewardFocus = false;
+    resetRewardMaskMotion();
     state.multiSlots = [null, null, null];
     state.multiReservedBag = {};
     state.multiSkipPulseType = null;

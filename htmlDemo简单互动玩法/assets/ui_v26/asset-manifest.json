@@ -5,7 +5,7 @@
     "lens": "A",
     "left_inventory": "A",
     "tool_box": "C",
-    "reward_plate": "C",
+    "reward_plate": "D_45deg",
     "brightness": "A",
     "palette": "A",
     "tool_model": "C",
@@ -15,6 +15,7 @@
   "assets": [
     "htmlDemo简单互动玩法/assets/ui_v26/ui_center_notebook/notebook_page_C.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_center_stage/center_stage_bg_A.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_center_stage/center_stage_foreground_long_v3.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_center_stage/center_stage_bottom_base_C.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_center_stage/center_stage_inner_glow_A.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_collect_button/collect_button_ready_C.png",
@@ -52,7 +53,7 @@
     "htmlDemo简单互动玩法/assets/ui_v26/ui_reward_modal/reward_item_slot_C.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_reward_modal/reward_modal_frame_C.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_reward_modal/reward_quantity_badge_C.png",
-    "htmlDemo简单互动玩法/assets/ui_v26/ui_reward_plate/reward_plate_base_C.png",
+    "htmlDemo简单互动玩法/assets/ui_v26/ui_reward_plate/reward_plate_45deg_D.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_box/tool_box_frame_C.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_box/tool_slot_active_C.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_box/tool_slot_side_C.png",
@@ -63,5 +64,5 @@
     "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_repair_C.png",
     "htmlDemo简单互动玩法/assets/ui_v26/ui_tool_sprites/tool_shape_C.png"
   ],
-  "updated": "2026-06-03_chamfer_cloth_candidate_as_tool"
+  "updated": "2026-07-31_reward_plate_45deg"
 }
