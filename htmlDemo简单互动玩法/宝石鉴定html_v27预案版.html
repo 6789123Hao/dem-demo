@@ -393,6 +393,23 @@
         min-height:0;
         align-content:start;
     }
+    body.device-desktop .stone-list{
+        cursor:grab;
+        overflow-x:hidden;
+        padding-right:24px;
+        scrollbar-gutter:stable;
+        overscroll-behavior:contain;
+    }
+    body.device-desktop .stone-list.dragging{
+        cursor:grabbing;
+        user-select:none;
+    }
+    body.device-desktop .stone-list.dragging .stone-card{
+        pointer-events:none;
+    }
+    body.device-desktop .stone-card:not(.empty):not(.locked){
+        cursor:grab;
+    }
     .stone-card{
         border:1px solid rgba(86,52,31,.18);
         background:#fffaf1;
@@ -403,6 +420,7 @@
         gap:10px;
         align-items:center;
         cursor:grab;
+        transition:border-color .16s ease, box-shadow .16s ease, transform .16s ease, outline-color .16s ease;
     }
     .stone-card:not(.empty):not(.locked){
         cursor:pointer;
@@ -421,6 +439,7 @@
         background-repeat:no-repeat !important;
         background-position:center !important;
         box-shadow:0 5px 10px rgba(54,36,20,.14);
+        transition:box-shadow .16s ease;
     }
     .stone-dot.with-image{
         border-color:transparent;
@@ -719,7 +738,6 @@
         height:66px;
         border-radius:50%;
         border:1px solid rgba(255,248,226,.48);
-        animation:repairTargetPulse 1.28s ease-in-out infinite;
     }
     .hotspot-repair::after{
         width:24px;
@@ -1347,7 +1365,26 @@
     }
     .repair-target.active{
         opacity:1;
-        animation:repairTargetPulse 1.28s ease-in-out infinite;
+        border-color:rgba(255,248,226,.94);
+        box-shadow:0 0 0 7px rgba(45,190,162,.12), 0 0 18px rgba(255,225,122,.34);
+    }
+    .repair-timing-ring{
+        position:absolute;
+        inset:0;
+        border:2px solid rgba(255,226,132,.92);
+        border-radius:50%;
+        box-shadow:0 0 0 5px rgba(255,226,132,.1), 0 0 18px rgba(255,238,174,.38);
+        opacity:0;
+        pointer-events:none;
+    }
+    .repair-target.active .repair-timing-ring{
+        opacity:1;
+        animation:repairTimingShrink 1.4s linear infinite;
+    }
+    @keyframes repairTimingShrink{
+        from{ transform:scale(2.2); opacity:.42; }
+        70%{ opacity:.92; }
+        to{ transform:scale(.75); opacity:.64; }
     }
     .repair-target::before,
     .repair-target::after{
@@ -2205,7 +2242,8 @@
         filter:drop-shadow(0 6px 10px rgba(26,18,10,.22));
     }
     .polish-rough-point i,
-    .polish-rough-point b{
+    .polish-rough-point b,
+    .polish-rough-point em{
         position:absolute;
         left:50%;
         top:50%;
@@ -2227,10 +2265,26 @@
     .polish-rough-point b{
         width:68px;
         height:68px;
-        border:2px solid rgba(255,239,158,var(--polish-ring-opacity, .78));
-        box-shadow:0 0 0 7px rgba(255,215,112,.10), 0 0 18px rgba(97,236,214,.18), inset 0 0 14px rgba(255,245,196,.12);
-        transform:translate(-50%, -50%) scale(var(--polish-ring-scale, 1));
-        transition:transform .1s linear, opacity .12s linear, border-color .12s linear;
+        border:9px solid rgba(236,246,226,.18);
+        box-shadow:0 0 0 1px rgba(255,243,176,.42), 0 0 22px rgba(105,240,218,.18), inset 0 0 14px rgba(255,245,196,.12);
+        opacity:var(--polish-ring-opacity, .78);
+    }
+    .polish-rough-point b::after{
+        content:"";
+        position:absolute;
+        inset:5px;
+        border:2px solid rgba(255,224,121,.86);
+        border-radius:50%;
+        box-shadow:0 0 10px rgba(255,230,139,.56);
+    }
+    .polish-rough-point em{
+        width:58px;
+        height:58px;
+        border:3px solid rgba(255,248,198,.98);
+        box-shadow:0 0 12px rgba(255,224,123,.72), inset 0 0 10px rgba(255,255,224,.22);
+        transform:translate(-50%, -50%) scale(var(--polish-progress-scale, .34));
+        transition:transform .08s linear, opacity .12s linear;
+        opacity:var(--polish-progress-opacity, .96);
     }
     .polish-rough-point.active b{ animation:polishRingGuide .78s ease-in-out infinite; }
     .polish-rough-point.done i{
@@ -2238,10 +2292,128 @@
         transform:translate(-50%, -50%) scale(.42);
         filter:blur(2px);
     }
-    .polish-rough-point.done b{
+    .polish-rough-point.done b,
+    .polish-rough-point.done em{
         opacity:.34;
         border-color:rgba(116,248,220,.72);
         box-shadow:0 0 16px rgba(105,240,218,.35);
+    }
+    .polish-rough-point.done.perfect b,
+    .polish-rough-point.done.perfect em{
+        border-color:rgba(255,232,139,.92);
+        box-shadow:0 0 22px rgba(255,226,123,.64);
+    }
+    .clean-rhythm-overlay{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:calc(var(--gem-size, 220px) * 1.04);
+        height:calc(var(--gem-size, 220px) * .56);
+        transform:translate(-50%, -50%);
+        z-index:6;
+        display:none;
+        pointer-events:none;
+    }
+    .clean-rhythm-overlay.visible{ display:block; }
+    .clean-rhythm-track{
+        position:absolute;
+        left:11%;
+        right:11%;
+        top:50%;
+        height:3px;
+        transform:translateY(-50%);
+        border-radius:999px;
+        background:linear-gradient(90deg, rgba(255,238,171,.2), rgba(255,248,211,.68), rgba(255,238,171,.2));
+        box-shadow:0 0 12px rgba(255,231,151,.24);
+    }
+    .clean-rhythm-end{
+        position:absolute;
+        top:50%;
+        width:42px;
+        height:42px;
+        transform:translate(-50%, -50%);
+        border:2px solid rgba(255,246,211,.36);
+        border-radius:50%;
+        background:rgba(68,171,151,.08);
+        opacity:.42;
+    }
+    .clean-rhythm-end.left{ left:11%; }
+    .clean-rhythm-end.right{ left:89%; }
+    .clean-rhythm-end.target{
+        opacity:1;
+        border-color:rgba(255,229,132,.9);
+        animation:cleanBeatTarget .72s ease-in-out infinite;
+    }
+    .clean-rhythm-count{
+        position:absolute;
+        left:50%;
+        bottom:-18px;
+        transform:translateX(-50%);
+        color:rgba(255,248,218,.9);
+        font-size:13px;
+        font-weight:800;
+        text-shadow:0 2px 8px rgba(25,31,25,.58);
+    }
+    @keyframes cleanBeatTarget{
+        0%{ transform:translate(-50%, -50%) scale(1.48); opacity:.35; }
+        72%{ transform:translate(-50%, -50%) scale(1); opacity:1; box-shadow:0 0 18px rgba(255,229,132,.58); }
+        100%{ transform:translate(-50%, -50%) scale(.92); opacity:.62; }
+    }
+    .step-perfect-feedback{
+        position:absolute;
+        left:50%;
+        top:23%;
+        z-index:80;
+        min-width:170px;
+        height:88px;
+        transform:translate(-50%, -50%);
+        display:grid;
+        place-items:center;
+        pointer-events:none;
+        color:#fff3c7;
+        font-size:30px;
+        font-weight:900;
+        text-shadow:0 3px 12px rgba(20,70,57,.72), 0 0 18px rgba(255,220,117,.7);
+        animation:stepPerfectFeedback .8s ease-out both;
+    }
+    .step-perfect-feedback::before,
+    .step-perfect-feedback::after{
+        content:"";
+        position:absolute;
+        inset:8px 22px;
+        border:2px solid rgba(255,227,135,.7);
+        border-radius:50%;
+        animation:stepPerfectRing .8s ease-out both;
+    }
+    .step-perfect-feedback::after{ animation-delay:.08s; }
+    @keyframes stepPerfectFeedback{
+        0%{ opacity:0; transform:translate(-50%, -42%) scale(.72); }
+        24%,68%{ opacity:1; transform:translate(-50%, -50%) scale(1); }
+        100%{ opacity:0; transform:translate(-50%, -58%) scale(1.08); }
+    }
+    @keyframes stepPerfectRing{
+        from{ opacity:.85; transform:scale(.56); }
+        to{ opacity:0; transform:scale(1.55); }
+    }
+    .overall-evaluation{
+        position:fixed;
+        right:clamp(34px, 8vw, 150px);
+        top:20%;
+        z-index:1200;
+        min-width:210px;
+        text-align:center;
+        pointer-events:none;
+        color:#f8efcf;
+        text-shadow:0 3px 14px rgba(9,35,29,.88);
+        animation:overallEvaluation 1.4s ease both;
+    }
+    .overall-evaluation span{ display:block; font-size:16px; font-weight:700; }
+    .overall-evaluation strong{ display:block; margin-top:4px; font-size:38px; font-weight:900; color:#ffe69a; }
+    .overall-evaluation.excellent strong{ color:#c9f4dd; }
+    @keyframes overallEvaluation{
+        0%{ opacity:0; transform:translateY(16px) scale(.94); }
+        18%,76%{ opacity:1; transform:translateY(0) scale(1); }
+        100%{ opacity:0; transform:translateY(-8px) scale(1.03); }
     }
     .polish-tool-fx{
         position:absolute;
@@ -6518,7 +6690,8 @@
         background:linear-gradient(180deg, #fff2bf, #f4c760);
         box-shadow:0 0 0 2px rgba(255,220,112,.22), inset 0 0 0 1px rgba(255,255,255,.34);
     }
-    body.layout-gamepad .stone-card.gamepad-selected{
+    body.layout-gamepad .stone-card.gamepad-selected,
+    body.device-desktop:not(.layout-gamepad) .stone-card:not(.empty):not(.locked):hover{
         border-color:#ffd96d;
         background:
             linear-gradient(rgba(255,247,207,.9), rgba(255,239,174,.82)),
@@ -6531,7 +6704,8 @@
         outline:2px solid rgba(255,246,189,.7);
         outline-offset:2px;
     }
-    body.layout-gamepad .stone-card.gamepad-selected .stone-dot{
+    body.layout-gamepad .stone-card.gamepad-selected .stone-dot,
+    body.device-desktop:not(.layout-gamepad) .stone-card:not(.empty):not(.locked):hover .stone-dot{
         box-shadow:
             0 0 0 4px rgba(255,241,174,.88),
             0 0 18px rgba(255,224,104,.58),
@@ -7097,22 +7271,22 @@
         <aside class="panel right-panel">
             <h2>成石盘</h2>
             <div id="gamepad-guide" class="gamepad-guide" aria-live="polite">
-                <h3>手柄模拟键位</h3>
-                <p>X 在素体选择与玩法之间往返；R2 开镜，方向键瞄准；R1 或 A 确认落刀/落刷。</p>
+                <h3>手柄操作</h3>
+                <p>R2 开镜并吸附目标；开镜后右摇杆移动光标，R1 或 × 点击、长按及拖拽。</p>
                 <img class="gamepad-keymap-panel" src="assets/ui_v26/ui_gamepad_guide/gamepad_keymap_A.png" alt="完整手柄模拟键位图">
                 <div class="gamepad-map" aria-hidden="true">
-                    <span><b>W/S/A/D</b> 左摇杆选素体</span>
+                    <span><b>W/S</b> 左摇杆上下选素材</span>
                     <span><b>F/V/C/B</b> 十字键选素体</span>
-                    <span><b>方向键</b> 右摇杆瞄准</span>
-                    <span><b>I/J/K/L</b> Y/X/A/B</span>
-                    <span><b>Q/E</b> L1/L2 切镜</span>
-                    <span><b>Q/U</b> 素体排序</span>
-                    <span><b>U/K</b> R1/A确认</span>
+                    <span><b>方向键</b> 右摇杆切镜/瞄准</span>
+                    <span><b>J</b> □领奖</span>
+                    <span><b>L</b> ○返回/退出领奖</span>
+                    <span><b>U/K</b> R1/×输入判定</span>
                     <span><b>O</b> R2开镜</span>
                 </div>
                 <div class="gamepad-status">
                     <span id="gamepad-focus-text">WSAD 或 F/V/C/B 选择素体，K(A) 放入镜片。</span>
                     <span id="gamepad-action-text">Y 收集奖励，X 切换素体选择/玩法。</span>
+                    <span id="gamepad-connection-text">等待手柄连接，键盘映射仍可用于调试。</span>
                 </div>
             </div>
             <button class="btn primary collect-cta" id="collect-btn">
@@ -7154,8 +7328,8 @@
         <h2 id="gamepad-exit-title">退出当前处理？</h2>
         <p id="gamepad-exit-body">未完成的素体会留在袋中。</p>
         <div class="gamepad-exit-actions">
-            <button class="btn ghost" id="gamepad-exit-cancel-btn" type="button">取消 L(B)</button>
-            <button class="btn primary" id="gamepad-exit-confirm-btn" type="button">确认 K(A)/U(R1)</button>
+            <button class="btn ghost" id="gamepad-exit-cancel-btn" type="button">取消 ○</button>
+            <button class="btn primary" id="gamepad-exit-confirm-btn" type="button">确认 × / R1</button>
         </div>
     </div>
 </div>
@@ -7173,7 +7347,7 @@
 <div id="gamepad-help-modal" class="gamepad-help-modal" role="dialog" aria-modal="true" aria-labelledby="gamepad-help-title">
     <div class="gamepad-help-dialog">
         <button class="gamepad-help-close" id="gamepad-help-close-btn" type="button" aria-label="关闭手柄键位图">×</button>
-        <h2 id="gamepad-help-title">手柄模拟键位</h2>
+        <h2 id="gamepad-help-title">手柄键位</h2>
         <img src="assets/ui_v26/ui_gamepad_guide/gamepad_keymap_A.png" alt="完整手柄模拟键位图">
     </div>
 </div>
@@ -7219,6 +7393,19 @@ const REPAIR_BRANCH_PATH = "M101 72 L88 64 L82 50 M130 54 L138 39 L150 50 M158 6
 const REPAIR_FILL_PER_CLICK = .32;
 const REPAIR_COMPLETE_THRESHOLD = .8;
 const CLEAN_DISTANCE_REQUIRED = 1260;
+const QUALITY_SCORING_TYPES = new Set(["cut", "shape", "repair", "polish", "clean"]);
+const CUT_PERFECT_ANGLE_DEG = 7;
+const REPAIR_TIMING_MS = 1400;
+const REPAIR_RING_START_SCALE = 2.2;
+const REPAIR_RING_END_SCALE = .75;
+const REPAIR_PERFECT_ERROR = .08;
+const REPAIR_VALID_ERROR = .25;
+const CLEAN_BEATS_REQUIRED = 4;
+const CLEAN_BEAT_MS = 720;
+const CLEAN_PERFECT_TIME_ERROR_MS = 120;
+const CLEAN_VALID_TIME_ERROR_MS = 260;
+const CLEAN_PERFECT_ANGLE_DEG = 12;
+const CLEAN_VALID_ANGLE_DEG = 30;
 const REWARD_FOCUS_RESTORE_DELAY_MS = 450;
 const LIGHT_SEARCH_REQUIRED_MS = 300;
 const CUT_SWIPE_EXTRA_SHOW_LENGTH = 110;
@@ -7239,7 +7426,9 @@ const SOAK_WALL_LIMIT = 78;
 const SOAK_REBOUND = 11;
 const SOAK_TRIAL_GEMS = new Set();
 const POLISH_HOLD_REQUIRED_MS = 900;
+const POLISH_AUTO_COMPLETE_MS = 1080;
 const POLISH_HOLD_RADIUS = 16;
+const POLISH_PERFECT_SCALE_ERROR = .07;
 const POLISH_DEFAULT_POINTS = [
     { x:38, y:42 },
     { x:64, y:59 }
@@ -7290,10 +7479,10 @@ function defaultGemStepInstruction(gem, task){
     if(copy) return copy;
     if(task.type === "light") return `${gem.name}：按住扫光区移动寻光灯，找到最亮的反光点。`;
     if(task.type === "soak") return `${gem.name}：把宝石放入量杯，左右摇晃浸润到气泡散开。`;
-    if(task.type === "polish") return `${gem.name}：长按两个毛糙点，光圈收缩时保持按住完成抛光。`;
+    if(task.type === "polish") return `${gem.name}：长按毛糙点让光圈放大，对齐亮环时松手。`;
     if(task.type === "chamfer") return `${gem.name}：沿宝石边缘来回摩擦直到光滑为止。`;
     if(task.type === "repair") return `${gem.name}：瞄准裂缝光圈，滴入修复精华填满裂隙。`;
-    if(task.type === "clean") return `${gem.name}：按住污渍范围来回擦拭，把脏污层擦掉。`;
+    if(task.type === "clean") return `${gem.name}：跟随左右端点提示，完成四拍往返擦拭。`;
     if(task.type === "cut") return `${gem.name}：按住切除长条，顺着角度拖拽削掉外层。`;
     if(task.type === "shape") return `${gem.name}：按住轮廓特效，拖拽描边完成定型。`;
     return `${gem.name}：完成当前处理步骤。`;
@@ -7307,7 +7496,7 @@ const GEM_BLUEPRINTS = [
     { id:"jadeite", name:"翡翠", rarity:2, version:"长安·二星成石", kind:"成品宝石", sub:"寻光 -> 修补 -> 清洁", rewardShards:4, color:"linear-gradient(135deg, #b8f0c6 0%, #3d9b63 100%)", assetBase:"assets/gems/jadeite", tasks:[{type:"light", title:"翠面寻光", lens:2, face:0, pos:{x:50,y:50}}, {type:"repair", title:"边缘细裂", lens:1, face:1, pos:{x:56,y:62}}, {type:"clean", title:"翠面净化", lens:2, face:0, pos:{x:50,y:50}}] },
     { id:"obsidian", name:"黑曜石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6f6b83 0%, #15131f 100%)", assetBase:"assets/gems/obsidian", tasks:[{type:"cut", title:"石皮切除", lens:0, face:0, pos:{x:58,y:38}, cutHitsRequired:2}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:2, face:1, pos:{x:50,y:50}}, {type:"clean", title:"黑镜净化", lens:1, face:0, pos:{x:52,y:50}}] },
     { id:"fluorite", name:"萤石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #bca7e8 0%, #4f5a7e 100%)", assetBase:"assets/gems/fluorite", tasks:[{type:"cut", title:"杂层切除", lens:1, face:1, pos:{x:62,y:52}}, {type:"shape", title:"圆形成球", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"clean", title:"荧光净化", lens:0, face:0, pos:{x:52,y:50}}] },
-    { id:"fluorite_test", name:"萤石测试", rarity:1, version:"GM·全玩法测试石", kind:"原石", sub:"切除 -> 寻光 -> 修补 -> 定型 -> 抛光 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #cbb9f2 0%, #5a668f 100%)", assetBase:"assets/gems/fluorite", tasks:[{type:"cut", title:"测试切除", lens:1, face:1, pos:{x:62,y:52}, cutHitsRequired:2}, {type:"light", title:"测试寻光", lens:0, face:0, pos:{x:50,y:50}, lightTarget:{x:70,y:33}}, {type:"repair", title:"测试裂隙", lens:2, face:1, pos:{x:43,y:56}}, {type:"shape", title:"测试圆形定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"polish", title:"测试双点抛光", lens:0, face:0, pos:{x:50,y:50}, polishPoints:[{x:39,y:39},{x:65,y:62}]}, {type:"clean", title:"测试最终清洁", lens:0, face:0, pos:{x:52,y:50}}] },
+    { id:"fluorite_test", name:"萤石测试", rarity:1, version:"GM·全玩法测试石", kind:"原石", sub:"切除 -> 定型 -> 修补 -> 抛光 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #cbb9f2 0%, #5a668f 100%)", assetBase:"assets/gems/fluorite", tasks:[{type:"cut", title:"测试切除", lens:1, face:1, pos:{x:62,y:52}, cutHitsRequired:2}, {type:"shape", title:"测试圆形定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:48}}, {type:"repair", title:"测试裂隙", lens:2, face:1, pos:{x:43,y:56}}, {type:"polish", title:"测试双点抛光", lens:0, face:0, pos:{x:50,y:50}, polishPoints:[{x:39,y:39},{x:65,y:62}]}, {type:"clean", title:"测试最终清洁", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"malachite", name:"孔雀石", rarity:1, version:"茜尔梅斯·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #6ec07f 0%, #1d5a38 100%)", assetBase:"assets/gems/malachite", tasks:[{type:"cut", title:"矿皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"孔雀纹裂", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"正方定型", targetShape:"square", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"石面净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"turquoise", name:"绿松石", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 修补 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #86dfd0 0%, #2a8f89 100%)", assetBase:"assets/gems/turquoise", tasks:[{type:"cut", title:"泥皮切除", lens:0, face:0, pos:{x:62,y:40}, cutHitsRequired:2}, {type:"repair", title:"脉络裂隙", lens:2, face:1, pos:{x:42,y:52}}, {type:"shape", title:"三角定型", targetShape:"triangle", lens:1, face:2, pos:{x:50,y:50}}, {type:"clean", title:"松石净化", lens:0, face:0, pos:{x:52,y:50}}] },
     { id:"hetian", name:"和田玉", rarity:1, version:"巴蜀·一星原石", kind:"原石", sub:"切除 -> 定型 -> 清洁", rewardShards:3, color:"linear-gradient(135deg, #edf0d5 0%, #a9b484 100%)", assetBase:"assets/gems/hetian", tasks:[{type:"cut", title:"杂质筋切除", lens:1, face:1, pos:{x:40,y:52}}, {type:"shape", title:"圆润定型", targetShape:"circle", lens:2, face:2, pos:{x:50,y:50}}, {type:"clean", title:"玉面净化", lens:0, face:0, pos:{x:52,y:52}}] },
@@ -7400,13 +7589,14 @@ const state = {
     layoutManualOverride:false,
     topbarCollapsed:false,
     mobileBagCollapsed:false,
-    mobileBagSuppressClick:false,
+    bagPanSuppressClick:false,
     desktopLensMode:"wheel",
     listSortKey:"quantity",
     raritySortDir:-1,
     dragPayload:null,
     defectDrag:null,
     suppressNextClick:false,
+    suppressNextClickUntil:0,
     lensLockedUntil:0,
     hotspotRevealKey:null,
     tutorialPage:0,
@@ -7420,6 +7610,14 @@ const state = {
     gamepadAimY:50,
     gamepadAimStepId:null,
     gamepadKeys:new Set(),
+    gamepadNativeKeys:new Set(),
+    gamepadNativeRepeatAt:{},
+    gamepadNativeIndex:null,
+    gamepadNativeId:"",
+    gamepadNativeConnected:false,
+    gamepadNativeAimX:0,
+    gamepadNativeAimY:0,
+    gamepadNativeLensStickDir:0,
     gamepadAiming:false,
     gamepadUseActive:false,
     gamepadLastTick:0,
@@ -7518,6 +7716,10 @@ function applyLayoutMode(mode, options = {}){
         state.multiSlots = [null, null, null];
     }
     if(state.layoutMode !== "gamepad"){
+        finishGamepadUse();
+        releaseNativeGamepadKeys();
+        state.gamepadNativeAimX = 0;
+        state.gamepadNativeAimY = 0;
         setGamepadAiming(false);
         closeGamepadExitConfirm();
     } else {
@@ -8033,8 +8235,7 @@ function renderKnownList(){
         const selected = (state.layoutMode === "gamepad" && index === state.gamepadSelectionIndex) || (isMultiSelectLayoutMode() && state.multiSlots?.includes(gem.id));
         card.className = `stone-card ${known ? "" : "locked"} ${available ? "" : "empty"} ${selected ? "gamepad-selected" : ""}`;
         card.dataset.gemId = gem.id;
-        const allowDragSelect = known && available && !isMobileLandscapeMode();
-        card.draggable = allowDragSelect;
+        card.draggable = false;
         card.innerHTML = `
             <div class="stone-dot ${dotImage ? "with-image" : ""}" style="background:${gem.color}; ${dotImage ? `background-image:${dotImage}` : ""}"></div>
             <div>
@@ -8051,9 +8252,9 @@ function renderKnownList(){
                     e.preventDefault();
                     return;
                 }
-                if(state.mobileBagSuppressClick){
+                if(state.bagPanSuppressClick){
                     e.preventDefault();
-                    state.mobileBagSuppressClick = false;
+                    state.bagPanSuppressClick = false;
                     return;
                 }
                 if(isPlateDropPresentationActive()){
@@ -8065,16 +8266,6 @@ function renderKnownList(){
                 if(isMultiSelectLayoutMode() && !state.active) addMultiGemToSlot(gem.id);
                 else startKnownStone(gem.id);
             });
-            card.addEventListener("pointerdown", e=>startMultiPointerDrag(card, gem.id, e));
-            card.addEventListener("mousedown", e=>startMultiPointerDrag(card, gem.id, e));
-            if(allowDragSelect){
-                card.addEventListener("dragstart", e=>{
-                    state.dragPayload = { type:"known", id:gem.id };
-                    e.dataTransfer.setData("text/plain", JSON.stringify(state.dragPayload));
-                });
-            } else {
-                card.addEventListener("dragstart", e=>e.preventDefault());
-            }
         }
         list.appendChild(card);
     });
@@ -9094,7 +9285,7 @@ function v27RawStoneTasks(gem){
     if(!isRawGem(gem)) return null;
     return gem.tasks
         .map(task=>({ ...task }))
-        .filter(task=>task.type !== "soak" && task.type !== "clean" && !isToolTypeHidden(task.type));
+        .filter(task=>task.type !== "soak" && (task.type !== "clean" || gem.id === "fluorite_test") && !isToolTypeHidden(task.type));
 }
 function gemSubText(gem){
     const tasks = isRawGem(gem) ? v27RawStoneTasks(gem) : gem.tasks;
@@ -9125,7 +9316,9 @@ function makePolishSpots(gemId, task={}){
         x:clampNumber(point.x, 8, 92),
         y:clampNumber(point.y, 8, 92),
         hold:0,
-        done:false
+        done:false,
+        quality:"pending",
+        perfectEligible:true
     }));
 }function buildCoreTasks(gem){
     return tasksWithOptionalLight(gem).filter(task=>task.type !== "soak" && !isToolTypeHidden(task.type)).map((task, index)=>({
@@ -9133,9 +9326,13 @@ function makePolishSpots(gemId, task={}){
         id:`${gem.id}_${index}`,
         instruction:task.instruction || defaultGemStepInstruction(gem, task),
         done:false,
+        quality:"pending",
+        qualityDetails:{},
         clicks:0,
         repairFill:0,
         repairTargetIndex:0,
+        repairTargetStartedAt:null,
+        repairHitQualities:[],
         repairCompleting:false,
         lightHold:0,
         lightSignal:0,
@@ -9143,6 +9340,12 @@ function makePolishSpots(gemId, task={}){
         polishSpots:task.type === "polish" ? makePolishSpots(gem.id, task) : [],
         polishActiveSpotIndex:0,
         polishCompleting:false,
+        cutAngleErrors:[],
+        cleanBeatCount:0,
+        cleanBeatQualities:[],
+        cleanTargetDirection:0,
+        cleanBeatStartedAt:null,
+        cleanStrokeStart:null,
         soakPhase:task.type === "soak" ? "intro" : null,
         soakProgress:0,
         soakHits:0,
@@ -9300,6 +9503,55 @@ function currentStep(){
     if(step?.gemId) state.active.gemId = step.gemId;
     return step;
 }
+function setStepQuality(step, quality, details={}){
+    if(!step) return;
+    step.quality = quality === "perfect" ? "perfect" : "excellent";
+    step.qualityDetails = { ...(step.qualityDetails || {}), ...details };
+}
+function finalizeStepQuality(step){
+    if(!step || !QUALITY_SCORING_TYPES.has(step.type)) return;
+    if(step.type === "cut"){
+        const required = step.cutHitsRequired || 1;
+        const errors = step.cutAngleErrors || [];
+        setStepQuality(step, errors.length >= required && errors.slice(0, required).every(error=>error < CUT_PERFECT_ANGLE_DEG) ? "perfect" : "excellent", { angleErrors:errors.slice() });
+    } else if(step.type === "repair"){
+        const hits = step.repairHitQualities || [];
+        setStepQuality(step, hits.length >= REPAIR_TARGETS.length && hits.every(hit=>hit === "perfect") ? "perfect" : "excellent", { hits:hits.slice() });
+    } else if(step.type === "polish"){
+        const spots = step.polishSpots || [];
+        setStepQuality(step, spots.length > 0 && spots.every(spot=>spot.quality === "perfect") ? "perfect" : "excellent", { spots:spots.map(spot=>spot.quality) });
+    } else if(step.type === "clean"){
+        const beats = step.cleanBeatQualities || [];
+        setStepQuality(step, beats.length >= CLEAN_BEATS_REQUIRED && beats.every(beat=>beat === "perfect") ? "perfect" : "excellent", { beats:beats.slice() });
+    } else if(step.quality === "pending"){
+        setStepQuality(step, "excellent");
+    }
+}
+function showStepPerfectFx(){
+    const stage = document.getElementById("lens-stage");
+    if(!stage) return;
+    stage.querySelectorAll(".step-perfect-feedback").forEach(el=>el.remove());
+    const feedback = document.createElement("div");
+    feedback.className = "step-perfect-feedback";
+    feedback.textContent = "完美!";
+    stage.appendChild(feedback);
+    setTimeout(()=>feedback.remove(), 820);
+}
+function overallQualityForActive(active){
+    const scored = (active?.tasks || []).filter(step=>QUALITY_SCORING_TYPES.has(step.type));
+    return scored.length > 0 && scored.every(step=>step.quality === "perfect") ? "perfect" : "excellent";
+}
+function showOverallEvaluation(active){
+    if(!active || active.overallEvaluationShown) return;
+    active.overallEvaluationShown = true;
+    active.overallQuality = active.overallQuality || overallQualityForActive(active);
+    document.querySelectorAll(".overall-evaluation").forEach(el=>el.remove());
+    const evaluation = document.createElement("div");
+    evaluation.className = `overall-evaluation ${active.overallQuality}`;
+    evaluation.innerHTML = `<span>整体评估</span><strong>${active.overallQuality === "perfect" ? "完美" : "优秀"}</strong>`;
+    document.body.appendChild(evaluation);
+    setTimeout(()=>evaluation.remove(), 1420);
+}
 function renderLensCarousel(){
     const stage = document.getElementById("lens-stage");
     const carousel = document.getElementById("lens-carousel");
@@ -9373,7 +9625,7 @@ function playLensSwap(previousIndex, nextIndex, direction=1){
 }
 function stepStatusText(step){
     const base = `${TOOL_LABELS[step.type]} · ${step.title}`;
-    if(step.type === "clean") return `${base} · 拖拽擦拭 ${Math.min(100, Math.round((step.dragDistance || 0) / CLEAN_DISTANCE_REQUIRED * 100))}%`;
+    if(step.type === "clean") return `${base} · 节奏擦拭 ${step.cleanBeatCount || 0}/${CLEAN_BEATS_REQUIRED}`;
     if(step.type === "repair") return `${base} · 精华填充 ${Math.min(100, Math.round((step.repairFill || 0) * 100))}%`;
     if(step.type === "light") return `${base} · 反光锁定 ${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`;
     if(step.type === "polish") return `${base} · 毛糙点 ${polishCompletedSpotCount(step)}/${step.polishSpots?.length || 2} · ${Math.round(polishProgress(step) * 100)}%`;
@@ -9575,7 +9827,7 @@ function formatActionHintText(text, step){
 }
 function stepProgressValue(step){
     if(!step || step.done) return null;
-    if(step.type === "clean") return clampNumber((step.dragDistance || 0) / CLEAN_DISTANCE_REQUIRED, 0, 1);
+    if(step.type === "clean") return cleanProgress(step);
     if(step.type === "repair") return clampNumber(step.repairFill || 0, 0, 1);
     if(step.type === "light") return clampNumber((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS, 0, 1);
     if(step.type === "polish") return clampNumber(polishProgress(step), 0, 1);
@@ -10052,8 +10304,8 @@ function polishProgress(step){
     if(!step || step.type !== "polish") return 0;
     ensurePolishRuntime(step);
     const spots = step.polishSpots || [];
-    const total = Math.max(1, spots.length * POLISH_HOLD_REQUIRED_MS);
-    const held = spots.reduce((sum, spot)=>sum + Math.min(POLISH_HOLD_REQUIRED_MS, spot.hold || 0), 0);
+    const total = Math.max(1, spots.length * POLISH_AUTO_COMPLETE_MS);
+    const held = spots.reduce((sum, spot)=>sum + (spot.done ? POLISH_AUTO_COMPLETE_MS : Math.min(POLISH_AUTO_COMPLETE_MS, spot.hold || 0)), 0);
     return clampNumber(held / total, 0, 1);
 }
 function polishCompletedSpotCount(step){
@@ -10084,6 +10336,45 @@ function polishSpotIndexFromPointer(step, clientX, clientY){
     });
     return bestDistance <= POLISH_HOLD_RADIUS ? bestIndex : -1;
 }
+function polishRingScale(hold){
+    const value = Math.max(0, hold || 0);
+    if(value <= POLISH_HOLD_REQUIRED_MS){
+        return .34 + .66 * clampNumber(value / POLISH_HOLD_REQUIRED_MS, 0, 1);
+    }
+    return 1 + .2 * clampNumber((value - POLISH_HOLD_REQUIRED_MS) / Math.max(1, POLISH_AUTO_COMPLETE_MS - POLISH_HOLD_REQUIRED_MS), 0, 1);
+}
+function finishPolishSpot(step, index, quality){
+    const spot = step?.polishSpots?.[index];
+    if(!spot || spot.done) return false;
+    spot.done = true;
+    spot.quality = quality === "perfect" ? "perfect" : "excellent";
+    playPolishSpotDoneFx(spot);
+    const next = nextPolishSpotIndex(step);
+    step.polishActiveSpotIndex = next >= 0 ? next : index;
+    toast(`${spot.quality === "perfect" ? "完美抛光" : "毛糙点抛光"} ${polishCompletedSpotCount(step)}/${step.polishSpots.length}`);
+    renderPolishOverlay(step);
+    refreshCoreHintProgress(step);
+    if(polishAllSpotsDone(step)) beginPolishComplete(step);
+    return true;
+}
+function finishPolishRelease(step, drag){
+    if(!step || step.type !== "polish" || !drag) return false;
+    ensurePolishRuntime(step);
+    const index = drag.polishSpotIndex;
+    const spot = step.polishSpots?.[index];
+    if(!spot || spot.done || (spot.hold || 0) <= 0) return false;
+    const ringError = Math.abs(polishRingScale(spot.hold) - 1);
+    if(spot.perfectEligible !== false && ringError <= POLISH_PERFECT_SCALE_ERROR){
+        return finishPolishSpot(step, index, "perfect");
+    }
+    if((spot.hold || 0) >= POLISH_HOLD_REQUIRED_MS){
+        return finishPolishSpot(step, index, "excellent");
+    }
+    spot.perfectEligible = false;
+    toast(`抛光进度已保留 ${Math.round((spot.hold || 0) / POLISH_AUTO_COMPLETE_MS * 100)}%`);
+    renderPolishOverlay(step);
+    return false;
+}
 function updatePolishHold(step, drag, dt=16){
     if(!step || step.type !== "polish" || step.polishCompleting || !drag) return;
     ensurePolishRuntime(step);
@@ -10098,16 +10389,10 @@ function updatePolishHold(step, drag, dt=16){
     step.polishActiveSpotIndex = drag.polishSpotIndex;
     if(!drag.polishInRange) return;
     const before = spot.hold || 0;
-    spot.hold = Math.min(POLISH_HOLD_REQUIRED_MS, before + Math.max(0, dt));
-    if(before < POLISH_HOLD_REQUIRED_MS && spot.hold >= POLISH_HOLD_REQUIRED_MS){
-        spot.done = true;
-        playPolishSpotDoneFx(spot);
-        const next = nextPolishSpotIndex(step);
-        step.polishActiveSpotIndex = next >= 0 ? next : drag.polishSpotIndex;
-        drag.polishSpotIndex = step.polishActiveSpotIndex;
-        toast(`毛糙点抛光 ${polishCompletedSpotCount(step)}/${step.polishSpots.length}`);
+    spot.hold = Math.min(POLISH_AUTO_COMPLETE_MS, before + Math.max(0, dt));
+    if(before < POLISH_AUTO_COMPLETE_MS && spot.hold >= POLISH_AUTO_COMPLETE_MS){
+        finishPolishSpot(step, drag.polishSpotIndex, "excellent");
     }
-    if(polishAllSpotsDone(step)) beginPolishComplete(step);
 }
 function beginPolishHoldLoop(pointerId){
     const tick = now=>{
@@ -10143,12 +10428,12 @@ function renderPolishOverlay(step){
     overlay.className = `polish-overlay visible ${step.polishCompleting ? "completing" : ""}`;
     overlay.innerHTML = (step.polishSpots || []).map((spot, index)=>{
         const point = gemPointToStagePoint(spot);
-        const progress = clampNumber((spot.hold || 0) / POLISH_HOLD_REQUIRED_MS, 0, 1);
-        const ringScale = (1.26 - progress * .54).toFixed(3);
+        const progress = clampNumber((spot.hold || 0) / POLISH_AUTO_COMPLETE_MS, 0, 1);
+        const ringScale = polishRingScale(spot.hold).toFixed(3);
         const roughOpacity = Math.max(.05, 1 - progress * .96).toFixed(3);
         const ringOpacity = (spot.done ? .34 : .88 - progress * .28).toFixed(3);
         const active = index === activeIndex && !spot.done;
-        return `<span class="polish-rough-point ${active ? "active" : ""} ${spot.done ? "done" : ""}" style="--polish-x:${point.x.toFixed(1)}px;--polish-y:${point.y.toFixed(1)}px;--polish-ring-scale:${ringScale};--polish-rough-opacity:${roughOpacity};--polish-ring-opacity:${ringOpacity}"><b></b><i></i></span>`;
+        return `<span class="polish-rough-point ${active ? "active" : ""} ${spot.done ? "done" : ""} ${spot.quality || "pending"}" style="--polish-x:${point.x.toFixed(1)}px;--polish-y:${point.y.toFixed(1)}px;--polish-progress-scale:${ringScale};--polish-rough-opacity:${roughOpacity};--polish-ring-opacity:${ringOpacity};--polish-progress-opacity:${spot.done ? .34 : .96}"><b></b><em></em><i></i></span>`;
     }).join("");
 }
 function clearPolishOverlay(){
@@ -10621,6 +10906,17 @@ const GAMEPAD_KEY_SET = new Set([
     "w","a","s","d","f","v","c","b","g","h","i","j","k","l","q","e","u","o",
     "ArrowUp","ArrowDown","ArrowLeft","ArrowRight"
 ]);
+const NATIVE_GAMEPAD_BUTTON_KEYS = [
+    [7,"o"],
+    [0,"k"], [1,"l"], [2,"j"],
+    [4,"q"], [5,"u"], [6,"e"],
+    [8,"g"], [9,"h"],
+    [12,"w"], [13,"s"], [14,"a"], [15,"d"]
+];
+const GAMEPAD_AXIS_DEADZONE = .18;
+const GAMEPAD_DIRECTION_THRESHOLD = .56;
+const GAMEPAD_REPEAT_DELAY_MS = 380;
+const GAMEPAD_REPEAT_INTERVAL_MS = 145;
 function gamepadKeyName(e){
     return e.key && e.key.length === 1 ? e.key.toLowerCase() : e.key;
 }
@@ -10659,6 +10955,137 @@ function gamepadSelectionDirForKey(key){
 }
 function isGamepadSelectionKey(key){
     return gamepadSelectionDirForKey(key) !== 0;
+}
+function normalizeGamepadAxis(value){
+    const axis = clampNumber(Number(value) || 0, -1, 1);
+    const magnitude = Math.abs(axis);
+    if(magnitude <= GAMEPAD_AXIS_DEADZONE) return 0;
+    return Math.sign(axis) * (magnitude - GAMEPAD_AXIS_DEADZONE) / (1 - GAMEPAD_AXIS_DEADZONE);
+}
+function nativeGamepadSnapshot(gamepad){
+    const keys = new Set();
+    const buttons = gamepad?.buttons || [];
+    const isPressed = index=>!!buttons[index]?.pressed || Number(buttons[index]?.value || 0) >= .5;
+    NATIVE_GAMEPAD_BUTTON_KEYS.forEach(([index,key])=>{
+        if(isPressed(index)) keys.add(key);
+    });
+    const leftX = normalizeGamepadAxis(gamepad?.axes?.[0]);
+    const leftY = normalizeGamepadAxis(gamepad?.axes?.[1]);
+    if(Math.abs(leftY) >= GAMEPAD_DIRECTION_THRESHOLD) keys.add(leftY < 0 ? "w" : "s");
+    return {
+        keys,
+        leftX,
+        leftY,
+        aimX:normalizeGamepadAxis(gamepad?.axes?.[2]),
+        aimY:normalizeGamepadAxis(gamepad?.axes?.[3])
+    };
+}
+function gamepadVirtualEvent(key, repeat=false){
+    return { key, repeat, target:document.body, preventDefault(){} };
+}
+function releaseNativeGamepadKeys(){
+    state.gamepadNativeKeys.forEach(key=>handleGamepadKeyUp(gamepadVirtualEvent(key)));
+    state.gamepadNativeKeys = new Set();
+    state.gamepadNativeRepeatAt = {};
+}
+function setNativeGamepadConnection(gamepad, options = {}){
+    const wasConnected = state.gamepadNativeConnected;
+    const previousIndex = state.gamepadNativeIndex;
+    state.gamepadNativeConnected = !!gamepad;
+    state.gamepadNativeIndex = gamepad ? gamepad.index : null;
+    state.gamepadNativeId = gamepad?.id || "";
+    document.body.classList.toggle("gamepad-connected", !!gamepad);
+    if(options.notify && isGamepadMode()){
+        if(gamepad && (!wasConnected || previousIndex !== gamepad.index)) toast("手柄已连接");
+        if(!gamepad && wasConnected) toast("手柄已断开，当前操作已停止");
+    }
+    renderGamepadHud();
+}
+function updateNativeGamepadKeys(nextKeys, now){
+    const previousKeys = state.gamepadNativeKeys;
+    previousKeys.forEach(key=>{
+        if(!nextKeys.has(key)){
+            handleGamepadKeyUp(gamepadVirtualEvent(key));
+            delete state.gamepadNativeRepeatAt[key];
+        }
+    });
+    nextKeys.forEach(key=>{
+        if(!previousKeys.has(key)){
+            handleGamepadKeyDown(gamepadVirtualEvent(key));
+            state.gamepadNativeRepeatAt[key] = now + GAMEPAD_REPEAT_DELAY_MS;
+            return;
+        }
+        if(isGamepadBagFocus() && isGamepadSelectionKey(key) && now >= (state.gamepadNativeRepeatAt[key] || Infinity)){
+            handleGamepadKeyDown(gamepadVirtualEvent(key, true));
+            state.gamepadNativeRepeatAt[key] = now + GAMEPAD_REPEAT_INTERVAL_MS;
+        }
+    });
+    state.gamepadNativeKeys = new Set(nextKeys);
+}
+function activeNativeGamepad(){
+    if(typeof navigator.getGamepads !== "function") return null;
+    let pads = [];
+    try{ pads = Array.from(navigator.getGamepads() || []).filter(Boolean); }
+    catch(error){ return null; }
+    return pads.find(pad=>pad.connected && pad.index === state.gamepadNativeIndex)
+        || pads.find(pad=>pad.connected)
+        || null;
+}
+function pollNativeGamepad(now){
+    const gamepad = activeNativeGamepad();
+    if(!gamepad){
+        if(state.gamepadNativeKeys.size) releaseNativeGamepadKeys();
+        state.gamepadNativeAimX = 0;
+        state.gamepadNativeAimY = 0;
+        state.gamepadNativeLensStickDir = 0;
+        if(state.gamepadNativeConnected) setNativeGamepadConnection(null, { notify:true });
+        return;
+    }
+    if(!state.gamepadNativeConnected || state.gamepadNativeIndex !== gamepad.index){
+        releaseNativeGamepadKeys();
+        setNativeGamepadConnection(gamepad, { notify:true });
+    }
+    const snapshot = nativeGamepadSnapshot(gamepad);
+    state.gamepadNativeAimX = snapshot.aimX;
+    state.gamepadNativeAimY = snapshot.aimY;
+    if(!isGamepadMode()){
+        if(state.gamepadNativeKeys.size) releaseNativeGamepadKeys();
+        return;
+    }
+    updateNativeGamepadKeys(snapshot.keys, now);
+    updateNativeGamepadLensStick(snapshot);
+}
+function nativeGamepadStickDirection(x, y){
+    const value = Math.abs(y) >= Math.abs(x) ? y : x;
+    return Math.abs(value) >= GAMEPAD_DIRECTION_THRESHOLD ? Math.sign(value) : 0;
+}
+function updateNativeGamepadLensStick(snapshot){
+    const direction = nativeGamepadStickDirection(snapshot.aimX, snapshot.aimY);
+    if(!isGamepadMode() || !state.active || isGamepadBagFocus() || state.gamepadAiming){
+        state.gamepadNativeLensStickDir = direction;
+        return;
+    }
+    if(!direction){
+        state.gamepadNativeLensStickDir = 0;
+        return;
+    }
+    if(direction === state.gamepadNativeLensStickDir) return;
+    state.gamepadNativeLensStickDir = direction;
+    if(setLensIndex(state.lensIndex + direction, true, direction)){
+        renderPlay();
+        toast("已切换镜片");
+    }
+}
+function handleNativeGamepadConnected(event){
+    if(!event.gamepad) return;
+    setNativeGamepadConnection(event.gamepad, { notify:true });
+}
+function handleNativeGamepadDisconnected(event){
+    if(state.gamepadNativeIndex !== event.gamepad?.index) return;
+    releaseNativeGamepadKeys();
+    state.gamepadNativeAimX = 0;
+    state.gamepadNativeAimY = 0;
+    setNativeGamepadConnection(null, { notify:true });
 }
 function selectedGamepadGem(){
     const gems = sortedListGems();
@@ -10711,6 +11138,14 @@ function handleGamepadRewardKey(){
     openRewardModal();
     renderGamepadHud();
 }
+function handleGamepadBackAction(){
+    if(state.active){
+        exitPlay();
+        toast("已返回素材选择");
+        return;
+    }
+    openGamepadExitConfirm({ mode:"ability" });
+}
 function stageLocalPointToGamepadPercent(point){
     const stage = document.getElementById("lens-stage");
     const rect = stage?.getBoundingClientRect();
@@ -10719,6 +11154,20 @@ function stageLocalPointToGamepadPercent(point){
         x:clampNumber(point.x / rect.width * 100, 7, 93),
         y:clampNumber(point.y / rect.height * 100, 7, 93)
     };
+}
+function clientPointToGamepadPercent(point){
+    const stage = document.getElementById("lens-stage");
+    const rect = stage?.getBoundingClientRect();
+    if(!rect || !rect.width || !rect.height || !point) return { x:50, y:50 };
+    return {
+        x:clampNumber((point.x - rect.left) / rect.width * 100, 7, 93),
+        y:clampNumber((point.y - rect.top) / rect.height * 100, 7, 93)
+    };
+}
+function gamepadAimPercentForElement(selector){
+    const rect = document.querySelector(selector)?.getBoundingClientRect();
+    if(!rect?.width || !rect?.height) return null;
+    return clientPointToGamepadPercent({ x:rect.left + rect.width / 2, y:rect.top + rect.height / 2 });
 }
 function gamepadAimPresetForStep(step){
     if(!step) return { x:50, y:50 };
@@ -10731,6 +11180,23 @@ function gamepadAimPresetForStep(step){
             x:clampNumber(pos.x - Math.cos(angle) * lengthX, 7, 93),
             y:clampNumber(pos.y - Math.sin(angle) * lengthY, 7, 93)
         };
+    }
+    if(step.type === "shape"){
+        const startPoint = shapeTargetContour(step)?.points?.[0];
+        if(startPoint) return clientPointToGamepadPercent(startPoint);
+    }
+    if(step.type === "repair"){
+        const target = gamepadAimPercentForElement(".repair-target.active");
+        if(target) return target;
+    }
+    if(step.type === "polish"){
+        const target = gamepadAimPercentForElement(".polish-rough-point.active");
+        if(target) return target;
+    }
+    if(step.type === "clean"){
+        const target = gamepadAimPercentForElement(".clean-rhythm-end.target")
+            || gamepadAimPercentForElement(".clean-rhythm-end.left");
+        if(target) return target;
     }
     if(step.type === "chamfer"){
         ensureChamferRuntime(step);
@@ -10773,6 +11239,7 @@ function setGamepadAiming(active, resetCenter=false){
         document.body.classList.remove("gamepad-aiming");
         void document.body.offsetWidth;
     }
+    if(state.gamepadAiming) state.gamepadNativeLensStickDir = nativeGamepadStickDirection(state.gamepadNativeAimX || 0, state.gamepadNativeAimY || 0);
     syncGamepadToolPointer();
     document.body.classList.toggle("gamepad-aiming", state.gamepadAiming);
     if(state.gamepadAiming) renderIdleStepToolFx(currentStep());
@@ -10797,7 +11264,7 @@ function beginGamepadUse(){
     if(!step || state.gamepadDrag || state.gamepadUseActive) return;
     if(step.cutAnimating) return;
     if(stepRequiresLens(step) && state.lensIndex !== step.lens){
-        toast("先用 Q/E 切换到正确镜片");
+        toast("先松开 R2，用右摇杆切换到正确镜片");
         renderGamepadHud();
         return;
     }
@@ -10813,6 +11280,15 @@ function beginGamepadUse(){
         state.gamepadUseActive = false;
         renderGamepadHud();
         return;
+    }
+    let polishSpotIndex = -1;
+    if(step.type === "polish"){
+        const polishPoint = gamepadAimClientPoint();
+        polishSpotIndex = polishSpotIndexFromPointer(step, polishPoint.x, polishPoint.y);
+        if(polishSpotIndex < 0){
+            toast("将准星移到毛糙点内。");
+            return;
+        }
     }
     state.gamepadUseActive = true;
     const point = gamepadAimClientPoint();
@@ -10830,9 +11306,14 @@ function beginGamepadUse(){
         velocityX:0,
         cutDistance:0,
         points:[{ x:point.x, y:point.y }],
-        shapeTrace
+        shapeTrace,
+        polishSpotIndex,
+        polishLastTick:performance.now()
     };
     if(step.type === "clean"){
+        const cleanPoint = cleanErasePointFromPointer(point.x, point.y);
+        state.gamepadDrag.cleanLastPoint = cleanPoint;
+        state.gamepadDrag.cleanDirectionOrigin = cleanPoint;
         addCleanErasePoint(step, point.x, point.y);
         renderCleanToolFx(point.x, point.y, 0, true);
         renderPlay();
@@ -10851,6 +11332,11 @@ function beginGamepadUse(){
         updateChamferDrag(step, point.x, point.y, 0);
         renderPlay();
     }
+    if(step.type === "polish"){
+        step.polishActiveSpotIndex = polishSpotIndex;
+        renderPolishToolFx(point.x, point.y, true);
+        renderPolishOverlay(step);
+    }
     spawnDragParticle(point.x, point.y, step.type);
     renderGamepadHud();
     renderMultiRunChain();
@@ -10865,6 +11351,10 @@ function finishGamepadUse(){
         return;
     }
     if(drag.type === "clean") clearCleanToolFx();
+    if(drag.type === "polish"){
+        clearPolishToolFx();
+        finishPolishRelease(step, drag);
+    }
     if(drag.type === "light"){
         clearLightToolFx();
         if(!step.done) toast(`反光锁定 ${Math.min(100, Math.round((step.lightHold || 0) / LIGHT_SEARCH_REQUIRED_MS * 100))}%`);
@@ -10883,6 +11373,8 @@ function finishGamepadUse(){
     if(drag.type === "shape"){
         clearShapeToolFx();
         if(traceMatchesShape(drag.points, step.shapeTarget)){
+            const metrics = shapeQualityMetrics(drag.points, step);
+            setStepQuality(step, metrics.perfect ? "perfect" : "excellent", metrics);
             playShapeLaserStrike(drag.shapeTrace, step);
             fadeShapeTrace(drag.shapeTrace);
             step.shapeLaserPending = true;
@@ -10902,8 +11394,12 @@ function finishGamepadUse(){
 }
 function updateGamepadAim(dt){
     if(!state.gamepadAiming || !state.active) return;
-    const axisX = gamepadAxis("ArrowLeft", "ArrowRight");
-    const axisY = gamepadAxis("ArrowUp", "ArrowDown");
+    const keyboardX = gamepadAxis("ArrowLeft", "ArrowRight");
+    const keyboardY = gamepadAxis("ArrowUp", "ArrowDown");
+    const nativeX = state.gamepadNativeAimX || 0;
+    const nativeY = state.gamepadNativeAimY || 0;
+    const axisX = Math.abs(nativeX) > Math.abs(keyboardX) ? nativeX : keyboardX;
+    const axisY = Math.abs(nativeY) > Math.abs(keyboardY) ? nativeY : keyboardY;
     if(axisX || axisY){
         const speed = state.gamepadUseActive ? 28 : 38;
         const scale = Math.max(16, dt) / 1000 * speed;
@@ -10932,14 +11428,9 @@ function updateGamepadUse(dt){
     if(step.type === "clean"){
         drag.cleanBrushLean = 0;
         addCleanErasePoint(step, point.x, point.y);
-        step.dragDistance = Math.min(CLEAN_DISTANCE_REQUIRED, (step.dragDistance || 0) + Math.max(movement, Math.abs(gamepadAxis("ArrowLeft", "ArrowRight")) * dt * .045));
+        updateCleanRhythm(step, drag, point.x, point.y);
         renderCleanToolFx(point.x, point.y, 0, true);
         renderPlay();
-        if(step.dragDistance >= CLEAN_DISTANCE_REQUIRED){
-            state.gamepadDrag = null;
-            state.gamepadUseActive = false;
-            beginCleanFinish(step);
-        }
     }
     if(step.type === "cut"){
         renderCutToolFx(step, point.x, point.y);
@@ -10950,6 +11441,7 @@ function updateGamepadUse(dt){
         if(movement > 1) spawnDragParticle(point.x, point.y, step.type);
         if((drag.cutDistance || 0) >= 105){
             playCutSwipeFx(step, { startX:drag.startX, startY:drag.startY }, point.x, point.y);
+            recordCutQuality(step, Math.atan2(point.y - drag.startY, point.x - drag.startX) * 180 / Math.PI);
             state.gamepadDrag = null;
             state.gamepadUseActive = false;
             step.cutAnimating = true;
@@ -11005,6 +11497,15 @@ function updateGamepadUse(dt){
             state.gamepadUseActive = false;
         }
     }
+    if(step.type === "polish"){
+        updatePolishHold(step, drag, dt);
+        renderPolishToolFx(point.x, point.y, true);
+        renderPolishOverlay(step);
+        if(step.polishCompleting){
+            state.gamepadDrag = null;
+            state.gamepadUseActive = false;
+        }
+    }
     refreshCoreHintProgress(step);
 }
 function renderGamepadHud(){
@@ -11018,7 +11519,15 @@ function renderGamepadHud(){
     document.body.classList.toggle("gamepad-aiming", !!state.gamepadAiming);
     const focus = document.getElementById("gamepad-focus-text");
     const action = document.getElementById("gamepad-action-text");
+    const connection = document.getElementById("gamepad-connection-text");
     document.body.classList.toggle("gamepad-needs-aim", isGamepadMode() && !!state.active && state.gamepadFocus !== "bag" && !state.gamepadAiming);
+    if(connection){
+        connection.textContent = typeof navigator.getGamepads !== "function"
+            ? "当前浏览器不支持 Gamepad API。"
+            : state.gamepadNativeConnected
+                ? `手柄已连接：${(state.gamepadNativeId || "标准手柄").slice(0, 42)}`
+                : "等待手柄连接，按下任意手柄按键即可识别。";
+    }
     if(!focus || !action) return;
     if(!isGamepadMode()){
         focus.textContent = "WSAD 或 F/V/C/B 选择素体，K(A) 放入镜片。";
@@ -11027,25 +11536,25 @@ function renderGamepadHud(){
     }
     const step = currentStep();
     if(document.getElementById("reward-modal")?.classList.contains("show")){
-        focus.textContent = "奖励确认：Y / A / R1 领取，B 关闭。";
+        focus.textContent = "奖励确认：□领取，○关闭。";
         action.textContent = `待收集 ${plateTotal()} 颗成石奖励。`;
         return;
     }
     if(state.gamepadExitConfirmOpen){
         focus.textContent = "退出确认：当前处理还没有完成。";
-        action.textContent = "K(A) 或 U(R1) 确认退出，L(B) / Esc 取消。";
+        action.textContent = "× 或 R1 确认退出，○取消。";
         return;
     }
     if(isGamepadBagFocus()){
         const gem = selectedGamepadGem();
-        focus.textContent = gem ? `素体选择：${gem.name} × ${countInBag(gem.id)}。WSAD 左摇杆 / FVCB 十字键移动，K(A) 选择/取消。` : "素体袋为空。";
-        action.textContent = `Q(L1) 按数量，U(R1) 按星级；J(X) 切到开始修复；H(Start) 开始，G(option) 退出确认；I(Y) 收集奖励${state.active ? "；J(X) 回到玩法" : ""}。`;
+        focus.textContent = gem ? `素材选择：${gem.name} × ${countInBag(gem.id)}。左摇杆上下选择，×确认。` : "素材袋为空。";
+        action.textContent = "□领奖；○退出并领奖。△切换素体/成品 UI 暂未开放。";
         return;
     }
     if(!state.active){
         const count = selectedMultiIds().length;
         focus.textContent = `开始修复区域：已选择 ${count}/3 颗素体。`;
-        action.textContent = "K(A) / U(R1) / H(Start) 开始修复；J(X) 返回素体选择；G(option) 退出确认。";
+        action.textContent = "× / R1 开始修复；□领奖；○退出并领奖。";
         return;
     }
     const lensOk = step && (!stepRequiresLens(step) || state.lensIndex === step.lens);
@@ -11053,8 +11562,8 @@ function renderGamepadHud(){
         ? `${state.gamepadAiming ? "开镜中" : "待开镜"}：${TOOL_LABELS[step.type]} · ${step.title}。`
         : "当前素体流程已完成。";
     action.textContent = step
-        ? `${lensOk ? (stepRequiresLens(step) ? "镜片正确" : "无需切换镜片") : "Q/E 或左摇杆上下切换到正确镜片"}；${state.gamepadAiming ? "U(R1)/K(A) 确认" : "按住 O(R2) 后按 U(R1)/K(A)"}；J(X) 选素体，G(option) 退出确认。`
-        : "K(A) 或 U(R1) 确认，L(B) 退出。";
+        ? `${state.gamepadAiming ? "右摇杆移动光标，R1/× 点击或长按" : "右摇杆切换镜片；按住 R2 开镜并吸附目标"}；□领奖；○返回素材选择。`
+        : "□领奖；○返回素材选择。";
 }
 function isGamepadExitConfirmOpen(){
     return !!document.getElementById("gamepad-exit-modal")?.classList.contains("show");
@@ -11078,13 +11587,13 @@ function openGamepadExitConfirm(options = {}){
     } else if(mode === "mode"){
         if(title) title.textContent = "退出当前模式？";
         if(body) body.textContent = "当前版本先只接确认接口，不会真的切出手柄模式。";
-        if(confirm) confirm.textContent = "确认 K(A)/U(R1)";
-        if(cancel) cancel.textContent = "取消 L(B)/G(option)";
+        if(confirm) confirm.textContent = "确认 × / R1";
+        if(cancel) cancel.textContent = "取消 ○";
     } else {
         if(title) title.textContent = "退出当前处理？";
         if(body) body.textContent = "未完成的素体会留在袋中。";
-        if(confirm) confirm.textContent = "确认 K(A)/U(R1)";
-        if(cancel) cancel.textContent = "取消 L(B)";
+        if(confirm) confirm.textContent = "确认 × / R1";
+        if(cancel) cancel.textContent = "取消 ○";
     }
     document.getElementById("gamepad-exit-modal")?.classList.add("show");
     renderGamepadHud();
@@ -11146,7 +11655,7 @@ function handleGamepadKeyDown(e){
     const firstPress = !e.repeat;
     const rewardOpen = document.getElementById("reward-modal")?.classList.contains("show");
     if(rewardOpen){
-        if(firstPress && (key === "i" || key === "k" || key === "u")) handleGamepadRewardKey();
+        if(firstPress && key === "j") handleGamepadRewardKey();
         if(firstPress && key === "l") closeRewardModal();
         renderGamepadHud();
         return;
@@ -11170,11 +11679,14 @@ function handleGamepadKeyDown(e){
         return;
     }
     if(firstPress && key === "i"){
-        handleGamepadRewardKey();
         return;
     }
     if(firstPress && key === "j"){
-        setGamepadFocus(isGamepadBagFocus() ? "play" : "bag", { toast:true });
+        handleGamepadRewardKey();
+        return;
+    }
+    if(firstPress && key === "l"){
+        handleGamepadBackAction();
         return;
     }
     if(isGamepadBagFocus()){
@@ -11195,24 +11707,22 @@ function handleGamepadKeyDown(e){
             startGamepadSelectedStone();
             return;
         }
-        if(firstPress && key === "l" && state.active){
-            openGamepadExitConfirm();
-            return;
-        }
-        return;
-    }
-    if(key === "l"){
-        openGamepadExitConfirm();
         return;
     }
     if(!state.active){
         if(firstPress && (key === "k" || key === "u")) startMultiPlay();
         return;
     }
-    if(key === "q" || key === "f" || key === "w"){
+    if(key === "q" || key === "f" || key === "w" || key === "a" || key === "c"){
         if(setLensIndex(state.lensIndex - 1, true, -1)){ renderPlay(); toast("已切换镜片"); }
     }
-    if(key === "e" || key === "v" || key === "s"){
+    if(key === "e" || key === "v" || key === "s" || key === "d" || key === "b"){
+        if(setLensIndex(state.lensIndex + 1, true, 1)){ renderPlay(); toast("已切换镜片"); }
+    }
+    if(!state.gamepadAiming && firstPress && ["ArrowUp","ArrowLeft"].includes(key)){
+        if(setLensIndex(state.lensIndex - 1, true, -1)){ renderPlay(); toast("已切换镜片"); }
+    }
+    if(!state.gamepadAiming && firstPress && ["ArrowDown","ArrowRight"].includes(key)){
         if(setLensIndex(state.lensIndex + 1, true, 1)){ renderPlay(); toast("已切换镜片"); }
     }
     if(firstPress && key === "o"){
@@ -11241,6 +11751,7 @@ function gamepadTick(now){
     const previous = state.gamepadLastTick || now;
     const dt = Math.min(64, Math.max(16, now - previous));
     state.gamepadLastTick = now;
+    pollNativeGamepad(now);
     if(isGamepadMode()){
         updateGamepadAim(dt);
         updateGamepadUse(dt);
@@ -11259,6 +11770,7 @@ function renderHotspot(){
     setLensAttention(!!step && !visibleOnLens);
     if(!visibleOnLens){
         renderRepairOverlay(repairOverlayStep, !!repairOverlayStep, false, repairOverlayPos);
+        renderCleanRhythmOverlay(step, false);
         spot.style.display = "none";
         ring.style.display = "none";
         state.hotspotRevealKey = null;
@@ -11268,7 +11780,7 @@ function renderHotspot(){
             if(step){
                 const gamepadLensWindow = document.body.classList.contains("layout-gamepad");
                 scrollCue.innerHTML = gamepadLensWindow
-                    ? `<span class="lens-scroll-text">Q / E <strong class="lens-scroll-keyword">切换</strong><strong class="lens-scroll-keyword">镜片</strong></span><span class="lens-scroll-wheel-mark"></span>`
+                    ? `<span class="lens-scroll-text">右摇杆 <strong class="lens-scroll-keyword">切换</strong><strong class="lens-scroll-keyword">镜片</strong></span><span class="lens-scroll-wheel-mark"></span>`
                     : `<span class="lens-scroll-text">滚轮 <strong class="lens-scroll-keyword">切换</strong><strong class="lens-scroll-keyword">镜片</strong></span><span class="lens-scroll-wheel-mark"></span>`;
             }
         }
@@ -11292,6 +11804,7 @@ function renderHotspot(){
     const overlayStep = repairOverlayStep || (step.type === "repair" ? step : null);
     const overlayPos = overlayStep === step ? pos : overlayStep ? defectStagePosition(overlayStep) : null;
     renderRepairOverlay(overlayStep, !!overlayStep, step.type === "repair", overlayPos);
+    renderCleanRhythmOverlay(step, step.type === "clean");
     if(step.type === "repair"){
         const target = REPAIR_TARGETS[Math.min(step.repairTargetIndex || 0, REPAIR_TARGETS.length - 1)];
         spot.style.setProperty("--repair-hotspot-x", `${target.dx}px`);
@@ -11327,6 +11840,14 @@ function repairTaskForOverlay(step){
     if(hasCut && !cutDone) return null;
     return repairTask;
 }
+function repairTimingSample(step, now=performance.now()){
+    if(!Number.isFinite(step?.repairTargetStartedAt)) step.repairTargetStartedAt = now;
+    const elapsed = Math.max(0, now - step.repairTargetStartedAt);
+    const phase = (elapsed % REPAIR_TIMING_MS) / REPAIR_TIMING_MS;
+    const scale = REPAIR_RING_START_SCALE + (REPAIR_RING_END_SCALE - REPAIR_RING_START_SCALE) * phase;
+    const error = Math.abs(scale - 1);
+    return { phase, scale, error };
+}
 function renderRepairOverlay(step, visible, targetsVisible=false, pos){
     const overlay = document.getElementById("repair-overlay");
     if(!overlay) return;
@@ -11348,6 +11869,7 @@ function renderRepairOverlay(step, visible, targetsVisible=false, pos){
     overlay.style.top = `${pos.y}%`;
     overlay.style.setProperty("--repair-fill-remain", `${Math.max(0, 1 - fill)}`);
     const activeTarget = REPAIR_TARGETS[activeIndex];
+    if(targetsVisible && !Number.isFinite(step.repairTargetStartedAt)) step.repairTargetStartedAt = performance.now();
     overlay.style.setProperty("--repair-drop-left", `${activeTarget.x}%`);
     overlay.style.setProperty("--repair-drop-top", `${activeTarget.y}%`);
     overlay.style.setProperty("--repair-idle-tool-left", settledTarget ? `${settledTarget.x}%` : "4%");
@@ -11377,7 +11899,7 @@ function renderRepairOverlay(step, visible, targetsVisible=false, pos){
                     <path class="repair-crack-fill" d="${REPAIR_CRACK_PATH}" pathLength="1"></path>
                 </g>
             </svg>
-            ${targetsVisible ? REPAIR_TARGETS.map(target=>`<span class="repair-target" style="left:${target.x}%;top:${target.y}%"></span>`).join("") : ""}
+            ${targetsVisible ? REPAIR_TARGETS.map(target=>`<span class="repair-target" style="left:${target.x}%;top:${target.y}%"><i class="repair-timing-ring"></i></span>`).join("") : ""}
             <span class="repair-tool"></span>
             <span class="repair-drop"></span>
         `;
@@ -11452,6 +11974,7 @@ function clearHotspot(){
     clearPolishToolFx();
     clearChamferOverlay();
     clearPolishOverlay();
+    renderCleanRhythmOverlay(null, false);
     setLensAttention(false);
     if(spot) spot.style.display = "none";
     if(ring) ring.style.display = "none";
@@ -11519,6 +12042,7 @@ function beginFinalGemCompletion(step){
     const active = state.active;
     if(!active || !step || step.finalCeremonyStarted) return;
     step.finalCeremonyStarted = true;
+    active.overallQuality = overallQualityForActive(active);
     const gem = gemById(step.gemId || active.gemId);
     state.defectDrag = null;
     state.gamepadDrag = null;
@@ -11534,7 +12058,10 @@ function beginFinalGemCompletion(step){
     playCompletionSpinIfAvailable(gem, 1880);
     playGemAnimation("gem-collect-exit", 1880);
     setTimeout(()=>{
-        if(state.active === active) setRewardFocus(true);
+        if(state.active === active){
+            setRewardFocus(true);
+            showOverallEvaluation(active);
+        }
     }, 1080);
     setTimeout(()=>{
         if(state.active === active) completeActiveGem();
@@ -11542,6 +12069,8 @@ function beginFinalGemCompletion(step){
 }
 function completeCurrentStep(step){
     if(!step || step.done || !state.active) return;
+    finalizeStepQuality(step);
+    if(step.quality === "perfect") showStepPerfectFx();
     if(step.type === "cut" || step.type === "shape") spawnCompletionFragments(step.type);
     if(step.type === "light") playLightFoundFx(step);
     const previousGemId = state.active?.gemId;
@@ -11643,20 +12172,35 @@ function tryCoreInteraction(){
     if(!canUseCurrentStep(step)) return;
     completeCurrentStep(step);
 }
+function suppressSyntheticHotspotClick(durationMs=180){
+    state.suppressNextClick = true;
+    state.suppressNextClickUntil = performance.now() + durationMs;
+}
 function handleHotspotClick(){
     if(state.suppressNextClick){
+        const shouldSuppress = performance.now() <= (state.suppressNextClickUntil || 0);
         state.suppressNextClick = false;
-        return;
+        state.suppressNextClickUntil = 0;
+        if(shouldSuppress) return;
     }
     const step = currentStep();
     if(!canUseCurrentStep(step)) return;
     if(step.type === "repair"){
         if(step.repairCompleting) return;
+        const timing = repairTimingSample(step);
+        if(timing.error > REPAIR_VALID_ERROR){
+            toast("等待缩小光环进入目标环。");
+            return;
+        }
         const targetIndex = Math.min(step.repairTargetIndex || 0, REPAIR_TARGETS.length - 1);
+        const hitQuality = timing.error <= REPAIR_PERFECT_ERROR ? "perfect" : "excellent";
         step.clicks = (step.clicks || 0) + 1;
+        step.repairHitQualities = step.repairHitQualities || [];
+        step.repairHitQualities.push(hitQuality);
         step.repairFill = Math.min(1, (step.repairFill || 0) + REPAIR_FILL_PER_CLICK);
         step.repairToolSettledIndex = targetIndex;
         step.repairTargetIndex = Math.min(REPAIR_TARGETS.length - 1, targetIndex + 1);
+        step.repairTargetStartedAt = performance.now();
         const complete = step.repairFill >= REPAIR_COMPLETE_THRESHOLD;
         if(complete) step.repairCompleting = true;
         renderPlay();
@@ -11667,16 +12211,16 @@ function handleHotspotClick(){
                 if(currentStep()?.id === step.id) completeCurrentStep(step);
             }, 940);
         } else {
-            toast(`精华填充 ${Math.round(step.repairFill * 100)}%`);
+            toast(`${hitQuality === "perfect" ? "精准修补" : "精华填充"} ${Math.round(step.repairFill * 100)}%`);
         }
         return;
     }
-    if(step.type === "clean") toast("按住瑕疵范围来回拖拽擦拭。");
+    if(step.type === "clean") toast("按住并跟随左右端点完成四拍擦拭。");
     if(step.type === "cut") toast("按住长条，沿长条正反方向拖拽切除。");
     if(step.type === "light") toast("按住扫光区移动寻光灯，靠近反光点会出现星芒。");
     if(step.type === "soak") toast("按住量杯左右摇晃，别让石头撞杯壁三次。");
     if(step.type === "chamfer") toast("沿宝石边缘来回摩擦直到光滑为止。");
-    if(step.type === "polish") toast("按住收缩光圈内的两个毛糙点，松手不会倒退。");
+    if(step.type === "polish") toast("按住毛糙点让光圈放大，对齐亮环时松手。");
     if(step.type === "shape") toast(`按住形状，拖拽描边${SHAPE_LABELS[step.shapeTarget]}。`);
 }
 function startDefectDrag(e){
@@ -11717,9 +12261,13 @@ function startDefectDrag(e){
         polishLastTick:now
     };
     if(step.type === "clean"){
+        const cleanPoint = cleanErasePointFromPointer(e.clientX, e.clientY);
+        state.defectDrag.cleanLastPoint = cleanPoint;
+        state.defectDrag.cleanDirectionOrigin = cleanPoint;
         addCleanErasePoint(step, e.clientX, e.clientY);
         renderPlay();
         renderCleanToolFx(e.clientX, e.clientY, 0, true);
+        beginCleanBeatLoop(e.pointerId);
     }
     if(step.type === "cut") renderCutToolFx(step, e.clientX, e.clientY);
     if(step.type === "shape") renderShapeToolFx(e.clientX, e.clientY, true);
@@ -11761,7 +12309,9 @@ function updateDefectDrag(e){
     if(step.type === "clean"){
         drag.cleanBrushLean = 0;
         addCleanErasePoint(step, e.clientX, e.clientY);
+        updateCleanRhythm(step, drag, e.clientX, e.clientY, now);
         renderCleanToolFx(e.clientX, e.clientY, 0, true);
+        renderPlay();
     }
     if(step.type === "cut"){
         renderCutToolFx(step, e.clientX, e.clientY);
@@ -11778,7 +12328,7 @@ function updateDefectDrag(e){
         updateLightSearch(step, e.clientX, e.clientY, dt);
         renderLightToolFx(e.clientX, e.clientY, step.lightSignal || 0, step, true);
         if((step.lightHold || 0) >= LIGHT_SEARCH_REQUIRED_MS){
-            state.suppressNextClick = true;
+            suppressSyntheticHotspotClick();
             state.defectDrag = null;
             clearLightToolFx();
             completeCurrentStep(step);
@@ -11789,14 +12339,14 @@ function updateDefectDrag(e){
         updateSoakShake(step, dx, dy, dt);
         renderPlay();
         if(step.soakPhase === "failed"){
-            state.suppressNextClick = true;
+            suppressSyntheticHotspotClick();
             state.defectDrag = null;
             return;
         }
         if((step.soakProgress || 0) >= SOAK_REQUIRED_MS && !step.soakCompleting){
             step.soakCompleting = true;
             step.soakPhase = "complete";
-            state.suppressNextClick = true;
+            suppressSyntheticHotspotClick();
             state.defectDrag = null;
             renderPlay();
             setTimeout(()=>{
@@ -11809,7 +12359,7 @@ function updateDefectDrag(e){
         updateChamferDrag(step, e.clientX, e.clientY, dt);
         renderPlay();
         if(step.chamferCompleting){
-            state.suppressNextClick = true;
+            suppressSyntheticHotspotClick();
             state.defectDrag = null;
             return;
         }
@@ -11818,7 +12368,7 @@ function updateDefectDrag(e){
         renderPolishToolFx(e.clientX, e.clientY, true);
         renderPolishOverlay(step);
         if(step.polishCompleting){
-            state.suppressNextClick = true;
+            suppressSyntheticHotspotClick();
             state.defectDrag = null;
             return;
         }
@@ -11829,20 +12379,18 @@ function updateDefectDrag(e){
         spawnDragParticle(e.clientX, e.clientY, step.type);
         drag.lastParticleDistance = drag.distance;
     }
-    if(step.type === "clean"){
-        step.dragDistance = Math.min(CLEAN_DISTANCE_REQUIRED, (drag.baseDistance || 0) + drag.distance);
-        renderPlay();
-        if(step.dragDistance >= CLEAN_DISTANCE_REQUIRED){
-            state.suppressNextClick = true;
-            state.defectDrag = null;
-            beginCleanFinish(step);
-        }
-    }
+}
+function recordCutQuality(step, angle){
+    if(!step || step.type !== "cut") return;
+    const error = cutLineAngleDiff(angle, step.cutAngle || 0);
+    step.cutAngleErrors = step.cutAngleErrors || [];
+    step.cutAngleErrors.push(error);
 }
 function triggerCutSwipeFromDrag(step, drag, endX, endY){
     if(!step || !drag || step.cutAnimating || drag.cutTriggered) return false;
     drag.cutTriggered = true;
-    state.suppressNextClick = true;
+    recordCutQuality(step, Math.atan2(endY - drag.startY, endX - drag.startX) * 180 / Math.PI);
+    suppressSyntheticHotspotClick();
     state.defectDrag = null;
     playCutSwipeFx(step, drag, endX, endY);
     step.cutAnimating = true;
@@ -11881,6 +12429,96 @@ function addCleanErasePoint(step, clientX, clientY){
         points.push(point);
         if(points.length > 190) points.splice(0, points.length - 190);
     }
+}
+function cleanProgress(step){
+    return clampNumber((step?.cleanBeatCount || 0) / CLEAN_BEATS_REQUIRED, 0, 1);
+}
+function ensureCleanRhythmOverlay(){
+    const stage = document.getElementById("lens-stage");
+    if(!stage) return null;
+    let overlay = document.getElementById("clean-rhythm-overlay");
+    if(!overlay){
+        overlay = document.createElement("div");
+        overlay.id = "clean-rhythm-overlay";
+        overlay.className = "clean-rhythm-overlay";
+        overlay.setAttribute("aria-hidden", "true");
+        overlay.innerHTML = `<span class="clean-rhythm-track"></span><i class="clean-rhythm-end left"></i><i class="clean-rhythm-end right"></i><b class="clean-rhythm-count"></b>`;
+        stage.appendChild(overlay);
+    }
+    return overlay;
+}
+function renderCleanRhythmOverlay(step, visible=true){
+    const overlay = ensureCleanRhythmOverlay();
+    if(!overlay) return;
+    const show = !!(visible && step?.type === "clean" && !step.done && !step.cleanCompleting);
+    overlay.classList.toggle("visible", show);
+    if(!show) return;
+    const pos = defectStagePosition(step);
+    overlay.style.left = `${pos.x}%`;
+    overlay.style.top = `${pos.y}%`;
+    const direction = step.cleanTargetDirection || 0;
+    overlay.querySelector(".clean-rhythm-end.left")?.classList.toggle("target", direction < 0);
+    overlay.querySelector(".clean-rhythm-end.right")?.classList.toggle("target", direction > 0);
+    const count = overlay.querySelector(".clean-rhythm-count");
+    if(count) count.textContent = direction ? `${step.cleanBeatCount || 0}/${CLEAN_BEATS_REQUIRED}` : "开始擦拭";
+}
+function cleanBeatTimingError(step, now){
+    const elapsed = Math.max(0, now - (step.cleanBeatStartedAt || now));
+    const targetCycle = Math.max(1, Math.round(elapsed / CLEAN_BEAT_MS));
+    return Math.abs(elapsed - targetCycle * CLEAN_BEAT_MS);
+}
+function updateCleanRhythm(step, drag, clientX, clientY, now=performance.now()){
+    if(!step || step.type !== "clean" || step.cleanCompleting || !drag) return;
+    const point = cleanErasePointFromPointer(clientX, clientY);
+    const previous = drag.cleanLastPoint || point;
+    drag.cleanLastPoint = point;
+    if(!step.cleanTargetDirection){
+        const origin = drag.cleanDirectionOrigin || point;
+        drag.cleanDirectionOrigin = origin;
+        const dx = point.x - origin.x;
+        const dy = point.y - origin.y;
+        if(Math.abs(dx) >= 4 && Math.abs(dx) > Math.abs(dy) * 1.2){
+            step.cleanTargetDirection = dx > 0 ? 1 : -1;
+            step.cleanBeatStartedAt = now;
+            step.cleanStrokeStart = { ...origin };
+            renderCleanRhythmOverlay(step, true);
+        }
+        return;
+    }
+    const targetDirection = step.cleanTargetDirection;
+    const enteredTarget = targetDirection > 0
+        ? previous.x < 76 && point.x >= 76
+        : previous.x > 24 && point.x <= 24;
+    const start = step.cleanStrokeStart || drag.cleanDirectionOrigin || previous;
+    const totalDx = point.x - start.x;
+    const totalDy = point.y - start.y;
+    const requiredSpan = (step.cleanBeatCount || 0) === 0 ? 18 : 44;
+    if(!enteredTarget || Math.abs(totalDx) < requiredSpan) return;
+    const angleError = Math.atan2(Math.abs(totalDy), Math.max(.001, Math.abs(totalDx))) * 180 / Math.PI;
+    const timingError = cleanBeatTimingError(step, now);
+    if(angleError > CLEAN_VALID_ANGLE_DEG || timingError > CLEAN_VALID_TIME_ERROR_MS) return;
+    const quality = angleError <= CLEAN_PERFECT_ANGLE_DEG && timingError <= CLEAN_PERFECT_TIME_ERROR_MS ? "perfect" : "excellent";
+    step.cleanBeatQualities = step.cleanBeatQualities || [];
+    step.cleanBeatQualities.push(quality);
+    step.cleanBeatCount = step.cleanBeatQualities.length;
+    step.dragDistance = CLEAN_DISTANCE_REQUIRED * cleanProgress(step);
+    step.cleanStrokeStart = { ...point };
+    step.cleanTargetDirection *= -1;
+    step.cleanBeatStartedAt = now;
+    toast(`${quality === "perfect" ? "精准擦拭" : "擦拭"} ${step.cleanBeatCount}/${CLEAN_BEATS_REQUIRED}`);
+    renderCleanRhythmOverlay(step, true);
+    renderPlay();
+    if(step.cleanBeatCount >= CLEAN_BEATS_REQUIRED) beginCleanFinish(step);
+}
+function beginCleanBeatLoop(pointerId){
+    const tick = now=>{
+        const drag = state.defectDrag;
+        const step = currentStep();
+        if(!drag || drag.type !== "clean" || drag.pointerId !== pointerId || !step || step.type !== "clean" || step.done) return;
+        updateCleanRhythm(step, drag, drag.lastX, drag.lastY, now);
+        if(state.defectDrag === drag && currentStep()?.id === step.id && !step.cleanCompleting) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
 }
 function gemPointToStagePoint(point){
     const gem = document.getElementById("gem3d");
@@ -12517,7 +13155,7 @@ function finishDefectDrag(e){
     const step = currentStep();
     if(!drag || !step || drag.pointerId !== e.pointerId) return;
     state.defectDrag = null;
-    state.suppressNextClick = true;
+    suppressSyntheticHotspotClick();
     if(drag.type === "clean") clearCleanToolFx();
     if(drag.type === "shape") clearShapeToolFx();
     if(drag.type === "light") clearLightToolFx();
@@ -12556,12 +13194,15 @@ function finishDefectDrag(e){
         return;
     }
     if(step.type === "polish"){
+        finishPolishRelease(step, drag);
         renderPolishOverlay(step);
-        toast(`抛光 ${Math.round(polishProgress(step) * 100)}%`);
+        if(!step.polishCompleting) toast(`抛光 ${Math.round(polishProgress(step) * 100)}%`);
         return;
     }
     if(step.type === "shape"){
         if(traceMatchesShape(drag.points, step.shapeTarget)){
+            const metrics = shapeQualityMetrics(drag.points, step);
+            setStepQuality(step, metrics.perfect ? "perfect" : "excellent", metrics);
             playShapeLaserStrike(drag.shapeTrace, step);
             fadeShapeTrace(drag.shapeTrace);
             step.shapeLaserPending = true;
@@ -12609,6 +13250,96 @@ function angleDiff(a, b){
     let diff = Math.abs((((a - b) % 180) + 180) % 180);
     return diff > 90 ? 180 - diff : diff;
 }
+function pointToSegmentDistance(point, start, end){
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    const lengthSquared = dx * dx + dy * dy;
+    if(lengthSquared <= .0001) return Math.hypot(point.x - start.x, point.y - start.y);
+    const t = clampNumber(((point.x - start.x) * dx + (point.y - start.y) * dy) / lengthSquared, 0, 1);
+    return Math.hypot(point.x - (start.x + dx * t), point.y - (start.y + dy * t));
+}
+function distanceToPolyline(point, points, closed=false){
+    if(!points?.length) return Infinity;
+    let best = Infinity;
+    const count = closed ? points.length : points.length - 1;
+    for(let index=0; index<count; index++){
+        best = Math.min(best, pointToSegmentDistance(point, points[index], points[(index + 1) % points.length]));
+    }
+    return best;
+}
+function shapeTargetContour(step, sampleCount=72){
+    const spot = document.getElementById("hotspot");
+    const rect = spot?.getBoundingClientRect();
+    if(!rect?.width || !rect?.height) return null;
+    const pseudo = getComputedStyle(spot, "::before");
+    const spotStyle = getComputedStyle(spot);
+    const renderedScaleX = rect.width / (parseFloat(spotStyle.width) || rect.width);
+    const renderedScaleY = rect.height / (parseFloat(spotStyle.height) || rect.height);
+    const width = (parseFloat(pseudo.width) || 180) * renderedScaleX;
+    const height = (parseFloat(pseudo.height) || parseFloat(pseudo.width) || 180) * renderedScaleY;
+    const center = { x:rect.left + rect.width / 2, y:rect.top + rect.height / 2 };
+    const shape = step?.shapeTarget || "circle";
+    const points = [];
+    const usesAssetGuide = document.body.classList.contains("v26-real-asset");
+    if(shape === "circle"){
+        const radiusX = width * (usesAssetGuide ? 117.5 / 360 : .5);
+        const radiusY = height * (usesAssetGuide ? 117.5 / 360 : .5);
+        for(let index=0; index<sampleCount; index++){
+            const angle = index / sampleCount * Math.PI * 2;
+            points.push({ x:center.x + Math.cos(angle) * radiusX, y:center.y + Math.sin(angle) * radiusY });
+        }
+    } else {
+        let vertices;
+        if(usesAssetGuide && shape === "triangle"){
+            const spriteLeft = center.x - width / 2;
+            const spriteTop = center.y - height * .48;
+            vertices = [
+                { x:spriteLeft + width * 180 / 360, y:spriteTop + height * 49 / 360 },
+                { x:spriteLeft + width * 300 / 360, y:spriteTop + height * 291.5 / 360 },
+                { x:spriteLeft + width * 60 / 360, y:spriteTop + height * 291.5 / 360 }
+            ];
+        } else if(usesAssetGuide){
+            const halfWidth = width * 109.5 / 360;
+            const halfHeight = height * 109.5 / 360;
+            vertices = [
+                { x:center.x - halfWidth, y:center.y - halfHeight },
+                { x:center.x + halfWidth, y:center.y - halfHeight },
+                { x:center.x + halfWidth, y:center.y + halfHeight },
+                { x:center.x - halfWidth, y:center.y + halfHeight }
+            ];
+        } else {
+            vertices = shape === "triangle"
+                ? [{ x:center.x, y:center.y - height * .45 }, { x:center.x + width * .45, y:center.y + height * .4 }, { x:center.x - width * .45, y:center.y + height * .4 }]
+                : [{ x:center.x - width / 2, y:center.y - height / 2 }, { x:center.x + width / 2, y:center.y - height / 2 }, { x:center.x + width / 2, y:center.y + height / 2 }, { x:center.x - width / 2, y:center.y + height / 2 }];
+        }
+        const perEdge = Math.ceil(sampleCount / vertices.length);
+        vertices.forEach((vertex, edgeIndex)=>{
+            const next = vertices[(edgeIndex + 1) % vertices.length];
+            for(let index=0; index<perEdge; index++){
+                const t = index / perEdge;
+                points.push({ x:vertex.x + (next.x - vertex.x) * t, y:vertex.y + (next.y - vertex.y) * t });
+            }
+        });
+    }
+    const contourPoints = points.slice(0, sampleCount);
+    const xs = contourPoints.map(point=>point.x);
+    const ys = contourPoints.map(point=>point.y);
+    return { points:contourPoints, size:Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) };
+}
+function shapeQualityMetrics(points, step){
+    const target = shapeTargetContour(step);
+    if(!target || !points?.length) return { perfect:false, coverage:0, averageDeviation:1, closureGap:1 };
+    const trace = points.filter((point, index)=>index === 0 || Math.hypot(point.x - points[index - 1].x, point.y - points[index - 1].y) >= 2);
+    const averageDeviation = trace.reduce((sum, point)=>sum + distanceToPolyline(point, target.points, true), 0) / Math.max(1, trace.length) / target.size;
+    const coverage = target.points.filter(point=>distanceToPolyline(point, trace, false) <= target.size * .1).length / target.points.length;
+    const closureGap = trace.length > 1 ? Math.hypot(trace[0].x - trace[trace.length - 1].x, trace[0].y - trace[trace.length - 1].y) / target.size : 1;
+    return {
+        perfect:coverage >= .82 && averageDeviation <= .09 && closureGap <= .18,
+        coverage,
+        averageDeviation,
+        closureGap
+    };
+}
 function traceMatchesShape(points, shape){
     if(points.length < 4) return false;
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity, distance = 0;
@@ -12633,6 +13364,7 @@ function completeActiveGem(){
         completeMultiActive(active);
         return;
     }
+    showOverallEvaluation(active);
     const gem = gemById(active.gemId);
     finishGamepadUse();
     setGamepadAiming(false);
@@ -12873,33 +13605,40 @@ function setupRewardListScroll(){
     list.addEventListener("pointerup", stopDrag);
     list.addEventListener("pointercancel", stopDrag);
 }
-function setupMobileBagPan(){
+function setupBagListPan(){
     const list = document.getElementById("known-list");
     if(!list) return;
     let pan = null;
     list.addEventListener("pointerdown", e=>{
-        if(!isMobileLandscapeMode() || e.button !== 0) return;
+        const desktop = state.deviceMode === "desktop" && !isMobileLandscapeMode();
+        if((!isMobileLandscapeMode() && !desktop) || e.button !== 0) return;
         if(e.target.closest(".sort-btn,.tutorial-help-btn,.mobile-bag-toggle")) return;
         pan = {
             id:e.pointerId,
             startX:e.clientX,
             startY:e.clientY,
             startScroll:list.scrollTop,
+            desktop,
             moved:false,
+            cancelClick:false,
             captured:false
         };
-        state.mobileBagSuppressClick = false;
+        state.bagPanSuppressClick = false;
     });
     list.addEventListener("pointermove", e=>{
         if(!pan || pan.id !== e.pointerId) return;
         const dx = e.clientX - pan.startX;
         const dy = e.clientY - pan.startY;
-        if(!pan.moved && Math.abs(dy) > 14 && Math.abs(dy) > Math.abs(dx)){
-            pan.moved = true;
-            state.mobileBagSuppressClick = true;
-            list.classList.add("dragging");
+        const threshold = pan.desktop ? 8 : 14;
+        if(!pan.cancelClick && Math.max(Math.abs(dx), Math.abs(dy)) > threshold){
+            pan.cancelClick = true;
+            state.bagPanSuppressClick = true;
             list.setPointerCapture?.(e.pointerId);
             pan.captured = true;
+        }
+        if(!pan.moved && Math.abs(dy) > threshold && Math.abs(dy) > Math.abs(dx)){
+            pan.moved = true;
+            list.classList.add("dragging");
         }
         if(!pan.moved) return;
         e.preventDefault();
@@ -12907,12 +13646,12 @@ function setupMobileBagPan(){
     }, { passive:false });
     const finishPan = e=>{
         if(!pan || pan.id !== e.pointerId) return;
-        const moved = pan.moved;
+        const cancelClick = pan.cancelClick;
         const captured = pan.captured;
         pan = null;
         list.classList.remove("dragging");
         if(captured && list.hasPointerCapture?.(e.pointerId)) list.releasePointerCapture(e.pointerId);
-        if(moved) setTimeout(()=>{ state.mobileBagSuppressClick = false; }, 180);
+        if(cancelClick) setTimeout(()=>{ state.bagPanSuppressClick = false; }, 180);
     };
     list.addEventListener("pointerup", finishPan);
     list.addEventListener("pointercancel", finishPan);
@@ -13125,11 +13864,13 @@ document.addEventListener("DOMContentLoaded", ()=>{
     setupToolPointerTracking();
     document.addEventListener("keydown", handleGamepadKeyDown);
     document.addEventListener("keyup", handleGamepadKeyUp);
+    window.addEventListener("gamepadconnected", handleNativeGamepadConnected);
+    window.addEventListener("gamepaddisconnected", handleNativeGamepadDisconnected);
     requestAnimationFrame(gamepadTick);
     setupLogPanel();
     setupSortControls();
     setupRewardListScroll();
-    setupMobileBagPan();
+    setupBagListPan();
     setupMobileLensSwipe();
     document.addEventListener("click", handlePlateDropFastForwardClick);
     const hotspot = document.getElementById("hotspot");
